@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import SearchBar from "@/components/events/SearchBar";
 import EventCard from "@/components/events/EventCard";
 import EmptyState from "@/components/ui/EmptyState";
@@ -18,7 +18,7 @@ type ApiEvent = {
   image: string;
 };
 
-export default function SearchPage() {
+function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [q, setQ] = React.useState("");
@@ -99,73 +99,60 @@ export default function SearchPage() {
                 onChange={(e) => setCity(e.currentTarget.value)}
                 className="h-10 rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
               >
-                <option value="">All cities</option>
-                {cities.filter(Boolean).map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
+                <option value="">All Cities</option>
+                {cities.map((c) => c && <option key={c} value={c}>{c}</option>)}
               </select>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.currentTarget.value)}
-                className="h-10 rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 sm:col-span-2"
+                className="h-10 rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
               >
-                <option value="">All categories</option>
-                {categories.filter(Boolean).map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
+                <option value="">All Categories</option>
+                {categories.map((c) => c && <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
           </div>
         </div>
 
         {/* Results */}
-        <div className="mt-8">
+        <div className="mt-10">
           {loading ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-64 animate-pulse rounded-xl bg-neutral-200"
+            <div className="flex flex-col gap-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-24 w-full animate-pulse rounded-xl bg-neutral-200" />
+              ))}
+            </div>
+          ) : items.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {items.map((ev) => (
+                <EventCard
+                  key={ev.id}
+                  id={ev.id}
+                  title={ev.title}
+                  date={ev.date}
+                  category={ev.category}
+                  city={ev.city}
+                  image={ev.image}
+                  description={ev.description}
                 />
               ))}
             </div>
-          ) : searched && items.length === 0 ? (
-            <div className="flex justify-center py-12">
-              <EmptyState
-                title="No results"
-                description={`We couldn&apos;t find any events matching "${q}".`}
-              />
-            </div>
-          ) : items.length > 0 ? (
-            <>
-              <p className="mb-4 text-sm text-neutral-500">
-                {items.length} result{items.length !== 1 ? "s" : ""} {q ? <>for &ldquo;{q}&rdquo;</> : null}
-                {city ? <> · {city}</> : null}
-                {category ? <> · {category}</> : null}
-              </p>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {items.map((e) => (
-                  <EventCard
-                    key={e.id}
-                    id={e.id}
-                    title={e.title}
-                    description={e.description}
-                    date={e.date}
-                    city={e.city}
-                    category={e.category}
-                    image={e.image}
-                  />
-                ))}
-              </div>
-            </>
+          ) : searched ? (
+            <EmptyState
+              title="No events found"
+              description="Try adjusting your search or filters to find what you're looking for."
+              actionLabel="Clear filters"
+              onAction={() => {
+                setQ("");
+                setCity("");
+                setCategory("");
+              }}
+            />
           ) : (
-            <div className="flex justify-center py-12">
-              <p className="text-sm text-neutral-400">
-                Type a query above and press Search to get started.
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="text-4xl">🔍</div>
+              <p className="mt-2 text-sm text-neutral-500">
+                Start typing to search for events
               </p>
             </div>
           )}
@@ -174,5 +161,13 @@ export default function SearchPage() {
       <Footer />
       <BottomNav />
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-neutral-50" />}>
+      <SearchContent />
+    </Suspense>
   );
 }

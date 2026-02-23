@@ -38,12 +38,26 @@ function id(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2)}_${Date.now().toString(36)}`;
 }
 
+export type VendorProfile = {
+  id: string;
+  userId: string;
+  name: string;
+  description: string;
+  category: "Security" | "Sound" | "Catering" | "Decoration" | "Logistics" | "Photography";
+  portfolio: string[]; // URLs
+  rateCard: string; // URL
+  contactEmail: string;
+  contactPhone: string;
+  status: "pending" | "approved" | "rejected";
+};
+
 const availability: Record<string, TicketAvailability> = {};
 const orders: Record<string, Order> = {};
 const wallets: Record<string, Wallet> = {};
 const transactions: Transaction[] = [];
 const savedEvents: Record<string, Set<string>> = {};
 const savingsTargets: Record<string, { goal: number; progress: number }> = {};
+const vendors: Record<string, VendorProfile> = {};
 type EventDraft = {
   type?: "Physical" | "Virtual" | "Hybrid";
   title?: string;

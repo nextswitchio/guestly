@@ -14,7 +14,10 @@ const tabs = [
 
 type TabKey = (typeof tabs)[number]["key"];
 
+import { useRouter } from "next/navigation";
+
 export default function AttendeePage() {
+  const router = useRouter();
   const [tab, setTab] = React.useState<TabKey>("upcoming");
 
   const allEvents = filterEvents({}).data;
@@ -72,8 +75,8 @@ export default function AttendeePage() {
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`flex-shrink-0 rounded-md px-4 py-2 text-xs font-medium transition-colors ${tab === t.key
-                  ? "bg-white text-neutral-900 shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-700"
+                ? "bg-white text-neutral-900 shadow-sm"
+                : "text-neutral-500 hover:text-neutral-700"
                 }`}
             >
               {t.label}
@@ -87,7 +90,8 @@ export default function AttendeePage() {
             <EmptyState
               title={`No ${tab} events`}
               description="Check back later or explore new events."
-              actionText="Explore Events"
+              actionLabel="Explore Events"
+              onAction={() => router.push("/explore")}
             />
           </div>
         ) : (

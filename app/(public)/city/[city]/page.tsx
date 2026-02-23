@@ -4,6 +4,8 @@ import EventCard from "@/components/events/EventCard";
 import { filterEvents, Event } from "@/lib/events";
 import EmptyState from "@/components/ui/EmptyState";
 
+import Button from "@/components/ui/Button";
+
 export default async function CityPage({ params }: { params: Promise<{ city: string }> }) {
   const { city } = await params;
   const cityName = decodeURIComponent(city);
@@ -32,12 +34,14 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
 
       {/* Grid */}
       {items.length === 0 ? (
-        <div className="flex justify-center py-12">
+        <div className="flex flex-col items-center justify-center py-12">
           <EmptyState
             title="No events yet"
             description={`There are no events listed in ${cityName} right now.`}
-            actionText="Explore all events"
           />
+          <div className="mt-4">
+            <Button href="/explore" variant="outline">Explore all events</Button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
