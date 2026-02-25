@@ -102,6 +102,32 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      <section className="container pb-14">
+        <div className="grid grid-cols-1 items-center gap-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sm:grid-cols-3">
+          <div className="sm:col-span-2">
+            <h2 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl">
+              Provide services for events?
+            </h2>
+            <p className="mt-1 text-sm text-neutral-600">
+              Join Guestly as a vendor and get discovered by organisers.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 sm:justify-end">
+            <a
+              href="/vendor/register"
+              className="inline-flex h-11 items-center rounded-xl bg-primary-600 px-6 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
+            >
+              Become a Vendor
+            </a>
+            <a
+              href="/vendor/login"
+              className="inline-flex h-11 items-center rounded-xl border border-neutral-200 bg-white px-6 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-50"
+            >
+              Vendor Sign In
+            </a>
+          </div>
+        </div>
+      </section>
       <section className="container py-14">
         <div className="mb-6 flex items-end justify-between">
           <div>

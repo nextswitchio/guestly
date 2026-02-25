@@ -302,3 +302,163 @@ export function getMerchStats() {
   const revenue = products.reduce((s, p) => s + p.sold * p.price, 0);
   return { totalProducts, unitsSold, revenue };
 }
+
+// ── Discussions ───────────────────────────────────────────────────────────────
+
+export type DiscussionPost = {
+  id: string;
+  eventId: string;
+  author: string;
+  message: string;
+  createdAt: number;
+  likes: number;
+};
+
+const discussions: Record<string, DiscussionPost[]> = {};
+
+export function listDiscussions(eventId: string): DiscussionPost[] {
+  return (discussions[eventId] || []).slice().sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export function addDiscussion(eventId: string, author: string, message: string): DiscussionPost {
+  const post: DiscussionPost = {
+    id: id("post"),
+    eventId,
+    author,
+    message,
+    createdAt: Date.now(),
+    likes: 0,
+  };
+  discussions[eventId] = discussions[eventId] || [];
+  discussions[eventId].push(post);
+  return post;
+}
+
+// ── Vendors Sourcing ─────────────────────────────────────────────────────────
+
+export function listVendors(params?: { category?: VendorProfile["category"]; q?: string }) {
+  const q = params?.q?.toLowerCase() || "";
+  const cat = params?.category;
+  const profiles = Object.values(vendors);
+  return profiles.filter((v) => {
+    const matchQ = q ? v.name.toLowerCase().includes(q) || v.description.toLowerCase().includes(q) : true;
+    const matchCat = cat ? v.category === cat : true;
+    return matchQ && matchCat;
+  });
+}
+
+export type EventVendorLink = {
+  vendorUserId: string;
+  profileId: string;
+  category: VendorProfile["category"];
+  status: "invited" | "accepted" | "declined";
+  invitedAt: number;
+};
+
+const eventVendors: Record<string, EventVendorLink[]> = {};
+
+export function listEventVendors(eventId: string): EventVendorLink[] {
+  return (eventVendors[eventId] || []).slice().sort((a, b) => b.invitedAt - a.invitedAt);
+}
+
+export function inviteVendorToEvent(eventId: string, vendorUserId: string): EventVendorLink {
+  const profile = vendors[vendorUserId];
+  if (!profile) throw new Error("Vendor not found");
+  eventVendors[eventId] = eventVendors[eventId] || [];
+  const existing = eventVendors[eventId].find((v) => v.vendorUserId === vendorUserId);
+  if (existing) return existing;
+  const link: EventVendorLink = {
+    vendorUserId,
+    profileId: profile.id,
+    category: profile.category,
+    status: "invited",
+    invitedAt: Date.now(),
+  };
+  eventVendors[eventId].push(link);
+  return link;
+}
+
+export function updateVendorInviteStatus(eventId: string, vendorUserId: string, status: EventVendorLink["status"]): EventVendorLink {
+  const list = eventVendors[eventId];
+  if (!list) throw new Error("No invites for event");
+  const link = list.find((v) => v.vendorUserId === vendorUserId);
+  if (!link) throw new Error("Invite not found");
+  link.status = status;
+  return link;
+}
+
+export type PlanningTask = {
+  id: string;
+  eventId: string;
+  title: string;
+  owner?: string;
+  dueDate?: string;
+  status: "todo" | "in_progress" | "done";
+  createdAt: number;
+};
+
+export type BudgetItem = {
+  id: string;
+  eventId: string;
+  name: string;
+  category?: string;
+  unitCost: number;
+  quantity: number;
+  createdAt: number;
+};
+
+export type EventDocument = {
+  id: string;
+  eventId: string;
+  type: "charter";
+  title: string;
+  content: string;
+  createdAt: number;
+};
+
+const planningTasks: Record<string, PlanningTask[]> = {};
+const budgetItems: Record<string, BudgetItem[]> = {};
+const documents: Record<string, EventDocument[]> = {};
+
+export function listPlanningTasks(eventId: string): PlanningTask[] {
+  return (planningTasks[eventId] || []).slice().sort((a, b) => a.createdAt - b.createdAt);
+}
+
+export function addPlanningTask(eventId: string, input: Omit<PlanningTask, "id" | "eventId" | "createdAt">): PlanningTask {
+  const task: PlanningTask = { id: id("task"), eventId, createdAt: Date.now(), ...input };
+  planningTasks[eventId] = planningTasks[eventId] || [];
+  planningTasks[eventId].push(task);
+  return task;
+}
+
+export function updatePlanningTask(eventId: string, taskId: string, patch: Partial<PlanningTask>): PlanningTask {
+  const list = planningTasks[eventId] || [];
+  const idx = list.findIndex((t) => t.id === taskId);
+  if (idx === -1) throw new Error("Task not found");
+  list[idx] = { ...list[idx], ...patch };
+  return list[idx];
+}
+
+export function listBudget(eventId: string) {
+  const items = (budgetItems[eventId] || []).slice().sort((a, NB) => a.createdAt - NB.createdAt);
+  const total = items.reduce((s, it) => s + it.unitCost * it.quantity, 0);
+  return { items, total };
+}
+
+export function addBudgetItem(eventId: string, input: Omit<BudgetItem, "id" | "eventId" | "createdAt">): BudgetItem {
+  const item: BudgetItem = { id: id("bud"), eventId, createdAt: Date.now(), ...input };
+  budgetItems[eventId] = budgetItems[eventId] || [];
+  budgetItems[eventId].push(item);
+  return item;
+}
+
+export function listDocuments(eventId: string): EventDocument[] {
+  return (documents[eventId] || []).slice().sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export function saveCharter(eventId: string, title: string, content: string): EventDocument {
+  const doc: EventDocument = { id: id("doc"), eventId, type: "charter", title, content, createdAt: Date.now() };
+  documents[eventId] = documents[eventId] || [];
+  documents[eventId].push(doc);
+  return doc;
+}

@@ -160,16 +160,16 @@ export default function TopNav() {
                   onClick={() => setProfileOpen((v) => !v)}
                   className="flex items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-neutral-100"
                 >
-                  <Avatar name={role === "organiser" ? "Organiser" : "Attendee"} size={28} />
+                  <Avatar name={role === "organiser" ? "Organiser" : role === "vendor" ? "Vendor" : "Attendee"} size={28} />
                   <ChevronDownIcon className={`h-3.5 w-3.5 text-neutral-500 transition-transform ${profileOpen ? "rotate-180" : ""}`} />
                 </button>
                 {profileOpen && (
                   <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg">
                     <div className="border-b border-neutral-100 px-3 py-2">
-                      <div className="text-sm font-medium text-neutral-900">{role === "organiser" ? "Organiser" : "Attendee"}</div>
+                      <div className="text-sm font-medium text-neutral-900">{role === "organiser" ? "Organiser" : role === "vendor" ? "Vendor" : "Attendee"}</div>
                       <div className="text-xs text-neutral-500">Logged in</div>
                     </div>
-                    <Link href={role === "organiser" ? "/dashboard" : "/attendee"} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
+                    <Link href={role === "organiser" ? "/dashboard" : role === "vendor" ? "/vendor/onboarding" : "/attendee"} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
                       <UserIcon /> Dashboard
                     </Link>
                     <Link href="/wallet" className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
@@ -220,7 +220,7 @@ export default function TopNav() {
               <div className="my-2 border-t border-neutral-100" />
               {role ? (
                 <>
-                  <Link href={role === "organiser" ? "/dashboard" : "/attendee"} className="rounded-md px-3 py-2.5 text-sm text-neutral-700 hover:bg-neutral-100">Dashboard</Link>
+                  <Link href={role === "organiser" ? "/dashboard" : role === "vendor" ? "/vendor/onboarding" : "/attendee"} className="rounded-md px-3 py-2.5 text-sm text-neutral-700 hover:bg-neutral-100">Dashboard</Link>
                   <Link href="/wallet" className="rounded-md px-3 py-2.5 text-sm text-neutral-700 hover:bg-neutral-100">Wallet</Link>
                   <button onClick={handleLogout} className="mt-auto rounded-md px-3 py-2.5 text-left text-sm text-warning-700 hover:bg-warning-50">Log out</button>
                 </>

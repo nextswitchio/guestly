@@ -99,6 +99,12 @@ export default async function EventDetail({ params }: { params: Promise<{ id: st
             <Link href={`/events/${ev.id}/buy`}>
               <Button className="w-full" size="lg">Buy Tickets</Button>
             </Link>
+            <Button href={`/events/${ev.id}/community`} variant="outline" className="w-full gap-2" size="lg">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path d="M7 8h10M7 12h6M21 15a4 4 0 01-4 4H7l-4 4V7a4 4 0 014-4h10a4 4 0 014 4v8z" />
+              </svg>
+              Community Discussion
+            </Button>
             <Link href={`/events/${ev.id}/lobby`}>
               <Button variant="outline" className="w-full gap-2" size="lg">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

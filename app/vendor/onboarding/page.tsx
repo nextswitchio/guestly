@@ -5,6 +5,7 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { useRouter } from "next/navigation";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const CATEGORIES = [
   { value: "Security", label: "🛡️ Security" },
@@ -90,6 +91,7 @@ export default function VendorOnboarding() {
   };
 
   return (
+    <ProtectedRoute allowRoles={["vendor"]}>
     <div className="min-h-screen bg-neutral-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
         <div className="mb-8 text-center">
@@ -234,5 +236,6 @@ export default function VendorOnboarding() {
         </Card>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

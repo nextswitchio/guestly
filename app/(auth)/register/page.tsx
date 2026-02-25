@@ -60,8 +60,8 @@ export default function RegisterPage() {
             type="button"
             onClick={() => setRole(r)}
             className={`flex-1 rounded-md py-2 text-xs font-semibold transition-all duration-200 ${role === r
-                ? "bg-white text-neutral-900 shadow-sm ring-1 ring-black/5"
-                : "text-neutral-500 hover:bg-white/50 hover:text-neutral-700"
+              ? "bg-white text-neutral-900 shadow-sm ring-1 ring-black/5"
+              : "text-neutral-500 hover:bg-white/50 hover:text-neutral-700"
               }`}
           >
             {r === "attendee" ? "Attendee" : "Organiser"}
@@ -134,4 +134,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-

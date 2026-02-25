@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
-  allowRoles?: Array<"attendee" | "organiser">;
+  allowRoles?: Array<"attendee" | "organiser" | "vendor">;
 }
 
 export default function ProtectedRoute({ children, allowRoles }: Props) {
@@ -17,13 +17,14 @@ export default function ProtectedRoute({ children, allowRoles }: Props) {
         router.replace("/login");
         return;
       }
-      const data = (await res.json()) as { ok: boolean; role?: "attendee" | "organiser" };
+      const data = (await res.json()) as { ok: boolean; role?: "attendee" | "organiser" | "vendor" };
       if (!data.ok) {
         router.replace("/login");
         return;
       }
       if (allowRoles && data.role && !allowRoles.includes(data.role)) {
         if (data.role === "organiser") router.replace("/dashboard");
+        else if (data.role === "vendor") router.replace("/vendor/onboarding");
         else router.replace("/attendee");
         return;
       }

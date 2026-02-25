@@ -12,6 +12,10 @@ const CheckInTab = dynamic(() => import("@/components/organiser/tabs/CheckInTab"
 const AnalyticsTab = dynamic(() => import("@/components/organiser/tabs/AnalyticsTab"), { ssr: false });
 const MerchandiseTab = dynamic(() => import("@/components/organiser/tabs/MerchandiseTab"), { ssr: false });
 const CommunityTab = dynamic(() => import("@/components/organiser/tabs/CommunityTab"), { ssr: false });
+const VendorsTab = dynamic(() => import("@/components/organiser/tabs/VendorsTab"), { ssr: false });
+const PlanningTab = dynamic(() => import("@/components/organiser/tabs/PlanningTab"), { ssr: false });
+const BudgetTab = dynamic(() => import("@/components/organiser/tabs/BudgetTab"), { ssr: false });
+const DocumentsTab = dynamic(() => import("@/components/organiser/tabs/DocumentsTab"), { ssr: false });
 
 function TabLoading() {
   return (
@@ -26,11 +30,15 @@ function TabLoading() {
 export default function ManageEvent({ params }: { params: { id: string } }) {
   const tabs = [
     { id: "overview", label: "Overview", content: <Suspense fallback={<TabLoading />}><OverviewTab eventId={params.id} /></Suspense> },
+    { id: "planning", label: "Planning", content: <Suspense fallback={<TabLoading />}><PlanningTab eventId={params.id} /></Suspense> },
+    { id: "budget", label: "Budget", content: <Suspense fallback={<TabLoading />}><BudgetTab eventId={params.id} /></Suspense> },
+    { id: "documents", label: "Documents", content: <Suspense fallback={<TabLoading />}><DocumentsTab eventId={params.id} /></Suspense> },
     { id: "tickets", label: "Tickets", content: <Suspense fallback={<TabLoading />}><TicketsTab eventId={params.id} /></Suspense> },
     { id: "attendees", label: "Attendees", content: <Suspense fallback={<TabLoading />}><AttendeesTab /></Suspense> },
     { id: "checkin", label: "Check-in", content: <Suspense fallback={<TabLoading />}><CheckInTab /></Suspense> },
     { id: "analytics", label: "Analytics", content: <Suspense fallback={<TabLoading />}><AnalyticsTab eventId={params.id} /></Suspense> },
     { id: "merch", label: "Merchandise", content: <Suspense fallback={<TabLoading />}><MerchandiseTab eventId={params.id} /></Suspense> },
+    { id: "vendors", label: "Vendors", content: <Suspense fallback={<TabLoading />}><VendorsTab eventId={params.id} /></Suspense> },
     { id: "community", label: "Community", content: <Suspense fallback={<TabLoading />}><CommunityTab /></Suspense> },
   ];
 
@@ -59,4 +67,3 @@ export default function ManageEvent({ params }: { params: { id: string } }) {
     </ProtectedRoute>
   );
 }
-

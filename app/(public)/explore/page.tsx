@@ -56,7 +56,8 @@ export default function ExplorePage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="container py-8">
+      <div className="flex flex-col gap-6">
       {/* Page heading */}
       <div>
         <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl">
@@ -119,6 +120,7 @@ export default function ExplorePage() {
           />
         </div>
       )}
+      </div>
     </div>
   );
 }

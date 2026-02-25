@@ -84,20 +84,24 @@ function SearchContent() {
       <TopNav />
       <main className="container flex-1 py-6">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
+        <div className="mb-4">
           <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl">
             Search Events
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Find events by name, city or keyword
+            Find events by name, city or category
           </p>
-          <div className="mt-5 flex flex-col gap-3">
-            <SearchBar value={q} onChange={setQ} onSearch={search} />
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        </div>
+        <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex-1">
+              <SearchBar value={q} onChange={setQ} onSearch={search} />
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
               <select
                 value={city}
                 onChange={(e) => setCity(e.currentTarget.value)}
-                className="h-10 rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+                className="h-11 w-full rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 sm:w-44"
               >
                 <option value="">All Cities</option>
                 {cities.map((c) => c && <option key={c} value={c}>{c}</option>)}
@@ -105,7 +109,7 @@ function SearchContent() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.currentTarget.value)}
-                className="h-10 rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+                className="h-11 w-full rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 sm:w-52"
               >
                 <option value="">All Categories</option>
                 {categories.map((c) => c && <option key={c} value={c}>{c}</option>)}
@@ -115,11 +119,19 @@ function SearchContent() {
         </div>
 
         {/* Results */}
-        <div className="mt-10">
+        <div className="mt-6">
+          {searched && (
+            <div className="mb-3 text-xs text-neutral-500">
+              {items.length} result{items.length === 1 ? "" : "s"}
+              {q ? <> · “{q}”</> : null}
+              {city ? <> · {city}</> : null}
+              {category ? <> · {category}</> : null}
+            </div>
+          )}
           {loading ? (
             <div className="flex flex-col gap-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-24 w-full animate-pulse rounded-xl bg-neutral-200" />
+                <div key={i} className="h-28 w-full animate-pulse rounded-xl bg-neutral-200" />
               ))}
             </div>
           ) : items.length > 0 ? (
