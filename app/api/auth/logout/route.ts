@@ -5,6 +5,6 @@ export async function POST(_req: NextRequest) {
   res.cookies.set("access_token", "", { httpOnly: true, path: "/", maxAge: 0 });
   res.cookies.set("refresh_token", "", { httpOnly: true, path: "/", maxAge: 0 });
   res.cookies.set("role", "", { httpOnly: true, path: "/", maxAge: 0 });
+  res.cookies.set("user_id", "", { httpOnly: true, path: "/", maxAge: 0 });
   return res;
 }
-

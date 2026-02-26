@@ -24,7 +24,7 @@ export default function ProtectedRoute({ children, allowRoles }: Props) {
       }
       if (allowRoles && data.role && !allowRoles.includes(data.role)) {
         if (data.role === "organiser") router.replace("/dashboard");
-        else if (data.role === "vendor") router.replace("/vendor/onboarding");
+        else if (data.role === "vendor") router.replace("/vendor");
         else router.replace("/attendee");
         return;
       }

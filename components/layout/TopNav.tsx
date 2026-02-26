@@ -89,6 +89,13 @@ export default function TopNav() {
   }, []);
 
   React.useEffect(() => {
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { setRole(d?.ok ? d.role : null); })
+      .catch(() => { });
+  }, [pathname]);
+
+  React.useEffect(() => {
     function handler(e: MouseEvent) {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false);
     }
@@ -102,7 +109,8 @@ export default function TopNav() {
     await fetch("/api/auth/logout", { method: "POST" });
     setRole(null);
     setProfileOpen(false);
-    router.replace("/login");
+    if (role === "vendor") router.replace("/");
+    else router.replace("/login");
   }
 
   function isActive(href: string) {
@@ -169,7 +177,7 @@ export default function TopNav() {
                       <div className="text-sm font-medium text-neutral-900">{role === "organiser" ? "Organiser" : role === "vendor" ? "Vendor" : "Attendee"}</div>
                       <div className="text-xs text-neutral-500">Logged in</div>
                     </div>
-                    <Link href={role === "organiser" ? "/dashboard" : role === "vendor" ? "/vendor/onboarding" : "/attendee"} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
+                    <Link href={role === "organiser" ? "/dashboard" : role === "vendor" ? "/vendor" : "/attendee"} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
                       <UserIcon /> Dashboard
                     </Link>
                     <Link href="/wallet" className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
@@ -220,7 +228,7 @@ export default function TopNav() {
               <div className="my-2 border-t border-neutral-100" />
               {role ? (
                 <>
-                  <Link href={role === "organiser" ? "/dashboard" : role === "vendor" ? "/vendor/onboarding" : "/attendee"} className="rounded-md px-3 py-2.5 text-sm text-neutral-700 hover:bg-neutral-100">Dashboard</Link>
+                  <Link href={role === "organiser" ? "/dashboard" : role === "vendor" ? "/vendor" : "/attendee"} className="rounded-md px-3 py-2.5 text-sm text-neutral-700 hover:bg-neutral-100">Dashboard</Link>
                   <Link href="/wallet" className="rounded-md px-3 py-2.5 text-sm text-neutral-700 hover:bg-neutral-100">Wallet</Link>
                   <button onClick={handleLogout} className="mt-auto rounded-md px-3 py-2.5 text-left text-sm text-warning-700 hover:bg-warning-50">Log out</button>
                 </>

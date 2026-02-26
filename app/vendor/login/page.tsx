@@ -27,7 +27,7 @@ export default function VendorLoginPage() {
         setError(data.error || "Invalid credentials. Please try again.");
         return;
       }
-      router.replace("/vendor/onboarding");
+      router.replace("/vendor");
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

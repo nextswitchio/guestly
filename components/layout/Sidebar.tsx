@@ -71,16 +71,18 @@ function XIcon({ className = "h-5 w-5" }: { className?: string }) {
 
 // ── Links ────────────────────────────────────────────────────────────────────
 
-const links = [
+type NavLink = { href: string; label: string; icon: React.ComponentType<{ className?: string }>; exact?: boolean };
+
+const marketingLinks: NavLink[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutIcon, exact: true },
-  { href: "/dashboard/events", label: "My Events", icon: CalendarIcon },
+  { href: "/dashboard/events", label: "Events", icon: CalendarIcon },
   { href: "/dashboard/events/new", label: "Create Event", icon: PlusCircleIcon },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChartIcon },
-  { href: "/dashboard/wallet", label: "Wallet", icon: WalletIcon },
   { href: "/dashboard/merch", label: "Merchandise", icon: ShoppingBagIcon },
   { href: "/dashboard/community", label: "Community", icon: UsersIcon },
-  { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon },
 ];
+const paymentsLinks: NavLink[] = [{ href: "/dashboard/wallet", label: "Wallet", icon: WalletIcon }];
+const systemLinks: NavLink[] = [{ href: "/dashboard/settings", label: "Settings", icon: SettingsIcon }];
 
 // ── Component ────────────────────────────────────────────────────────────────
 
@@ -103,15 +105,24 @@ export default function Sidebar() {
     return pathname.startsWith(href);
   }
 
-  const mainLinks = links.slice(0, 5);
-  const secondaryLinks = links.slice(5);
+  function renderSectionAbbr(letter: string) {
+    return (
+      <div className="mb-2 flex justify-center">
+        <div className="flex h-6 w-6 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 text-xs font-semibold text-neutral-500">
+          {letter}
+        </div>
+      </div>
+    );
+  }
 
-  function renderNavSection(sectionLinks: typeof links, title: string) {
+  function renderNavSection(
+    sectionLinks: { href: string; label: string; icon: React.ComponentType<{ className?: string }>; exact?: boolean }[],
+    title: string,
+    abbr: string
+  ) {
     return (
       <div>
-        {!collapsed && (
-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">{title}</p>
-        )}
+        {collapsed ? renderSectionAbbr(abbr) : <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">{title}</p>}
         <div className="flex flex-col gap-0.5">
           {sectionLinks.map((link) => {
             const active = isActive(link.href, link.exact);
@@ -150,8 +161,9 @@ export default function Sidebar() {
 
   const nav = (
     <nav className="flex flex-col gap-6">
-      {renderNavSection(mainLinks, "Main")}
-      {renderNavSection(secondaryLinks, "More")}
+      {renderNavSection(marketingLinks, "Marketing", "M")}
+      {renderNavSection(paymentsLinks, "Payments", "P")}
+      {renderNavSection(systemLinks, "System", "S")}
     </nav>
   );
 
@@ -160,13 +172,14 @@ export default function Sidebar() {
     return (
       <nav className="flex flex-col gap-6">
         {[
-          { items: mainLinks, title: "Main" },
-          { items: secondaryLinks, title: "More" },
-        ].map(({ items, title }) => (
+          { items: marketingLinks, title: "Marketing" },
+          { items: paymentsLinks, title: "Payments" },
+          { items: systemLinks, title: "System" },
+        ].map(({ items, title }: { items: NavLink[]; title: string }) => (
           <div key={title}>
             <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">{title}</p>
             <div className="flex flex-col gap-0.5">
-              {items.map((link) => {
+              {items.map((link: NavLink) => {
                 const active = isActive(link.href, link.exact);
                 return (
                   <Link
@@ -195,8 +208,7 @@ export default function Sidebar() {
     <>
       {/* Desktop sidebar */}
       <aside
-        className={`sticky top-14 hidden h-[calc(100vh-3.5rem)] shrink-0 flex-col border-r border-neutral-200 bg-white transition-all duration-200 ease-linear md:flex ${collapsed ? "w-18" : "w-60"
-          }`}
+        className={`fixed left-0 top-0 hidden h-screen shrink-0 flex-col border-r border-neutral-200 bg-white transition-all duration-200 ease-linear md:flex ${collapsed ? "w-16" : "w-64"}`}
       >
         {/* Org header */}
         <div className={`flex items-center border-b border-neutral-100 px-4 py-4 ${collapsed ? "flex-col gap-2" : "gap-3"}`}>

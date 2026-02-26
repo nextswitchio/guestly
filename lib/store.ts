@@ -387,6 +387,17 @@ export function updateVendorInviteStatus(eventId: string, vendorUserId: string, 
   return link;
 }
 
+export type VendorInvitation = EventVendorLink & { eventId: string };
+
+export function listVendorInvitations(vendorUserId: string): VendorInvitation[] {
+  const res: VendorInvitation[] = [];
+  for (const [eventId, invites] of Object.entries(eventVendors)) {
+    invites.forEach((i) => {
+      if (i.vendorUserId === vendorUserId) res.push({ ...i, eventId });
+    });
+  }
+  return res.sort((a, b) => b.invitedAt - a.invitedAt);
+}
 export type PlanningTask = {
   id: string;
   eventId: string;
