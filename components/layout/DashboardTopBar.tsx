@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Avatar from "@/components/ui/Avatar";
 import { useSidebar } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 function SearchIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
@@ -79,17 +80,18 @@ export default function DashboardTopBar() {
   }
 
   return (
-    <header className={`sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm transition-[margin,width] duration-200 ease-linear ${headerLayout}`}>
-      <div className="flex h-14 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="text-xl font-extrabold tracking-tight text-neutral-900">
-            Sundays.
-          </Link>
+    <header className={`sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm transition-[margin,width] duration-200 ease-linear ${headerLayout} relative`}>
+      {/* Place the sidebar trigger exactly on the sidebar border */}
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 hidden md:flex z-50">
+        <SidebarTrigger className="border border-neutral-200 bg-white shadow-sm" />
+      </div>
+      <div className="flex h-14 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3">
           <span className="hidden text-sm font-semibold text-neutral-900 md:inline">My Task</span>
         </div>
 
         <div className="hidden flex-1 justify-center md:flex">
-          <div className="relative w-full max-w-xl">
+          <div className="relative w-full max-w-sm">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
               <SearchIcon />
             </span>
