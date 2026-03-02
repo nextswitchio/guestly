@@ -1,10 +1,11 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AddFundsForm from "@/components/wallet/AddFundsForm";
 
-export default function WalletAddFundsPage() {
+export default function OrganiserAddFundsPage() {
   return (
-    <ProtectedRoute allowRoles={["attendee", "organiser"]}>
+    <ProtectedRoute allowRoles={["organiser"]}>
       <AddFundsForm />
     </ProtectedRoute>
   );
 }
+

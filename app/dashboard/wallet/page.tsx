@@ -39,7 +39,7 @@ export default function OrganiserWalletPage() {
           </p>
           <div className="mt-6 flex gap-3">
             <Link
-              href="/wallet/add"
+              href="/dashboard/wallet/add"
               className="rounded-xl bg-white px-5 py-2 text-sm font-semibold text-primary-700 transition hover:bg-primary-50"
             >
               Add Funds
@@ -105,4 +105,3 @@ export default function OrganiserWalletPage() {
     </ProtectedRoute>
   );
 }
-
