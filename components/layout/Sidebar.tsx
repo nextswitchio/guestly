@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSidebar, SidebarTrigger } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 
 // ── Icons ────────────────────────────────────────────────────────────────────
 function LayoutIcon({ className = "h-4 w-4" }: { className?: string }) {
@@ -221,7 +221,6 @@ export default function Sidebar() {
               <p className="text-xs text-neutral-400">Dashboard</p>
             </div>
           )}
-          <SidebarTrigger className="shrink-0" />
         </div>
 
         {/* Nav */}
