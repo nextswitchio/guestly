@@ -33,6 +33,8 @@ export default function DashboardTopBar() {
   const [profileOpen, setProfileOpen] = React.useState(false);
   const [role, setRole] = React.useState<string | null>(null);
   const profileRef = React.useRef<HTMLDivElement>(null);
+  const menuButtonRef = React.useRef<HTMLButtonElement>(null);
+  const menuId = React.useId();
   const router = useRouter();
   const pathname = usePathname();
   const sidebar = useSidebar();
@@ -71,6 +73,16 @@ export default function DashboardTopBar() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+  React.useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setProfileOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    }
+    if (profileOpen) document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [profileOpen]);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -115,24 +127,32 @@ export default function DashboardTopBar() {
           </button>
           {role ? (
             <div ref={profileRef} className="relative hidden md:block">
-              <button onClick={() => setProfileOpen((v) => !v)} className="flex items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-neutral-100">
+              <button
+                ref={menuButtonRef}
+                onClick={() => setProfileOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-neutral-100"
+                aria-haspopup="menu"
+                aria-expanded={profileOpen}
+                aria-controls={menuId}
+                aria-label="Profile menu"
+              >
                 <Avatar name={role === "organiser" ? "Organiser" : role === "vendor" ? "Vendor" : "Attendee"} size={28} />
                 <ChevronDownIcon className={`h-3.5 w-3.5 text-neutral-500 transition-transform ${profileOpen ? "rotate-180" : ""}`} />
               </button>
               {profileOpen && (
-                <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg">
+                <div id={menuId} role="menu" className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg">
                   <div className="border-b border-neutral-100 px-3 py-2">
                     <div className="text-sm font-medium text-neutral-900">{role === "organiser" ? "Organiser" : role === "vendor" ? "Vendor" : "Attendee"}</div>
                     <div className="text-xs text-neutral-500">Logged in</div>
                   </div>
-                  <Link href={role === "organiser" ? "/dashboard" : role === "vendor" ? "/vendor" : "/attendee"} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
+                  <Link role="menuitem" href={role === "organiser" ? "/dashboard" : role === "vendor" ? "/vendor" : "/attendee"} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
                     Dashboard
                   </Link>
-                  <Link href="/wallet" className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
+                  <Link role="menuitem" href="/wallet" className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
                     Wallet
                   </Link>
                   <div className="border-t border-neutral-100">
-                    <button onClick={handleLogout} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-warning-700 hover:bg-warning-50">
+                    <button role="menuitem" onClick={handleLogout} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-warning-700 hover:bg-warning-50">
                       Log out
                     </button>
                   </div>

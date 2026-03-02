@@ -1,4 +1,5 @@
 import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import EventCard from "@/components/events/EventCard";
 import TopNav from "@/components/layout/TopNav";
@@ -6,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import BottomNav from "@/components/layout/BottomNav";
 import { filterEvents } from "@/lib/events";
 import Image from "next/image";
+import type { Event } from "@/lib/events";
 
 const cities = [
   { name: "Lagos", emoji: "🇳🇬", color: "from-primary-500 to-primary-700" },
@@ -18,7 +20,7 @@ export default async function Home() {
   const featured = filterEvents({ page: 1, pageSize: 6 }).data;
   const cityCards = cities.map((c) => ({
     ...c,
-    count: filterEvents({ city: c.name as any }).total,
+    count: filterEvents({ city: c.name as Event["city"] }).total,
   }));
 
   return (
@@ -233,3 +235,20 @@ export default async function Home() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Guestly — Discover & Organise Events",
+  description: "Discover, attend, and organise events across Africa. Buy tickets, join communities, and explore merch.",
+  openGraph: {
+    title: "Guestly — Discover & Organise Events",
+    description: "Discover, attend, and organise events across Africa.",
+    url: "https://guestly.app/",
+    siteName: "Guestly",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Guestly — Discover & Organise Events",
+    description: "Discover, attend, and organise events across Africa.",
+  },
+};

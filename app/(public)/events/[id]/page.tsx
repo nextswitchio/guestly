@@ -1,4 +1,5 @@
 import React from "react";
+import type { Metadata } from "next";
 import EventHero from "@/components/events/EventHero";
 import { getEventById } from "@/lib/events";
 import Link from "next/link";
@@ -132,4 +133,25 @@ export default async function EventDetail({ params }: { params: Promise<{ id: st
       </div>
     </div>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const ev = getEventById(id);
+  const title = ev ? `${ev.title} — ${ev.city}` : "Event";
+  const description = ev?.description || "Event details and tickets";
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
 }

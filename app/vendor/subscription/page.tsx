@@ -9,7 +9,7 @@ type Subscription = {
   expiresAt: number;
 } | null;
 
-const plans: Array<{ key: Subscription["plan"]; label: string; months: number; price: string }> = [
+const plans: Array<{ key: NonNullable<Subscription>["plan"]; label: string; months: number; price: string }> = [
   { key: "1m", label: "1 Month", months: 1, price: "$9" },
   { key: "3m", label: "3 Months", months: 3, price: "$25" },
   { key: "6m", label: "6 Months", months: 6, price: "$45" },
@@ -28,7 +28,7 @@ export default function VendorSubscriptionPage() {
   }
   React.useEffect(() => { void load(); }, []);
 
-  async function activate(plan: Subscription["plan"]) {
+  async function activate(plan: NonNullable<Subscription>["plan"]) {
     setLoading(true);
     setError("");
     try {
@@ -106,4 +106,3 @@ export default function VendorSubscriptionPage() {
     </div>
   );
 }
-
