@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       end: new Date(endDate).getTime()
     };
 
-    const funnelAnalysis = getFunnelAnalysis(userId, dateRange, eventId || undefined);
+    const funnelAnalysis = getFunnelAnalysis(eventId || userId);
 
     return NextResponse.json(funnelAnalysis);
   } catch (error) {
