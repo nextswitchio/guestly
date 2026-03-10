@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       end: new Date(endDate).getTime()
     };
 
-    const roiReport = generateROIReport(userId, dateRange, campaignId || undefined);
+    const roiReport = generateROIReport(userId, dateRange);
 
     return NextResponse.json(roiReport);
   } catch (error) {
