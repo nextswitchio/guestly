@@ -42,3 +42,10 @@ next-env.d.ts
 
 # codespace metadata
 .directories
+
+# IDE and tooling
+.vscode/
+.kiro/
+
+# Expo
+.expo/
