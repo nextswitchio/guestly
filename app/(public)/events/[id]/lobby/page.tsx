@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from 'react';
 import VirtualLobbyClient from '@/components/virtual/VirtualLobbyClient';
-import type { Event } from '@/types/event';
+import type { Event } from '@/lib/events';
 
 export default function EventLobbyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
