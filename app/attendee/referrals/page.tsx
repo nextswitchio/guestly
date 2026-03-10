@@ -1,6 +1,6 @@
 'use client';
 
-import { ReferralDashboard } from '@/components/marketing/ReferralDashboard';
+import ReferralDashboard from '@/components/marketing/ReferralDashboard';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function ReferralsPage() {

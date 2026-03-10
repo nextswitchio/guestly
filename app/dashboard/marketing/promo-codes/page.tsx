@@ -1,6 +1,6 @@
 'use client';
 
-import { PromoCodeManager } from '@/components/marketing/PromoCodeManager';
+import PromoCodeManager from '@/components/marketing/PromoCodeManager';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function PromoCodesPage() {

@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
-import InfluencerDiscovery from '@/components/marketing/InfluencerDiscovery';
-import InfluencerInviteForm from '@/components/marketing/InfluencerInviteForm';
-import InfluencerCollaboration from '@/components/marketing/InfluencerCollaboration';
-import MediaKitGenerator from '@/components/marketing/MediaKitGenerator';
+import { InfluencerDiscovery } from '@/components/marketing/InfluencerDiscovery';
+import { InfluencerInviteForm } from '@/components/marketing/InfluencerInviteForm';
+import { InfluencerCollaboration } from '@/components/marketing/InfluencerCollaboration';
+import { MediaKitGenerator } from '@/components/marketing/MediaKitGenerator';
 import InfluencerSearch from '@/components/marketing/InfluencerSearch';
 
 type InfluencerTab = 'discover' | 'collaborations' | 'media-kit';

@@ -1,6 +1,6 @@
 'use client';
 
-import { CampaignDashboard } from '@/components/marketing/CampaignDashboard';
+import CampaignDashboard from '@/components/marketing/CampaignDashboard';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function CampaignsPage() {

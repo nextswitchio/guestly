@@ -1,6 +1,6 @@
 'use client';
 
-import { AffiliateRegistration } from '@/components/marketing/AffiliateRegistration';
+import AffiliateRegistration from '@/components/marketing/AffiliateRegistration';
 import Link from 'next/link';
 
 export default function AffiliateRegisterPage() {

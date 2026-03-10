@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import SEOChecklist from '@/components/marketing/SEOChecklist';
-import SEOMetricsPanel from '@/components/marketing/SEOMetricsPanel';
+import { SEOChecklist } from '@/components/marketing/SEOChecklist';
+import { SEOMetricsPanel } from '@/components/marketing/SEOMetricsPanel';
 import { Icon } from '@/components/ui/Icon';
 
 export default function SEOPage() {

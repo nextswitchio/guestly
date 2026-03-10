@@ -1,6 +1,6 @@
 'use client';
 
-import { AffiliateDashboard } from '@/components/marketing/AffiliateDashboard';
+import AffiliateDashboard from '@/components/marketing/AffiliateDashboard';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function AffiliateDashboardPage() {

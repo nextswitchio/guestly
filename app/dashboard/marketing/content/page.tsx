@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
-import BlogPostEditor from '@/components/marketing/BlogPostEditor';
-import ContentDistributor from '@/components/marketing/ContentDistributor';
+import { BlogPostEditor } from '@/components/marketing/BlogPostEditor';
+import { ContentDistributor } from '@/components/marketing/ContentDistributor';
 
 export default function ContentMarketingPage() {
   const [organizerId] = useState('org_123');

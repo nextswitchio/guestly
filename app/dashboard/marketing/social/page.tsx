@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { SocialMediaConnector } from '@/components/marketing/SocialMediaConnector';
-import { SocialPostComposer } from '@/components/marketing/SocialPostComposer';
+import SocialPostComposer from '@/components/marketing/SocialPostComposer';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Card } from '@/components/ui/Card';
 

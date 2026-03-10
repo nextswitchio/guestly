@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
 import { EmailTemplateLibrary } from '@/components/marketing/EmailTemplateLibrary';
-import EmailTemplateBuilder from '@/components/marketing/EmailTemplateBuilder';
-import EmailCampaignForm from '@/components/marketing/EmailCampaignForm';
+import { EmailTemplateBuilder } from '@/components/marketing/EmailTemplateBuilder';
+import { EmailCampaignForm } from '@/components/marketing/EmailCampaignForm';
 import EmailMetricsPanel from '@/components/marketing/EmailMetricsPanel';
 
 type EmailTab = 'templates' | 'campaigns' | 'metrics';
