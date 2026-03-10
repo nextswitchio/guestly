@@ -10,7 +10,7 @@ import {
 // GET /api/influencers/collaborations/[id]/messages - Get messages for collaboration
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = req.cookies.get('user_id')?.value;
@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const collaborationId = params.id;
+    const { id: collaborationId } = await params;
     const { searchParams } = new URL(req.url);
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
     const offset = searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : undefined;
@@ -57,7 +57,7 @@ export async function GET(
 // POST /api/influencers/collaborations/[id]/messages - Send message
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = req.cookies.get('user_id')?.value;
@@ -65,7 +65,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const collaborationId = params.id;
+    const { id: collaborationId } = await params;
     const body = await req.json();
     const { content, attachments } = body;
 

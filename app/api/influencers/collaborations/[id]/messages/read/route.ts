@@ -7,7 +7,7 @@ import {
 // POST /api/influencers/collaborations/[id]/messages/read - Mark messages as read
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = req.cookies.get('user_id')?.value;
@@ -15,7 +15,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const collaborationId = params.id;
+    const { id: collaborationId } = await params;
     const body = await req.json();
     const { messageIds } = body; // Optional: specific message IDs to mark as read
 
