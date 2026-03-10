@@ -159,7 +159,7 @@ export default function WithdrawalModal({
                 className="flex items-center gap-4 rounded-xl border-2 border-neutral-200 p-4 text-left transition hover:border-primary-500 hover:bg-primary-50"
               >
                 <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100">
-                  <Icon name="building" className="w-6 h-6 text-primary-600" />
+                  <Icon name="credit-card" className="w-6 h-6 text-primary-600" />
                 </span>
                 <div>
                   <p className="font-semibold text-neutral-900">Bank Account</p>

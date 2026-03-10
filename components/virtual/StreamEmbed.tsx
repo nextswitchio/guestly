@@ -241,7 +241,7 @@ export default function StreamEmbed({ provider, streamUrl, eventTitle }: StreamE
     return (
       <div className="flex items-center justify-center min-h-[500px] bg-surface-card rounded-lg border border-surface-border p-8">
         <div className="text-center max-w-md">
-          <Icon name="radio" className="w-16 h-16 mx-auto mb-4 text-primary-500" />
+          <Icon name="video" className="w-16 h-16 mx-auto mb-4 text-primary-500" />
           <h3 className="text-xl font-semibold mb-2">RTMP Stream</h3>
           <p className="text-foreground-muted mb-4">
             This event uses RTMP streaming. A video player will be available when the stream goes live.

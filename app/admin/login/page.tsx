@@ -103,7 +103,7 @@ export default function AdminLoginPage() {
 
             {error && (
               <div className="flex items-center gap-2 rounded-xl bg-danger-50 p-3 text-xs font-bold text-danger-600 border border-danger-100">
-                <Icon name="alert" size={14} />
+                <Icon name="alert-circle" size={14} />
                 {error}
               </div>
             )}

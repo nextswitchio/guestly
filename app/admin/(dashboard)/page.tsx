@@ -125,10 +125,10 @@ export default function AdminDashboard() {
           <h3 className="mb-6 font-semibold text-[var(--foreground)]">Recent Activities</h3>
           <div className="space-y-6">
             {[
-              { action: "Refund Processed", detail: "$50.00 to user_123", time: "5 mins ago", icon: "refresh" },
+              { action: "Refund Processed", detail: "$50.00 to user_123", time: "5 mins ago", icon: "refresh-cw" },
               { action: "Payout Released", detail: "$1,200.00 to MusicHub", time: "12 mins ago", icon: "check" },
-              { action: "New Support Ticket", detail: "Ticket #8942 - Payment failed", time: "25 mins ago", icon: "help" },
-              { action: "Security Alert", detail: "Multiple login failures", time: "1 hour ago", icon: "alert" },
+              { action: "New Support Ticket", detail: "Ticket #8942 - Payment failed", time: "25 mins ago", icon: "information-circle" },
+              { action: "Security Alert", detail: "Multiple login failures", time: "1 hour ago", icon: "alert-circle" },
             ].map((activity, i) => (
               <div key={i} className="flex gap-3">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--surface-bg)] text-[var(--foreground-muted)]">
