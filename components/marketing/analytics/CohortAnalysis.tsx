@@ -236,7 +236,7 @@ export default function CohortAnalysis({ cohorts, periodLabel = 'Month' }: Props
 
         <div className="p-4 bg-green-50 rounded-lg border border-green-200">
           <div className="flex items-start gap-2">
-            <Icon name="light-bulb" className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+            <Icon name="lightbulb" className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-green-800">
               <p className="font-semibold mb-1">Key Insights</p>
               <ul className="space-y-1 list-disc list-inside">

@@ -159,7 +159,7 @@ export default function FunnelVisualization({ stages }: Props) {
       {/* Optimization tips */}
       <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
         <div className="flex items-start gap-2">
-          <Icon name="light-bulb" className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <Icon name="lightbulb" className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div className="text-xs text-blue-800">
             <p className="font-semibold mb-1">Optimization Tips</p>
             <ul className="space-y-1 list-disc list-inside">
