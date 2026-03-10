@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
-import { Icon } from '@/components/ui/Icon';
 import Link from 'next/link';
 
 export default function AffiliateLoginPage() {
@@ -58,67 +58,41 @@ export default function AffiliateLoginPage() {
         <Card className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-danger-50 dark:bg-danger-900/20 border border-danger-200 dark:border-danger-800 text-danger-700 dark:text-danger-400 px-4 py-3 rounded-lg flex items-center gap-2">
-                <Icon name="alert-circle" className="w-5 h-5" />
-                <span>{error}</span>
+              <div className="bg-danger-50 dark:bg-danger-900/20 border border-danger-200 dark:border-danger-800 text-danger-700 dark:text-danger-400 px-4 py-3 rounded-lg text-sm">
+                {error}
               </div>
             )}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                Email Address
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="affiliate@example.com"
-                required
-              />
-            </div>
+            <Input
+              label="Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.currentTarget.value)}
+              placeholder="affiliate@example.com"
+              required
+            />
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-2">
-                Password
-              </label>
-              <input
-                id="password"
+              <Input
+                label="Password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                onChange={(e) => setPassword(e.currentTarget.value)}
                 placeholder="••••••••"
                 required
               />
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                />
-                <span className="ml-2 text-gray-600 dark:text-gray-400">Remember me</span>
-              </label>
-              <Link
-                href="/forgot-password"
-                className="text-primary-600 dark:text-primary-400 hover:underline"
-              >
-                Forgot password?
-              </Link>
+              <div className="mt-2 text-right">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Icon name="spinner" className="w-4 h-4 mr-2 animate-spin" />
-                  Logging in...
-                </>
-              ) : (
-                'Login to Dashboard'
-              )}
+              {loading ? 'Logging in...' : 'Login to Dashboard'}
             </Button>
           </form>
 
@@ -136,10 +110,9 @@ export default function AffiliateLoginPage() {
         <div className="mt-6 text-center">
           <Link
             href="/affiliate"
-            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center justify-center gap-2"
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           >
-            <Icon name="arrow-left" className="w-4 h-4" />
-            Back to Affiliate Home
+            ← Back to Affiliate Home
           </Link>
         </div>
       </div>
