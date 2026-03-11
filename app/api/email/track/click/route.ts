@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    trackEmailClick(data.emailId, data.recipientId, data.linkId);
+    trackEmailClick(data.emailId, data.recipientId);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Track the click
-    trackEmailClick(emailId, recipientId, linkId);
+    trackEmailClick(emailId, recipientId);
 
     // Redirect to the actual URL
     return NextResponse.redirect(url, 302);
