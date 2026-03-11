@@ -15,14 +15,14 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
 
     // Validate required fields
-    if (!data.code || !data.orderId) {
+    if (!data.code || !data.orderId || !data.orderAmount) {
       return NextResponse.json(
-        { error: 'Missing required fields: code, orderId' },
+        { error: 'Missing required fields: code, orderId, orderAmount' },
         { status: 400 }
       );
     }
 
-    const application = applyPromoCode(data.code, data.orderId);
+    const application = applyPromoCode(data.code, data.orderId, userId, data.orderAmount);
 
     return NextResponse.json(application);
   } catch (error) {
