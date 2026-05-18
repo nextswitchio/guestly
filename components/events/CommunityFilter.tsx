@@ -21,6 +21,7 @@ interface CommunityFilterProps {
   selectedCommunityType?: string;
   onCommunityChange: (community: string | undefined) => void;
   onCommunityTypeChange: (type: string | undefined) => void;
+  isDark?: boolean;
 }
 
 const communityTypeLabels: Record<string, string> = {
@@ -43,6 +44,7 @@ export default function CommunityFilter({
   selectedCommunityType,
   onCommunityChange,
   onCommunityTypeChange,
+  isDark = false,
 }: CommunityFilterProps) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [communityTypes, setCommunityTypes] = useState<CommunityType[]>([]);
@@ -73,8 +75,8 @@ export default function CommunityFilter({
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="h-8 bg-surface-card animate-pulse rounded-lg" />
-        <div className="h-8 bg-surface-card animate-pulse rounded-lg" />
+        <div className={`h-8 animate-pulse rounded-lg ${isDark ? "bg-[#1e6470]" : "bg-surface-card"}`} />
+        <div className={`h-8 animate-pulse rounded-lg ${isDark ? "bg-[#1e6470]" : "bg-surface-card"}`} />
       </div>
     );
   }
@@ -88,7 +90,7 @@ export default function CommunityFilter({
       {/* Community Type Filter */}
       {communityTypes.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-foreground mb-3">
+          <h3 className={`text-sm font-semibold mb-3 ${isDark ? "text-white" : "text-foreground"}`}>
             Community Type
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -96,7 +98,11 @@ export default function CommunityFilter({
               onClick={() => onCommunityTypeChange(undefined)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 !selectedCommunityType
-                  ? "bg-primary-500 text-white shadow-md"
+                  ? isDark
+                    ? "bg-lime text-dark shadow-md"
+                    : "bg-primary-500 text-white shadow-md"
+                  : isDark
+                  ? "bg-[#1e6470] text-[#d4e8eb] hover:bg-[#3d8993]"
                   : "bg-surface-card text-foreground-muted hover:bg-surface-hover"
               }`}
             >
@@ -108,7 +114,11 @@ export default function CommunityFilter({
                 onClick={() => onCommunityTypeChange(ct.type)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
                   selectedCommunityType === ct.type
-                    ? "bg-primary-500 text-white shadow-md"
+                    ? isDark
+                      ? "bg-lime text-dark shadow-md"
+                      : "bg-primary-500 text-white shadow-md"
+                    : isDark
+                    ? "bg-[#1e6470] text-[#d4e8eb] hover:bg-[#3d8993]"
                     : "bg-surface-card text-foreground-muted hover:bg-surface-hover"
                 }`}
               >
@@ -124,7 +134,7 @@ export default function CommunityFilter({
       {/* Specific Communities Filter */}
       {communities.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-foreground mb-3">
+          <h3 className={`text-sm font-semibold mb-3 ${isDark ? "text-white" : "text-foreground"}`}>
             Communities
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -132,7 +142,11 @@ export default function CommunityFilter({
               onClick={() => onCommunityChange(undefined)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 !selectedCommunity
-                  ? "bg-primary-500 text-white shadow-md"
+                  ? isDark
+                    ? "bg-lime text-dark shadow-md"
+                    : "bg-primary-500 text-white shadow-md"
+                  : isDark
+                  ? "bg-[#1e6470] text-[#d4e8eb] hover:bg-[#3d8993]"
                   : "bg-surface-card text-foreground-muted hover:bg-surface-hover"
               }`}
             >
@@ -144,7 +158,11 @@ export default function CommunityFilter({
                 onClick={() => onCommunityChange(community.name)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
                   selectedCommunity === community.name
-                    ? "bg-primary-500 text-white shadow-md"
+                    ? isDark
+                      ? "bg-lime text-dark shadow-md"
+                      : "bg-primary-500 text-white shadow-md"
+                    : isDark
+                    ? "bg-[#1e6470] text-[#d4e8eb] hover:bg-[#3d8993]"
                     : "bg-surface-card text-foreground-muted hover:bg-surface-hover"
                 }`}
               >

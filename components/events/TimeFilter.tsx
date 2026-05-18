@@ -16,6 +16,7 @@ interface TimeFilterProps {
   endDate?: Date | null;
   onChange?: (value: TimeFilterValue, startDate?: Date | null, endDate?: Date | null) => void;
   className?: string;
+  isDark?: boolean;
 }
 
 export default function TimeFilter({
@@ -24,6 +25,7 @@ export default function TimeFilter({
   endDate = null,
   onChange,
   className = "",
+  isDark = false,
 }: TimeFilterProps) {
   const [showCustomRange, setShowCustomRange] = React.useState(value === "custom");
   const [customStart, setCustomStart] = React.useState<Date | null>(startDate);
@@ -101,7 +103,7 @@ export default function TimeFilter({
     <div className={`space-y-4 ${className}`}>
       {/* Quick filter buttons */}
       <div>
-        <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+        <label className={`block text-sm font-medium mb-2 ${isDark ? "text-white" : "text-[var(--foreground)]"}`}>
           Time Period
         </label>
         <div className="flex flex-wrap gap-2">
@@ -110,7 +112,11 @@ export default function TimeFilter({
               key={filter.value}
               onClick={() => handleQuickFilterClick(filter.value)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-[var(--duration-fast)] flex items-center gap-2 ${
-                value === filter.value
+                isDark
+                  ? value === filter.value
+                    ? "bg-lime text-dark shadow-md scale-105"
+                    : "bg-[#1e6470] text-[#d4e8eb] border border-[#3d8993] hover:bg-[#3d8993] hover:text-white"
+                  : value === filter.value
                   ? "bg-primary-600 text-white shadow-[var(--elevation-2)] scale-105"
                   : "bg-[var(--surface-card)] text-[var(--foreground)] border border-[var(--surface-border)] hover:border-primary-300 hover:bg-primary-50"
               }`}
@@ -124,7 +130,11 @@ export default function TimeFilter({
 
       {/* Custom date range pickers */}
       {showCustomRange && (
-        <div className="p-4 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-xl space-y-4 animate-[slideDown_var(--duration-normal)_var(--ease-out)]">
+        <div className={`p-4 border rounded-xl space-y-4 animate-[slideDown_var(--duration-normal)_var(--ease-out)] ${
+          isDark
+            ? "bg-[#001c24] border-[#1e6470]"
+            : "bg-[var(--surface-card)] border-[var(--surface-border)]"
+        }`}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <DatePicker
               label="Start Date"
@@ -143,8 +153,8 @@ export default function TimeFilter({
           </div>
           
           {(customStart || customEnd) && (
-            <div className="flex items-center justify-between pt-2 border-t border-[var(--surface-border)]">
-              <p className="text-sm text-[var(--foreground-muted)]">
+            <div className={`flex items-center justify-between pt-2 border-t ${isDark ? "border-[#1e6470] text-[#d4e8eb]" : "border-[var(--surface-border)] text-[var(--foreground-muted)]"}`}>
+              <p className="text-sm">
                 {customStart && customEnd
                   ? `${customStart.toLocaleDateString()} - ${customEnd.toLocaleDateString()}`
                   : customStart
@@ -159,7 +169,7 @@ export default function TimeFilter({
                   setCustomEnd(null);
                   handleCustomDateChange(null, null);
                 }}
-                className="text-sm text-danger-600 hover:text-danger-700 font-medium transition-colors"
+                className={`text-sm font-medium transition-colors ${isDark ? "text-lime hover:text-lime/80" : "text-danger-600 hover:text-danger-700"}`}
               >
                 Clear
               </button>

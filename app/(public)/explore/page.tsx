@@ -218,15 +218,15 @@ export default function ExplorePage() {
             </div>
 
             {/* Sidebar filters - hidden on mobile unless toggled */}
-            <div className={`space-y-4 ${showFilters ? "fixed inset-0 z-50 flex flex-col bg-white lg:static lg:z-auto lg:bg-transparent overflow-y-auto" : "hidden lg:block"}`}>
+            <div className={`space-y-4 ${showFilters ? "fixed inset-0 z-50 flex flex-col bg-dark lg:static lg:z-auto lg:bg-dark rounded-2xl lg:rounded-2xl overflow-y-auto" : "hidden lg:block"} lg:bg-dark lg:rounded-2xl lg:p-6`}>
               {showFilters && (
-                <div className="flex items-center justify-between p-4 border-b border-slate-100 lg:hidden">
-                  <h2 className="text-lg font-bold text-slate-900">Filters</h2>
+                <div className="flex items-center justify-between p-4 border-b border-[#0a3038] lg:hidden">
+                  <h2 className="text-lg font-bold text-white">Filters</h2>
                   <button
                     onClick={() => setShowFilters(false)}
-                    className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                    className="p-2 rounded-lg hover:bg-[#0a3038] transition-colors"
                   >
-                    <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-5 h-5 text-[#6aacb4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -234,18 +234,18 @@ export default function ExplorePage() {
               )}
               <div className="p-4 lg:p-0 space-y-4">
                 {/* Search card */}
-                <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                    <Icon name="search" size={16} className="text-slate-500" />
+                <div className="bg-[#0a3038] rounded-2xl border border-[#1e6470] p-4 shadow-sm">
+                  <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                    <Icon name="search" size={16} className="text-[#6aacb4]" />
                     <span>Search</span>
                   </h3>
-                  <SearchBar value={q} onChange={setQ} onSearch={onSearch} />
+                  <SearchBar value={q} onChange={setQ} onSearch={onSearch} isDark={true} />
                 </div>
 
                 {/* Category card */}
-                <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                    <Icon name="target" size={16} className="text-slate-500" />
+                <div className="bg-[#0a3038] rounded-2xl border border-[#1e6470] p-4 shadow-sm">
+                  <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                    <Icon name="target" size={16} className="text-[#6aacb4]" />
                     <span>Category</span>
                     {category && (
                       <span className="ml-auto h-5 w-5 flex items-center justify-center rounded-full bg-lime text-dark text-xs font-bold">
@@ -253,13 +253,13 @@ export default function ExplorePage() {
                       </span>
                     )}
                   </h3>
-                  <CategoryFilter value={category} onChange={onCategoryChange} />
+                  <CategoryFilter value={category} onChange={onCategoryChange} isDark={true} />
                 </div>
 
                 {/* Time filter card */}
-                <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                    <Icon name="calendar" size={16} className="text-slate-500" />
+                <div className="bg-[#0a3038] rounded-2xl border border-[#1e6470] p-4 shadow-sm">
+                  <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                    <Icon name="calendar" size={16} className="text-[#6aacb4]" />
                     <span>When</span>
                     {timeFilter !== "all" && (
                       <span className="ml-auto h-5 w-5 flex items-center justify-center rounded-full bg-lime text-dark text-xs font-bold">
@@ -272,13 +272,14 @@ export default function ExplorePage() {
                     startDate={startDate}
                     endDate={endDate}
                     onChange={onTimeFilterChange}
+                    isDark={true}
                   />
                 </div>
 
                 {/* Community filter card */}
-                <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                    <Icon name="users" size={16} className="text-slate-500" />
+                <div className="bg-[#0a3038] rounded-2xl border border-[#1e6470] p-4 shadow-sm">
+                  <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                    <Icon name="users" size={16} className="text-[#6aacb4]" />
                     <span>Community</span>
                     {(community || communityType) && (
                       <span className="ml-auto h-5 w-5 flex items-center justify-center rounded-full bg-lime text-dark text-xs font-bold">
@@ -291,6 +292,7 @@ export default function ExplorePage() {
                     selectedCommunityType={communityType}
                     onCommunityChange={onCommunityChange}
                     onCommunityTypeChange={onCommunityTypeChange}
+                    isDark={true}
                   />
                 </div>
 
@@ -298,7 +300,7 @@ export default function ExplorePage() {
                 {hasActiveFilters && (
                   <button
                     onClick={() => { onClearFilters(); setShowFilters(false); }}
-                    className="w-full h-11 px-4 rounded-xl text-sm font-semibold text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 hover:border-rose-600 transition-all flex items-center justify-center gap-2"
+                    className="w-full h-11 px-4 rounded-xl text-sm font-semibold text-lime hover:text-dark hover:bg-lime border border-lime hover:border-lime transition-all flex items-center justify-center gap-2 bg-dark"
                   >
                     <Icon name="x" size={16} />
                     <span>Clear all filters</span>
