@@ -13,13 +13,10 @@ const nextConfig: NextConfig = {
       'react-leaflet',
       'socket.io-client'
     ],
-    turbopackOptions: {
-      // Disable Turbopack since we're using webpack
-      resolve: {
-        fallback: {},
-      },
-    },
   },
+  
+  // SWC minification
+  swcMinify: true,
   
   // Compiler optimizations
   compiler: {
@@ -27,8 +24,6 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
     // Enable React compiler optimizations
     reactRemoveProperties: process.env.NODE_ENV === 'production',
-    // Use SWC for minification
-    swcMinify: true,
   },
   
   // Image optimization
