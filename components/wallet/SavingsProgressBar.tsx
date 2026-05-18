@@ -46,10 +46,10 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
 
   // Define milestones
   const milestones: Milestone[] = [
-    { percentage: 25, label: "Quarter", reached: pct >= 25, color: "text-primary-600", bgColor: "bg-primary-500", glowColor: "shadow-glow-blue" },
-    { percentage: 50, label: "Halfway", reached: pct >= 50, color: "text-warning-600", bgColor: "bg-warning-500", glowColor: "shadow-[0_0_20px_rgba(251,191,36,0.4)]" },
-    { percentage: 75, label: "Almost", reached: pct >= 75, color: "text-success-600", bgColor: "bg-success-500", glowColor: "shadow-glow-green" },
-    { percentage: 100, label: "Complete", reached: pct >= 100, color: "text-success-700", bgColor: "bg-success-600", glowColor: "shadow-glow-green" },
+    { percentage: 25, label: "Quarter", reached: pct >= 25, color: "text-lime", bgColor: "bg-lime", glowColor: "" },
+    { percentage: 50, label: "Halfway", reached: pct >= 50, color: "text-amber-600", bgColor: "bg-amber-500", glowColor: "shadow-[0_0_20px_rgba(251,191,36,0.4)]" },
+    { percentage: 75, label: "Almost", reached: pct >= 75, color: "text-green-600", bgColor: "bg-green-500", glowColor: "" },
+    { percentage: 100, label: "Complete", reached: pct >= 100, color: "text-green-700", bgColor: "bg-green-600", glowColor: "" },
   ];
 
   // Detect milestone crossing and trigger celebration (only for major milestones)
@@ -75,18 +75,18 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
   }, [pct, prefersReducedMotion]);
 
   return (
-    <div className="relative rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-surface-card">
+    <div className="relative rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
       {/* Celebration overlay - only for major milestones and when motion is enabled */}
       {showCelebration && celebratingMilestone && !prefersReducedMotion && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/95 dark:bg-surface-card/95 animate-fade-in">
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/95 animate-fade-in">
           <div className="text-center animate-scale-in">
-            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-success-400 to-success-600 text-white shadow-glow-green">
+            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white">
               <TrophyIcon />
             </div>
-            <p className="text-lg font-bold text-success-600 dark:text-success-400">
+            <p className="text-lg font-bold text-green-600">
               {celebratingMilestone}% Milestone!
             </p>
-            <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className="mt-1 text-sm text-neutral-500">
               {celebratingMilestone === 100 ? (
                 <span className="flex items-center justify-center gap-1">
                   Goal achieved! <Icon name="party" size={16} />
@@ -121,15 +121,15 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-lime/10 text-lime">
             <TargetIcon />
           </span>
           <div>
-            <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Event Savings</p>
-            <p className="text-xs text-neutral-400 dark:text-neutral-500">Goal: ${goal.toFixed(2)}</p>
+            <p className="text-sm font-semibold text-neutral-900">Event Savings</p>
+            <p className="text-xs text-neutral-500">Goal: ${goal.toFixed(2)}</p>
           </div>
         </div>
-        <span className="text-xs font-bold text-primary-600 dark:text-primary-400">{pct}%</span>
+        <span className="text-xs font-bold text-lime">{pct}%</span>
       </div>
 
       {/* Progress bar with milestones */}
@@ -146,7 +146,7 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
                 className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition-all duration-500 ${
                   milestone.reached
                     ? `${milestone.bgColor} border-white ${prefersReducedMotion ? '' : milestone.glowColor} ${prefersReducedMotion ? '' : 'scale-110'}`
-                    : "border-neutral-300 bg-white dark:border-neutral-700 dark:bg-surface-card"
+                    : "border-neutral-300 bg-white"
                 }`}
               >
                 {milestone.reached && (
@@ -155,7 +155,7 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
                   </svg>
                 )}
               </div>
-              <span className={`mt-1 text-[10px] font-medium transition-colors duration-300 ${milestone.reached ? milestone.color : "text-neutral-400 dark:text-neutral-600"}`}>
+              <span className={`mt-1 text-[10px] font-medium transition-colors duration-300 ${milestone.reached ? milestone.color : "text-neutral-400"}`}>
                 {milestone.percentage}%
               </span>
             </div>
@@ -163,10 +163,10 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
         </div>
 
         {/* Progress bar track */}
-        <div className="mt-6 h-3 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+        <div className="mt-6 h-3 w-full overflow-hidden rounded-full bg-neutral-100">
           {/* Progress fill with gradient and animation */}
           <div
-            className={`h-3 rounded-full bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 relative overflow-hidden ${
+            className={`h-3 rounded-full bg-gradient-to-r from-lime via-lime-hover to-lime relative overflow-hidden ${
               prefersReducedMotion ? '' : 'transition-all duration-700 ease-out'
             }`}
             style={{ width: `${pct}%` }}
@@ -177,7 +177,7 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
             )}
             {/* Glow effect when complete - only when motion is enabled */}
             {pct >= 100 && !prefersReducedMotion && (
-              <div className="absolute inset-0 bg-gradient-to-r from-success-500 to-success-600 shadow-glow-green" />
+              <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600" />
             )}
           </div>
         </div>
@@ -185,15 +185,15 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
 
       {/* Stats row */}
       <div className="mt-4 flex items-center justify-between text-xs">
-        <span className="text-neutral-500 dark:text-neutral-400">
-          Saved <span className="font-semibold text-neutral-900 dark:text-neutral-100">${progress.toFixed(2)}</span>
+        <span className="text-neutral-500">
+          Saved <span className="font-semibold text-neutral-900">${progress.toFixed(2)}</span>
         </span>
         {remaining > 0 ? (
-          <span className="text-neutral-500 dark:text-neutral-400">
-            <span className="font-semibold text-neutral-900 dark:text-neutral-100">${remaining.toFixed(2)}</span> to go
+          <span className="text-neutral-500">
+            <span className="font-semibold text-neutral-900">${remaining.toFixed(2)}</span> to go
           </span>
         ) : (
-          <span className="flex items-center gap-1 font-semibold text-success-600 dark:text-success-400">
+          <span className="flex items-center gap-1 font-semibold text-green-600">
             <TrophyIcon />
             Goal reached!
           </span>
@@ -202,9 +202,9 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
 
       {/* Milestone progress summary */}
       {pct > 0 && pct < 100 && (
-        <div className="mt-3 flex items-center gap-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+        <div className="mt-3 flex items-center gap-1 text-[11px] text-neutral-500">
           <span>Next milestone:</span>
-          <span className="font-semibold text-primary-600 dark:text-primary-400">
+          <span className="font-semibold text-lime">
             {milestones.find((m) => !m.reached)?.percentage || 100}%
           </span>
         </div>

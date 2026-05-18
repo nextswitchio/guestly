@@ -2,9 +2,6 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Card from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
-import Button from "@/components/ui/Button";
 import CryptoPaymentUI from "@/components/wallet/CryptoPaymentUI";
 
 type PaymentMethod = "card" | "bank_transfer" | "mobile_money" | "crypto";
@@ -19,12 +16,10 @@ export default function AddFundsForm() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
 
-  // Card payment fields
   const [cardNumber, setCardNumber] = React.useState("");
   const [cardExpiry, setCardExpiry] = React.useState("");
   const [cardCvv, setCardCvv] = React.useState("");
 
-  // Mobile money fields
   const [mobileProvider, setMobileProvider] = React.useState<MobileMoneyProvider>("mpesa");
   const [phoneNumber, setPhoneNumber] = React.useState("");
 
@@ -51,7 +46,6 @@ export default function AddFundsForm() {
       return;
     }
 
-    // Validate payment method specific fields
     if (paymentMethod === "card") {
       if (!cardNumber || !cardExpiry || !cardCvv) {
         setError("Please fill in all card details");
@@ -104,298 +98,331 @@ export default function AddFundsForm() {
 
   const backHref = role === "organiser" ? "/dashboard/wallet" : "/wallet";
 
+  const methods: { value: PaymentMethod; label: string; icon: React.ReactNode }[] = [
+    {
+      value: "card",
+      label: "Card",
+      icon: (
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+      ),
+    },
+    {
+      value: "bank_transfer",
+      label: "Bank",
+      icon: (
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+        </svg>
+      ),
+    },
+    {
+      value: "mobile_money",
+      label: "Mobile",
+      icon: (
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      ),
+    },
+    {
+      value: "crypto",
+      label: "Crypto",
+      icon: (
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
-    <div className="container mx-auto py-8">
-      <div className="mx-auto max-w-md">
-        <Card className="p-6">
-          <div className="mb-5">
-            <h1 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Add Funds</h1>
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              Top up your wallet balance
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">Add Funds</h1>
+          <p className="mt-2 text-neutral-500">Top up your wallet balance securely</p>
+        </div>
+        <Link
+          href={backHref}
+          className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Wallet
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Payment Form */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Balance Card */}
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <p className="text-sm text-neutral-500">Current Balance</p>
+            <p className="mt-1 text-3xl font-bold tabular-nums text-neutral-900">
+              ${balance === null ? "—" : balance.toFixed(2)}
             </p>
           </div>
 
-          <div className="mb-4 rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-800">
-            <div className="text-xs text-neutral-500 dark:text-neutral-400">Current Balance</div>
-            <div className="mt-1 text-2xl font-bold tabular-nums text-neutral-900 dark:text-neutral-100">
-              ${balance === null ? "—" : balance.toFixed(2)}
+          {/* Payment Method Selection */}
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Payment Method</h3>
+            <div className="grid grid-cols-4 gap-3">
+              {methods.map((m) => (
+                <button
+                  key={m.value}
+                  type="button"
+                  onClick={() => setPaymentMethod(m.value)}
+                  className={`flex flex-col items-center gap-2 rounded-xl border p-4 text-sm font-medium transition-all ${
+                    paymentMethod === m.value
+                      ? "border-lime bg-lime/10 text-dark"
+                      : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50"
+                  }`}
+                >
+                  <span className={paymentMethod === m.value ? "text-dark" : "text-neutral-500"}>
+                    {m.icon}
+                  </span>
+                  {m.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          <form onSubmit={submit} className="flex flex-col gap-4">
-            {paymentMethod !== "crypto" && (
-              <>
-                <Input
-                  label="Amount"
-                  type="number"
-                  min={1}
-                  step="0.01"
-                  value={amount}
-                  onChange={(e) => setAmount(e.currentTarget.value)}
-                  placeholder="e.g. 50"
-                  error={error || undefined}
-                />
+          {/* Amount Selection (non-crypto) */}
+          {paymentMethod !== "crypto" && (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Amount</h3>
+              <div className="flex items-center gap-3">
+                <div className="relative flex-1">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-neutral-600">$</span>
+                  <input
+                    type="number"
+                    min={1}
+                    step="0.01"
+                    value={amount}
+                    onChange={(e) => { setAmount(e.currentTarget.value); setError(""); }}
+                    placeholder="0.00"
+                    className="w-full h-14 rounded-xl border border-neutral-200 bg-neutral-50 pl-10 pr-4 text-2xl font-bold tabular-nums text-neutral-900 placeholder:text-neutral-500 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-2 mt-4">
+                {[10, 25, 50, 100].map((v) => (
+                  <button
+                    type="button"
+                    key={v}
+                    onClick={() => setQuick(v)}
+                    className={`rounded-xl py-3 text-sm font-semibold transition-all ${
+                      amount === String(v)
+                        ? "bg-lime text-dark"
+                        : "border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
+                    }`}
+                  >
+                    ${v}
+                  </button>
+                ))}
+              </div>
+              {error && paymentMethod !== "crypto" && (
+                <p className="mt-3 text-sm text-red-500">{error}</p>
+              )}
+            </div>
+          )}
 
-                <div className="grid grid-cols-4 gap-2">
-                  {[10, 25, 50, 100].map((v) => (
+          {/* Card Payment Fields */}
+          {paymentMethod === "card" && (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Card Details</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">Card Number</label>
+                  <input
+                    type="text"
+                    value={cardNumber}
+                    onChange={(e) => {
+                      const value = e.currentTarget.value.replace(/\D/g, "");
+                      setCardNumber(value.match(/.{1,4}/g)?.join(" ") || value);
+                    }}
+                    placeholder="1234 5678 9012 3456"
+                    maxLength={19}
+                    className="w-full h-12 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">Expiry Date</label>
+                    <input
+                      type="text"
+                      value={cardExpiry}
+                      onChange={(e) => {
+                        const value = e.currentTarget.value.replace(/\D/g, "");
+                        setCardExpiry(value.length >= 2 ? `${value.slice(0, 2)}/${value.slice(2, 4)}` : value);
+                      }}
+                      placeholder="MM/YY"
+                      maxLength={5}
+                      className="w-full h-12 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">CVV</label>
+                    <input
+                      type="text"
+                      value={cardCvv}
+                      onChange={(e) => setCardCvv(e.currentTarget.value.replace(/\D/g, ""))}
+                      placeholder="123"
+                      maxLength={4}
+                      className="w-full h-12 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Bank Transfer */}
+          {paymentMethod === "bank_transfer" && (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Bank Transfer Details</h3>
+              <div className="space-y-3">
+                {[
+                  { label: "Bank Name", value: "Guestly Bank" },
+                  { label: "Account Name", value: "Guestly Wallet Services" },
+                  { label: "Account Number", value: "1234567890" },
+                  { label: "Reference", value: `${role?.toUpperCase()}-USER` },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center justify-between rounded-xl bg-neutral-50 px-4 py-3">
+                    <span className="text-sm text-neutral-500">{item.label}</span>
+                    <span className="text-sm font-semibold text-neutral-900 font-mono">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 rounded-xl bg-lime/10 border border-lime/20 p-4 text-sm text-dark">
+                <strong>Important:</strong> Use the reference code above when making your transfer. Funds will be credited within 24 hours.
+              </div>
+            </div>
+          )}
+
+          {/* Mobile Money */}
+          {paymentMethod === "mobile_money" && (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Mobile Money</h3>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">Provider</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { value: "mpesa" as const, label: "M-Pesa" },
+                    { value: "mtn" as const, label: "MTN" },
+                    { value: "airtel" as const, label: "Airtel" },
+                  ].map((p) => (
                     <button
+                      key={p.value}
                       type="button"
-                      key={v}
-                      onClick={() => setQuick(v)}
-                      className="rounded-lg border border-neutral-200 bg-white py-2 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                      onClick={() => setMobileProvider(p.value)}
+                      className={`rounded-xl border py-3 text-sm font-semibold transition-all ${
+                        mobileProvider === p.value
+                          ? "border-lime bg-lime/10 text-dark"
+                          : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50"
+                      }`}
                     >
-                      ${v}
+                      {p.label}
                     </button>
                   ))}
                 </div>
-              </>
-            )}
-
-            {/* Payment Method Selection */}
-            <div>
-              <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                Payment Method
-              </label>
-              <div className="grid grid-cols-4 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("card")}
-                  className={`flex flex-col items-center gap-1 rounded-lg border p-3 text-xs font-medium transition ${
-                    paymentMethod === "card"
-                      ? "border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400"
-                      : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
-                  }`}
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                    />
-                  </svg>
-                  Card
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("bank_transfer")}
-                  className={`flex flex-col items-center gap-1 rounded-lg border p-3 text-xs font-medium transition ${
-                    paymentMethod === "bank_transfer"
-                      ? "border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400"
-                      : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
-                  }`}
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
-                    />
-                  </svg>
-                  Bank
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("mobile_money")}
-                  className={`flex flex-col items-center gap-1 rounded-lg border p-3 text-xs font-medium transition ${
-                    paymentMethod === "mobile_money"
-                      ? "border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400"
-                      : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
-                  }`}
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                    />
-                  </svg>
-                  Mobile
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("crypto")}
-                  className={`flex flex-col items-center gap-1 rounded-lg border p-3 text-xs font-medium transition ${
-                    paymentMethod === "crypto"
-                      ? "border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400"
-                      : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
-                  }`}
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  Crypto
-                </button>
               </div>
-            </div>
-
-            {/* Card Payment Fields */}
-            {paymentMethod === "card" && (
-              <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <Input
-                  label="Card Number"
-                  type="text"
-                  value={cardNumber}
-                  onChange={(e) => {
-                    const value = e.currentTarget.value.replace(/\D/g, "");
-                    const formatted = value.match(/.{1,4}/g)?.join(" ") || value;
-                    setCardNumber(formatted);
-                  }}
-                  placeholder="1234 5678 9012 3456"
-                  maxLength={19}
-                />
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    label="Expiry Date"
-                    type="text"
-                    value={cardExpiry}
-                    onChange={(e) => {
-                      const value = e.currentTarget.value.replace(/\D/g, "");
-                      const formatted =
-                        value.length >= 2 ? `${value.slice(0, 2)}/${value.slice(2, 4)}` : value;
-                      setCardExpiry(formatted);
-                    }}
-                    placeholder="MM/YY"
-                    maxLength={5}
-                  />
-                  <Input
-                    label="CVV"
-                    type="text"
-                    value={cardCvv}
-                    onChange={(e) => {
-                      const value = e.currentTarget.value.replace(/\D/g, "");
-                      setCardCvv(value);
-                    }}
-                    placeholder="123"
-                    maxLength={4}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Bank Transfer Instructions */}
-            {paymentMethod === "bank_transfer" && (
-              <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                  Bank Transfer Details
-                </div>
-                <div className="space-y-2 text-xs text-neutral-600 dark:text-neutral-400">
-                  <div className="flex justify-between">
-                    <span>Bank Name:</span>
-                    <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                      Guestly Bank
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Account Name:</span>
-                    <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                      Guestly Wallet Services
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Account Number:</span>
-                    <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">
-                      1234567890
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Reference:</span>
-                    <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">
-                      {role?.toUpperCase()}-USER
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-3 rounded-md bg-primary-50 p-3 text-xs text-primary-700 dark:bg-primary-900/20 dark:text-primary-400">
-                  <strong>Important:</strong> Use the reference code above when making your
-                  transfer. Funds will be credited within 24 hours.
-                </div>
-              </div>
-            )}
-
-            {/* Mobile Money Fields */}
-            {paymentMethod === "mobile_money" && (
-              <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                    Provider
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setMobileProvider("mpesa")}
-                      className={`rounded-lg border p-2 text-xs font-medium transition ${
-                        mobileProvider === "mpesa"
-                          ? "border-success-500 bg-success-50 text-success-700 dark:bg-success-900/20 dark:text-success-400"
-                          : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400"
-                      }`}
-                    >
-                      M-Pesa
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setMobileProvider("mtn")}
-                      className={`rounded-lg border p-2 text-xs font-medium transition ${
-                        mobileProvider === "mtn"
-                          ? "border-warning-500 bg-warning-50 text-warning-700 dark:bg-warning-900/20 dark:text-warning-400"
-                          : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400"
-                      }`}
-                    >
-                      MTN
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setMobileProvider("airtel")}
-                      className={`rounded-lg border p-2 text-xs font-medium transition ${
-                        mobileProvider === "airtel"
-                          ? "border-danger-500 bg-danger-50 text-danger-700 dark:bg-danger-900/20 dark:text-danger-400"
-                          : "border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400"
-                      }`}
-                    >
-                      Airtel
-                    </button>
-                  </div>
-                </div>
-                <Input
-                  label="Phone Number"
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1.5">Phone Number</label>
+                <input
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.currentTarget.value)}
                   placeholder="+254 712 345 678"
+                  className="w-full h-12 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
                 />
-                <div className="rounded-md bg-primary-50 p-3 text-xs text-primary-700 dark:bg-primary-900/20 dark:text-primary-400">
-                  You will receive a prompt on your phone to complete the payment.
-                </div>
               </div>
-            )}
-
-            {/* Cryptocurrency Payment */}
-            {paymentMethod === "crypto" && (
-              <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800/50">
-                <CryptoPaymentUI />
+              <div className="mt-4 rounded-xl bg-lime/10 border border-lime/20 p-4 text-sm text-dark">
+                You will receive a prompt on your phone to complete the payment.
               </div>
-            )}
+            </div>
+          )}
 
-            {paymentMethod !== "crypto" && (
-              <Button type="submit" size="lg" disabled={loading}>
-                {loading ? "Processing…" : "Add Funds"}
-              </Button>
-            )}
+          {/* Crypto */}
+          {paymentMethod === "crypto" && (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Cryptocurrency Deposit</h3>
+              <CryptoPaymentUI />
+            </div>
+          )}
 
-            <Link
-              href={backHref}
-              className="text-center text-xs font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+          {/* Submit */}
+          {paymentMethod !== "crypto" && (
+            <button
+              type="button"
+              onClick={submit}
+              disabled={loading || (!amount && paymentMethod !== "bank_transfer")}
+              className="w-full h-14 rounded-xl bg-lime text-dark text-lg font-bold hover:bg-lime-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              Back to Wallet
+              {loading ? "Processing…" : paymentMethod === "bank_transfer" ? "I've Sent the Funds" : `Add $${amount || "0"} to Wallet`}
+            </button>
+          )}
+        </div>
+
+        {/* Right: Info Panel */}
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-lime/30 bg-lime/5 p-6">
+            <h3 className="text-sm font-semibold text-dark mb-2">Secure Payments</h3>
+            <p className="text-sm text-neutral-600 leading-relaxed">
+              All transactions are encrypted and secured. Your payment information is never stored on our servers.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h3 className="text-sm font-semibold text-neutral-900 mb-3">Supported Methods</h3>
+            <ul className="space-y-2 text-sm text-neutral-600">
+              <li className="flex items-center gap-2">
+                <svg className="h-4 w-4 text-lime" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path d="M5 13l4 4L19 7" />
+                </svg>
+                Visa & Mastercard
+              </li>
+              <li className="flex items-center gap-2">
+                <svg className="h-4 w-4 text-lime" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path d="M5 13l4 4L19 7" />
+                </svg>
+                Bank transfers
+              </li>
+              <li className="flex items-center gap-2">
+                <svg className="h-4 w-4 text-lime" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path d="M5 13l4 4L19 7" />
+                </svg>
+                M-Pesa, MTN, Airtel
+              </li>
+              <li className="flex items-center gap-2">
+                <svg className="h-4 w-4 text-lime" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path d="M5 13l4 4L19 7" />
+                </svg>
+                Bitcoin, Ethereum, USDT
+              </li>
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h3 className="text-sm font-semibold text-neutral-900 mb-3">Need Help?</h3>
+            <p className="text-sm text-neutral-600 leading-relaxed">
+              If your payment doesn't go through, contact our support team for assistance.
+            </p>
+            <Link
+              href="/support"
+              className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-lime hover:text-lime-hover transition-colors"
+            >
+              Contact Support
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path d="M9 5l7 7-7 7" />
+              </svg>
             </Link>
-          </form>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

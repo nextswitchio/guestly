@@ -122,7 +122,7 @@ function AccordionItem({
 
   return (
     <div
-      className={`border-b border-surface-border ${
+      className={`border-b border-neutral-200 ${
         isFirst ? "border-t" : ""
       } ${isLast ? "border-b" : ""}`}
     >
@@ -136,10 +136,10 @@ function AccordionItem({
         className={`w-full flex items-center justify-between px-4 py-4 text-left transition-colors duration-200 ${
           item.disabled
             ? "cursor-not-allowed opacity-50"
-            : "cursor-pointer hover:bg-surface-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:ring-inset"
+            : "cursor-pointer hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/20 focus-visible:ring-inset"
         }`}
       >
-        <span className="text-base font-semibold text-foreground pr-4">
+        <span className="text-base font-semibold text-neutral-900 pr-4">
           {item.title}
         </span>
         <ChevronIcon
@@ -157,7 +157,7 @@ function AccordionItem({
           height: height !== undefined ? `${height}px` : "auto",
         }}
       >
-        <div className="px-4 pb-4 pt-0 text-sm text-foreground-muted">
+        <div className="px-4 pb-4 pt-0 text-sm text-neutral-500">
           {item.content}
         </div>
       </div>
@@ -175,7 +175,7 @@ function ChevronIcon({ isExpanded, disabled }: ChevronIconProps) {
     <svg
       className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ease-out ${
         isExpanded ? "rotate-180" : "rotate-0"
-      } ${disabled ? "text-foreground-subtle" : "text-foreground-muted"}`}
+      } ${disabled ? "text-neutral-400" : "text-neutral-500"}`}
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"

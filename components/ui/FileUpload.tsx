@@ -232,8 +232,8 @@ export default function FileUpload({
           transition-all duration-200 cursor-pointer
           ${
             isDragging
-              ? "border-primary-500 bg-primary-50"
-              : "border-surface-border bg-surface-card hover:border-primary-400 hover:bg-surface-hover"
+              ? "border-lime bg-lime/5"
+              : "border-neutral-200 bg-white hover:border-lime hover:bg-neutral-50"
           }
           ${disabled ? "opacity-50 cursor-not-allowed" : ""}
         `}
@@ -255,14 +255,15 @@ export default function FileUpload({
           mb-4 p-3 rounded-full
           ${
             isDragging
-              ? "bg-primary-100"
-              : "bg-surface-hover"
+              ? "bg-lime/10"
+              : "bg-neutral-50"
           }
         `}
         >
           <svg
             className={`w-8 h-8 ${
-              isDragging ? "text-primary-500" : "text-foreground-muted"
+              isDragging               ? "text-lime"
+              : "text-neutral-500"
             }`}
             fill="none"
             stroke="currentColor"
@@ -279,10 +280,10 @@ export default function FileUpload({
 
         {/* Instructions */}
         <div className="text-center">
-          <p className="text-sm font-medium text-foreground mb-1">
+          <p className="text-sm font-medium text-neutral-900 mb-1">
             {isDragging ? "Drop files here" : "Click to upload or drag and drop"}
           </p>
-          <p className="text-xs text-foreground-muted">
+                    <p className="text-xs text-neutral-500">
             {accept && `Accepted formats: ${accept}`}
             {maxSize && ` • Max size: ${formatFileSize(maxSize)}`}
             {maxFiles && ` • Max ${maxFiles} file${maxFiles > 1 ? "s" : ""}`}
@@ -296,11 +297,11 @@ export default function FileUpload({
           {files.map((fileWithProgress, index) => (
             <div
               key={`${fileWithProgress.file.name}-${index}`}
-              className="flex items-start gap-3 p-3 rounded-lg bg-surface-card border border-surface-border"
+              className="flex items-start gap-3 p-3 rounded-lg bg-white border border-neutral-200"
             >
               {/* Preview or Icon */}
               {showPreview && isImage(fileWithProgress.file) ? (
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-surface-hover">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-neutral-50">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={URL.createObjectURL(fileWithProgress.file)}
@@ -315,9 +316,9 @@ export default function FileUpload({
                   />
                 </div>
               ) : (
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-surface-hover flex items-center justify-center">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-neutral-50 flex items-center justify-center">
                   <svg
-                    className="w-6 h-6 text-foreground-muted"
+                    className="w-6 h-6 text-neutral-500"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -336,10 +337,10 @@ export default function FileUpload({
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
+                    <p className="text-sm font-medium text-neutral-900 truncate">
                       {fileWithProgress.file.name}
                     </p>
-                    <p className="text-xs text-foreground-muted">
+          <p className="text-xs text-neutral-500">
                       {formatFileSize(fileWithProgress.file.size)}
                     </p>
                   </div>
@@ -347,9 +348,9 @@ export default function FileUpload({
                   {/* Status Icon */}
                   <div className="flex-shrink-0">
                     {fileWithProgress.status === "success" && (
-                      <div className="w-5 h-5 rounded-full bg-success-100 flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
                         <svg
-                          className="w-3 h-3 text-success-600"
+                          className="w-3 h-3 text-green-600"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -364,9 +365,9 @@ export default function FileUpload({
                       </div>
                     )}
                     {fileWithProgress.status === "error" && (
-                      <div className="w-5 h-5 rounded-full bg-danger-100 flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center">
                         <svg
-                          className="w-3 h-3 text-danger-600"
+                          className="w-3 h-3 text-red-600"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -387,11 +388,11 @@ export default function FileUpload({
                             e.stopPropagation();
                             removeFile(index);
                           }}
-                          className="w-5 h-5 rounded-full hover:bg-surface-hover flex items-center justify-center transition-colors"
+                          className="w-5 h-5 rounded-full hover:bg-neutral-50 flex items-center justify-center transition-colors"
                           aria-label="Remove file"
                         >
                           <svg
-                            className="w-3 h-3 text-foreground-muted"
+                            className="w-3 h-3 text-neutral-500"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -420,7 +421,7 @@ export default function FileUpload({
 
                 {/* Error Message */}
                 {fileWithProgress.error && (
-                  <p className="text-xs text-danger-600 mt-1">
+                  <p className="text-xs text-red-600 mt-1">
                     {fileWithProgress.error}
                   </p>
                 )}

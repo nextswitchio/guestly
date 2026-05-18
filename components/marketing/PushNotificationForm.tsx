@@ -94,9 +94,9 @@ export function PushNotificationForm({ eventId, onSubmit, onCancel }: PushNotifi
             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
             placeholder="Your event starts in 1 hour..."
             required
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white min-h-[100px]"
+            className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-neutral-900 min-h-[100px]"
           />
-          <p className="text-xs text-gray-500 mt-1">{formData.message.length}/200 characters</p>
+          <p className="text-xs text-neutral-500 mt-1">{formData.message.length}/200 characters</p>
         </div>
 
         <Input
@@ -120,10 +120,10 @@ export function PushNotificationForm({ eventId, onSubmit, onCancel }: PushNotifi
           onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
         />
 
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-start gap-2">
             <Icon name="information-circle" className="w-5 h-5 text-blue-600" />
-            <div className="text-sm text-blue-900 dark:text-blue-100">
+            <div className="text-sm text-blue-900">
               <p className="font-medium mb-1">Estimated Reach</p>
               <p>This notification will be sent to approximately {formData.estimatedRecipients.toLocaleString()} users who have enabled push notifications.</p>
             </div>

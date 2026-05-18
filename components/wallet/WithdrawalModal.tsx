@@ -157,10 +157,10 @@ export default function WithdrawalModal({
             <div className="grid gap-3">
               <button
                 onClick={() => handleMethodSelect("bank")}
-                className="flex items-center gap-4 rounded-xl border-2 border-neutral-200 p-4 text-left transition hover:border-primary-500 hover:bg-primary-50"
+                className="flex items-center gap-4 rounded-xl border-2 border-neutral-200 p-4 text-left transition hover:border-lime hover:bg-lime/5"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100">
-                  <Icon name="credit-card" className="w-6 h-6 text-primary-600" />
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-lime/10">
+                  <Icon name="credit-card" className="w-6 h-6 text-lime" />
                 </span>
                 <div>
                   <p className="font-semibold text-neutral-900">Bank Account</p>
@@ -172,9 +172,9 @@ export default function WithdrawalModal({
 
               <button
                 onClick={() => handleMethodSelect("crypto")}
-                className="flex items-center gap-4 rounded-xl border-2 border-neutral-200 p-4 text-left transition hover:border-primary-500 hover:bg-primary-50"
+                className="flex items-center gap-4 rounded-xl border-2 border-neutral-200 p-4 text-left transition hover:border-lime hover:bg-lime/5"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-2xl">
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-lime/10 text-2xl">
                   ₿
                 </span>
                 <div>
@@ -195,7 +195,7 @@ export default function WithdrawalModal({
           <div className="space-y-4">
             <button
               onClick={() => setStep("method")}
-              className="flex items-center gap-2 text-sm text-primary-600 hover:underline"
+              className="flex items-center gap-2 text-sm text-lime hover:underline"
             >
              <ArrowLeft className="h-4 w-4 inline" /> Back to methods
             </button>
@@ -254,7 +254,7 @@ export default function WithdrawalModal({
                         e.target.value as "usdt_trc20" | "usdt_erc20" | "bitcoin"
                       )
                     }
-                    className="w-full rounded-xl border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="w-full rounded-xl border border-neutral-300 px-4 py-2.5 text-sm focus:border-lime focus:outline-none focus:ring-2 focus:ring-lime/20"
                   >
                     <option value="usdt_trc20">USDT (TRC20)</option>
                     <option value="usdt_erc20">USDT (ERC20)</option>
@@ -281,12 +281,12 @@ export default function WithdrawalModal({
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add any additional notes..."
                 rows={3}
-                className="w-full rounded-xl border border-neutral-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-xl border border-neutral-300 px-4 py-2.5 text-sm focus:border-lime focus:outline-none focus:ring-2 focus:ring-lime/20"
               />
             </div>
 
             {error && (
-              <div className="rounded-lg bg-danger-50 p-3 text-sm text-danger-700">
+              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
                 {error}
               </div>
             )}
@@ -302,7 +302,7 @@ export default function WithdrawalModal({
           <div className="space-y-4">
             <button
               onClick={() => setStep("details")}
-              className="flex items-center gap-2 text-sm text-primary-600 hover:underline"
+              className="flex items-center gap-2 text-sm text-lime hover:underline"
             >
              <ArrowLeft className="h-4 w-4 inline" /> Back to details
             </button>
@@ -368,13 +368,13 @@ export default function WithdrawalModal({
               </div>
             </div>
 
-            <div className="rounded-lg bg-warning-50 p-3 text-sm text-warning-800">
+            <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
              <AlertTriangle className="h-4 w-4 inline" /> Withdrawal requests are typically processed within 1-3 business
               days. You'll receive a notification once processed.
             </div>
 
             {error && (
-              <div className="rounded-lg bg-danger-50 p-3 text-sm text-danger-700">
+              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
                 {error}
               </div>
             )}

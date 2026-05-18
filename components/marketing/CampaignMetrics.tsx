@@ -39,15 +39,15 @@ export default function CampaignMetrics({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Icon name="loader" className="w-6 h-6 animate-spin text-primary-500" />
-      </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime"></div>
+        </div>
     );
   }
 
   if (!metrics) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-neutral-500">
         No metrics available
       </div>
     );
@@ -82,7 +82,7 @@ export default function CampaignMetrics({
       label: 'Conversions',
       value: metrics.conversions.toLocaleString(),
       icon: 'check-circle',
-      color: 'text-success-500',
+      color: 'text-green-500',
     },
     {
       label: 'Conversion Rate',
@@ -106,13 +106,13 @@ export default function CampaignMetrics({
       label: 'ROI',
       value: `${metrics.roi.toFixed(1)}%`,
       icon: 'trending-up',
-      color: metrics.roi >= 0 ? 'text-success-500' : 'text-danger-500',
+      color: metrics.roi >= 0 ? 'text-green-500' : 'text-red-500',
     },
     {
       label: 'CAC',
       value: `$${metrics.cac.toFixed(2)}`,
       icon: 'user-plus',
-      color: 'text-gray-600',
+      color: 'text-neutral-600',
     },
   ];
 
@@ -120,7 +120,7 @@ export default function CampaignMetrics({
     <div>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">Campaign Performance</h3>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
+        <div className="flex items-center gap-2 text-sm text-neutral-500">
           <Icon name="refresh-cw" className="w-4 h-4" />
           <span>Auto-refreshing</span>
         </div>
@@ -130,7 +130,7 @@ export default function CampaignMetrics({
         {metricCards.map((metric) => (
           <Card key={metric.label} className="p-4">
             <div className="flex items-start justify-between mb-2">
-              <p className="text-xs text-gray-600 dark:text-gray-400">{metric.label}</p>
+              <p className="text-xs text-neutral-500">{metric.label}</p>
               <Icon name={metric.icon as any} className={`w-4 h-4 ${metric.color}`} />
             </div>
             <p className={`text-xl font-bold ${metric.color}`}>{metric.value}</p>
@@ -143,25 +143,25 @@ export default function CampaignMetrics({
         <h4 className="font-semibold mb-3">Performance Summary</h4>
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Engagement Rate</span>
+            <span className="text-neutral-500">Engagement Rate</span>
             <span className="font-medium">
               {((metrics.clicks / metrics.impressions) * 100 || 0).toFixed(2)}%
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Cost per Click</span>
+            <span className="text-neutral-500">Cost per Click</span>
             <span className="font-medium">
               ${(metrics.cost / metrics.clicks || 0).toFixed(2)}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Cost per Conversion</span>
+            <span className="text-neutral-500">Cost per Conversion</span>
             <span className="font-medium">
               ${(metrics.cost / metrics.conversions || 0).toFixed(2)}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Revenue per Conversion</span>
+            <span className="text-neutral-500">Revenue per Conversion</span>
             <span className="font-medium">
               ${(metrics.revenue / metrics.conversions || 0).toFixed(2)}
             </span>

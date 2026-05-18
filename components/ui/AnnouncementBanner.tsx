@@ -48,21 +48,21 @@ export function AnnouncementBanner({ announcements, onDismiss }: AnnouncementBan
     switch (priority) {
       case 'urgent':
         return {
-          bg: 'bg-danger-50 border-danger-200',
-          text: 'text-danger-800',
-          icon: 'text-danger-600',
+          bg: 'bg-red-50 border-red-200',
+          text: 'text-red-800',
+          icon: 'text-red-600',
         };
       case 'high':
         return {
-          bg: 'bg-warning-50 border-warning-200',
-          text: 'text-warning-800',
-          icon: 'text-warning-600',
+          bg: 'bg-amber-50 border-amber-200',
+          text: 'text-amber-800',
+          icon: 'text-amber-600',
         };
       case 'medium':
         return {
-          bg: 'bg-primary-50 border-primary-200',
-          text: 'text-primary-800',
-          icon: 'text-primary-600',
+          bg: 'bg-lime/5 border-lime',
+          text: 'text-lime',
+          icon: 'text-lime',
         };
       case 'low':
         return {
@@ -72,9 +72,33 @@ export function AnnouncementBanner({ announcements, onDismiss }: AnnouncementBan
         };
       default:
         return {
-          bg: 'bg-primary-50 border-primary-200',
-          text: 'text-primary-800',
-          icon: 'text-primary-600',
+          bg: 'bg-lime/5 border-lime',
+          text: 'text-lime',
+          icon: 'text-lime',
+        };
+      case 'high':
+        return {
+          bg: 'bg-amber-50 border-amber-200',
+          text: 'text-amber-800',
+          icon: 'text-amber-600',
+        };
+      case 'medium':
+        return {
+          bg: 'bg-lime/5 border-lime',
+          text: 'text-lime',
+          icon: 'text-lime',
+        };
+      case 'low':
+        return {
+          bg: 'bg-neutral-50 border-neutral-200',
+          text: 'text-neutral-800',
+          icon: 'text-neutral-600',
+        };
+      default:
+        return {
+          bg: 'bg-lime/5 border-lime',
+          text: 'text-lime',
+          icon: 'text-lime',
         };
     }
   };
@@ -120,7 +144,7 @@ export function AnnouncementBanner({ announcements, onDismiss }: AnnouncementBan
   }, [currentAnnouncement.id]);
 
   return (
-    <div className={`border rounded-lg p-4 mb-6 ${styles.bg}`}>
+    <div className={`border rounded-2xl p-4 mb-6 ${styles.bg}`}>
       <div className="flex items-start gap-3">
         <div className={`flex-shrink-0 ${styles.icon}`}>
           <Icon 
@@ -135,7 +159,7 @@ export function AnnouncementBanner({ announcements, onDismiss }: AnnouncementBan
               {currentAnnouncement.title}
             </h3>
             {currentAnnouncement.priority === 'urgent' && (
-              <span className="px-2 py-0.5 text-xs font-bold bg-danger-100 text-danger-700 rounded-full">
+              <span className="px-2 py-0.5 text-xs font-bold bg-red-100 text-red-700 rounded-full">
                 URGENT
               </span>
             )}

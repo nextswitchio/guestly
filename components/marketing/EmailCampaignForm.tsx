@@ -150,8 +150,8 @@ export function EmailCampaignForm({
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
                     currentStep >= step.number
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                      ? 'bg-lime text-dark'
+                      : 'bg-neutral-200 text-neutral-500'
                   }`}
                 >
                   {currentStep > step.number ? (
@@ -162,7 +162,7 @@ export function EmailCampaignForm({
                 </div>
                 <span
                   className={`text-sm mt-2 font-medium ${
-                    currentStep >= step.number ? 'text-primary-600' : 'text-gray-500'
+                    currentStep >= step.number ? 'text-lime' : 'text-neutral-500'
                   }`}
                 >
                   {step.title}
@@ -171,7 +171,7 @@ export function EmailCampaignForm({
               {index < steps.length - 1 && (
                 <div
                   className={`h-0.5 flex-1 mx-4 transition-colors ${
-                    currentStep > step.number ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-700'
+                    currentStep > step.number ? 'bg-lime' : 'bg-neutral-200'
                   }`}
                 />
               )}
@@ -187,7 +187,7 @@ export function EmailCampaignForm({
           <div className="space-y-6">
             <div>
               <h3 className="text-xl font-semibold mb-4">Campaign Details</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-neutral-500 mb-6">
                 Set up the basic information for your email campaign
               </p>
             </div>
@@ -205,10 +205,10 @@ export function EmailCampaignForm({
               <select
                 value={formData.eventId}
                 onChange={(e) => updateField('eventId', e.target.value)}
-                className={`w-full h-10 rounded-xl border bg-[var(--surface-card)] text-[var(--foreground)] px-3.5 transition-all ${
+                className={`w-full h-10 rounded-xl border bg-neutral-50 text-neutral-900 px-3.5 transition-all ${
                   errors.eventId
-                    ? 'border-danger-400'
-                    : 'border-[var(--surface-border)] hover:border-neutral-300 focus:border-primary-500'
+                    ? 'border-red-400'
+                    : 'border-neutral-200 hover:border-neutral-300 focus:ring-lime/20 focus:border-lime'
                 }`}
               >
                 <option value="">Choose an event...</option>
@@ -219,7 +219,7 @@ export function EmailCampaignForm({
                 ))}
               </select>
               {errors.eventId && (
-                <p className="text-xs text-danger-600 mt-1">{errors.eventId}</p>
+                <p className="text-xs text-red-600 mt-1">{errors.eventId}</p>
               )}
             </div>
 
@@ -234,10 +234,10 @@ export function EmailCampaignForm({
                     updateField('subject', template.subject);
                   }
                 }}
-                className={`w-full h-10 rounded-xl border bg-[var(--surface-card)] text-[var(--foreground)] px-3.5 transition-all ${
+                className={`w-full h-10 rounded-xl border bg-neutral-50 text-neutral-900 px-3.5 transition-all ${
                   errors.templateId
-                    ? 'border-danger-400'
-                    : 'border-[var(--surface-border)] hover:border-neutral-300 focus:border-primary-500'
+                    ? 'border-red-400'
+                    : 'border-neutral-200 hover:border-neutral-300 focus:ring-lime/20 focus:border-lime'
                 }`}
               >
                 <option value="">Choose a template...</option>
@@ -248,7 +248,7 @@ export function EmailCampaignForm({
                 ))}
               </select>
               {errors.templateId && (
-                <p className="text-xs text-danger-600 mt-1">{errors.templateId}</p>
+                <p className="text-xs text-red-600 mt-1">{errors.templateId}</p>
               )}
             </div>
           </div>
@@ -259,7 +259,7 @@ export function EmailCampaignForm({
           <div className="space-y-6">
             <div>
               <h3 className="text-xl font-semibold mb-4">Email Content</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-neutral-500 mb-6">
                 Customize your email subject and sender information
               </p>
             </div>
@@ -315,11 +315,11 @@ export function EmailCampaignForm({
                   type="checkbox"
                   checked={formData.abTestEnabled}
                   onChange={(e) => updateField('abTestEnabled', e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="w-4 h-4 rounded border-neutral-200 text-lime focus:ring-lime/20 focus:border-lime"
                 />
                 <div>
                   <div className="font-medium">Enable A/B Testing</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-sm text-neutral-500">
                     Test different subject lines to optimize open rates
                   </div>
                 </div>
@@ -333,7 +333,7 @@ export function EmailCampaignForm({
           <div className="space-y-6">
             <div>
               <h3 className="text-xl font-semibold mb-4">Audience & Schedule</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-neutral-500 mb-6">
                 Define your target audience and when to send
               </p>
             </div>
@@ -346,7 +346,7 @@ export function EmailCampaignForm({
                     type="checkbox"
                     checked={formData.targetAudience.pastAttendance || false}
                     onChange={(e) => updateAudience('pastAttendance', e.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  className="w-4 h-4 rounded border-neutral-200 text-lime focus:ring-lime/20 focus:border-lime"
                   />
                   <span>Past attendees only</span>
                 </label>
@@ -361,7 +361,7 @@ export function EmailCampaignForm({
                         e.target.value as 'high' | 'medium' | 'low' | undefined
                       )
                     }
-                    className="w-full h-10 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] text-[var(--foreground)] px-3.5"
+                    className="w-full h-10 rounded-xl border border-neutral-200 bg-neutral-50 text-neutral-900 px-3.5"
                   >
                     <option value="">All engagement levels</option>
                     <option value="high">High engagement</option>
@@ -383,11 +383,11 @@ export function EmailCampaignForm({
                       updateField('sendImmediately', true);
                       updateField('scheduledAt', undefined);
                     }}
-                    className="w-4 h-4 border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="w-4 h-4 border-neutral-200 text-lime focus:ring-lime/20 focus:border-lime"
                   />
                   <div>
                     <div className="font-medium">Send Immediately</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-sm text-neutral-500">
                       Campaign will be sent as soon as you confirm
                     </div>
                   </div>
@@ -398,7 +398,7 @@ export function EmailCampaignForm({
                     type="radio"
                     checked={!formData.sendImmediately}
                     onChange={() => updateField('sendImmediately', false)}
-                    className="w-4 h-4 border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="w-4 h-4 border-neutral-200 text-lime focus:ring-lime/20 focus:border-lime"
                   />
                   <div className="flex-1">
                     <div className="font-medium mb-2">Schedule for Later</div>
@@ -413,13 +413,13 @@ export function EmailCampaignForm({
                         onChange={(e) =>
                           updateField('scheduledAt', new Date(e.target.value).getTime())
                         }
-                        className="w-full h-10 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] text-[var(--foreground)] px-3.5"
+                    className="w-full h-10 rounded-xl border border-neutral-200 bg-neutral-50 text-neutral-900 px-3.5"
                       />
                     )}
                   </div>
                 </label>
                 {errors.scheduledAt && (
-                  <p className="text-xs text-danger-600">{errors.scheduledAt}</p>
+                  <p className="text-xs text-red-600">{errors.scheduledAt}</p>
                 )}
               </div>
             </div>
@@ -431,31 +431,31 @@ export function EmailCampaignForm({
           <div className="space-y-6">
             <div>
               <h3 className="text-xl font-semibold mb-4">Review & Send</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-neutral-500 mb-6">
                 Review your campaign details before sending
               </p>
             </div>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-neutral-50 rounded-2xl">
                 <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Campaign Name</div>
+                  <div className="text-sm text-neutral-500">Campaign Name</div>
                   <div className="font-medium">{formData.name}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Event</div>
+                  <div className="text-sm text-neutral-500">Event</div>
                   <div className="font-medium">
                     {events.find(e => e.id === formData.eventId)?.name || 'N/A'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Template</div>
+                  <div className="text-sm text-neutral-500">Template</div>
                   <div className="font-medium">
                     {templates.find(t => t.id === formData.templateId)?.name || 'N/A'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Schedule</div>
+                  <div className="text-sm text-neutral-500">Schedule</div>
                   <div className="font-medium">
                     {formData.sendImmediately
                       ? 'Send Immediately'
@@ -466,21 +466,21 @@ export function EmailCampaignForm({
                 </div>
               </div>
 
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Subject Line</div>
+              <div className="p-4 bg-neutral-50 rounded-2xl">
+                <div className="text-sm text-neutral-500 mb-1">Subject Line</div>
                 <div className="font-medium">{formData.subject}</div>
               </div>
 
-              <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">From</div>
+              <div className="p-4 bg-neutral-50 rounded-2xl">
+                <div className="text-sm text-neutral-500 mb-1">From</div>
                 <div className="font-medium">
                   {formData.fromName} &lt;{formData.fromEmail}&gt;
                 </div>
               </div>
 
               {formData.abTestEnabled && (
-                <div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800">
-                  <div className="flex items-center gap-2 text-primary-700 dark:text-primary-300">
+                <div className="p-4 bg-lime/10 rounded-2xl border border-lime/20">
+                  <div className="flex items-center gap-2 text-lime">
                     <Icon name="sparkles" className="w-4 h-4" />
                     <span className="font-medium">A/B Testing Enabled</span>
                   </div>
@@ -488,10 +488,10 @@ export function EmailCampaignForm({
               )}
             </div>
 
-            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200">
               <div className="flex gap-3">
-                <Icon name="bell" className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                <Icon name="bell" className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-amber-800">
                   <div className="font-medium mb-1">Before you send</div>
                   <ul className="list-disc list-inside space-y-1">
                     <li>Double-check your subject line for typos</li>

@@ -181,7 +181,7 @@ export default function SwipeableImageGallery({
               disabled={isTransitioning}
               className={`w-2 h-2 rounded-full transition-all duration-200 touch-target ${
                 index === currentIndex
-                  ? 'bg-primary-600 scale-125'
+                  ? 'bg-lime scale-125'
                   : 'bg-neutral-300 hover:bg-neutral-400'
               } disabled:cursor-not-allowed`}
               aria-label={`Go to image ${index + 1}`}

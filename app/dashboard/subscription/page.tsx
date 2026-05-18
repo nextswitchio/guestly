@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 
 type Subscription = {
@@ -15,7 +13,6 @@ type Subscription = {
 interface PlanFeature {
   name: string;
   included: boolean;
-  tooltip?: string;
 }
 
 interface Plan {
@@ -153,266 +150,226 @@ export default function OrganiserSubscriptionPage() {
   const currentPlan = plans.find((p) => p.key === sub?.plan);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="mx-auto max-w-7xl px-4 py-12">
-        {/* Header */}
-        <div className="mb-12 text-center">
-          <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-foreground-muted hover:text-foreground mb-6">
-            <Icon name="arrow-left" className="w-4 h-4" />
-            Back to Dashboard
-          </Link>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground mb-4">
-            Choose Your Plan
-          </h1>
-          <p className="text-lg text-foreground-muted max-w-2xl mx-auto">
-            Unlock powerful features to grow your events and reach more attendees
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center">
+        <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-700 mb-4">
+          <Icon name="arrow-left" size={16} />
+          Back to Dashboard
+        </Link>
+        <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-4">
+          Choose Your Plan
+        </h1>
+        <p className="text-lg text-neutral-500 max-w-2xl mx-auto">
+          Unlock powerful features to grow your events and reach more attendees
+        </p>
+      </div>
 
-        {/* Current Status Banner */}
-        {active && (
-          <Card className="mb-8 bg-gradient-to-r from-success-50 to-success-100 dark:from-success-900/20 dark:to-success-800/20 border-success-200 dark:border-success-800">
-            <div className="p-6 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success-500">
-                  <Icon name="check-circle" className="w-6 h-6 text-white" />
+      {/* Current Status Banner */}
+      {active && (
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-600">
+              <Icon name="check-circle" size={24} className="text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-green-900">
+                {currentPlan?.name} Plan Active
+              </h3>
+              <p className="text-sm text-green-700">
+                Expires on {formatDate(sub?.expiresAt)}
+              </p>
+            </div>
+          </div>
+          <button className="rounded-xl border border-green-300 bg-white px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-100 transition-colors">
+            Download Invoice
+          </button>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 flex items-center gap-3">
+          <Icon name="alert-circle" size={20} className="text-red-600" />
+          <p className="text-sm text-red-700">{error}</p>
+        </div>
+      )}
+
+      {/* Pricing Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {plans.map((plan) => {
+          const isCurrent = sub?.plan === plan.key && active;
+          const isPopular = plan.popular;
+
+          return (
+            <div
+              key={plan.key}
+              className={`relative rounded-2xl border p-6 transition-all ${
+                isPopular
+                  ? "border-2 border-lime shadow-lg"
+                  : isCurrent
+                  ? "border-2 border-green-500"
+                  : "border border-neutral-200 bg-white"
+              }`}
+            >
+              {isPopular && (
+                <div className="absolute top-0 right-0 bg-lime text-dark text-xs font-bold px-3 py-1 rounded-bl-xl">
+                  MOST POPULAR
                 </div>
-                <div>
-                  <h3 className="font-semibold text-success-900 dark:text-success-100">
-                    {currentPlan?.name} Plan Active
-                  </h3>
-                  <p className="text-sm text-success-700 dark:text-success-300">
-                    Expires on {formatDate(sub?.expiresAt)}
-                  </p>
+              )}
+              {isCurrent && (
+                <div className="absolute top-0 right-0 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+                  CURRENT PLAN
                 </div>
+              )}
+
+              <h3 className="text-xl font-bold text-neutral-900 mb-2">{plan.name}</h3>
+              <div className="mb-4">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-neutral-900">${plan.price}</span>
+                  <span className="text-neutral-500">/{plan.months}mo</span>
+                </div>
+                <div className="text-sm text-neutral-500 mt-1">
+                  ${plan.pricePerMonth.toFixed(2)}/month
+                </div>
+                {plan.savings && (
+                  <div className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-lg">
+                    {plan.savings}
+                  </div>
+                )}
               </div>
-              <Button variant="outline" size="sm">
-                <Icon name="download" className="w-4 h-4 mr-2" />
-                Download Invoice
-              </Button>
-            </div>
-          </Card>
-        )}
 
-        {/* Error Message */}
-        {error && (
-          <Card className="mb-8 bg-danger-50 dark:bg-danger-900/20 border-danger-200 dark:border-danger-800">
-            <div className="p-4 flex items-center gap-3">
-              <Icon name="alert-circle" className="w-5 h-5 text-danger-600 dark:text-danger-400" />
-              <p className="text-sm text-danger-700 dark:text-danger-300">{error}</p>
-            </div>
-          </Card>
-        )}
-
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {plans.map((plan) => {
-            const isCurrent = sub?.plan === plan.key && active;
-            const isPopular = plan.popular;
-
-            return (
-              <Card
-                key={plan.key}
-                className={`relative overflow-hidden transition-all hover:shadow-xl ${
+              <button
+                onClick={() => activate(plan.key)}
+                disabled={loading}
+                className={`w-full mb-4 rounded-xl py-2.5 text-sm font-bold transition-colors ${
                   isPopular
-                    ? "border-2 border-primary-500 shadow-lg scale-105"
-                    : isCurrent
-                    ? "border-2 border-success-500"
-                    : ""
-                }`}
+                    ? "bg-lime text-dark hover:bg-lime-hover"
+                    : "border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
+                } disabled:opacity-50`}
               >
-                {isPopular && (
-                  <div className="absolute top-0 right-0 bg-gradient-to-r from-primary-500 to-purple-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
-                    MOST POPULAR
-                  </div>
-                )}
-                {isCurrent && (
-                  <div className="absolute top-0 right-0 bg-success-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
-                    CURRENT PLAN
-                  </div>
-                )}
+                {loading ? "Processing..." : isCurrent ? "Extend Plan" : "Get Started"}
+              </button>
 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-foreground mb-2">{plan.name}</h3>
-                  <div className="mb-4">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold text-foreground">${plan.price}</span>
-                      <span className="text-foreground-muted">/{plan.months}mo</span>
-                    </div>
-                    <div className="text-sm text-foreground-muted mt-1">
-                      ${plan.pricePerMonth.toFixed(2)}/month
-                    </div>
-                    {plan.savings && (
-                      <div className="inline-block mt-2 px-2 py-1 bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-300 text-xs font-semibold rounded-full">
-                        {plan.savings}
-                      </div>
-                    )}
-                  </div>
-
-                  <Button
-                    onClick={() => activate(plan.key)}
-                    disabled={loading}
-                    variant={isPopular ? "primary" : "outline"}
-                    className="w-full mb-4"
-                  >
-                    {loading ? (
-                      <>
-                        <Icon name="loader" className="w-4 h-4 mr-2 animate-spin" />
-                        Processing...
-                      </>
-                    ) : isCurrent ? (
-                      "Extend Plan"
+              <div className="space-y-3">
+                {plan.features.map((feature, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    {feature.included ? (
+                      <Icon name="check" size={16} className="text-green-600 flex-shrink-0" />
                     ) : (
-                      "Get Started"
+                      <Icon name="x" size={16} className="text-neutral-300 flex-shrink-0" />
                     )}
-                  </Button>
-
-                  <div className="space-y-3">
-                    {plan.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        {feature.included ? (
-                          <Icon name="check" className="w-4 h-4 text-success-600 dark:text-success-400 flex-shrink-0" />
-                        ) : (
-                          <Icon name="x" className="w-4 h-4 text-foreground-muted flex-shrink-0" />
-                        )}
-                        <span
-                          className={`text-sm ${
-                            feature.included
-                              ? "text-foreground"
-                              : "text-foreground-muted line-through"
-                          }`}
-                        >
-                          {feature.name}
-                        </span>
-                      </div>
-                    ))}
+                    <span
+                      className={`text-sm ${
+                        feature.included
+                          ? "text-neutral-900"
+                          : "text-neutral-400 line-through"
+                      }`}
+                    >
+                      {feature.name}
+                    </span>
                   </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Comparison Toggle */}
-        <div className="text-center mb-8">
-          <Button
-            variant="outline"
-            onClick={() => setShowComparison(!showComparison)}
-          >
-            <Icon name={showComparison ? "chevron-up" : "chevron-down"} className="w-4 h-4 mr-2" />
-            {showComparison ? "Hide" : "Show"} Detailed Comparison
-          </Button>
-        </div>
-
-        {/* Detailed Comparison Table */}
-        {showComparison && (
-          <Card className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-surface-hover">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                      Features
-                    </th>
-                    {plans.map((plan) => (
-                      <th
-                        key={plan.key}
-                        className="px-6 py-4 text-center text-sm font-semibold text-foreground"
-                      >
-                        <div>{plan.name}</div>
-                        <div className="text-xs font-normal text-foreground-muted mt-1">
-                          ${plan.price}/{plan.months}mo
-                        </div>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-surface-border">
-                  {allFeatures.map((feature, idx) => (
-                    <tr key={idx} className="hover:bg-surface-hover/50">
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-foreground">{feature.name}</div>
-                        <div className="text-sm text-foreground-muted">{feature.description}</div>
-                      </td>
-                      {plans.map((plan) => {
-                        const planFeature = plan.features.find((f) => f.name === feature.name);
-                        return (
-                          <td key={plan.key} className="px-6 py-4 text-center">
-                            {planFeature?.included ? (
-                              <Icon name="check-circle" className="w-6 h-6 text-success-600 dark:text-success-400 mx-auto" />
-                            ) : (
-                              <Icon name="x-circle" className="w-6 h-6 text-foreground-muted mx-auto" />
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                ))}
+              </div>
             </div>
-          </Card>
-        )}
+          );
+        })}
+      </div>
 
-        {/* FAQ Section */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-center text-foreground mb-8">
-            Frequently Asked Questions
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <Card className="p-6">
-              <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                <Icon name="help-circle" className="w-5 h-5 text-primary-500" />
-                Can I change plans?
-              </h3>
-              <p className="text-sm text-foreground-muted">
-                Yes! You can upgrade or extend your plan at any time. The new plan will be activated immediately.
-              </p>
-            </Card>
-            <Card className="p-6">
-              <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                <Icon name="help-circle" className="w-5 h-5 text-primary-500" />
-                What payment methods do you accept?
-              </h3>
-              <p className="text-sm text-foreground-muted">
-                We accept all major credit cards, debit cards, and mobile money payments.
-              </p>
-            </Card>
-            <Card className="p-6">
-              <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                <Icon name="help-circle" className="w-5 h-5 text-primary-500" />
-                Is there a free trial?
-              </h3>
-              <p className="text-sm text-foreground-muted">
-                We offer a 7-day free trial for new organizers. No credit card required to start.
-              </p>
-            </Card>
-            <Card className="p-6">
-              <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                <Icon name="help-circle" className="w-5 h-5 text-primary-500" />
-                Can I cancel anytime?
-              </h3>
-              <p className="text-sm text-foreground-muted">
-                Yes, you can cancel your subscription at any time. You'll retain access until the end of your billing period.
-              </p>
-            </Card>
+      {/* Comparison Toggle */}
+      <div className="text-center">
+        <button
+          onClick={() => setShowComparison(!showComparison)}
+          className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+        >
+          <Icon name={showComparison ? "chevron-up" : "chevron-down"} size={16} />
+          {showComparison ? "Hide" : "Show"} Detailed Comparison
+        </button>
+      </div>
+
+      {/* Detailed Comparison Table */}
+      {showComparison && (
+        <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-900">
+                    Features
+                  </th>
+                  {plans.map((plan) => (
+                    <th
+                      key={plan.key}
+                      className="px-6 py-4 text-center text-sm font-semibold text-neutral-900"
+                    >
+                      <div>{plan.name}</div>
+                      <div className="text-xs font-normal text-neutral-500 mt-1">
+                        ${plan.price}/{plan.months}mo
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100">
+                {allFeatures.map((feature, idx) => (
+                  <tr key={idx} className="hover:bg-neutral-50">
+                    <td className="px-6 py-4">
+                      <div className="font-medium text-neutral-900">{feature.name}</div>
+                      <div className="text-sm text-neutral-500">{feature.description}</div>
+                    </td>
+                    {plans.map((plan) => {
+                      const planFeature = plan.features.find((f) => f.name === feature.name);
+                      return (
+                        <td key={plan.key} className="px-6 py-4 text-center">
+                          {planFeature?.included ? (
+                            <Icon name="check-circle" size={24} className="text-green-600 mx-auto" />
+                          ) : (
+                            <Icon name="x-circle" size={24} className="text-neutral-300 mx-auto" />
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
+      )}
 
-        {/* Support CTA */}
-        <Card className="mt-12 bg-gradient-to-r from-primary-500 to-purple-500 text-white">
-          <div className="p-8 text-center">
-            <Icon name="message-circle" className="w-12 h-12 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold mb-2">Need Help Choosing?</h3>
-            <p className="text-white/90 mb-6 max-w-2xl mx-auto">
-              Our team is here to help you find the perfect plan for your needs
-            </p>
-            <Button variant="secondary" size="lg">
-              <Icon name="mail" className="w-4 h-4 mr-2" />
-              Contact Sales
-            </Button>
-          </div>
-        </Card>
+      {/* FAQ Section */}
+      <div>
+        <h2 className="text-2xl font-bold text-center text-neutral-900 mb-8">
+          Frequently Asked Questions
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {[
+            { q: "Can I change plans?", a: "Yes! You can upgrade or extend your plan at any time. The new plan will be activated immediately." },
+            { q: "What payment methods do you accept?", a: "We accept all major credit cards, debit cards, and mobile money payments." },
+            { q: "Is there a free trial?", a: "We offer a 7-day free trial for new organizers. No credit card required to start." },
+            { q: "Can I cancel anytime?", a: "Yes, you can cancel your subscription at any time. You'll retain access until the end of your billing period." },
+          ].map((faq, idx) => (
+            <div key={idx} className="rounded-2xl border border-neutral-200 bg-white p-6">
+              <h3 className="font-semibold text-neutral-900 mb-2 flex items-center gap-2">
+                <Icon name="help-circle" size={18} className="text-lime" />
+                {faq.q}
+              </h3>
+              <p className="text-sm text-neutral-500">{faq.a}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Support CTA */}
+      <div className="rounded-2xl bg-lime p-8 text-center">
+        <Icon name="message-circle" size={48} className="text-dark/60 mx-auto mb-4" />
+        <h3 className="text-2xl font-bold text-dark mb-2">Need Help Choosing?</h3>
+        <p className="text-dark/70 mb-6 max-w-2xl mx-auto">
+          Our team is here to help you find the perfect plan for your needs
+        </p>
+        <button className="rounded-xl bg-dark px-6 py-3 text-sm font-bold text-white hover:bg-dark/90 transition-colors">
+          Contact Sales
+        </button>
       </div>
     </div>
   );

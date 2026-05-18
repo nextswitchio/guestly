@@ -24,16 +24,18 @@ interface Props {
 }
 
 export default function CohortAnalysis({ cohorts, periodLabel = 'Month' }: Props) {
+  const safeCohorts = cohorts ?? [];
+
   const maxPeriods = useMemo(() => {
-    return Math.max(...cohorts.map(c => c.periods.length), 0);
-  }, [cohorts]);
+    return Math.max(...safeCohorts.map(c => c.periods.length), 0);
+  }, [safeCohorts]);
 
   const averageRetention = useMemo(() => {
-    if (cohorts.length === 0) return [];
+    if (safeCohorts.length === 0) return [];
     const periodAverages: number[] = [];
     
     for (let i = 0; i < maxPeriods; i++) {
-      const rates = cohorts
+      const rates = safeCohorts
         .filter(c => c.periods[i])
         .map(c => c.periods[i].retentionRate);
       
@@ -43,7 +45,7 @@ export default function CohortAnalysis({ cohorts, periodLabel = 'Month' }: Props
     }
     
     return periodAverages;
-  }, [cohorts, maxPeriods]);
+  }, [safeCohorts, maxPeriods]);
 
   const getRetentionColor = (rate: number) => {
     if (rate >= 80) return 'bg-green-600';
@@ -61,7 +63,7 @@ export default function CohortAnalysis({ cohorts, periodLabel = 'Month' }: Props
     return 'text-red-600';
   };
 
-  if (cohorts.length === 0) {
+  if (safeCohorts.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
         No cohort data available
@@ -75,7 +77,7 @@ export default function CohortAnalysis({ cohorts, periodLabel = 'Month' }: Props
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
           <p className="text-sm text-blue-900 font-medium mb-1">Total Cohorts</p>
-          <p className="text-2xl font-bold text-blue-900">{cohorts.length}</p>
+          <p className="text-2xl font-bold text-blue-900">{safeCohorts.length}</p>
         </div>
         <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
           <p className="text-sm text-purple-900 font-medium mb-1">Avg {periodLabel} 1 Retention</p>
@@ -92,7 +94,7 @@ export default function CohortAnalysis({ cohorts, periodLabel = 'Month' }: Props
         <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
           <p className="text-sm text-orange-900 font-medium mb-1">Avg LTV</p>
           <p className="text-2xl font-bold text-orange-900">
-            ${cohorts.reduce((sum, c) => sum + (c.periods[c.periods.length - 1]?.ltv || 0), 0) / cohorts.length || 0}
+            ${safeCohorts.reduce((sum, c) => sum + (c.periods[c.periods.length - 1]?.ltv || 0), 0) / safeCohorts.length || 0}
           </p>
         </div>
       </div>
@@ -117,7 +119,7 @@ export default function CohortAnalysis({ cohorts, periodLabel = 'Month' }: Props
                 </tr>
               </thead>
               <tbody>
-                {cohorts.map((cohort) => (
+                {safeCohorts.map((cohort) => (
                   <tr key={cohort.cohortName} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-3 font-medium text-gray-900 sticky left-0 bg-white hover:bg-gray-50 z-10">
                       <div>
@@ -161,7 +163,7 @@ export default function CohortAnalysis({ cohorts, periodLabel = 'Month' }: Props
                   <tr className="bg-gray-100 border-t-2 border-gray-300 font-semibold">
                     <td className="py-3 px-3 text-gray-900 sticky left-0 bg-gray-100 z-10">Average</td>
                     <td className="text-right py-3 px-3 text-gray-900">
-                      {Math.round(cohorts.reduce((sum, c) => sum + c.initialSize, 0) / cohorts.length).toLocaleString()}
+                      {Math.round(safeCohorts.reduce((sum, c) => sum + c.initialSize, 0) / safeCohorts.length).toLocaleString()}
                     </td>
                     {averageRetention.map((avg, i) => (
                       <td key={i} className="text-center py-3 px-3">
@@ -171,7 +173,7 @@ export default function CohortAnalysis({ cohorts, periodLabel = 'Month' }: Props
                       </td>
                     ))}
                     <td className="text-right py-3 px-3 text-gray-900">
-                      ${(cohorts.reduce((sum, c) => sum + (c.periods[c.periods.length - 1]?.ltv || 0), 0) / cohorts.length).toFixed(2)}
+                      ${(safeCohorts.reduce((sum, c) => sum + (c.periods[c.periods.length - 1]?.ltv || 0), 0) / safeCohorts.length).toFixed(2)}
                     </td>
                   </tr>
                 </tfoot>

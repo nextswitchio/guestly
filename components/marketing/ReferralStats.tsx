@@ -27,7 +27,7 @@ export default function ReferralStats({ stats }: ReferralStatsProps) {
       label: 'Conversions',
       value: stats.totalConversions.toLocaleString(),
       icon: 'check-circle',
-      color: 'text-success-500',
+      color: 'text-green-500',
     },
     {
       label: 'Conversion Rate',
@@ -58,7 +58,7 @@ export default function ReferralStats({ stats }: ReferralStatsProps) {
         {metrics.map((metric) => (
           <Card key={metric.label} className="p-4">
             <div className="flex items-start justify-between mb-2">
-              <p className="text-xs text-gray-600 dark:text-gray-400">{metric.label}</p>
+              <p className="text-xs text-neutral-500">{metric.label}</p>
               <Icon name={metric.icon as any} className={`w-4 h-4 ${metric.color}`} />
             </div>
             <p className={`text-xl font-bold ${metric.color}`}>{metric.value}</p>
@@ -72,12 +72,12 @@ export default function ReferralStats({ stats }: ReferralStatsProps) {
         <div className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Total Earned</span>
+              <span className="text-sm text-neutral-500">Total Earned</span>
               <span className="text-lg font-bold text-green-500">
                 ${stats.totalEarned.toFixed(2)}
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+            <div className="w-full bg-neutral-200 rounded-full h-3">
               <div
                 className="bg-green-500 h-3 rounded-full"
                 style={{
@@ -92,14 +92,14 @@ export default function ReferralStats({ stats }: ReferralStatsProps) {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Pending Rewards</span>
-              <span className="text-lg font-bold text-warning-500">
+              <span className="text-sm text-neutral-500">Pending Rewards</span>
+              <span className="text-lg font-bold text-amber-500">
                 ${stats.pendingRewards.toFixed(2)}
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+            <div className="w-full bg-neutral-200 rounded-full h-3">
               <div
-                className="bg-warning-500 h-3 rounded-full"
+                className="bg-amber-500 h-3 rounded-full"
                 style={{
                   width: `${Math.min(
                     (stats.pendingRewards / (stats.totalEarned + stats.pendingRewards)) * 100,
@@ -110,9 +110,9 @@ export default function ReferralStats({ stats }: ReferralStatsProps) {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="pt-4 border-t border-neutral-200">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm text-neutral-500">
                 Average Earning per Conversion
               </span>
               <span className="font-medium">
@@ -131,15 +131,15 @@ export default function ReferralStats({ stats }: ReferralStatsProps) {
             {stats.topEvents.slice(0, 5).map((event, index) => (
               <div
                 key={event.eventId}
-                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                className="flex items-center justify-between p-3 bg-neutral-50 rounded-2xl"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 font-bold text-sm">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-lime/10 text-lime font-bold text-sm">
                     {index + 1}
                   </div>
                   <div>
                     <p className="font-medium">Event #{event.eventId}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-neutral-500">
                       {event.conversions} conversions
                     </p>
                   </div>
@@ -155,29 +155,29 @@ export default function ReferralStats({ stats }: ReferralStatsProps) {
       )}
 
       {/* Performance Insights */}
-      <Card className="p-4 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20">
+        <Card className="p-4 bg-gradient-to-r from-lime/10 to-blue-50">
         <div className="flex gap-3">
-          <Icon name="lightbulb" className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
+          <Icon name="lightbulb" className="w-5 h-5 text-lime flex-shrink-0 mt-0.5" />
           <div>
             <h4 className="font-semibold mb-2">Performance Insights</h4>
             <ul className="text-sm space-y-1">
               {stats.conversionRate > 5 && (
-                <li className="text-success-600 dark:text-success-400">
+                <li className="text-green-700">
                  <Check className="h-4 w-4 inline" /> Excellent conversion rate - your referrals are highly effective
                 </li>
               )}
               {stats.totalConversions > 10 && (
-                <li className="text-success-600 dark:text-success-400">
+                <li className="text-green-700">
                  <Check className="h-4 w-4 inline" /> Great job! You've referred {stats.totalConversions} successful purchases
                 </li>
               )}
               {stats.conversionRate < 2 && stats.totalClicks > 20 && (
-                <li className="text-warning-600 dark:text-warning-400">
+                <li className="text-amber-700">
                   AlertTriangle Consider personalizing your referral messages to improve conversion
                 </li>
               )}
               {stats.totalClicks === 0 && (
-                <li className="text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                <li className="text-blue-700 flex items-center gap-2">
                   <Icon name="lightbulb" className="w-4 h-4" />
                   Start sharing your referral links to earn rewards
                 </li>

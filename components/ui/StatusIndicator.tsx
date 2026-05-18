@@ -19,48 +19,48 @@ const statusConfig: Record<StatusType, {
   shouldPulse?: boolean; // Only pulse for truly dynamic statuses
 }> = {
   active: {
-    color: "text-[var(--color-success-600)]",
-    bgColor: "bg-[var(--color-success-50)]",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
     label: "Active",
-    dotColor: "bg-[var(--color-success-500)]",
-    shouldPulse: true // Active status benefits from pulse
+    dotColor: "bg-green-500",
+    shouldPulse: true
   },
   inactive: {
-    color: "text-[var(--color-neutral-600)]",
-    bgColor: "bg-[var(--color-neutral-50)]",
+    color: "text-neutral-600",
+    bgColor: "bg-neutral-50",
     label: "Inactive",
-    dotColor: "bg-[var(--color-neutral-400)]"
+    dotColor: "bg-neutral-400"
   },
   pending: {
-    color: "text-[var(--color-warning-600)]",
-    bgColor: "bg-[var(--color-warning-50)]",
+    color: "text-amber-600",
+    bgColor: "bg-amber-50",
     label: "Pending",
-    dotColor: "bg-[var(--color-warning-500)]",
-    shouldPulse: true // Pending status benefits from pulse
+    dotColor: "bg-amber-500",
+    shouldPulse: true
   },
   completed: {
-    color: "text-[var(--color-success-600)]",
-    bgColor: "bg-[var(--color-success-50)]",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
     label: "Completed",
-    dotColor: "bg-[var(--color-success-500)]"
+    dotColor: "bg-green-500"
   },
   cancelled: {
-    color: "text-[var(--color-danger-600)]",
-    bgColor: "bg-[var(--color-danger-50)]",
+    color: "text-red-600",
+    bgColor: "bg-red-50",
     label: "Cancelled",
-    dotColor: "bg-[var(--color-danger-500)]"
+    dotColor: "bg-red-500"
   },
   draft: {
-    color: "text-[var(--color-neutral-600)]",
-    bgColor: "bg-[var(--color-neutral-50)]",
+    color: "text-neutral-600",
+    bgColor: "bg-neutral-50",
     label: "Draft",
-    dotColor: "bg-[var(--color-neutral-400)]"
+    dotColor: "bg-neutral-400"
   },
   "sold-out": {
-    color: "text-[var(--color-danger-600)]",
-    bgColor: "bg-[var(--color-danger-50)]",
+    color: "text-red-600",
+    bgColor: "bg-red-50",
     label: "Sold Out",
-    dotColor: "bg-[var(--color-danger-500)]"
+    dotColor: "bg-red-500"
   }
 };
 

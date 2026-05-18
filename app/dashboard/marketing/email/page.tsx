@@ -17,13 +17,10 @@ export default function EmailMarketingPage() {
   const [showBuilder, setShowBuilder] = useState(false);
 
   useEffect(() => {
-    // Get user ID from cookies
     const cookies = document.cookie.split(";");
     const userIdCookie = cookies.find((c) => c.trim().startsWith("user_id="));
-    
     if (userIdCookie) {
-      const id = userIdCookie.split("=")[1];
-      setOrganizerId(id);
+      setOrganizerId(userIdCookie.split("=")[1]);
     }
   }, []);
 
@@ -43,67 +40,48 @@ export default function EmailMarketingPage() {
 
   const handleSaveTemplate = (template: any) => {
     if (template.id) {
-      // Update existing
       setCustomTemplates(prev => prev.map(t => t.id === template.id ? template : t));
     } else {
-      // Add new
       setCustomTemplates(prev => [...prev, { ...template, id: `custom-${Date.now()}`, isCustom: true }]);
     }
     setShowBuilder(false);
   };
 
   if (!organizerId) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-20"><div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" /></div>;
   }
 
+  const tabs = [
+    { id: 'templates' as const, label: 'Templates', icon: 'document' as const },
+    { id: 'campaigns' as const, label: 'Campaigns', icon: 'megaphone' as const },
+    { id: 'metrics' as const, label: 'Metrics', icon: 'chart' as const },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Email Marketing</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <h1 className="text-2xl font-bold text-neutral-900">Email Marketing</h1>
+        <p className="text-neutral-500 mt-1">
           Create templates, send campaigns, and track email performance
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <div className="flex">
-            <button
-              onClick={() => setActiveTab('templates')}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'templates'
-                  ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-              }`}
-            >
-              <Icon name="document" className="w-4 h-4" />
-              Templates
-            </button>
-            <button
-              onClick={() => setActiveTab('campaigns')}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'campaigns'
-                  ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-              }`}
-            >
-              <Icon name="megaphone" className="w-4 h-4" />
-              Campaigns
-            </button>
-            <button
-              onClick={() => setActiveTab('metrics')}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'metrics'
-                  ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-              }`}
-            >
-              <Icon name="chart" className="w-4 h-4" />
-              Metrics
-            </button>
-          </div>
-        </div>
+      <div className="flex gap-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              activeTab === tab.id
+                ? 'bg-lime text-dark'
+                : 'text-neutral-500 hover:bg-neutral-100'
+            }`}
+          >
+            <Icon name={tab.icon} size={16} />
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Content */}

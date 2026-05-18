@@ -26,7 +26,7 @@ export default function CommunityPage() {
             <h1 className="text-2xl font-bold text-neutral-900">Community</h1>
             <p className="mt-1 text-sm text-neutral-500">Engage with your audience and share updates</p>
           </div>
-          <button className="rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700">
+          <button className="rounded-xl bg-lime px-5 py-2.5 text-sm font-semibold text-dark shadow-sm transition hover:bg-lime-hover">
             New Announcement
           </button>
         </div>
@@ -39,7 +39,7 @@ export default function CommunityPage() {
             { label: "Posts", value: "24", icon: <FileEdit className="h-5 w-5" /> },
           ].map((s) => (
             <Card key={s.label} className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600">{s.icon}</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/10 text-lime">{s.icon}</span>
               <div>
                 <p className="text-lg font-bold text-neutral-900 tabular-nums">{s.value}</p>
                 <p className="text-xs text-neutral-500">{s.label}</p>
@@ -76,7 +76,7 @@ export default function CommunityPage() {
             <div className="space-y-3">
               {discussions.map((d) => (
                 <div key={d.id} className="flex items-start gap-3 rounded-xl border border-neutral-100 p-3 transition hover:bg-neutral-50">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lime/10 text-xs font-bold text-lime">
                     {d.user.charAt(0)}
                   </span>
                   <div className="min-w-0 flex-1">

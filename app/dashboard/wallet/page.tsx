@@ -68,8 +68,8 @@ export default function OrganiserWalletPage() {
         </div>
 
         {/* Balance Card */}
-        <div className="rounded-2xl bg-gradient-to-r from-primary-600 to-primary-800 p-6 text-white shadow-lg">
-          <p className="text-sm font-medium text-primary-100">Available Balance</p>
+        <div className="rounded-2xl bg-gradient-to-r from-neutral-900 to-neutral-700 p-6 text-white shadow-lg">
+          <p className="text-sm font-medium text-neutral-300">Available Balance</p>
           <p className="mt-2 text-4xl font-bold tabular-nums">
             {loading ? (
               <span className="inline-block h-10 w-32 animate-pulse rounded-lg bg-white/20" />
@@ -79,7 +79,7 @@ export default function OrganiserWalletPage() {
           </p>
           
           {wallet && wallet.pendingBalance > 0 && (
-            <p className="mt-2 text-sm text-primary-100">
+            <p className="mt-2 text-sm text-neutral-300">
               + ${wallet.pendingBalance.toFixed(2)} pending settlement
             </p>
           )}
@@ -95,7 +95,7 @@ export default function OrganiserWalletPage() {
           </div>
 
           {wallet && wallet.balance < 10 && wallet.balance > 0 && (
-            <p className="mt-3 text-xs text-primary-200">
+            <p className="mt-3 text-xs text-neutral-400">
               Minimum withdrawal amount is $10
             </p>
           )}
@@ -124,7 +124,7 @@ export default function OrganiserWalletPage() {
           </Card>
 
           <Card className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-lg"><Upload className="h-4 w-4 inline-block" /></span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/10 text-lg"><Upload className="h-4 w-4 inline-block" /></span>
             <div>
               <p className="text-lg font-bold text-neutral-900 tabular-nums">
                 ${loading ? "..." : (wallet?.totalWithdrawn || 0).toFixed(2)}

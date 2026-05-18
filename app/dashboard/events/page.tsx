@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Link from "next/link";
 import { events } from "@/lib/events";
@@ -11,7 +10,7 @@ import EmptyState from "@/components/ui/EmptyState";
 export default function MyEventsPage() {
   return (
     <ProtectedRoute allowRoles={["organiser"]}>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -20,7 +19,7 @@ export default function MyEventsPage() {
           </div>
           <Link
             href="/dashboard/events/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-lime px-5 py-2.5 text-sm font-semibold text-dark shadow-sm transition hover:bg-lime-hover"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -32,7 +31,7 @@ export default function MyEventsPage() {
         {/* Events Grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {events.map((ev) => (
-            <Card key={ev.id} className="group flex flex-col overflow-hidden p-0 transition hover:shadow-md">
+            <div key={ev.id} className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white p-0 transition hover:shadow-md">
               {/* Image */}
               <div className="relative h-36 w-full bg-neutral-100">
                 {ev.image && (
@@ -45,7 +44,7 @@ export default function MyEventsPage() {
 
               {/* Content */}
               <div className="flex flex-1 flex-col p-4">
-                <h3 className="truncate text-sm font-semibold text-neutral-900 group-hover:text-primary-700">
+                <h3 className="truncate text-sm font-semibold text-neutral-900 group-hover:text-lime-600">
                   {ev.title}
                 </h3>
                 <div className="mt-1 flex items-center gap-2 text-xs text-neutral-500">
@@ -66,19 +65,19 @@ export default function MyEventsPage() {
                 <div className="mt-auto flex items-center gap-2 border-t border-neutral-100 pt-3">
                   <Link
                     href={`/events/${ev.id}`}
-                    className="flex-1 rounded-lg border border-neutral-200 py-1.5 text-center text-xs font-medium text-neutral-700 transition hover:bg-neutral-50"
+                    className="flex-1 rounded-xl border border-neutral-200 bg-white py-1.5 text-center text-xs font-medium text-neutral-700 transition hover:bg-neutral-50"
                   >
                     Preview
                   </Link>
                   <Link
                     href={`/dashboard/events/${ev.id}/manage`}
-                    className="flex-1 rounded-lg bg-primary-600 py-1.5 text-center text-xs font-medium text-white transition hover:bg-primary-700"
+                    className="flex-1 rounded-xl bg-lime py-1.5 text-center text-xs font-semibold text-dark transition hover:bg-lime-hover"
                   >
                     Manage
                   </Link>
                 </div>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
 

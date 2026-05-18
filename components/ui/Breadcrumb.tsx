@@ -41,7 +41,7 @@ export default function Breadcrumb({
               {isClickable ? (
                 <Link
                   href={item.href!}
-                  className="flex items-center gap-1.5 text-foreground-muted hover:text-foreground transition-colors duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:rounded px-1 -mx-1"
+                  className="flex items-center gap-1.5 text-neutral-500 hover:text-neutral-900 transition-colors duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/20 focus-visible:rounded px-1 -mx-1"
                   aria-current={undefined}
                 >
                   {item.icon && (
@@ -55,8 +55,8 @@ export default function Breadcrumb({
                 <span
                   className={`flex items-center gap-1.5 ${
                     isLast
-                      ? "text-foreground font-medium"
-                      : "text-foreground-muted"
+                      ? "text-neutral-900 font-medium"
+                      : "text-neutral-500"
                   }`}
                   aria-current={isLast ? "page" : undefined}
                 >
@@ -71,7 +71,7 @@ export default function Breadcrumb({
 
               {!isLast && (
                 <span
-                  className="text-foreground-subtle select-none"
+                  className="text-neutral-400 select-none"
                   aria-hidden="true"
                 >
                   {separator}

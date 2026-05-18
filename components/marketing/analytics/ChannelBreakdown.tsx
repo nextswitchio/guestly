@@ -22,8 +22,10 @@ interface Props {
 }
 
 export default function ChannelBreakdown({ channels }: Props) {
+  const safeChannels = channels ?? [];
+
   const totals = useMemo(() => {
-    return channels.reduce(
+    return safeChannels.reduce(
       (acc, channel) => ({
         reach: acc.reach + channel.reach,
         impressions: acc.impressions + channel.impressions,
@@ -34,7 +36,7 @@ export default function ChannelBreakdown({ channels }: Props) {
       }),
       { reach: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0, cost: 0 }
     );
-  }, [channels]);
+  }, [safeChannels]);
 
   const getChannelIcon = (channel: string) => {
     const icons: Record<string, string> = {
@@ -74,7 +76,7 @@ export default function ChannelBreakdown({ channels }: Props) {
     return colors[channel.toLowerCase()] || 'bg-gray-500';
   };
 
-  if (channels.length === 0) {
+  if (safeChannels.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
         No channel data available
@@ -102,7 +104,7 @@ export default function ChannelBreakdown({ channels }: Props) {
 
       {/* Channel breakdown cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {channels.map((channel) => {
+        {safeChannels.map((channel) => {
           const reachPercent = totals.reach > 0 ? (channel.reach / totals.reach) * 100 : 0;
           const revenuePercent = totals.revenue > 0 ? (channel.revenue / totals.revenue) * 100 : 0;
 

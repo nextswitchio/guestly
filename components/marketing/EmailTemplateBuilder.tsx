@@ -193,17 +193,17 @@ export function EmailTemplateBuilder({ organizerId, initialTemplate, onSave, onC
             </div>
           </div>
 
-          <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg min-h-[600px]">
-            <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+          <div className="bg-neutral-50 p-6 rounded-2xl min-h-[600px]">
+            <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-2xl overflow-hidden">
               {/* Email Header */}
-              <div className="bg-primary-600 text-white p-4">
+              <div className="bg-lime text-white p-4">
                 <div className="text-sm font-medium">Subject: {subject || 'Your subject line'}</div>
               </div>
 
               {/* Email Body */}
               <div className="p-6 space-y-4">
                 {blocks.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-12 text-neutral-500">
                     <Icon name="megaphone" className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>Add blocks to start building your email</p>
                   </div>
@@ -211,7 +211,7 @@ export function EmailTemplateBuilder({ organizerId, initialTemplate, onSave, onC
                   blocks.map((block, index) => (
                     <div
                       key={block.id}
-                      className={`relative group ${selectedBlockId === block.id ? 'ring-2 ring-primary-500 rounded' : ''}`}
+                      className={`relative group ${selectedBlockId === block.id ? 'ring-2 ring-lime rounded' : ''}`}
                       onClick={() => setSelectedBlockId(block.id)}
                     >
                       {/* Block Controls */}
@@ -219,7 +219,7 @@ export function EmailTemplateBuilder({ organizerId, initialTemplate, onSave, onC
                         {index > 0 && (
                           <button
                             onClick={(e) => { e.stopPropagation(); moveBlock(block.id, 'up'); }}
-                            className="bg-white dark:bg-gray-700 p-1 rounded shadow hover:bg-gray-100 dark:hover:bg-gray-600"
+                            className="bg-white p-1 rounded shadow hover:bg-neutral-50"
                           >
                             <Icon name="chevron-up" className="w-4 h-4" />
                           </button>
@@ -227,7 +227,7 @@ export function EmailTemplateBuilder({ organizerId, initialTemplate, onSave, onC
                         {index < blocks.length - 1 && (
                           <button
                             onClick={(e) => { e.stopPropagation(); moveBlock(block.id, 'down'); }}
-                            className="bg-white dark:bg-gray-700 p-1 rounded shadow hover:bg-gray-100 dark:hover:bg-gray-600"
+                            className="bg-white p-1 rounded shadow hover:bg-neutral-50"
                           >
                             <Icon name="chevron-down" className="w-4 h-4" />
                           </button>
@@ -242,12 +242,12 @@ export function EmailTemplateBuilder({ organizerId, initialTemplate, onSave, onC
 
                       {/* Block Content */}
                       {block.type === 'header' && (
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                        <h1 className="text-3xl font-bold text-neutral-900">
                           {block.content}
                         </h1>
                       )}
                       {block.type === 'text' && (
-                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                        <p className="text-neutral-700 whitespace-pre-wrap">
                           {block.content}
                         </p>
                       )}
@@ -263,16 +263,16 @@ export function EmailTemplateBuilder({ organizerId, initialTemplate, onSave, onC
                       )}
                       {block.type === 'button' && (
                         <div className="text-center">
-                          <button className="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700">
+                          <button className="bg-lime text-dark px-6 py-3 rounded-2xl font-semibold hover:bg-lime/80">
                             {block.content}
                           </button>
                         </div>
                       )}
                       {block.type === 'divider' && (
-                        <hr className="border-gray-300 dark:border-gray-600" />
+                        <hr className="border-neutral-200" />
                       )}
                       {block.type === 'footer' && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                        <p className="text-sm text-neutral-500 text-center">
                           {block.content}
                         </p>
                       )}

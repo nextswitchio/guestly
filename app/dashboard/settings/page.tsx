@@ -2,11 +2,9 @@
 
 import React, { useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import Switch from "@/components/ui/Switch";
+import Modal from "@/components/ui/Modal";
 
 type TabType = "profile" | "notifications" | "security" | "billing" | "team";
 
@@ -32,6 +30,56 @@ export default function SettingsPage() {
     loginAlerts: true,
   });
 
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "bank">("card");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardName, setCardName] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
+  const [savingPayment, setSavingPayment] = useState(false);
+
+  const [paymentMethods, setPaymentMethods] = useState([
+    { id: "1", type: "visa" as const, last4: "4242", expiry: "12/25", default: true },
+  ]);
+
+  const handleSavePayment = async () => {
+    if (!cardNumber || !cardName || !cardExpiry || !cardCvc) return;
+    setSavingPayment(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const last4 = cardNumber.replace(/\s/g, "").slice(-4);
+    setPaymentMethods((prev) => [
+      ...prev,
+      { id: Date.now().toString(), type: "visa" as const, last4, expiry: cardExpiry, default: false },
+    ]);
+    setCardNumber("");
+    setCardName("");
+    setCardExpiry("");
+    setCardCvc("");
+    setSavingPayment(false);
+    setPaymentModalOpen(false);
+  };
+
+  const handleSetDefault = (id: string) => {
+    setPaymentMethods((prev) =>
+      prev.map((m) => ({ ...m, default: m.id === id }))
+    );
+  };
+
+  const handleRemovePayment = (id: string) => {
+    setPaymentMethods((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    const matches = v.match(/\d{4,16}/g);
+    const match = (matches && matches[0]) || "";
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    return parts.length ? parts.join(" ") : v;
+  };
+
   const tabs = [
     { id: "profile" as const, label: "Profile", icon: "user" as const },
     { id: "notifications" as const, label: "Notifications", icon: "bell" as const },
@@ -42,476 +90,585 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setSaving(false);
   };
 
   return (
     <ProtectedRoute allowRoles={["organiser"]}>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-            <p className="mt-2 text-foreground-muted">
-              Manage your organization profile and preferences
-            </p>
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">Settings</h1>
+          <p className="text-neutral-500 mt-1">Manage your organization profile and preferences</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Sidebar Navigation */}
+          <div className="lg:col-span-1">
+            <div className="rounded-2xl border border-neutral-200 bg-white p-2">
+              <nav className="space-y-1">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      activeTab === tab.id
+                        ? "bg-lime text-dark"
+                        : "text-neutral-500 hover:bg-neutral-50"
+                    }`}
+                  >
+                    <Icon name={tab.icon} size={18} />
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Sidebar Navigation */}
-            <div className="lg:col-span-1">
-              <Card className="p-2">
-                <nav className="space-y-1">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                        activeTab === tab.id
-                          ? "bg-primary-500 text-white shadow-md"
-                          : "text-foreground-muted hover:bg-surface-hover"
-                      }`}
-                    >
-                      <Icon name={tab.icon} className="w-5 h-5" />
-                      {tab.label}
-                    </button>
-                  ))}
-                </nav>
-              </Card>
-            </div>
+          {/* Main Content */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Profile Tab */}
+            {activeTab === "profile" && (
+              <>
+                <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                  <div className="mb-6">
+                    <h2 className="text-lg font-semibold text-neutral-900">Organization Profile</h2>
+                    <p className="text-sm text-neutral-500 mt-1">
+                      Update your organization&apos;s public information
+                    </p>
+                  </div>
 
-            {/* Main Content */}
-            <div className="lg:col-span-3 space-y-6">
-              {/* Profile Tab */}
-              {activeTab === "profile" && (
-                <>
-                  <Card className="p-6">
-                    <div className="flex items-start justify-between mb-6">
-                      <div>
-                        <h2 className="text-xl font-bold text-foreground">Organization Profile</h2>
-                        <p className="text-sm text-foreground-muted mt-1">
-                          Update your organization's public information
-                        </p>
+                  {/* Profile Picture */}
+                  <div className="flex items-center gap-6 mb-8 pb-8 border-b border-neutral-100">
+                    <div className="relative">
+                      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-lime to-lime-hover text-3xl font-bold text-dark">
+                        {orgName.charAt(0)}
                       </div>
+                      <button className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-neutral-200 shadow-sm">
+                        <Icon name="camera" size={16} className="text-neutral-600" />
+                      </button>
                     </div>
-
-                    {/* Profile Picture */}
-                    <div className="flex items-center gap-6 mb-8 pb-8 border-b border-surface-border">
-                      <div className="relative">
-                        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-purple-500 text-3xl font-bold text-white shadow-lg">
-                          {orgName.charAt(0)}
-                        </div>
-                        <button className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white dark:bg-gray-800 border-2 border-surface-border shadow-md hover:shadow-lg transition-all">
-                          <Icon name="camera" className="w-4 h-4 text-foreground" />
-                        </button>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">{orgName}</h3>
-                        <p className="text-sm text-foreground-muted">{email}</p>
-                        <Button variant="outline" size="sm" className="mt-2">
-                          <Icon name="upload" className="w-4 h-4 mr-2" />
-                          Upload Photo
-                        </Button>
-                      </div>
+                    <div>
+                      <h3 className="font-semibold text-neutral-900">{orgName}</h3>
+                      <p className="text-sm text-neutral-500">{email}</p>
+                      <button className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors">
+                        <Icon name="upload" size={14} />
+                        Upload Photo
+                      </button>
                     </div>
+                  </div>
 
-                    {/* Form Fields */}
-                    <div className="grid gap-6 sm:grid-cols-2">
-                      <Input
-                        label="Organization Name"
+                  {/* Form Fields */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-1.5">Organization Name</label>
+                      <input
+                        type="text"
                         value={orgName}
                         onChange={(e) => setOrgName(e.currentTarget.value)}
-                        placeholder="Enter organization name"
+                        className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
                       />
-                      <Input
-                        label="Contact Email"
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-1.5">Contact Email</label>
+                      <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.currentTarget.value)}
-                        placeholder="email@example.com"
+                        className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
                       />
-                      <Input
-                        label="Phone Number"
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-1.5">Phone Number</label>
+                      <input
                         type="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.currentTarget.value)}
-                        placeholder="+234 800 000 0000"
+                        className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
                       />
-                      <Input
-                        label="Website"
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-1.5">Website</label>
+                      <input
                         type="url"
                         value={website}
                         onChange={(e) => setWebsite(e.currentTarget.value)}
-                        placeholder="https://yourwebsite.com"
+                        className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
                       />
                     </div>
+                  </div>
 
-                    <div className="mt-6">
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Bio
-                      </label>
-                      <textarea
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        rows={4}
-                        className="w-full rounded-lg border border-surface-border bg-surface-card px-4 py-3 text-sm text-foreground placeholder:text-foreground-muted focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-                        placeholder="Tell us about your organization..."
-                      />
-                    </div>
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">Bio</label>
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      rows={4}
+                      className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                      placeholder="Tell us about your organization..."
+                    />
+                  </div>
 
-                    <div className="mt-6 flex justify-end gap-3">
-                      <Button variant="outline">Cancel</Button>
-                      <Button onClick={handleSave} disabled={saving}>
-                        {saving ? (
-                          <>
-                            <Icon name="loader" className="w-4 h-4 mr-2 animate-spin" />
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <Icon name="check" className="w-4 h-4 mr-2" />
-                            Save Changes
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </Card>
+                  <div className="mt-6 flex justify-end gap-3">
+                    <button className="rounded-xl border border-neutral-200 bg-white px-5 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors">
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover disabled:opacity-50 transition-colors"
+                    >
+                      {saving ? "Saving..." : "Save Changes"}
+                    </button>
+                  </div>
+                </div>
 
-                  {/* Social Links */}
-                  <Card className="p-6">
-                    <h2 className="text-xl font-bold text-foreground mb-4">Social Links</h2>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <Input
-                        label="Facebook"
-                        placeholder="facebook.com/yourpage"
-                      />
-                      <Input
-                        label="Twitter"
-                        placeholder="twitter.com/yourhandle"
-                      />
-                      <Input
-                        label="Instagram"
-                        placeholder="instagram.com/yourprofile"
-                      />
-                      <Input
-                        label="LinkedIn"
-                        placeholder="linkedin.com/company/yourcompany"
-                      />
-                    </div>
-                  </Card>
-                </>
-              )}
-
-              {/* Notifications Tab */}
-              {activeTab === "notifications" && (
-                <Card className="p-6">
-                  <h2 className="text-xl font-bold text-foreground mb-2">Notification Preferences</h2>
-                  <p className="text-sm text-foreground-muted mb-6">
-                    Choose what notifications you want to receive
-                  </p>
-
-                  <div className="space-y-4">
-                    {[
-                      {
-                        key: "sales" as const,
-                        label: "Ticket Sales",
-                        desc: "Get notified about new ticket purchases",
-                        icon: "shopping-cart" as const,
-                      },
-                      {
-                        key: "reviews" as const,
-                        label: "Reviews & Feedback",
-                        desc: "Alerts when attendees leave reviews",
-                        icon: "star" as const,
-                      },
-                      {
-                        key: "marketing" as const,
-                        label: "Marketing Updates",
-                        desc: "Tips and product updates from Guestly",
-                        icon: "mail" as const,
-                      },
-                      {
-                        key: "eventReminders" as const,
-                        label: "Event Reminders",
-                        desc: "Reminders about upcoming events",
-                        icon: "calendar" as const,
-                      },
-                      {
-                        key: "weeklyReports" as const,
-                        label: "Weekly Reports",
-                        desc: "Weekly summary of your event performance",
-                        icon: "trending-up" as const,
-                      },
-                    ].map((item) => (
-                      <div
-                        key={item.key}
-                        className="flex items-center justify-between rounded-xl border border-surface-border p-4 hover:bg-surface-hover transition-colors"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900/30">
-                            <Icon name={item.icon} className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">{item.label}</p>
-                            <p className="text-sm text-foreground-muted">{item.desc}</p>
-                          </div>
-                        </div>
-                        <Switch
-                          checked={notifs[item.key]}
-                          onChange={(checked) =>
-                            setNotifs((n) => ({ ...n, [item.key]: checked }))
-                          }
+                {/* Social Links */}
+                <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                  <h2 className="text-lg font-semibold text-neutral-900 mb-4">Social Links</h2>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {["Facebook", "Twitter", "Instagram", "LinkedIn"].map((platform) => (
+                      <div key={platform}>
+                        <label className="block text-sm font-medium text-neutral-700 mb-1.5">{platform}</label>
+                        <input
+                          type="text"
+                          placeholder={`${platform.toLowerCase()}.com/yourpage`}
+                          className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
                         />
                       </div>
                     ))}
                   </div>
+                </div>
+              </>
+            )}
 
-                  <div className="mt-6 flex justify-end">
-                    <Button>
-                      <Icon name="check" className="w-4 h-4 mr-2" />
-                      Save Preferences
-                    </Button>
-                  </div>
-                </Card>
-              )}
+            {/* Notifications Tab */}
+            {activeTab === "notifications" && (
+              <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                <h2 className="text-lg font-semibold text-neutral-900 mb-1">Notification Preferences</h2>
+                <p className="text-sm text-neutral-500 mb-6">
+                  Choose what notifications you want to receive
+                </p>
 
-              {/* Security Tab */}
-              {activeTab === "security" && (
-                <>
-                  <Card className="p-6">
-                    <h2 className="text-xl font-bold text-foreground mb-2">Security Settings</h2>
-                    <p className="text-sm text-foreground-muted mb-6">
-                      Manage your account security and authentication
-                    </p>
-
-                    <div className="space-y-6">
-                      {/* Password Change */}
-                      <div className="pb-6 border-b border-surface-border">
-                        <h3 className="font-semibold text-foreground mb-4">Change Password</h3>
-                        <div className="space-y-4">
-                          <Input
-                            label="Current Password"
-                            type="password"
-                            placeholder="Enter current password"
-                          />
-                          <Input
-                            label="New Password"
-                            type="password"
-                            placeholder="Enter new password"
-                          />
-                          <Input
-                            label="Confirm New Password"
-                            type="password"
-                            placeholder="Confirm new password"
-                          />
+                <div className="space-y-4">
+                  {[
+                    { key: "sales" as const, label: "Ticket Sales", desc: "Get notified about new ticket purchases", icon: "shopping-cart" as const },
+                    { key: "reviews" as const, label: "Reviews & Feedback", desc: "Alerts when attendees leave reviews", icon: "star" as const },
+                    { key: "marketing" as const, label: "Marketing Updates", desc: "Tips and product updates from Guestly", icon: "mail" as const },
+                    { key: "eventReminders" as const, label: "Event Reminders", desc: "Reminders about upcoming events", icon: "calendar" as const },
+                    { key: "weeklyReports" as const, label: "Weekly Reports", desc: "Weekly summary of your event performance", icon: "trending-up" as const },
+                  ].map((item) => (
+                    <div
+                      key={item.key}
+                      className="flex items-center justify-between rounded-xl border border-neutral-100 p-4 hover:bg-neutral-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-lime/10">
+                          <Icon name={item.icon} size={18} className="text-lime" />
                         </div>
-                        <Button className="mt-4">Update Password</Button>
-                      </div>
-
-                      {/* Two-Factor Authentication */}
-                      <div className="pb-6 border-b border-surface-border">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold text-foreground">Two-Factor Authentication</h3>
-                            <p className="text-sm text-foreground-muted mt-1">
-                              Add an extra layer of security to your account
-                            </p>
-                          </div>
-                          <Switch
-                            checked={security.twoFactor}
-                            onChange={(checked) =>
-                              setSecurity((s) => ({ ...s, twoFactor: checked }))
-                            }
-                          />
+                        <div>
+                          <p className="font-medium text-neutral-900">{item.label}</p>
+                          <p className="text-sm text-neutral-500">{item.desc}</p>
                         </div>
                       </div>
+                      <Switch
+                        checked={notifs[item.key]}
+                        onChange={(checked) =>
+                          setNotifs((n) => ({ ...n, [item.key]: checked }))
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
 
-                      {/* Login Alerts */}
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold text-foreground">Login Alerts</h3>
-                            <p className="text-sm text-foreground-muted mt-1">
-                              Get notified of new login attempts
-                            </p>
+                <div className="mt-6 flex justify-end">
+                  <button className="rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors">
+                    Save Preferences
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Security Tab */}
+            {activeTab === "security" && (
+              <>
+                <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                  <h2 className="text-lg font-semibold text-neutral-900 mb-1">Security Settings</h2>
+                  <p className="text-sm text-neutral-500 mb-6">
+                    Manage your account security and authentication
+                  </p>
+
+                  <div className="space-y-6">
+                    <div className="pb-6 border-b border-neutral-100">
+                      <h3 className="font-semibold text-neutral-900 mb-4">Change Password</h3>
+                      <div className="space-y-4">
+                        {["Current Password", "New Password", "Confirm New Password"].map((label) => (
+                          <div key={label}>
+                            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{label}</label>
+                            <input
+                              type="password"
+                              placeholder={`Enter ${label.toLowerCase()}`}
+                              className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                            />
                           </div>
-                          <Switch
-                            checked={security.loginAlerts}
-                            onChange={(checked) =>
-                              setSecurity((s) => ({ ...s, loginAlerts: checked }))
-                            }
-                          />
+                        ))}
+                      </div>
+                      <button className="mt-4 rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors">
+                        Update Password
+                      </button>
+                    </div>
+
+                    <div className="pb-6 border-b border-neutral-100">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold text-neutral-900">Two-Factor Authentication</h3>
+                          <p className="text-sm text-neutral-500 mt-1">
+                            Add an extra layer of security to your account
+                          </p>
                         </div>
+                        <Switch
+                          checked={security.twoFactor}
+                          onChange={(checked) =>
+                            setSecurity((s) => ({ ...s, twoFactor: checked }))
+                          }
+                        />
                       </div>
                     </div>
-                  </Card>
 
-                  {/* Active Sessions */}
-                  <Card className="p-6">
-                    <h2 className="text-xl font-bold text-foreground mb-4">Active Sessions</h2>
-                    <div className="space-y-3">
-                      {[
-                        { device: "Chrome on Windows", location: "Lagos, Nigeria", current: true },
-                        { device: "Safari on iPhone", location: "Abuja, Nigeria", current: false },
-                      ].map((session, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between rounded-lg border border-surface-border p-4"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Icon name="monitor" className="w-5 h-5 text-foreground-muted" />
-                            <div>
-                              <p className="font-medium text-foreground">{session.device}</p>
-                              <p className="text-sm text-foreground-muted">{session.location}</p>
-                            </div>
-                          </div>
-                          {session.current ? (
-                            <span className="text-xs font-semibold text-success-600 dark:text-success-400">
-                              Current Session
-                            </span>
-                          ) : (
-                            <Button variant="outline" size="sm">
-                              Revoke
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </>
-              )}
-
-              {/* Billing Tab */}
-              {activeTab === "billing" && (
-                <>
-                  <Card className="p-6">
-                    <h2 className="text-xl font-bold text-foreground mb-4">Payment Methods</h2>
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center justify-between rounded-lg border-2 border-primary-500 bg-primary-50 dark:bg-primary-900/20 p-4">
-                        <div className="flex items-center gap-3">
-                          <Icon name="credit-card" className="w-6 h-6 text-primary-600" />
-                          <div>
-                            <p className="font-medium text-foreground">•••• •••• •••• 4242</p>
-                            <p className="text-sm text-foreground-muted">Expires 12/25</p>
-                          </div>
-                        </div>
-                        <span className="text-xs font-semibold text-primary-600">Default</span>
-                      </div>
-                    </div>
-                    <Button variant="outline">
-                      <Icon name="plus" className="w-4 h-4 mr-2" />
-                      Add Payment Method
-                    </Button>
-                  </Card>
-
-                  <Card className="p-6">
-                    <h2 className="text-xl font-bold text-foreground mb-4">Billing History</h2>
-                    <div className="space-y-3">
-                      {[
-                        { date: "Mar 1, 2024", amount: "$80", status: "Paid" },
-                        { date: "Feb 1, 2024", amount: "$80", status: "Paid" },
-                        { date: "Jan 1, 2024", amount: "$80", status: "Paid" },
-                      ].map((invoice, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between rounded-lg border border-surface-border p-4"
-                        >
-                          <div>
-                            <p className="font-medium text-foreground">{invoice.date}</p>
-                            <p className="text-sm text-foreground-muted">Annual Subscription</p>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <span className="font-semibold text-foreground">{invoice.amount}</span>
-                            <span className="text-xs font-semibold text-success-600">
-                              {invoice.status}
-                            </span>
-                            <Button variant="ghost" size="sm">
-                              <Icon name="download" className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </>
-              )}
-
-              {/* Team Tab */}
-              {activeTab === "team" && (
-                <Card className="p-6">
-                  <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h2 className="text-xl font-bold text-foreground">Team Members</h2>
-                      <p className="text-sm text-foreground-muted mt-1">
-                        Manage who has access to your organization
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold text-neutral-900">Login Alerts</h3>
+                          <p className="text-sm text-neutral-500 mt-1">
+                            Get notified of new login attempts
+                          </p>
+                        </div>
+                        <Switch
+                          checked={security.loginAlerts}
+                          onChange={(checked) =>
+                            setSecurity((s) => ({ ...s, loginAlerts: checked }))
+                          }
+                        />
+                      </div>
                     </div>
-                    <Button>
-                      <Icon name="user-plus" className="w-4 h-4 mr-2" />
-                      Invite Member
-                    </Button>
                   </div>
+                </div>
 
+                {/* Active Sessions */}
+                <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                  <h2 className="text-lg font-semibold text-neutral-900 mb-4">Active Sessions</h2>
                   <div className="space-y-3">
                     {[
-                      { name: "John Doe", email: "john@example.com", role: "Owner" },
-                      { name: "Jane Smith", email: "jane@example.com", role: "Admin" },
-                      { name: "Bob Johnson", email: "bob@example.com", role: "Member" },
-                    ].map((member, idx) => (
+                      { device: "Chrome on Windows", location: "Lagos, Nigeria", current: true },
+                      { device: "Safari on iPhone", location: "Abuja, Nigeria", current: false },
+                    ].map((session, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between rounded-lg border border-surface-border p-4"
+                        className="flex items-center justify-between rounded-xl border border-neutral-100 p-4"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30 font-semibold text-primary-600">
-                            {member.name.charAt(0)}
-                          </div>
+                          <Icon name="monitor" size={18} className="text-neutral-500" />
                           <div>
-                            <p className="font-medium text-foreground">{member.name}</p>
-                            <p className="text-sm text-foreground-muted">{member.email}</p>
+                            <p className="font-medium text-neutral-900">{session.device}</p>
+                            <p className="text-sm text-neutral-500">{session.location}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-medium text-foreground-muted">
-                            {member.role}
+                        {session.current ? (
+                          <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-lg">
+                            Current Session
                           </span>
-                          {member.role !== "Owner" && (
-                            <Button variant="ghost" size="sm">
-                              <Icon name="more-vertical" className="w-4 h-4" />
-                            </Button>
-                          )}
+                        ) : (
+                          <button className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors">
+                            Revoke
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Billing Tab */}
+            {activeTab === "billing" && (
+              <>
+                <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                  <h2 className="text-lg font-semibold text-neutral-900 mb-4">Payment Methods</h2>
+                  <div className="space-y-3 mb-6">
+                    {paymentMethods.length === 0 ? (
+                      <p className="text-sm text-neutral-500 py-4 text-center">No payment methods added yet</p>
+                    ) : (
+                      paymentMethods.map((method) => (
+                        <div key={method.id} className={`flex items-center justify-between rounded-xl border-2 p-4 ${method.default ? "border-lime bg-lime/5" : "border-neutral-200"}`}>
+                          <div className="flex items-center gap-3">
+                            <Icon name="credit-card" size={24} className={method.default ? "text-lime" : "text-neutral-400"} />
+                            <div>
+                              <p className="font-medium text-neutral-900">•••• •••• •••• {method.last4}</p>
+                              <p className="text-sm text-neutral-500">Expires {method.expiry}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {method.default ? (
+                              <span className="text-xs font-semibold text-lime bg-lime/10 px-2 py-1 rounded-lg">Default</span>
+                            ) : (
+                              <button onClick={() => handleSetDefault(method.id)} className="text-xs font-medium text-lime hover:underline">
+                                Set Default
+                              </button>
+                            )}
+                            <button onClick={() => handleRemovePayment(method.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                              <Icon name="trash-2" size={16} className="text-neutral-400 hover:text-red-500" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <button onClick={() => setPaymentModalOpen(true)} className="rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors">
+                    Add Payment Method
+                  </button>
+                </div>
+
+                <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                  <h2 className="text-lg font-semibold text-neutral-900 mb-4">Billing History</h2>
+                  <div className="space-y-3">
+                    {[
+                      { date: "Mar 1, 2024", amount: "$80", status: "Paid" },
+                      { date: "Feb 1, 2024", amount: "$80", status: "Paid" },
+                      { date: "Jan 1, 2024", amount: "$80", status: "Paid" },
+                    ].map((invoice, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between rounded-xl border border-neutral-100 p-4"
+                      >
+                        <div>
+                          <p className="font-medium text-neutral-900">{invoice.date}</p>
+                          <p className="text-sm text-neutral-500">Annual Subscription</p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="font-semibold text-neutral-900">{invoice.amount}</span>
+                          <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-lg">
+                            {invoice.status}
+                          </span>
+                          <button className="p-1.5 rounded-lg hover:bg-neutral-100 transition-colors">
+                            <Icon name="download" size={16} className="text-neutral-500" />
+                          </button>
                         </div>
                       </div>
                     ))}
                   </div>
-                </Card>
-              )}
+                </div>
+              </>
+            )}
 
-              {/* Danger Zone */}
-              <Card className="border-danger-200 dark:border-danger-800 p-6">
-                <h2 className="text-xl font-bold text-danger-600 dark:text-danger-400 mb-2">
-                  Danger Zone
-                </h2>
-                <p className="text-sm text-foreground-muted mb-6">
-                  Irreversible actions — proceed with caution
-                </p>
-                <div className="flex items-center justify-between rounded-xl border border-danger-200 dark:border-danger-800 bg-danger-50 dark:bg-danger-900/20 p-4">
+            {/* Team Tab */}
+            {activeTab === "team" && (
+              <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                <div className="flex items-center justify-between mb-6">
                   <div>
-                    <p className="font-medium text-foreground">Delete Organization</p>
-                    <p className="text-sm text-foreground-muted">
-                      Permanently remove your organization and all events
+                    <h2 className="text-lg font-semibold text-neutral-900">Team Members</h2>
+                    <p className="text-sm text-neutral-500 mt-1">
+                      Manage who has access to your organization
                     </p>
                   </div>
-                  <Button variant="outline" className="border-danger-300 text-danger-600 hover:bg-danger-50">
-                    Delete
-                  </Button>
+                  <button className="flex items-center gap-2 rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors">
+                    <Icon name="user-plus" size={16} />
+                    Invite Member
+                  </button>
                 </div>
-              </Card>
+
+                <div className="space-y-3">
+                  {[
+                    { name: "John Doe", email: "john@example.com", role: "Owner" },
+                    { name: "Jane Smith", email: "jane@example.com", role: "Admin" },
+                    { name: "Bob Johnson", email: "bob@example.com", role: "Member" },
+                  ].map((member, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between rounded-xl border border-neutral-100 p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lime/10 font-semibold text-lime">
+                          {member.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-medium text-neutral-900">{member.name}</p>
+                          <p className="text-sm text-neutral-500">{member.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-neutral-500">
+                          {member.role}
+                        </span>
+                        {member.role !== "Owner" && (
+                          <button className="p-1.5 rounded-lg hover:bg-neutral-100 transition-colors">
+                            <Icon name="more-vertical" size={16} className="text-neutral-500" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Danger Zone */}
+            <div className="rounded-2xl border border-red-200 bg-white p-6">
+              <h2 className="text-lg font-semibold text-red-600 mb-1">
+                Danger Zone
+              </h2>
+              <p className="text-sm text-neutral-500 mb-4">
+                Irreversible actions — proceed with caution
+              </p>
+              <div className="flex items-center justify-between rounded-xl border border-red-200 bg-red-50 p-4">
+                <div>
+                  <p className="font-medium text-neutral-900">Delete Organization</p>
+                  <p className="text-sm text-neutral-500">
+                    Permanently remove your organization and all events
+                  </p>
+                </div>
+                <button className="rounded-xl border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors">
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Add Payment Method Modal */}
+        <Modal
+          open={paymentModalOpen}
+          onClose={() => setPaymentModalOpen(false)}
+          title="Add Payment Method"
+          description="Enter your card details to add a new payment method"
+          size="md"
+        >
+          <div className="space-y-4">
+            {/* Payment type toggle */}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("card")}
+                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-colors ${
+                  paymentMethod === "card"
+                    ? "bg-lime text-dark"
+                    : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+                }`}
+              >
+                Credit / Debit Card
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("bank")}
+                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-colors ${
+                  paymentMethod === "bank"
+                    ? "bg-lime text-dark"
+                    : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+                }`}
+              >
+                Bank Account
+              </button>
+            </div>
+
+            {paymentMethod === "card" ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">Card Number</label>
+                  <input
+                    type="text"
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                    placeholder="1234 5678 9012 3456"
+                    maxLength={19}
+                    className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">Cardholder Name</label>
+                  <input
+                    type="text"
+                    value={cardName}
+                    onChange={(e) => setCardName(e.target.value)}
+                    placeholder="John Doe"
+                    className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">Expiry Date</label>
+                    <input
+                      type="text"
+                      value={cardExpiry}
+                      onChange={(e) => {
+                        let v = e.target.value.replace(/\D/g, "");
+                        if (v.length >= 2) v = v.slice(0, 2) + "/" + v.slice(2, 4);
+                        setCardExpiry(v);
+                      }}
+                      placeholder="MM/YY"
+                      maxLength={5}
+                      className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">CVC</label>
+                    <input
+                      type="text"
+                      value={cardCvc}
+                      onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                      placeholder="123"
+                      maxLength={4}
+                      className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">Bank Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter bank name"
+                    className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">Account Number</label>
+                  <input
+                    type="text"
+                    placeholder="Enter account number"
+                    maxLength={10}
+                    className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">Account Holder Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter account holder name"
+                    className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              onClick={() => setPaymentModalOpen(false)}
+              className="rounded-xl border border-neutral-200 bg-white px-5 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSavePayment}
+              disabled={savingPayment || (paymentMethod === "card" && (!cardNumber || !cardName || !cardExpiry || !cardCvc))}
+              className="rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover disabled:opacity-50 transition-colors"
+            >
+              {savingPayment ? "Adding..." : "Add Payment Method"}
+            </button>
+          </div>
+        </Modal>
       </div>
     </ProtectedRoute>
   );

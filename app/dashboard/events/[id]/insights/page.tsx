@@ -3,8 +3,6 @@ import { RefreshCw } from 'lucide-react';
 
 import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import LineChart from '@/components/charts/LineChart';
 import BarChart from '@/components/charts/BarChart';
@@ -39,7 +37,6 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
     }
   };
 
-  // Mock data for charts - converted to expected formats
   const ticketSalesData = [
     { label: 'Week 1', value: 12 },
     { label: 'Week 2', value: 35 },
@@ -70,67 +67,64 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <span className="text-4xl animate-spin"><RefreshCw className="h-4 w-4 inline-block" /></span>
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 p-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
+        <button
           onClick={() => router.back()}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
         >
-          <Icon name="arrow-left" className="w-4 h-4" />
+          <Icon name="arrow-left" size={16} />
           Back
-        </Button>
+        </button>
         <div>
-          <h1 className="text-3xl font-bold">{event?.title || 'Event'} Insights</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Detailed analytics and performance metrics
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">{event?.title || 'Event'} Insights</h1>
+          <p className="text-neutral-500 mt-1">Detailed analytics and performance metrics</p>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
-          <Card key={index} className="p-6">
+          <div key={index} className="rounded-2xl border border-neutral-200 bg-white p-5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</span>
-              <Icon name={stat.icon} className="w-5 h-5 text-primary-500" />
+              <span className="text-sm text-neutral-500">{stat.label}</span>
+              <Icon name={stat.icon} size={20} className="text-lime" />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold">{stat.value}</span>
-              <span className="text-sm text-success-600">{stat.change}</span>
+              <span className="text-2xl font-bold text-neutral-900">{stat.value}</span>
+              <span className="text-sm text-green-600">{stat.change}</span>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Ticket Sales Over Time</h3>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Ticket Sales Over Time</h3>
           <LineChart data={ticketSalesData} />
-        </Card>
+        </div>
 
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Revenue by Week</h3>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Revenue by Week</h3>
           <BarChart data={revenueData} />
-        </Card>
+        </div>
 
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Ticket Type Distribution</h3>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Ticket Type Distribution</h3>
           <PieChart data={ticketTypeData} />
-        </Card>
+        </div>
 
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Top Traffic Sources</h3>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Top Traffic Sources</h3>
           <div className="space-y-3">
             {[
               { source: 'Direct', visitors: 1234, percentage: 45 },
@@ -140,29 +134,29 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
             ].map((item, index) => (
               <div key={index}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium">{item.source}</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                  <span className="text-sm font-medium text-neutral-900">{item.source}</span>
+                  <span className="text-sm text-neutral-500">
                     {item.visitors} visitors
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-neutral-100 rounded-full h-2">
                   <div
-                    className="bg-primary-500 h-2 rounded-full"
+                    className="bg-lime h-2 rounded-full"
                     style={{ width: `${item.percentage}%` }}
                   />
                 </div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Attendee Demographics */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Attendee Demographics</h3>
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+        <h3 className="text-lg font-semibold text-neutral-900 mb-4">Attendee Demographics</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Age Groups</h4>
+            <h4 className="text-sm font-medium text-neutral-500 mb-3">Age Groups</h4>
             <div className="space-y-2">
               {[
                 { range: '18-24', percentage: 25 },
@@ -171,15 +165,15 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
                 { range: '45+', percentage: 10 },
               ].map((item, index) => (
                 <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm">{item.range}</span>
-                  <span className="text-sm font-medium">{item.percentage}%</span>
+                  <span className="text-sm text-neutral-700">{item.range}</span>
+                  <span className="text-sm font-medium text-neutral-900">{item.percentage}%</span>
                 </div>
               ))}
             </div>
           </div>
 
           <div>
-            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Gender</h4>
+            <h4 className="text-sm font-medium text-neutral-500 mb-3">Gender</h4>
             <div className="space-y-2">
               {[
                 { gender: 'Male', percentage: 52 },
@@ -187,15 +181,15 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
                 { gender: 'Other', percentage: 2 },
               ].map((item, index) => (
                 <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm">{item.gender}</span>
-                  <span className="text-sm font-medium">{item.percentage}%</span>
+                  <span className="text-sm text-neutral-700">{item.gender}</span>
+                  <span className="text-sm font-medium text-neutral-900">{item.percentage}%</span>
                 </div>
               ))}
             </div>
           </div>
 
           <div>
-            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Top Cities</h4>
+            <h4 className="text-sm font-medium text-neutral-500 mb-3">Top Cities</h4>
             <div className="space-y-2">
               {[
                 { city: 'Lagos', percentage: 45 },
@@ -204,14 +198,14 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
                 { city: 'Nairobi', percentage: 12 },
               ].map((item, index) => (
                 <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm">{item.city}</span>
-                  <span className="text-sm font-medium">{item.percentage}%</span>
+                  <span className="text-sm text-neutral-700">{item.city}</span>
+                  <span className="text-sm font-medium text-neutral-900">{item.percentage}%</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

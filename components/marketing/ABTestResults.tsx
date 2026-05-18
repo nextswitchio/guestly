@@ -41,7 +41,7 @@ export function ABTestResults({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold">{testName}</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-neutral-500 mt-1">
             Status: <span className={status === 'running' ? 'text-blue-600' : 'text-green-600'}>
               {status === 'running' ? 'Running' : 'Completed'}
             </span>
@@ -50,7 +50,7 @@ export function ABTestResults({
         
         {statisticalSignificance && (
           <div className="text-right">
-            <p className="text-sm text-gray-600">Statistical Significance</p>
+            <p className="text-sm text-neutral-500">Statistical Significance</p>
             <p className={`text-2xl font-bold ${hasSignificance ? 'text-green-600' : 'text-amber-600'}`}>
               {statisticalSignificance.toFixed(1)}%
             </p>
@@ -65,12 +65,12 @@ export function ABTestResults({
           return (
             <div
               key={variant.id}
-              className={`p-4 border-2 rounded-lg ${
+              className={`p-4 border-2 rounded-2xl ${
                 variant.isWinner
                   ? 'border-green-500 bg-green-50'
                   : isBest
                   ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200'
+                  : 'border-neutral-200'
               }`}
             >
               <div className="flex items-center justify-between mb-3">
@@ -100,22 +100,22 @@ export function ABTestResults({
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600">Impressions</p>
+                  <p className="text-sm text-neutral-500">Impressions</p>
                   <p className="text-xl font-bold">{variant.impressions.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Conversions</p>
+                  <p className="text-sm text-neutral-500">Conversions</p>
                   <p className="text-xl font-bold">{variant.conversions.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Conversion Rate</p>
+                  <p className="text-sm text-neutral-500">Conversion Rate</p>
                   <p className="text-xl font-bold">{variant.conversionRate.toFixed(2)}%</p>
                 </div>
               </div>
 
               {isBest && variants.length > 1 && (
                 <div className="mt-3 pt-3 border-t">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-neutral-500">
                     Improvement over other variants:{' '}
                     <span className="font-semibold text-green-600">
                       +{((variant.conversionRate / variants.filter(v => v.id !== variant.id)[0].conversionRate - 1) * 100).toFixed(1)}%
@@ -129,7 +129,7 @@ export function ABTestResults({
       </div>
 
       {!hasSignificance && status === 'running' && (
-        <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
           <p className="text-sm text-amber-800">
            <AlertTriangle className="h-4 w-4 inline" /> Test has not reached statistical significance yet. Continue running to get reliable results.
           </p>

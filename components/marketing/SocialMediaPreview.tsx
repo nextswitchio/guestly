@@ -22,10 +22,10 @@ export default function SocialMediaPreview({
     switch (platform) {
       case 'facebook':
         return (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-200">
             {/* Facebook Header */}
             <div className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold">
+              <div className="w-10 h-10 rounded-full bg-lime flex items-center justify-center text-white font-semibold">
                 {accountAvatar ? (
                   <img src={accountAvatar} alt={accountName} className="w-full h-full rounded-full" />
                 ) : (
@@ -34,7 +34,7 @@ export default function SocialMediaPreview({
               </div>
               <div>
                 <div className="font-semibold text-sm">{accountName}</div>
-                <div className="text-xs text-gray-500 flex items-center gap-1">
+                <div className="text-xs text-neutral-500 flex items-center gap-1">
                   Just now · <Icon name="globe" className="w-3 h-3" />
                 </div>
               </div>
@@ -48,16 +48,16 @@ export default function SocialMediaPreview({
               <img src={imageUrl} alt="Post" className="w-full" />
             )}
             {/* Actions */}
-            <div className="border-t border-gray-200 dark:border-gray-700 p-2 flex justify-around">
-              <button className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm">
+            <div className="border-t border-neutral-200 p-2 flex justify-around">
+              <button className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-50 rounded text-sm">
                 <Icon name="thumbs-up" className="w-4 h-4" />
                 Like
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm">
+              <button className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-50 rounded text-sm">
                 <Icon name="message-circle" className="w-4 h-4" />
                 Comment
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm">
+              <button className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-50 rounded text-sm">
                 <Icon name="share-2" className="w-4 h-4" />
                 Share
               </button>
@@ -67,9 +67,9 @@ export default function SocialMediaPreview({
 
       case 'twitter':
         return (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-4">
             <div className="flex gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
+              <div className="w-12 h-12 rounded-full bg-lime flex items-center justify-center text-white font-semibold flex-shrink-0">
                 {accountAvatar ? (
                   <img src={accountAvatar} alt={accountName} className="w-full h-full rounded-full" />
                 ) : (
@@ -79,14 +79,14 @@ export default function SocialMediaPreview({
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-semibold text-sm">{accountName}</span>
-                  <span className="text-gray-500 text-sm">@{accountName.toLowerCase().replace(/\s/g, '')}</span>
-                  <span className="text-gray-500 text-sm">· now</span>
+                  <span className="text-neutral-500 text-sm">@{accountName.toLowerCase().replace(/\s/g, '')}</span>
+                  <span className="text-neutral-500 text-sm">· now</span>
                 </div>
                 <p className="text-sm whitespace-pre-wrap mb-3">{content}</p>
                 {imageUrl && (
-                  <img src={imageUrl} alt="Post" className="w-full rounded-2xl border border-gray-200 dark:border-gray-700" />
+                  <img src={imageUrl} alt="Post" className="w-full rounded-2xl border border-neutral-200" />
                 )}
-                <div className="flex justify-between mt-3 text-gray-500 max-w-md">
+                <div className="flex justify-between mt-3 text-neutral-500 max-w-md">
                   <button className="flex items-center gap-2 hover:text-blue-500">
                     <Icon name="message-circle" className="w-4 h-4" />
                     <span className="text-xs">0</span>
@@ -110,13 +110,13 @@ export default function SocialMediaPreview({
 
       case 'instagram':
         return (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-200">
             {/* Instagram Header */}
             <div className="p-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 p-0.5">
-                  <div className="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center">
-                    <div className="w-7 h-7 rounded-full bg-primary-500 flex items-center justify-center text-white text-xs font-semibold">
+                  <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-full bg-lime flex items-center justify-center text-white text-xs font-semibold">
                       {accountAvatar ? (
                         <img src={accountAvatar} alt={accountName} className="w-full h-full rounded-full" />
                       ) : (
@@ -153,10 +153,10 @@ export default function SocialMediaPreview({
 
       case 'linkedin':
         return (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white rounded-lg shadow-sm border border-neutral-200">
             {/* LinkedIn Header */}
             <div className="p-4 flex items-start gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold">
+              <div className="w-12 h-12 rounded-full bg-lime flex items-center justify-center text-white font-semibold">
                 {accountAvatar ? (
                   <img src={accountAvatar} alt={accountName} className="w-full h-full rounded-full" />
                 ) : (
@@ -165,7 +165,7 @@ export default function SocialMediaPreview({
               </div>
               <div className="flex-1">
                 <div className="font-semibold text-sm">{accountName}</div>
-                <div className="text-xs text-gray-500">Company · Just now</div>
+                <div className="text-xs text-neutral-500">Company · Just now</div>
               </div>
             </div>
             {/* Content */}
@@ -177,20 +177,20 @@ export default function SocialMediaPreview({
               <img src={imageUrl} alt="Post" className="w-full" />
             )}
             {/* Actions */}
-            <div className="border-t border-gray-200 dark:border-gray-700 px-2 py-1 flex gap-1">
-              <button className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm flex-1 justify-center">
+            <div className="border-t border-neutral-200 px-2 py-1 flex gap-1">
+              <button className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-50 rounded text-sm flex-1 justify-center">
                 <Icon name="thumbs-up" className="w-4 h-4" />
                 Like
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm flex-1 justify-center">
+              <button className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-50 rounded text-sm flex-1 justify-center">
                 <Icon name="message-square" className="w-4 h-4" />
                 Comment
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm flex-1 justify-center">
+              <button className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-50 rounded text-sm flex-1 justify-center">
                 <Icon name="repeat" className="w-4 h-4" />
                 Repost
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm flex-1 justify-center">
+              <button className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-50 rounded text-sm flex-1 justify-center">
                 <Icon name="send" className="w-4 h-4" />
                 Send
               </button>
@@ -213,7 +213,7 @@ export default function SocialMediaPreview({
                 <div className="flex items-end gap-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center text-xs font-semibold">
+                      <div className="w-8 h-8 rounded-full bg-lime flex items-center justify-center text-xs font-semibold">
                         {accountAvatar ? (
                           <img src={accountAvatar} alt={accountName} className="w-full h-full rounded-full" />
                         ) : (
@@ -253,9 +253,9 @@ export default function SocialMediaPreview({
     <Card className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h4 className="font-semibold capitalize">{platform} Preview</h4>
-        <span className="text-xs text-gray-500">Preview only</span>
+        <span className="text-xs text-neutral-500">Preview only</span>
       </div>
-      <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+      <div className="bg-neutral-50 p-4 rounded-2xl">
         {renderPreview()}
       </div>
     </Card>

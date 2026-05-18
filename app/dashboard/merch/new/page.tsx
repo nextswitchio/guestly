@@ -2,9 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { Icon } from '@/components/ui/Icon';
 
 export default function NewMerchProductPage() {
@@ -49,20 +46,19 @@ export default function NewMerchProductPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 p-6">
+    <div className="max-w-3xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
+        <button
           onClick={() => router.back()}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
         >
-          <Icon name="arrow-left" className="w-4 h-4" />
+          <Icon name="arrow-left" size={16} />
           Back
-        </Button>
+        </button>
         <div>
-          <h1 className="text-3xl font-bold">Add New Product</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">Add New Product</h1>
+          <p className="text-neutral-500 mt-1">
             Create a new merchandise item for your events
           </p>
         </div>
@@ -70,76 +66,98 @@ export default function NewMerchProductPage() {
 
       {/* Form */}
       <form onSubmit={handleSubmit}>
-        <Card className="p-6 space-y-6">
-          <Input
-            label="Product Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="e.g., Event T-Shirt"
-            required
-          />
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Product Name</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="e.g., Event T-Shirt"
+              required
+              className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+            />
+          </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Description</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Description</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Describe your product..."
               required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white min-h-[100px]"
+              className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all min-h-[100px]"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input
-              label="Price (₦)"
-              type="number"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              placeholder="0.00"
-              min="0"
-              step="0.01"
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Price (₦)</label>
+              <input
+                type="number"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                required
+                className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+              />
+            </div>
 
-            <Input
-              label="Stock Quantity"
-              type="number"
-              value={formData.stock}
-              onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-              placeholder="0"
-              min="0"
-              required
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Stock Quantity</label>
+              <input
+                type="number"
+                value={formData.stock}
+                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                placeholder="0"
+                min="0"
+                required
+                className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Image URL</label>
+            <input
+              type="text"
+              value={formData.imageUrl}
+              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+              placeholder="https://example.com/image.jpg"
+              className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
             />
           </div>
 
-          <Input
-            label="Image URL"
-            value={formData.imageUrl}
-            onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-            placeholder="https://example.com/image.jpg"
-          />
-
-          <Input
-            label="Event ID (Optional)"
-            value={formData.eventId}
-            onChange={(e) => setFormData({ ...formData, eventId: e.target.value })}
-            placeholder="Link to a specific event"
-          />
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Event ID (Optional)</label>
+            <input
+              type="text"
+              value={formData.eventId}
+              onChange={(e) => setFormData({ ...formData, eventId: e.target.value })}
+              placeholder="Link to a specific event"
+              className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+            />
+          </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="submit" disabled={loading}>
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-xl bg-lime px-6 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover disabled:opacity-50 transition-colors"
+            >
               {loading ? 'Creating...' : 'Create Product'}
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
-              variant="outline"
               onClick={() => router.back()}
+              className="rounded-xl border border-neutral-200 bg-white px-6 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
             >
               Cancel
-            </Button>
+            </button>
           </div>
-        </Card>
+        </div>
       </form>
     </div>
   );

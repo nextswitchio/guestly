@@ -93,16 +93,16 @@ export function SMSCampaignForm({ eventId, onSubmit, onCancel }: SMSCampaignForm
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               placeholder="Your event message here..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-lime/20 focus:border-lime"
               rows={4}
               maxLength={480}
               required
             />
             <div className="flex justify-between text-sm mt-1">
-              <span className={messageLength > 160 ? 'text-warning-600' : 'text-gray-500'}>
+              <span className={messageLength > 160 ? 'text-amber-600' : 'text-neutral-500'}>
                 {messageLength} / 160 characters
               </span>
-              <span className="text-gray-500">
+              <span className="text-neutral-500">
                 {smsCount} SMS {smsCount > 1 ? 'messages' : 'message'}
               </span>
             </div>
@@ -131,7 +131,7 @@ export function SMSCampaignForm({ eventId, onSubmit, onCancel }: SMSCampaignForm
               value={formData.scheduledAt}
               onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-neutral-500 mt-1">
               Leave empty to send immediately
             </p>
           </div>
@@ -143,7 +143,7 @@ export function SMSCampaignForm({ eventId, onSubmit, onCancel }: SMSCampaignForm
             <select
               value={formData.segmentId}
               onChange={(e) => setFormData({ ...formData, segmentId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-lime/20 focus:border-lime"
             >
               <option value="">All attendees</option>
               <option value="ticket-holders">Ticket holders</option>

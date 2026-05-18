@@ -3,10 +3,7 @@ import { RefreshCw, Save } from 'lucide-react';
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import Select from '@/components/ui/Select';
+import { Icon } from '@/components/ui/Icon';
 
 interface Campaign {
   id: string;
@@ -96,101 +93,126 @@ export default function EditCampaignPage({ params }: { params: Promise<{ id: str
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <RefreshCw className="w-8 h-8 animate-spin text-slate-400" />
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Edit Campaign</h1>
-        <p className="text-slate-500 mt-1">Update your marketing campaign details</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">Edit Campaign</h1>
+        <p className="text-neutral-500 mt-1">Update your marketing campaign details</p>
       </div>
 
-      <Card className="p-6 sm:p-8">
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6 sm:p-8">
         {saved ? (
           <div className="text-center py-8">
-            <Save className="w-12 h-12 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Campaign Updated!</h3>
-            <p className="text-slate-500">Redirecting to campaign details...</p>
+            <div className="flex h-12 w-12 mx-auto mb-4 items-center justify-center rounded-full bg-green-100">
+              <Save className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-neutral-900 mb-2">Campaign Updated!</h3>
+            <p className="text-neutral-500">Redirecting to campaign details...</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
-            <Input
-              label="Campaign Name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              required
-            />
             <div>
-              <label className="block text-sm font-medium mb-2">Description</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Campaign Name</label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+                className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Description</label>
               <textarea
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 rows={4}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white text-slate-900 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all min-h-[100px]"
               />
             </div>
-            <Select
-              label="Campaign Type"
-              value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value as Campaign['type'] })}
-              options={[
-                { value: 'email', label: 'Email' },
-                { value: 'social', label: 'Social Media' },
-                { value: 'influencer', label: 'Influencer' },
-                { value: 'referral', label: 'Referral' },
-              ]}
-            />
-            <Input
-              label="Budget (₦)"
-              type="number"
-              value={form.budget.toString()}
-              onChange={(e) => setForm({ ...form, budget: parseFloat(e.target.value) || 0 })}
-            />
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Campaign Type</label>
+              <select
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value as Campaign['type'] })}
+                className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+              >
+                <option value="email">Email</option>
+                <option value="social">Social Media</option>
+                <option value="influencer">Influencer</option>
+                <option value="referral">Referral</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Budget (₦)</label>
+              <input
+                type="number"
+                value={form.budget.toString()}
+                onChange={(e) => setForm({ ...form, budget: parseFloat(e.target.value) || 0 })}
+                className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+              />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <Input
-                label="Start Date"
-                type="date"
-                value={form.startDate}
-                onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-              />
-              <Input
-                label="End Date"
-                type="date"
-                value={form.endDate}
-                onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1.5">Start Date</label>
+                <input
+                  type="date"
+                  value={form.startDate}
+                  onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                  className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1.5">End Date</label>
+                <input
+                  type="date"
+                  value={form.endDate}
+                  onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                  className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Target Audience</label>
+              <input
+                type="text"
+                value={form.targetAudience}
+                onChange={(e) => setForm({ ...form, targetAudience: e.target.value })}
+                placeholder="e.g., Lagos residents aged 18-35"
+                className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
               />
             </div>
-            <Input
-              label="Target Audience"
-              value={form.targetAudience}
-              onChange={(e) => setForm({ ...form, targetAudience: e.target.value })}
-              placeholder="e.g., Lagos residents aged 18-35"
-            />
 
             {error && (
               <div className="text-sm text-red-600 bg-red-50 p-3 rounded-xl">{error}</div>
             )}
 
             <div className="flex gap-3 pt-2">
-              <Button type="submit" loading={saving}>
-                <Save className="w-4 h-4 mr-2" />
-                Save Changes
-              </Button>
-              <Button
+              <button
+                type="submit"
+                disabled={saving}
+                className="flex items-center gap-2 rounded-xl bg-lime px-6 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover disabled:opacity-50 transition-colors"
+              >
+                <Save className="w-4 h-4" />
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button
                 type="button"
-                variant="outline"
                 onClick={() => router.push(`/dashboard/marketing/campaigns/${id}`)}
+                className="rounded-xl border border-neutral-200 bg-white px-6 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
               >
                 Cancel
-              </Button>
+              </button>
             </div>
           </form>
         )}
-      </Card>
+      </div>
     </div>
   );
 }

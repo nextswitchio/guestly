@@ -122,12 +122,12 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-2xl shadow p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-6 bg-neutral-200 rounded w-1/3"></div>
           <div className="space-y-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-24 bg-gray-200 rounded"></div>
+              <div key={i} className="h-24 bg-neutral-200 rounded"></div>
             ))}
           </div>
         </div>
@@ -137,8 +137,8 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
 
   if (!mediaKit) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-500 text-center">No media kit data available</p>
+      <div className="bg-white rounded-2xl shadow p-6">
+        <p className="text-neutral-500 text-center">No media kit data available</p>
       </div>
     );
   }
@@ -146,11 +146,11 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-2xl shadow p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Media Kit</h3>
-            <p className="text-sm text-gray-600 mt-1">
+            <h3 className="text-lg font-semibold text-neutral-900">Media Kit</h3>
+            <p className="text-sm text-neutral-500 mt-1">
               Professional promotional materials for partners and media
             </p>
           </div>
@@ -158,7 +158,7 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
             {mediaKit.downloadUrl && (
               <button
                 onClick={handleDownload}
-                className="px-4 py-2 bg-success-600 text-white rounded-lg hover:bg-success-700 flex items-center gap-2"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
               >
                 <Icon name="download" className="w-4 h-4" />
                 Download Kit
@@ -167,7 +167,7 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
             <button
               onClick={handleGenerateKit}
               disabled={generating || selectedAssets.length === 0}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 bg-lime text-dark rounded-lg hover:bg-lime/80 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <Icon name="package" className="w-4 h-4" />
               {generating ? 'Generating...' : 'Generate Kit'}
@@ -176,24 +176,24 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
         </div>
 
         {/* Event Info */}
-        <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-2 gap-4 p-4 bg-neutral-50 rounded-lg">
           <div>
-            <div className="text-xs text-gray-600 mb-1">Event</div>
-            <div className="text-sm font-medium text-gray-900">{mediaKit.eventName}</div>
+            <div className="text-xs text-neutral-500 mb-1">Event</div>
+            <div className="text-sm font-medium text-neutral-900">{mediaKit.eventName}</div>
           </div>
           <div>
-            <div className="text-xs text-gray-600 mb-1">Date</div>
-            <div className="text-sm font-medium text-gray-900">
+            <div className="text-xs text-neutral-500 mb-1">Date</div>
+            <div className="text-sm font-medium text-neutral-900">
               {new Date(mediaKit.eventDate).toLocaleDateString()}
             </div>
           </div>
           <div>
-            <div className="text-xs text-gray-600 mb-1">Location</div>
-            <div className="text-sm font-medium text-gray-900">{mediaKit.eventLocation}</div>
+            <div className="text-xs text-neutral-500 mb-1">Location</div>
+            <div className="text-sm font-medium text-neutral-900">{mediaKit.eventLocation}</div>
           </div>
           <div>
-            <div className="text-xs text-gray-600 mb-1">Expected Attendance</div>
-            <div className="text-sm font-medium text-gray-900">
+            <div className="text-xs text-neutral-500 mb-1">Expected Attendance</div>
+            <div className="text-sm font-medium text-neutral-900">
               {mediaKit.statistics.expectedAttendance.toLocaleString()}
             </div>
           </div>
@@ -201,33 +201,33 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
       </div>
 
       {/* Assets */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h4 className="text-sm font-semibold text-gray-900 mb-4">Media Assets</h4>
+      <div className="bg-white rounded-2xl shadow p-6">
+        <h4 className="text-sm font-semibold text-neutral-900 mb-4">Media Assets</h4>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {mediaKit.assets.map((asset, index) => (
             <label
               key={index}
               className={`relative p-4 border-2 rounded-lg cursor-pointer transition-colors ${
                 selectedAssets.includes(asset.url)
-                  ? 'border-primary-500 bg-primary-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-lime bg-lime/10'
+                  : 'border-neutral-200 hover:border-neutral-300'
               }`}
             >
               <input
                 type="checkbox"
                 checked={selectedAssets.includes(asset.url)}
                 onChange={() => toggleAsset(asset.url)}
-                className="absolute top-3 right-3 w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                className="absolute top-3 right-3 w-4 h-4 text-lime rounded focus:ring-lime/20"
               />
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon name={getAssetIcon(asset.type)} className="w-5 h-5 text-gray-600" />
+                <div className="w-10 h-10 bg-neutral-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Icon name={getAssetIcon(asset.type)} className="w-5 h-5 text-neutral-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 truncate">{asset.name}</div>
-                  <div className="text-xs text-gray-500 mt-1">{asset.size}</div>
+                  <div className="text-sm font-medium text-neutral-900 truncate">{asset.name}</div>
+                  <div className="text-xs text-neutral-500 mt-1">{asset.size}</div>
                   {asset.dimensions && (
-                    <div className="text-xs text-gray-500">{asset.dimensions}</div>
+                    <div className="text-xs text-neutral-500">{asset.dimensions}</div>
                   )}
                 </div>
               </div>
@@ -237,22 +237,22 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
       </div>
 
       {/* Copy Templates */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h4 className="text-sm font-semibold text-gray-900 mb-4">Copy Templates</h4>
+      <div className="bg-white rounded-2xl shadow p-6">
+        <h4 className="text-sm font-semibold text-neutral-900 mb-4">Copy Templates</h4>
         <div className="space-y-4">
           {/* Headline */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Headline</label>
+              <label className="text-sm font-medium text-neutral-700">Headline</label>
               <button
                 onClick={() => copyToClipboard(mediaKit.copyTemplates.headline)}
-                className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                className="text-xs text-lime hover:text-lime/80 flex items-center gap-1"
               >
                 <Icon name="copy" className="w-3 h-3" />
                 Copy
               </button>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-900">
+            <div className="p-3 bg-neutral-50 rounded-lg text-sm text-neutral-900">
               {mediaKit.copyTemplates.headline}
             </div>
           </div>
@@ -260,16 +260,16 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
           {/* Short Description */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Short Description</label>
+              <label className="text-sm font-medium text-neutral-700">Short Description</label>
               <button
                 onClick={() => copyToClipboard(mediaKit.copyTemplates.shortDescription)}
-                className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                className="text-xs text-lime hover:text-lime/80 flex items-center gap-1"
               >
                 <Icon name="copy" className="w-3 h-3" />
                 Copy
               </button>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-900">
+            <div className="p-3 bg-neutral-50 rounded-lg text-sm text-neutral-900">
               {mediaKit.copyTemplates.shortDescription}
             </div>
           </div>
@@ -277,16 +277,16 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
           {/* Social Caption */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Social Media Caption</label>
+              <label className="text-sm font-medium text-neutral-700">Social Media Caption</label>
               <button
                 onClick={() => copyToClipboard(mediaKit.copyTemplates.socialCaption)}
-                className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                className="text-xs text-lime hover:text-lime/80 flex items-center gap-1"
               >
                 <Icon name="copy" className="w-3 h-3" />
                 Copy
               </button>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-900 whitespace-pre-wrap">
+            <div className="p-3 bg-neutral-50 rounded-lg text-sm text-neutral-900 whitespace-pre-wrap">
               {mediaKit.copyTemplates.socialCaption}
             </div>
           </div>
@@ -294,16 +294,16 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
           {/* Email Template */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">Email Template</label>
+              <label className="text-sm font-medium text-neutral-700">Email Template</label>
               <button
                 onClick={() => copyToClipboard(mediaKit.copyTemplates.emailTemplate)}
-                className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                className="text-xs text-lime hover:text-lime/80 flex items-center gap-1"
               >
                 <Icon name="copy" className="w-3 h-3" />
                 Copy
               </button>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-900 whitespace-pre-wrap max-h-48 overflow-y-auto">
+            <div className="p-3 bg-neutral-50 rounded-lg text-sm text-neutral-900 whitespace-pre-wrap max-h-48 overflow-y-auto">
               {mediaKit.copyTemplates.emailTemplate}
             </div>
           </div>
@@ -311,51 +311,51 @@ export function MediaKitGenerator({ organizerId, eventId }: MediaKitGeneratorPro
       </div>
 
       {/* Social Handles */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h4 className="text-sm font-semibold text-gray-900 mb-4">Social Media</h4>
+      <div className="bg-white rounded-2xl shadow p-6">
+        <h4 className="text-sm font-semibold text-neutral-900 mb-4">Social Media</h4>
         <div className="space-y-2">
           {mediaKit.socialHandles.instagram && (
             <div className="flex items-center gap-3">
               <Icon name="instagram" className="w-5 h-5 text-pink-500" />
-              <span className="text-sm text-gray-900">{mediaKit.socialHandles.instagram}</span>
+              <span className="text-sm text-neutral-900">{mediaKit.socialHandles.instagram}</span>
             </div>
           )}
           {mediaKit.socialHandles.twitter && (
             <div className="flex items-center gap-3">
               <Icon name="twitter" className="w-5 h-5 text-blue-400" />
-              <span className="text-sm text-gray-900">{mediaKit.socialHandles.twitter}</span>
+              <span className="text-sm text-neutral-900">{mediaKit.socialHandles.twitter}</span>
             </div>
           )}
           {mediaKit.socialHandles.facebook && (
             <div className="flex items-center gap-3">
               <Icon name="facebook" className="w-5 h-5 text-blue-600" />
-              <span className="text-sm text-gray-900">{mediaKit.socialHandles.facebook}</span>
+              <span className="text-sm text-neutral-900">{mediaKit.socialHandles.facebook}</span>
             </div>
           )}
         </div>
       </div>
 
       {/* Statistics */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h4 className="text-sm font-semibold text-gray-900 mb-4">Organizer Statistics</h4>
+      <div className="bg-white rounded-2xl shadow p-6">
+        <h4 className="text-sm font-semibold text-neutral-900 mb-4">Organizer Statistics</h4>
         <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="text-center p-4 bg-neutral-50 rounded-lg">
+            <div className="text-2xl font-bold text-neutral-900">
               {mediaKit.statistics.pastEventCount}
             </div>
-            <div className="text-xs text-gray-600 mt-1">Past Events</div>
+            <div className="text-xs text-neutral-500 mt-1">Past Events</div>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="text-center p-4 bg-neutral-50 rounded-lg">
+            <div className="text-2xl font-bold text-neutral-900">
               {mediaKit.statistics.totalAttendees.toLocaleString()}
             </div>
-            <div className="text-xs text-gray-600 mt-1">Total Attendees</div>
+            <div className="text-xs text-neutral-500 mt-1">Total Attendees</div>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="text-center p-4 bg-neutral-50 rounded-lg">
+            <div className="text-2xl font-bold text-neutral-900">
               {mediaKit.statistics.expectedAttendance.toLocaleString()}
             </div>
-            <div className="text-xs text-gray-600 mt-1">Expected Attendance</div>
+            <div className="text-xs text-neutral-500 mt-1">Expected Attendance</div>
           </div>
         </div>
       </div>

@@ -15,7 +15,6 @@ export default function AnalyticsPage() {
     end: new Date().toISOString().split('T')[0]
   });
 
-  // Mock data for components
   const mockChannels = [
     { channel: 'Email', revenue: 15000, cost: 3000, conversions: 450, roi: 400, cac: 6.67 },
     { channel: 'Social Media', revenue: 12000, cost: 2500, conversions: 380, roi: 380, cac: 6.58 },
@@ -55,18 +54,15 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Marketing Analytics</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <h1 className="text-2xl font-bold text-neutral-900">Marketing Analytics</h1>
+          <p className="text-neutral-500 mt-1">
             Track attribution, ROI, and campaign performance
           </p>
         </div>
-        <DateRangeSelector
-          value={dateRange}
-          onChange={setDateRange}
-        />
+        <DateRangeSelector value={dateRange} onChange={setDateRange} />
       </div>
 
       <AttributionDashboard organizerId={organizerId} />
@@ -77,7 +73,6 @@ export default function AnalyticsPage() {
       </div>
 
       <FunnelVisualization stages={mockStages} />
-      
       <CohortAnalysis cohorts={mockCohorts} />
     </div>
   );

@@ -129,10 +129,10 @@ export default function SwipeableCard({
   // Get action background color
   const getActionColor = (color: SwipeAction['color']) => {
     switch (color) {
-      case 'primary': return 'bg-primary-500';
-      case 'success': return 'bg-success-500';
-      case 'danger': return 'bg-danger-500';
-      case 'warning': return 'bg-warning-500';
+      case 'primary': return 'bg-lime';
+      case 'success': return 'bg-green-500';
+      case 'danger': return 'bg-red-500';
+      case 'warning': return 'bg-amber-500';
       default: return 'bg-neutral-500';
     }
   };
@@ -168,7 +168,7 @@ export default function SwipeableCard({
       {/* Card content */}
       <div
         ref={cardRef}
-        className="relative bg-[var(--surface-card)] touch-pan-y"
+        className="relative bg-white touch-pan-y"
         style={{
           transform: `translateX(${swipeOffset}px)`,
           transition: isAnimating ? 'transform 300ms ease-out' : 'none'

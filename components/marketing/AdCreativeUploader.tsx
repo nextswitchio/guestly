@@ -51,7 +51,7 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
                 <label className="text-sm font-medium">Headline</label>
                 <span
                   className={`text-xs ${
-                    headlineLength > 40 ? 'text-danger-500' : 'text-gray-500'
+                    headlineLength > 40 ? 'text-red-500' : 'text-neutral-500'
                   }`}
                 >
                   {headlineLength}/40
@@ -64,7 +64,7 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
                 maxLength={40}
               />
               {headlineLength > 40 && (
-                <p className="text-xs text-danger-500 mt-1">
+                <p className="text-xs text-red-500 mt-1">
                   Headline may be truncated on some platforms
                 </p>
               )}
@@ -75,7 +75,7 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
                 <label className="text-sm font-medium">Description</label>
                 <span
                   className={`text-xs ${
-                    descriptionLength > 125 ? 'text-danger-500' : 'text-gray-500'
+                    descriptionLength > 125 ? 'text-red-500' : 'text-neutral-500'
                   }`}
                 >
                   {descriptionLength}/125
@@ -89,7 +89,7 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
                 maxLength={125}
               />
               {descriptionLength > 125 && (
-                <p className="text-xs text-danger-500 mt-1">
+                <p className="text-xs text-red-500 mt-1">
                   Description may be truncated on some platforms
                 </p>
               )}
@@ -111,11 +111,11 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
               placeholder="https://example.com/image.jpg"
             />
 
-            <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+            <div className="bg-neutral-50 p-4 rounded-2xl">
+              <p className="text-xs text-neutral-500 mb-2">
                 Recommended specifications:
               </p>
-              <ul className="text-xs text-gray-500 space-y-1">
+              <ul className="text-xs text-neutral-500 space-y-1">
                 <li>• Aspect ratio: 1.91:1 (1200x628px)</li>
                 <li>• Format: JPG or PNG</li>
                 <li>• File size: Under 5MB</li>
@@ -136,10 +136,10 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
               <button
                 key={cta}
                 onClick={() => onChange({ ...creative, callToAction: cta })}
-                className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                className={`px-4 py-2 rounded-2xl border-2 text-sm font-medium transition-all ${
                   creative.callToAction === cta
-                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-lime bg-lime/10 text-lime'
+                    : 'border-neutral-200 hover:border-neutral-300'
                 }`}
               >
                 {cta}
@@ -156,20 +156,20 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
             <Icon name="eye" className="w-5 h-5" />
             Ad Preview
           </h4>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-sm text-neutral-500 mb-4">
             See how your ad will appear
           </p>
 
           {/* Facebook/Instagram Style Preview */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden">
             {/* Header */}
-            <div className="p-3 flex items-center gap-3 border-b border-gray-200 dark:border-gray-700">
-              <div className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold">
+            <div className="p-3 flex items-center gap-3 border-b border-neutral-200">
+              <div className="w-10 h-10 rounded-full bg-lime flex items-center justify-center text-dark font-semibold">
                 G
               </div>
               <div>
                 <div className="font-semibold text-sm">Guestly</div>
-                <div className="text-xs text-gray-500">Sponsored</div>
+                <div className="text-xs text-neutral-500">Sponsored</div>
               </div>
             </div>
 
@@ -184,8 +184,8 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
                 }}
               />
             ) : (
-              <div className="w-full aspect-[1.91/1] bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                <div className="text-center text-gray-400">
+              <div className="w-full aspect-[1.91/1] bg-neutral-100 flex items-center justify-center">
+                <div className="text-center text-neutral-400">
                   <Icon name="image" className="w-12 h-12 mx-auto mb-2" />
                   <p className="text-sm">Add an image to preview</p>
                 </div>
@@ -197,10 +197,10 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
               <h3 className="font-semibold text-lg mb-1">
                 {creative.headline || 'Your headline here'}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              <p className="text-sm text-neutral-500 mb-3">
                 {creative.description || 'Your description will appear here'}
               </p>
-              <button className="w-full bg-primary-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-primary-600 transition-colors">
+              <button className="w-full bg-lime text-dark py-2 px-4 rounded-2xl font-medium hover:bg-lime/90 transition-colors">
                 {creative.callToAction}
               </button>
             </div>
@@ -208,12 +208,12 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
         </Card>
 
         {/* Tips */}
-        <Card className="p-4 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+        <Card className="p-4 bg-green-50 border-green-200">
           <div className="flex items-start gap-3">
-            <Icon name="lightbulb" className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5" />
-            <div className="text-sm text-green-900 dark:text-green-100">
+            <Icon name="lightbulb" className="w-5 h-5 text-green-600 mt-0.5" />
+            <div className="text-sm text-green-900">
               <p className="font-medium mb-2">Tips for better ads:</p>
-              <ul className="space-y-1 text-green-800 dark:text-green-200">
+              <ul className="space-y-1 text-green-800">
                 <li>• Use high-quality, eye-catching images</li>
                 <li>• Keep headlines short and compelling</li>
                 <li>• Include a clear call-to-action</li>
@@ -226,10 +226,10 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
 
         {/* Validation */}
         {(!creative.headline || !creative.description || !creative.imageUrl) && (
-          <Card className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+          <Card className="p-4 bg-amber-50 border-amber-200">
             <div className="flex items-start gap-3">
               <span className="text-xl"><AlertTriangle className="h-4 w-4 inline-block" /></span>
-              <div className="text-sm text-yellow-900 dark:text-yellow-100">
+              <div className="text-sm text-amber-900">
                 <p className="font-medium mb-1">Complete your ad creative</p>
                 <ul className="space-y-1">
                   {!creative.headline && <li>• Add a headline</li>}

@@ -89,31 +89,31 @@ export default function AffiliateRegistration({ userId, onSuccess }: AffiliateRe
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Become an Affiliate Partner</h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-neutral-500">
             Earn commissions by promoting events on Guestly
           </p>
         </div>
 
         {/* Benefits */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="text-center p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg">
-            <Icon name="dollar-sign" className="w-8 h-8 mx-auto text-primary-500 mb-2" />
+          <div className="text-center p-4 bg-lime/10 rounded-2xl">
+            <Icon name="dollar-sign" className="w-8 h-8 mx-auto text-lime mb-2" />
             <h3 className="font-semibold mb-1">Earn Commission</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-neutral-500">
               Up to 10% on every sale
             </p>
           </div>
-          <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="text-center p-4 bg-blue-50 rounded-2xl">
             <Icon name="trending-up" className="w-8 h-8 mx-auto text-blue-500 mb-2" />
             <h3 className="font-semibold mb-1">Track Performance</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-neutral-500">
               Real-time analytics dashboard
             </p>
           </div>
-          <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <div className="text-center p-4 bg-green-50 rounded-2xl">
             <Icon name="credit-card" className="w-8 h-8 mx-auto text-green-500 mb-2" />
             <h3 className="font-semibold mb-1">Fast Payouts</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-neutral-500">
               Monthly payments via bank or mobile money
             </p>
           </div>
@@ -123,31 +123,31 @@ export default function AffiliateRegistration({ userId, onSuccess }: AffiliateRe
         <div className="flex items-center justify-center gap-4 mb-8">
           <div
             className={`flex items-center gap-2 ${
-              step === 'info' ? 'text-primary-500' : 'text-gray-400'
+              step === 'info' ? 'text-lime' : 'text-neutral-500'
             }`}
           >
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center ${
                 step === 'info'
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700'
+                  ? 'bg-lime text-dark'
+                  : 'bg-neutral-200'
               }`}
             >
               1
             </div>
             <span className="font-medium">Business Info</span>
           </div>
-          <div className="w-12 h-1 bg-gray-200 dark:bg-gray-700" />
+          <div className="w-12 h-1 bg-neutral-200" />
           <div
             className={`flex items-center gap-2 ${
-              step === 'payment' ? 'text-primary-500' : 'text-gray-400'
+              step === 'payment' ? 'text-lime' : 'text-neutral-500'
             }`}
           >
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center ${
                 step === 'payment'
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700'
+                  ? 'bg-lime text-dark'
+                  : 'bg-neutral-200'
               }`}
             >
               2
@@ -205,10 +205,10 @@ export default function AffiliateRegistration({ userId, onSuccess }: AffiliateRe
                       key={option.value}
                       type="button"
                       onClick={() => toggleChannel(option.value)}
-                      className={`p-3 rounded-lg border-2 transition-all ${
+                      className={`p-3 rounded-2xl border-2 transition-all ${
                         formData.promotionalChannels.includes(option.value)
-                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                          ? 'border-lime bg-lime/10'
+                          : 'border-neutral-200 hover:border-neutral-300'
                       }`}
                     >
                       <Icon name={option.icon as any} className="w-6 h-6 mx-auto mb-1" />
@@ -251,10 +251,10 @@ export default function AffiliateRegistration({ userId, onSuccess }: AffiliateRe
                           paymentMethod: method.value as typeof formData.paymentMethod,
                         })
                       }
-                      className={`p-4 rounded-lg border-2 transition-all ${
+                      className={`p-4 rounded-2xl border-2 transition-all ${
                         formData.paymentMethod === method.value
-                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                          ? 'border-lime bg-lime/10'
+                          : 'border-neutral-200 hover:border-neutral-300'
                       }`}
                     >
                       <Icon name={method.icon as any} className="w-6 h-6 mx-auto mb-2" />
@@ -323,9 +323,9 @@ export default function AffiliateRegistration({ userId, onSuccess }: AffiliateRe
                   Back
                 </Button>
                 <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? (
-                    <span className="animate-spin inline-block"><RefreshCw className="h-4 w-4 inline-block" /></span>
-                  ) : (
+                    {loading ? (
+                      <span className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" />
+                    ) : (
                     'Submit Application'
                   )}
                 </Button>
@@ -335,7 +335,7 @@ export default function AffiliateRegistration({ userId, onSuccess }: AffiliateRe
         </form>
 
         {/* Terms */}
-        <p className="text-xs text-gray-500 text-center mt-6">
+        <p className="text-xs text-neutral-500 text-center mt-6">
           By submitting this application, you agree to our Affiliate Terms and Conditions
         </p>
       </Card>

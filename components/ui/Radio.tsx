@@ -85,7 +85,7 @@ const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
         {label && (
           <label
             id={labelId}
-            className="block text-sm font-medium text-[var(--foreground)] mb-3"
+            className="block text-sm font-medium text-neutral-900 mb-3"
           >
             {label}
           </label>
@@ -118,10 +118,10 @@ const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
                   tabIndex={isChecked ? 0 : -1}
                   onClick={() => !isDisabled && handleChange(option.value)}
                   onKeyDown={(e) => handleKeyDown(e, option.value, index)}
-                  className={`relative flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:ring-offset-2 ${
+                  className={`relative flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/20 focus-visible:ring-offset-2 ${
                     isChecked
-                      ? "border-primary-500 bg-primary-500"
-                      : "border-neutral-300 bg-transparent hover:border-primary-400"
+                      ? "border-lime bg-lime"
+                      : "border-neutral-300 bg-transparent hover:border-lime"
                   } ${
                     isDisabled
                       ? "cursor-not-allowed"
@@ -135,7 +135,7 @@ const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
                 <div className="flex-1">
                   <label
                     htmlFor={radioId}
-                    className={`text-sm font-medium text-[var(--foreground)] select-none ${
+                    className={`text-sm font-medium text-neutral-900 select-none ${
                       isDisabled ? "cursor-not-allowed" : "cursor-pointer"
                     }`}
                     onClick={() => !isDisabled && handleChange(option.value)}
@@ -143,7 +143,7 @@ const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
                     {option.label}
                   </label>
                   {option.description && (
-                    <p className="text-xs text-[var(--foreground-muted)] mt-1">
+                    <p className="text-xs text-neutral-500 mt-1">
                       {option.description}
                     </p>
                   )}
@@ -155,7 +155,7 @@ const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
         {error && (
           <p
             id={errorId}
-            className="text-sm text-danger-500 mt-2"
+            className="text-sm text-red-500 mt-2"
             role="alert"
           >
             {error}

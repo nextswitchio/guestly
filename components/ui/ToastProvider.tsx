@@ -93,35 +93,35 @@ function ToastItem({
     switch (toast.type) {
       case "success":
         return {
-          bg: "bg-success-50 dark:bg-success-900/20",
-          border: "border-success-200 dark:border-success-800",
-          text: "text-success-900 dark:text-success-100",
-          icon: "text-success-600 dark:text-success-400",
-          progress: "bg-success-500",
+          bg: "bg-green-50",
+          border: "border-green-200",
+          text: "text-green-900",
+          icon: "text-green-600",
+          progress: "bg-green-500",
         };
       case "warning":
         return {
-          bg: "bg-warning-50 dark:bg-warning-900/20",
-          border: "border-warning-200 dark:border-warning-800",
-          text: "text-warning-900 dark:text-warning-100",
-          icon: "text-warning-600 dark:text-warning-400",
-          progress: "bg-warning-500",
+          bg: "bg-amber-50",
+          border: "border-amber-200",
+          text: "text-amber-900",
+          icon: "text-amber-600",
+          progress: "bg-amber-500",
         };
       case "error":
         return {
-          bg: "bg-danger-50 dark:bg-danger-900/20",
-          border: "border-danger-200 dark:border-danger-800",
-          text: "text-danger-900 dark:text-danger-100",
-          icon: "text-danger-600 dark:text-danger-400",
-          progress: "bg-danger-500",
+          bg: "bg-red-50",
+          border: "border-red-200",
+          text: "text-red-900",
+          icon: "text-red-600",
+          progress: "bg-red-500",
         };
       default: // info
         return {
-          bg: "bg-primary-50 dark:bg-primary-900/20",
-          border: "border-primary-200 dark:border-primary-800",
-          text: "text-primary-900 dark:text-primary-100",
-          icon: "text-primary-600 dark:text-primary-400",
-          progress: "bg-primary-500",
+          bg: "bg-lime/10",
+          border: "border-lime/20",
+          text: "text-lime",
+          icon: "text-lime",
+          progress: "bg-lime",
         };
     }
   };
@@ -210,7 +210,7 @@ function ToastItem({
         action: handleDismiss
       }}
       onSwipeLeft={handleDismiss}
-      className={`transition-all duration-[var(--duration-normal)] ease-[var(--ease-spring)] ${
+      className={`transition-all duration-300 ${
         isExiting ? "opacity-0 translate-x-full scale-95" : "opacity-100 translate-x-0 scale-100"
       }`}
       swipeThreshold={60}
@@ -245,7 +245,7 @@ function ToastItem({
           {toast.dismissible !== false && (
             <button
               onClick={handleDismiss}
-              className={`flex-shrink-0 ${styles.icon} hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-offset-2 rounded touch-target transition-all duration-[var(--duration-fast)] ease-[var(--ease-spring)] spring-tap`}
+              className={`flex-shrink-0 ${styles.icon} hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-offset-2 rounded touch-target transition-all duration-200 spring-tap`}
               aria-label="Dismiss"
             >
               <svg
@@ -265,7 +265,7 @@ function ToastItem({
           )}
         </div>
         {toast.duration !== 0 && (
-          <div className="h-1 bg-black/10 dark:bg-white/10">
+          <div className="h-1 bg-black/10">
             <div
               className={`h-full transition-all duration-75 ease-linear ${styles.progress}`}
               style={{ width: `${progress}%` }}

@@ -55,7 +55,7 @@ export function BlogPostEditor({ organizerId, initialData, onSave, onCancel }: B
             value={excerpt}
             onChange={(e) => setExcerpt(e.target.value)}
             placeholder="Brief summary of the post"
-            className="w-full px-3 py-2 border rounded-lg min-h-[80px]"
+            className="w-full px-3 py-2 border rounded-2xl min-h-[80px]"
           />
         </div>
 
@@ -74,7 +74,7 @@ export function BlogPostEditor({ organizerId, initialData, onSave, onCancel }: B
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write your blog post content here..."
-            className="w-full px-3 py-2 border rounded-lg min-h-[300px] font-mono text-sm"
+            className="w-full px-3 py-2 border rounded-2xl min-h-[300px] font-mono text-sm"
           />
         </div>
 

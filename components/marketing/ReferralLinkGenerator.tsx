@@ -113,7 +113,7 @@ export default function ReferralLinkGenerator({ userId, eventId }: ReferralLinkG
 
             {/* Share Buttons */}
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Share via:</p>
+              <p className="text-sm text-neutral-500 mb-2">Share via:</p>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
@@ -148,7 +148,7 @@ export default function ReferralLinkGenerator({ userId, eventId }: ReferralLinkG
                   onClick={() => shareVia('email')}
                   className="flex items-center gap-2"
                 >
-                  <Icon name="mail" className="w-4 h-4 text-gray-600" />
+                  <Icon name="mail" className="w-4 h-4 text-neutral-500" />
                   Email
                 </Button>
               </div>
@@ -156,7 +156,7 @@ export default function ReferralLinkGenerator({ userId, eventId }: ReferralLinkG
 
             {/* Success Message */}
             {copied && (
-              <div className="flex items-center gap-2 text-sm text-success-500">
+              <div className="flex items-center gap-2 text-sm text-green-500">
                 <Icon name="check-circle" className="w-4 h-4" />
                 <span>Link copied to clipboard!</span>
               </div>
@@ -165,10 +165,10 @@ export default function ReferralLinkGenerator({ userId, eventId }: ReferralLinkG
         )}
 
         {/* Info */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
           <div className="flex gap-3">
             <Icon name="info" className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-blue-800 dark:text-blue-200">
+            <div className="text-sm text-blue-800">
               <p className="font-medium mb-1">Referral Tips</p>
               <ul className="space-y-1 list-disc list-inside">
                 <li>Share your link on social media for maximum reach</li>

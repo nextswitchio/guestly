@@ -17,13 +17,15 @@ interface Props {
 }
 
 export default function ChannelPerformanceChart({ channels }: Props) {
+  const safeChannels = channels ?? [];
+
   const maxRevenue = useMemo(() => {
-    return Math.max(...channels.map(c => c.revenue), 1);
-  }, [channels]);
+    return Math.max(...safeChannels.map(c => c.revenue), 1);
+  }, [safeChannels]);
 
   const maxConversions = useMemo(() => {
-    return Math.max(...channels.map(c => c.conversions), 1);
-  }, [channels]);
+    return Math.max(...safeChannels.map(c => c.conversions), 1);
+  }, [safeChannels]);
 
   const getChannelColor = (channel: string) => {
     const colors: Record<string, string> = {
@@ -63,7 +65,7 @@ export default function ChannelPerformanceChart({ channels }: Props) {
     return icons[channel.toLowerCase()] || 'bar-chart';
   };
 
-  if (channels.length === 0) {
+  if (safeChannels.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
         No channel data available
@@ -75,11 +77,11 @@ export default function ChannelPerformanceChart({ channels }: Props) {
     <div className="space-y-6">
       {/* Bar chart visualization */}
       <div className="space-y-4">
-        {channels.map((channel) => (
+        {safeChannels.map((channel) => (
           <div key={channel.channel} className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Icon name={getChannelIcon(channel.channel) as any} className="w-5 h-5 text-primary-500" />
+                <Icon name={getChannelIcon(channel.channel) as any} className="w-5 h-5 text-lime" />
                 <span className="font-medium text-gray-900 capitalize">{channel.channel}</span>
               </div>
               <div className="flex items-center gap-4 text-sm">
@@ -128,7 +130,7 @@ export default function ChannelPerformanceChart({ channels }: Props) {
             </tr>
           </thead>
           <tbody>
-            {channels.map((channel) => (
+            {safeChannels.map((channel) => (
               <tr key={channel.channel} className="border-b border-gray-100 hover:bg-gray-50">
                 <td className="py-3 px-2">
                   <div className="flex items-center gap-2">

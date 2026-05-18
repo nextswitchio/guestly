@@ -115,12 +115,12 @@ export function DeviceTokenRegistration({ userId, onSuccess }: DeviceTokenRegist
 
   if (!isSupported) {
     return (
-      <Card className="p-6 bg-gray-50 border-gray-200">
+      <Card className="p-6 bg-neutral-50 border-neutral-200">
         <div className="flex items-start gap-3">
           <span className="text-2xl"><AlertTriangle className="h-4 w-4 inline-block" /></span>
           <div>
-            <h4 className="font-semibold text-gray-900 mb-1">Notifications Not Supported</h4>
-            <p className="text-sm text-gray-700">
+            <h4 className="font-semibold text-neutral-900 mb-1">Notifications Not Supported</h4>
+            <p className="text-sm text-neutral-700">
               Your browser doesn't support push notifications. Try using Chrome, Firefox, or Safari.
             </p>
           </div>
@@ -134,11 +134,11 @@ export function DeviceTokenRegistration({ userId, onSuccess }: DeviceTokenRegist
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0">
           <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-            notificationPermission === 'granted' ? 'bg-success-100' : 'bg-gray-100'
+            notificationPermission === 'granted' ? 'bg-green-100' : 'bg-neutral-100'
           }`}>
             <Icon 
               name={notificationPermission === 'granted' ? 'check' : 'bell'} 
-              className={notificationPermission === 'granted' ? 'text-success-600' : 'text-gray-600'}
+              className={notificationPermission === 'granted' ? 'text-green-600' : 'text-neutral-600'}
               size={24}
             />
           </div>
@@ -150,7 +150,7 @@ export function DeviceTokenRegistration({ userId, onSuccess }: DeviceTokenRegist
           </h3>
           
           {notificationPermission === 'default' && (
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-neutral-500 mb-4">
               Get instant updates about events, ticket sales, and important announcements directly on your device.
             </p>
           )}
@@ -160,7 +160,7 @@ export function DeviceTokenRegistration({ userId, onSuccess }: DeviceTokenRegist
               <p className="text-sm text-red-600 mb-2">
                 Notifications are blocked. To enable them:
               </p>
-              <ol className="text-sm text-gray-700 space-y-1 ml-4 list-decimal">
+              <ol className="text-sm text-neutral-700 space-y-1 ml-4 list-decimal">
                 <li>Click the lock icon in your browser's address bar</li>
                 <li>Find "Notifications" in the permissions list</li>
                 <li>Change the setting to "Allow"</li>
@@ -171,10 +171,10 @@ export function DeviceTokenRegistration({ userId, onSuccess }: DeviceTokenRegist
 
           {notificationPermission === 'granted' && (
             <div className="mb-4">
-              <p className="text-sm text-success-700 mb-2">
+              <p className="text-sm text-green-700 mb-2">
                <Check className="h-4 w-4 inline" /> You're all set! You'll receive notifications for:
               </p>
-              <ul className="text-sm text-gray-700 space-y-1 ml-4 list-disc">
+              <ul className="text-sm text-neutral-700 space-y-1 ml-4 list-disc">
                 <li>Event reminders and updates</li>
                 <li>Ticket sales and promotions</li>
                 <li>Important announcements</li>
@@ -184,7 +184,7 @@ export function DeviceTokenRegistration({ userId, onSuccess }: DeviceTokenRegist
           )}
 
           {success && (
-            <div className="mb-4 p-3 bg-success-50 border border-success-200 rounded-lg text-success-700 text-sm">
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
               {success}
             </div>
           )}
@@ -218,7 +218,7 @@ export function DeviceTokenRegistration({ userId, onSuccess }: DeviceTokenRegist
           </div>
 
           {notificationPermission === 'granted' && (
-            <p className="text-xs text-gray-500 mt-3">
+            <p className="text-xs text-neutral-500 mt-3">
               You can manage notification preferences in your account settings.
             </p>
           )}
@@ -226,24 +226,24 @@ export function DeviceTokenRegistration({ userId, onSuccess }: DeviceTokenRegist
       </div>
 
       {/* Platform Support Info */}
-      <div className="mt-6 pt-6 border-t border-gray-200">
-        <h4 className="text-sm font-semibold text-gray-900 mb-2">Platform Support</h4>
+      <div className="mt-6 pt-6 border-t border-neutral-200">
+        <h4 className="text-sm font-semibold text-neutral-900 mb-2">Platform Support</h4>
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="flex items-center gap-2">
-            <Icon name="check" className="text-success-600" size={16} />
-            <span className="text-gray-700">Chrome (Desktop & Mobile)</span>
+            <Icon name="check" className="text-green-600" size={16} />
+            <span className="text-neutral-700">Chrome (Desktop & Mobile)</span>
           </div>
           <div className="flex items-center gap-2">
-            <Icon name="check" className="text-success-600" size={16} />
-            <span className="text-gray-700">Firefox (Desktop & Mobile)</span>
+            <Icon name="check" className="text-green-600" size={16} />
+            <span className="text-neutral-700">Firefox (Desktop & Mobile)</span>
           </div>
           <div className="flex items-center gap-2">
-            <Icon name="check" className="text-success-600" size={16} />
-            <span className="text-gray-700">Safari (Desktop & iOS 16.4+)</span>
+            <Icon name="check" className="text-green-600" size={16} />
+            <span className="text-neutral-700">Safari (Desktop & iOS 16.4+)</span>
           </div>
           <div className="flex items-center gap-2">
-            <Icon name="check" className="text-success-600" size={16} />
-            <span className="text-gray-700">Edge (Desktop & Mobile)</span>
+            <Icon name="check" className="text-green-600" size={16} />
+            <span className="text-neutral-700">Edge (Desktop & Mobile)</span>
           </div>
         </div>
       </div>

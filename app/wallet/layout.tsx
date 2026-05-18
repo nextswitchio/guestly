@@ -53,7 +53,7 @@ function WalletLayoutInner({ children }: { children: React.ReactNode }) {
   const collapsed = sidebar ? !sidebar.open : false;
 
   return (
-    <div className="flex min-h-screen bg-neutral-50">
+    <div className="flex min-h-screen bg-neutral-50 public-light">
       <AttendeeSidebar />
       <div className={`flex flex-1 flex-col min-w-0 transition-[margin,width] duration-300 ${collapsed ? 'md:ml-16 md:w-[calc(100%-4rem)]' : 'md:ml-64 md:w-[calc(100%-16rem)]'}`}>
         <WalletTopBar />

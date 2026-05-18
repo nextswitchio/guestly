@@ -4,14 +4,12 @@ import { useState, useEffect } from 'react';
 import { SocialMediaConnector } from '@/components/marketing/SocialMediaConnector';
 import SocialPostComposer from '@/components/marketing/SocialPostComposer';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { Card } from '@/components/ui/Card';
 
 export default function SocialMediaPage() {
   const [organizerId, setOrganizerId] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get organizer ID from auth
     fetch('/api/auth/me')
       .then((res) => res.json())
       .then((data) => {
@@ -26,11 +24,9 @@ export default function SocialMediaPage() {
   if (loading) {
     return (
       <ProtectedRoute allowRoles={['organiser']}>
-        <div className="p-6">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
-            <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded" />
-          </div>
+        <div className="space-y-8">
+          <div className="h-8 bg-neutral-200 rounded-xl w-1/3 animate-pulse" />
+          <div className="h-64 bg-neutral-200 rounded-2xl animate-pulse" />
         </div>
       </ProtectedRoute>
     );
@@ -38,18 +34,21 @@ export default function SocialMediaPage() {
 
   return (
     <ProtectedRoute allowRoles={['organiser']}>
-      <div className="p-6 space-y-6">
-        <h1 className="text-3xl font-bold">Social Media Management</h1>
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-2xl font-bold text-neutral-900">Social Media Management</h1>
+          <p className="text-neutral-500 mt-1">Connect accounts and schedule posts across platforms</p>
+        </div>
         
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Connected Accounts</h2>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">Connected Accounts</h2>
           <SocialMediaConnector organizerId={organizerId} />
-        </Card>
+        </div>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Create Post</h2>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">Create Post</h2>
           <SocialPostComposer />
-        </Card>
+        </div>
       </div>
     </ProtectedRoute>
   );

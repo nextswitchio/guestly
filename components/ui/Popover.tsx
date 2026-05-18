@@ -179,8 +179,8 @@ export default function Popover({
             ref={backdropRef}
             className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm animate-fade-in"
             style={{
-              animationDuration: "var(--duration-fast)",
-              animationTimingFunction: "var(--ease-out)",
+              animationDuration: "200ms",
+              animationTimingFunction: "ease-out",
             }}
             onClick={handleBackdropClick}
             aria-hidden="true"
@@ -190,12 +190,12 @@ export default function Popover({
             ref={popoverRef}
             role="dialog"
             aria-modal="true"
-            className={`fixed z-50 bg-[var(--surface-card)] rounded-lg shadow-xl border border-[var(--surface-border)] animate-scale-in ${className}`}
+            className={`fixed z-50 bg-white rounded-2xl shadow-xl border border-neutral-200 animate-scale-in ${className}`}
             style={{
               top: `${position.top}px`,
               left: `${position.left}px`,
-              animationDuration: "var(--duration-fast)",
-              animationTimingFunction: "var(--ease-spring)",
+              animationDuration: "200ms",
+              animationTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
             }}
           >
             {content}
@@ -209,7 +209,7 @@ export default function Popover({
 
 function getArrowClasses(placement: Placement): string {
   const baseClasses =
-    "absolute w-2 h-2 bg-[var(--surface-card)] border-[var(--surface-border)] transform rotate-45";
+    "absolute w-2 h-2 bg-white border border-neutral-200 transform rotate-45";
 
   switch (placement) {
     case "top":

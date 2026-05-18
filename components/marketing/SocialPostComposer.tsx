@@ -125,8 +125,8 @@ export default function SocialPostComposer({
                 onClick={() => togglePlatform(platform)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
                   selected
-                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
-                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                    ? 'border-lime bg-lime/10 text-lime'
+                    : 'border-neutral-200 hover:border-neutral-300'
                 }`}
               >
                 <Icon name={config.icon as any} className="w-4 h-4" />
@@ -142,7 +142,7 @@ export default function SocialPostComposer({
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold">Post Content</h3>
-          <div className={`text-sm ${overLimit ? 'text-danger-500' : 'text-gray-500'}`}>
+          <div className={`text-sm ${overLimit ? 'text-red-500' : 'text-neutral-500'}`}>
             {charCount} / {charLimit > 0 ? charLimit : '∞'} characters
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function SocialPostComposer({
           onChange={(e) => setContent(e.target.value)}
           placeholder="What's happening with your event?"
           rows={6}
-          className={overLimit ? 'border-danger-500' : ''}
+          className={overLimit ? 'border-red-500' : ''}
         />
 
         <div className="mt-4">
@@ -165,7 +165,7 @@ export default function SocialPostComposer({
         </div>
 
         {overLimit && (
-          <div className="mt-2 flex items-center gap-2 text-sm text-danger-500">
+          <div className="mt-2 flex items-center gap-2 text-sm text-red-500">
             <Icon name="alert-triangle" className="w-4 h-4" />
             <span>
               Post exceeds character limit for{' '}

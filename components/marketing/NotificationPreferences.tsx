@@ -94,7 +94,7 @@ export function NotificationPreferences({ userId, onUpdate }: NotificationPrefer
     return (
       <Card className="p-6">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-lime border-t-lime"></div>
         </div>
       </Card>
     );
@@ -104,20 +104,20 @@ export function NotificationPreferences({ userId, onUpdate }: NotificationPrefer
     <Card className="p-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2">Notification Preferences</h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-neutral-500">
           Choose which types of push notifications you want to receive. You can change these settings anytime.
         </p>
       </div>
 
       <div className="space-y-4">
         {/* Transactional Notifications */}
-        <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+        <div className="flex items-start gap-4 p-4 bg-neutral-50 rounded-lg">
           <div className="flex-shrink-0 mt-1">
             <button
               type="button"
               onClick={() => togglePreference('enableTransactional')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                preferences.enableTransactional ? 'bg-primary-600' : 'bg-gray-300'
+                preferences.enableTransactional ? 'bg-lime' : 'bg-neutral-300'
               }`}
             >
               <span
@@ -129,28 +129,28 @@ export function NotificationPreferences({ userId, onUpdate }: NotificationPrefer
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-semibold text-gray-900">Transactional Notifications</h4>
+              <h4 className="font-semibold text-neutral-900">Transactional Notifications</h4>
               <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">
                 Recommended
               </span>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-neutral-500">
               Order confirmations, ticket updates, payment receipts, and account security alerts.
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-neutral-500 mt-1">
               These notifications are important for your account security and cannot be fully disabled.
             </p>
           </div>
         </div>
 
         {/* Event Updates */}
-        <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+        <div className="flex items-start gap-4 p-4 bg-neutral-50 rounded-lg">
           <div className="flex-shrink-0 mt-1">
             <button
               type="button"
               onClick={() => togglePreference('enableEventUpdates')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                preferences.enableEventUpdates ? 'bg-primary-600' : 'bg-gray-300'
+                preferences.enableEventUpdates ? 'bg-lime' : 'bg-neutral-300'
               }`}
             >
               <span
@@ -162,25 +162,25 @@ export function NotificationPreferences({ userId, onUpdate }: NotificationPrefer
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-semibold text-gray-900">Event Updates</h4>
+              <h4 className="font-semibold text-neutral-900">Event Updates</h4>
               <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">
                 Recommended
               </span>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-neutral-500">
               Important changes to events you're attending: venue changes, time updates, cancellations, and lineup announcements.
             </p>
           </div>
         </div>
 
         {/* Event Reminders */}
-        <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+        <div className="flex items-start gap-4 p-4 bg-neutral-50 rounded-lg">
           <div className="flex-shrink-0 mt-1">
             <button
               type="button"
               onClick={() => togglePreference('enableReminders')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                preferences.enableReminders ? 'bg-primary-600' : 'bg-gray-300'
+                preferences.enableReminders ? 'bg-lime' : 'bg-neutral-300'
               }`}
             >
               <span
@@ -191,21 +191,21 @@ export function NotificationPreferences({ userId, onUpdate }: NotificationPrefer
             </button>
           </div>
           <div className="flex-1">
-            <h4 className="font-semibold text-gray-900 mb-1">Event Reminders</h4>
-            <p className="text-sm text-gray-600">
+            <h4 className="font-semibold text-neutral-900 mb-1">Event Reminders</h4>
+            <p className="text-sm text-neutral-500">
               Reminders about upcoming events you're attending: 24 hours before, 1 hour before, and when the event starts.
             </p>
           </div>
         </div>
 
         {/* Promotional Notifications */}
-        <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+        <div className="flex items-start gap-4 p-4 bg-neutral-50 rounded-lg">
           <div className="flex-shrink-0 mt-1">
             <button
               type="button"
               onClick={() => togglePreference('enablePromotional')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                preferences.enablePromotional ? 'bg-primary-600' : 'bg-gray-300'
+                preferences.enablePromotional ? 'bg-lime' : 'bg-neutral-300'
               }`}
             >
               <span
@@ -216,11 +216,11 @@ export function NotificationPreferences({ userId, onUpdate }: NotificationPrefer
             </button>
           </div>
           <div className="flex-1">
-            <h4 className="font-semibold text-gray-900 mb-1">Promotional Notifications</h4>
-            <p className="text-sm text-gray-600">
+            <h4 className="font-semibold text-neutral-900 mb-1">Promotional Notifications</h4>
+            <p className="text-sm text-neutral-500">
               New events, special offers, early bird tickets, exclusive deals, and personalized recommendations.
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-neutral-500 mt-1">
               Limited to 3 notifications per week to prevent notification fatigue.
             </p>
           </div>
@@ -242,7 +242,7 @@ export function NotificationPreferences({ userId, onUpdate }: NotificationPrefer
       </div>
 
       {success && (
-        <div className="mt-4 p-3 bg-success-50 border border-success-200 rounded-lg text-success-700 text-sm flex items-center gap-2">
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm flex items-center gap-2">
           <Icon name="check" size={18} />
           {success}
         </div>
@@ -266,8 +266,8 @@ export function NotificationPreferences({ userId, onUpdate }: NotificationPrefer
       </div>
 
       {/* Privacy Note */}
-      <div className="mt-6 pt-6 border-t border-gray-200">
-        <p className="text-xs text-gray-500">
+      <div className="mt-6 pt-6 border-t border-neutral-200">
+        <p className="text-xs text-neutral-500">
           <Icon name="shield" className="inline mr-1" size={14} />
           Your notification preferences are private and secure. We never share your device information with third parties.
           You can disable all notifications at any time through your browser settings.

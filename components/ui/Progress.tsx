@@ -84,10 +84,10 @@ function LinearProgress({
   };
 
   const colorClasses = {
-    primary: "bg-primary-500",
-    success: "bg-success-500",
-    warning: "bg-warning-500",
-    danger: "bg-danger-500",
+    primary: "bg-lime",
+    success: "bg-green-500",
+    warning: "bg-amber-500",
+    danger: "bg-red-500",
   };
 
   return (
@@ -95,17 +95,17 @@ function LinearProgress({
       {(label || showPercentage) && (
         <div className="flex items-center justify-between mb-2">
           {label && (
-            <span className="text-sm font-medium text-foreground">{label}</span>
+            <span className="text-sm font-medium text-neutral-900">{label}</span>
           )}
           {showPercentage && !isIndeterminate && (
-            <span className="text-sm font-medium text-foreground-muted">
+            <span className="text-sm font-medium text-neutral-500">
               {Math.round(value)}%
             </span>
           )}
         </div>
       )}
       <div
-        className={`w-full bg-surface-hover rounded-full overflow-hidden ${heightClasses[size]}`}
+        className={`w-full bg-neutral-50 rounded-full overflow-hidden ${heightClasses[size]}`}
         role="progressbar"
         aria-valuenow={isIndeterminate ? undefined : value}
         aria-valuemin={0}
@@ -160,10 +160,10 @@ function CircularProgress({
   };
 
   const colorClasses = {
-    primary: "stroke-primary-500",
-    success: "stroke-success-500",
-    warning: "stroke-warning-500",
-    danger: "stroke-danger-500",
+    primary: "stroke-lime",
+    success: "stroke-green-500",
+    warning: "stroke-amber-500",
+    danger: "stroke-red-500",
   };
 
   const config = sizeClasses[size];
@@ -195,7 +195,7 @@ function CircularProgress({
             fill="none"
             stroke="currentColor"
             strokeWidth={config.strokeWidth}
-            className="text-surface-hover"
+            className="text-neutral-50"
           />
           {/* Progress circle */}
           {isIndeterminate ? (
@@ -232,14 +232,14 @@ function CircularProgress({
         {/* Percentage text */}
         {showPercentage && !isIndeterminate && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className={`font-semibold text-foreground ${config.fontSize}`}>
+            <span className={`font-semibold text-neutral-900 ${config.fontSize}`}>
               {Math.round(value)}%
             </span>
           </div>
         )}
       </div>
       {label && (
-        <span className="text-sm font-medium text-foreground-muted text-center">
+        <span className="text-sm font-medium text-neutral-500 text-center">
           {label}
         </span>
       )}

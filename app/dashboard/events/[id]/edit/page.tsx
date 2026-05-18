@@ -3,7 +3,6 @@ import { RefreshCw, Save, XCircle } from 'lucide-react';
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
@@ -98,7 +97,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <RefreshCw className="w-8 h-8 animate-spin text-slate-400" />
+        <RefreshCw className="w-8 h-8 animate-spin text-neutral-400" />
       </div>
     );
   }
@@ -106,16 +105,16 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Edit Event</h1>
-        <p className="text-slate-500 mt-1">Update your event details</p>
+        <h1 className="text-3xl font-bold text-neutral-900">Edit Event</h1>
+        <p className="text-neutral-500 mt-1">Update your event details</p>
       </div>
 
-      <Card className="p-6 sm:p-8">
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6 sm:p-8">
         {saved ? (
           <div className="text-center py-8">
-            <Save className="w-12 h-12 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Event Updated!</h3>
-            <p className="text-slate-500">Redirecting to event management...</p>
+            <Save className="w-12 h-12 text-lime-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-neutral-900 mb-2">Event Updated!</h3>
+            <p className="text-neutral-500">Redirecting to event management...</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -126,13 +125,13 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
               required
             />
             <div>
-              <label className="block text-sm font-medium mb-2">Description</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">Description</label>
               <textarea
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 required
                 rows={5}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white text-slate-900 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                className="w-full px-4 py-3 border border-neutral-200 rounded-xl bg-white text-neutral-900 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-lime/40 focus:border-lime-400"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -195,7 +194,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
             </div>
           </form>
         )}
-      </Card>
+      </div>
     </div>
   );
 }

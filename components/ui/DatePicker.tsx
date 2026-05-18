@@ -96,7 +96,7 @@ export default function DatePicker({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-foreground mb-1.5">
+        <label className="block text-sm font-medium text-neutral-900 mb-1.5">
           {label}
         </label>
       )}
@@ -110,13 +110,13 @@ export default function DatePicker({
         <button
           type="button"
           disabled={disabled}
-          className={`w-full px-4 py-2.5 text-left bg-[var(--surface-card)] border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 ${
+          className={`w-full px-4 py-2.5 text-left bg-white border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lime/20 focus:border-lime ${
             error
-              ? "border-danger-500 focus:ring-danger-500/40 focus:border-danger-500"
-              : "border-[var(--surface-border)] hover:border-neutral-400"
+              ? "border-red-500 focus:ring-red-500/40 focus:border-red-500"
+              : "border-neutral-200 hover:border-neutral-400"
           } ${
             disabled
-              ? "opacity-50 cursor-not-allowed bg-[var(--surface-hover)]"
+              ? "opacity-50 cursor-not-allowed bg-neutral-50"
               : "cursor-pointer"
           }`}
           aria-label={label || "Select date"}
@@ -126,8 +126,8 @@ export default function DatePicker({
             <span
               className={
                 selectedDate
-                  ? "text-foreground"
-                  : "text-foreground-muted"
+                  ? "text-neutral-900"
+                  : "text-neutral-500"
               }
             >
               {selectedDate ? formatDate(selectedDate) : placeholder}
@@ -137,7 +137,7 @@ export default function DatePicker({
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="text-foreground-muted hover:text-foreground transition-colors"
+                  className="text-neutral-500 hover:text-neutral-900 transition-colors"
                   aria-label="Clear date"
                 >
                   <svg
@@ -156,7 +156,7 @@ export default function DatePicker({
                 </button>
               )}
               <svg
-                className="w-5 h-5 text-foreground-muted"
+                className="w-5 h-5 text-neutral-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -173,7 +173,7 @@ export default function DatePicker({
         </button>
       </Popover>
       {error && (
-        <p className="mt-1.5 text-sm text-danger-500">{error}</p>
+        <p className="mt-1.5 text-sm text-red-500">{error}</p>
       )}
     </div>
   );
@@ -262,11 +262,11 @@ function Calendar({
         <button
           type="button"
           onClick={onPreviousMonth}
-          className="p-2 rounded-lg hover:bg-surface-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+          className="p-2 rounded-lg hover:bg-neutral-50 transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20"
           aria-label="Previous month"
         >
           <svg
-            className="w-5 h-5 text-foreground"
+            className="w-5 h-5 text-neutral-900"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -279,15 +279,15 @@ function Calendar({
             />
           </svg>
         </button>
-        <h3 className="text-sm font-semibold text-foreground">{monthName}</h3>
+        <h3 className="text-sm font-semibold text-neutral-900">{monthName}</h3>
         <button
           type="button"
           onClick={onNextMonth}
-          className="p-2 rounded-lg hover:bg-surface-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+          className="p-2 rounded-lg hover:bg-neutral-50 transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20"
           aria-label="Next month"
         >
           <svg
-            className="w-5 h-5 text-foreground"
+            className="w-5 h-5 text-neutral-900"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -307,7 +307,7 @@ function Calendar({
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
           <div
             key={day}
-            className="text-xs font-medium text-foreground-muted text-center py-2"
+            className="text-xs font-medium text-neutral-500 text-center py-2"
           >
             {day}
           </div>
@@ -332,14 +332,14 @@ function Calendar({
               onClick={() => !disabled && onDateSelect(date)}
               onKeyDown={(e) => handleKeyDown(e, date)}
               disabled={disabled}
-              className={`aspect-square rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/40 ${
+              className={`aspect-square rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lime/20 ${
                 selected
-                  ? "bg-primary-500 text-white hover:bg-primary-600"
+                  ? "bg-lime text-dark hover:bg-lime-hover"
                   : today
-                  ? "bg-primary-50 text-primary-600 hover:bg-primary-100"
+                  ? "bg-lime/10 text-lime hover:bg-lime/20"
                   : disabled
-                  ? "text-foreground-muted opacity-40 cursor-not-allowed"
-                  : "text-foreground hover:bg-surface-hover"
+                  ? "text-neutral-500 opacity-40 cursor-not-allowed"
+                  : "text-neutral-900 hover:bg-neutral-50"
               }`}
               aria-label={date.toLocaleDateString("en-US", {
                 month: "long",
@@ -355,11 +355,11 @@ function Calendar({
       </div>
 
       {/* Footer with Today button */}
-      <div className="mt-4 pt-4 border-t border-[var(--surface-border)]">
+        <div className="mt-4 pt-4 border-t border-neutral-200">
         <button
           type="button"
           onClick={onToday}
-          className="w-full px-4 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+          className="w-full px-4 py-2 text-sm font-medium text-lime hover:bg-lime/5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20"
         >
           Today
         </button>

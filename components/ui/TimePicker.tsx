@@ -72,7 +72,7 @@ export default function TimePicker({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-foreground mb-1.5">
+        <label className="block text-sm font-medium text-neutral-900 mb-1.5">
           {label}
         </label>
       )}
@@ -86,13 +86,13 @@ export default function TimePicker({
         <button
           type="button"
           disabled={disabled}
-          className={`w-full px-4 py-2.5 text-left bg-[var(--surface-card)] border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 ${
+          className={`w-full px-4 py-2.5 text-left bg-white border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-lime/20 focus:border-lime ${
             error
-              ? "border-danger-500 focus:ring-danger-500/40 focus:border-danger-500"
-              : "border-[var(--surface-border)] hover:border-neutral-400"
+              ? "border-red-500 focus:ring-red-500/40 focus:border-red-500"
+              : "border-neutral-200 hover:border-neutral-400"
           } ${
             disabled
-              ? "opacity-50 cursor-not-allowed bg-[var(--surface-hover)]"
+              ? "opacity-50 cursor-not-allowed bg-neutral-50"
               : "cursor-pointer"
           }`}
           aria-label={label || "Select time"}
@@ -102,8 +102,8 @@ export default function TimePicker({
             <span
               className={
                 selectedTime
-                  ? "text-foreground"
-                  : "text-foreground-muted"
+                  ? "text-neutral-900"
+                  : "text-neutral-500"
               }
             >
               {selectedTime ? formatTime(selectedTime) : placeholder}
@@ -113,7 +113,7 @@ export default function TimePicker({
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="text-foreground-muted hover:text-foreground transition-colors"
+                  className="text-neutral-500 hover:text-neutral-900 transition-colors"
                   aria-label="Clear time"
                 >
                   <svg
@@ -132,7 +132,7 @@ export default function TimePicker({
                 </button>
               )}
               <svg
-                className="w-5 h-5 text-foreground-muted"
+                className="w-5 h-5 text-neutral-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -149,7 +149,7 @@ export default function TimePicker({
         </button>
       </Popover>
       {error && (
-        <p className="mt-1.5 text-sm text-danger-500">{error}</p>
+        <p className="mt-1.5 text-sm text-red-500">{error}</p>
       )}
     </div>
   );
@@ -283,11 +283,11 @@ function TimeSelector({
           <button
             type="button"
             onClick={incrementHours}
-            className="p-1 rounded hover:bg-surface-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+            className="p-1 rounded hover:bg-neutral-50 transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20"
             aria-label="Increment hours"
           >
             <svg
-              className="w-5 h-5 text-foreground-muted"
+              className="w-5 h-5 text-neutral-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -312,17 +312,17 @@ function TimeSelector({
               }
             }}
             onKeyDown={handleHourKeyDown}
-            className="w-16 px-3 py-2 text-center text-2xl font-semibold bg-surface-hover rounded-lg border-2 border-transparent focus:border-primary-500 focus:outline-none transition-colors"
+            className="w-16 px-3 py-2 text-center text-2xl font-semibold bg-neutral-50 rounded-lg border-2 border-transparent focus:border-lime focus:outline-none transition-colors"
             aria-label="Hours"
           />
           <button
             type="button"
             onClick={decrementHours}
-            className="p-1 rounded hover:bg-surface-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+            className="p-1 rounded hover:bg-neutral-50 transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20"
             aria-label="Decrement hours"
           >
             <svg
-              className="w-5 h-5 text-foreground-muted"
+              className="w-5 h-5 text-neutral-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -338,18 +338,18 @@ function TimeSelector({
         </div>
 
         {/* Separator */}
-        <span className="text-2xl font-semibold text-foreground-muted">:</span>
+        <span className="text-2xl font-semibold text-neutral-500">:</span>
 
         {/* Minutes */}
         <div className="flex flex-col items-center">
           <button
             type="button"
             onClick={incrementMinutes}
-            className="p-1 rounded hover:bg-surface-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+            className="p-1 rounded hover:bg-neutral-50 transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20"
             aria-label="Increment minutes"
           >
             <svg
-              className="w-5 h-5 text-foreground-muted"
+              className="w-5 h-5 text-neutral-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -372,17 +372,17 @@ function TimeSelector({
               }
             }}
             onKeyDown={handleMinuteKeyDown}
-            className="w-16 px-3 py-2 text-center text-2xl font-semibold bg-surface-hover rounded-lg border-2 border-transparent focus:border-primary-500 focus:outline-none transition-colors"
+            className="w-16 px-3 py-2 text-center text-2xl font-semibold bg-neutral-50 rounded-lg border-2 border-transparent focus:border-lime focus:outline-none transition-colors"
             aria-label="Minutes"
           />
           <button
             type="button"
             onClick={decrementMinutes}
-            className="p-1 rounded hover:bg-surface-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+            className="p-1 rounded hover:bg-neutral-50 transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20"
             aria-label="Decrement minutes"
           >
             <svg
-              className="w-5 h-5 text-foreground-muted"
+              className="w-5 h-5 text-neutral-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -403,10 +403,10 @@ function TimeSelector({
             <button
               type="button"
               onClick={() => setPeriod("AM")}
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40 ${
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20 ${
                 period === "AM"
-                  ? "bg-primary-500 text-white"
-                  : "bg-surface-hover text-foreground-muted hover:bg-neutral-200"
+                  ? "bg-lime text-dark"
+                  : "bg-neutral-50 text-neutral-500 hover:bg-neutral-200"
               }`}
             >
               AM
@@ -414,10 +414,10 @@ function TimeSelector({
             <button
               type="button"
               onClick={() => setPeriod("PM")}
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40 ${
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20 ${
                 period === "PM"
-                  ? "bg-primary-500 text-white"
-                  : "bg-surface-hover text-foreground-muted hover:bg-neutral-200"
+                  ? "bg-lime text-dark"
+                  : "bg-neutral-50 text-neutral-500 hover:bg-neutral-200"
               }`}
             >
               PM
@@ -427,18 +427,18 @@ function TimeSelector({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 pt-4 border-t border-[var(--surface-border)]">
+        <div className="flex gap-2 pt-4 border-t border-neutral-200">
         <button
           type="button"
           onClick={handleNow}
-          className="flex-1 px-4 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+          className="flex-1 px-4 py-2 text-sm font-medium text-lime hover:bg-lime/5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20"
         >
           Now
         </button>
         <button
           type="button"
           onClick={handleConfirm}
-          className="flex-1 px-4 py-2 text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+          className="flex-1 px-4 py-2 text-sm font-medium text-dark bg-lime hover:bg-lime-hover rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-lime/20"
         >
           Confirm
         </button>

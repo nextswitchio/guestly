@@ -245,13 +245,13 @@ export default function DataTable<T extends Record<string, any>>({
 
   if (loading) {
     return (
-      <div className={`bg-[var(--surface-card)] rounded-lg border border-[var(--surface-border)] ${className}`}>
+      <div className={`bg-white rounded-2xl border border-neutral-200 ${className}`}>
         <div className="p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-[var(--surface-bg)] rounded w-1/4"></div>
+            <div className="h-4 bg-neutral-50 rounded w-1/4"></div>
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-12 bg-[var(--surface-bg)] rounded"></div>
+                <div key={i} className="h-12 bg-neutral-50 rounded"></div>
               ))}
             </div>
           </div>
@@ -262,18 +262,18 @@ export default function DataTable<T extends Record<string, any>>({
 
   if (processedData.length === 0 && !loading) {
     return (
-      <div className={`bg-[var(--surface-card)] rounded-lg border border-[var(--surface-border)] ${className}`}>
+      <div className={`bg-white rounded-2xl border border-neutral-200 ${className}`}>
         <div className="p-12 text-center">
           {emptyState ? (
             <>
               {emptyState.icon && (
-                <Icon name={emptyState.icon} size={48} className="mx-auto text-[var(--foreground-muted)] mb-4" />
+                <Icon name={emptyState.icon} size={48} className="mx-auto text-neutral-500 mb-4" />
               )}
-              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-2">
                 {emptyState.title}
               </h3>
               {emptyState.description && (
-                <p className="text-[var(--foreground-muted)] mb-4">
+                <p className="text-neutral-500 mb-4">
                   {emptyState.description}
                 </p>
               )}
@@ -285,11 +285,11 @@ export default function DataTable<T extends Record<string, any>>({
             </>
           ) : (
             <>
-              <Icon name="table" size={48} className="mx-auto text-[var(--foreground-muted)] mb-4" />
-              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
+              <Icon name="table" size={48} className="mx-auto text-neutral-500 mb-4" />
+              <h3 className="text-lg font-semibold text-neutral-900 mb-2">
                 No data found
               </h3>
-              <p className="text-[var(--foreground-muted)]">
+              <p className="text-neutral-500">
                 {searchable && internalSearch 
                   ? "No results match your search criteria."
                   : "No data available to display."
@@ -303,10 +303,10 @@ export default function DataTable<T extends Record<string, any>>({
   }
 
   return (
-    <div className={`bg-[var(--surface-card)] rounded-lg border border-[var(--surface-border)] ${className}`}>
+    <div className={`bg-white rounded-2xl border border-neutral-200 ${className}`}>
       {/* Header with search, bulk actions, and export */}
       {(searchable || bulkActions?.length || exportable) && (
-        <div className="p-4 border-b border-[var(--surface-border)]">
+        <div className="p-4 border-b border-neutral-200">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               {/* Search */}
@@ -325,7 +325,7 @@ export default function DataTable<T extends Record<string, any>>({
               {/* Bulk Actions */}
               {bulkActions && selectedRows.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-[var(--foreground-muted)]">
+                  <span className="text-sm text-neutral-500">
                     {selectedRows.length} selected
                   </span>
                   {bulkActions.map((action, index) => (
@@ -362,7 +362,7 @@ export default function DataTable<T extends Record<string, any>>({
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-[var(--surface-bg)] border-b border-[var(--surface-border)]">
+          <thead className="bg-neutral-50 border-b border-neutral-200">
             <tr>
               {/* Selection column */}
               {selectable && (
@@ -379,11 +379,11 @@ export default function DataTable<T extends Record<string, any>>({
               {columns.map((column) => (
                 <th
                   key={String(column.key)}
-                  className={`px-4 py-3 text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider ${
+                  className={`px-4 py-3 text-xs font-medium text-neutral-500 uppercase tracking-wider ${
                     column.align === 'center' ? 'text-center' : 
                     column.align === 'right' ? 'text-right' : 'text-left'
                   } ${
-                    column.sortable !== false && sortable ? 'cursor-pointer hover:bg-[var(--surface-hover)]' : ''
+                    column.sortable !== false && sortable ? 'cursor-pointer hover:bg-neutral-50' : ''
                   }`}
                   style={{ width: column.width }}
                   onClick={() => column.sortable !== false && handleSort(column.key)}
@@ -397,8 +397,8 @@ export default function DataTable<T extends Record<string, any>>({
                           size={12}
                           className={`${
                             internalSort?.key === column.key && internalSort.direction === 'asc'
-                              ? 'text-primary-600'
-                              : 'text-[var(--foreground-muted)]'
+                              ? 'text-lime'
+                              : 'text-neutral-500'
                           }`}
                         />
                         <Icon
@@ -406,8 +406,8 @@ export default function DataTable<T extends Record<string, any>>({
                           size={12}
                           className={`-mt-1 ${
                             internalSort?.key === column.key && internalSort.direction === 'desc'
-                              ? 'text-primary-600'
-                              : 'text-[var(--foreground-muted)]'
+                              ? 'text-lime'
+                              : 'text-neutral-500'
                           }`}
                         />
                       </div>
@@ -418,17 +418,17 @@ export default function DataTable<T extends Record<string, any>>({
               
               {/* Actions column */}
               {actions && actions.length > 0 && (
-                <th className="px-4 py-3 text-right text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
                   Actions
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--surface-border)]">
+          <tbody className="divide-y divide-neutral-200">
             {processedData.map((row, index) => (
               <tr
                 key={index}
-                className={`hover:bg-[var(--surface-hover)] transition-colors ${
+                className={`hover:bg-neutral-50 transition-colors ${
                   rowClassName ? rowClassName(row, index) : ''
                 }`}
               >
@@ -446,7 +446,7 @@ export default function DataTable<T extends Record<string, any>>({
                 {columns.map((column) => (
                   <td
                     key={String(column.key)}
-                    className={`px-4 py-3 text-sm text-[var(--foreground)] ${
+                    className={`px-4 py-3 text-sm text-neutral-900 ${
                       column.align === 'center' ? 'text-center' : 
                       column.align === 'right' ? 'text-right' : 'text-left'
                     }`}
@@ -489,9 +489,9 @@ export default function DataTable<T extends Record<string, any>>({
 
       {/* Pagination */}
       {pagination && (
-        <div className="px-4 py-3 border-t border-[var(--surface-border)] flex items-center justify-between">
+        <div className="px-4 py-3 border-t border-neutral-200 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="text-sm text-[var(--foreground-muted)]">
+            <div className="text-sm text-neutral-500">
               Showing {((pagination.page - 1) * pagination.pageSize) + 1} to{' '}
               {Math.min(pagination.page * pagination.pageSize, pagination.total)} of{' '}
               {pagination.total} results
@@ -499,11 +499,11 @@ export default function DataTable<T extends Record<string, any>>({
             
             {pagination.onPageSizeChange && pagination.pageSizeOptions && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-[var(--foreground-muted)]">Show:</span>
+                <span className="text-sm text-neutral-500">Show:</span>
                 <select
                   value={pagination.pageSize}
                   onChange={(e) => pagination.onPageSizeChange!(Number(e.target.value))}
-                  className="px-2 py-1 text-sm border border-[var(--surface-border)] rounded bg-[var(--surface-bg)] text-[var(--foreground)]"
+                  className="px-2 py-1 text-sm border border-neutral-200 rounded bg-neutral-50 text-neutral-900"
                 >
                   {pagination.pageSizeOptions.map(size => (
                     <option key={size} value={size}>{size}</option>
@@ -524,7 +524,7 @@ export default function DataTable<T extends Record<string, any>>({
               Previous
             </Button>
             
-            <span className="px-3 py-1 text-sm text-[var(--foreground)]">
+            <span className="px-3 py-1 text-sm text-neutral-900">
               Page {pagination.page} of {Math.ceil(pagination.total / pagination.pageSize)}
             </span>
             

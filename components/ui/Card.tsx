@@ -11,32 +11,32 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 function variantClasses(variant: CardVariant, hoverable: boolean) {
   const baseMap: Record<CardVariant, string> = {
-    default: "bg-[var(--surface-card)] border border-[var(--surface-border)]",
+    default: "bg-white border border-neutral-200",
     glass: "glass",
-    elevated: "bg-[var(--surface-card)] border border-[var(--surface-border)]",
-    flat: "bg-[var(--surface-card)] border border-[var(--surface-border)]",
-    bordered: "bg-transparent border-2 border-[var(--surface-border)]",
-    navy: "bg-navy-800 border border-navy-700 text-white",
+    elevated: "bg-white border border-neutral-200",
+    flat: "bg-white border border-neutral-200",
+    bordered: "bg-transparent border-2 border-neutral-200",
+    navy: "bg-neutral-900 border border-neutral-700 text-white",
   };
 
   // Shadow classes based on variant
   const shadowMap: Record<CardVariant, string> = {
-    default: "[box-shadow:var(--elevation-1)]",
-    glass: "[box-shadow:var(--elevation-2)]",
-    elevated: "[box-shadow:var(--elevation-2)]",
+    default: "[box-shadow:0_1px_3px_rgba(0,0,0,0.1)]",
+    glass: "[box-shadow:0_4px_6px_rgba(0,0,0,0.1)]",
+    elevated: "[box-shadow:0_4px_6px_rgba(0,0,0,0.1)]",
     flat: "",
     bordered: "",
-    navy: "[box-shadow:var(--elevation-2)]",
+    navy: "[box-shadow:0_4px_6px_rgba(0,0,0,0.1)]",
   };
 
   // Hover shadow classes when hoverable is true
   const hoverShadowMap: Record<CardVariant, string> = {
-    default: "hover:[box-shadow:var(--elevation-3)]",
-    glass: "hover:[box-shadow:var(--elevation-4)]",
-    elevated: "hover:[box-shadow:var(--elevation-4)]",
-    flat: "hover:[box-shadow:var(--elevation-2)]",
-    bordered: "hover:[box-shadow:var(--elevation-3)]",
-    navy: "hover:[box-shadow:var(--elevation-4)]",
+    default: "hover:[box-shadow:0_10px_15px_rgba(0,0,0,0.1)]",
+    glass: "hover:[box-shadow:0_20px_25px_rgba(0,0,0,0.15)]",
+    elevated: "hover:[box-shadow:0_20px_25px_rgba(0,0,0,0.15)]",
+    flat: "hover:[box-shadow:0_4px_6px_rgba(0,0,0,0.1)]",
+    bordered: "hover:[box-shadow:0_10px_15px_rgba(0,0,0,0.1)]",
+    navy: "hover:[box-shadow:0_20px_25px_rgba(0,0,0,0.15)]",
   };
 
   const base = baseMap[variant] ?? baseMap.default;
@@ -61,8 +61,8 @@ function Card({
 }: CardProps) {
   // Spring transition using design tokens with enhanced hover effects
   const transitionClasses = hoverable 
-    ? "transition-all [transition-duration:var(--duration-normal)] [transition-timing-function:var(--ease-spring)] spring-hover"
-    : "transition-all [transition-duration:var(--duration-fast)] [transition-timing-function:var(--ease-spring-gentle)]";
+    ? "transition-all [transition-duration:300ms] [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] spring-hover"
+    : "transition-all [transition-duration:200ms] [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]";
 
   return (
     <div

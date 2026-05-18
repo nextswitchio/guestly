@@ -44,7 +44,7 @@ export default function TransactionItem({ txn }: { txn: Txn }) {
       {/* Icon */}
       <span
         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${isCredit
-            ? "bg-success-50 text-success-600"
+            ? "bg-green-50 text-green-600"
             : "bg-neutral-100 text-neutral-500"
           }`}
       >
@@ -59,7 +59,7 @@ export default function TransactionItem({ txn }: { txn: Txn }) {
 
       {/* Amount */}
       <span
-        className={`shrink-0 text-sm font-semibold tabular-nums ${isCredit ? "text-success-600" : "text-neutral-900"
+        className={`shrink-0 text-sm font-semibold tabular-nums ${isCredit ? "text-green-600" : "text-neutral-900"
           }`}
       >
         {isCredit ? "+" : "-"}${txn.amount.toFixed(2)}

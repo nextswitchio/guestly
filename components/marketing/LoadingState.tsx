@@ -30,9 +30,9 @@ export function LoadingState({
   const content = (
     <div className="flex flex-col items-center justify-center gap-4">
       <div className={`${sizeClasses[size]} animate-spin`}>
-        <Icon name="loader" className="w-full h-full text-primary-600" />
+        <Icon name="loader" className="w-full h-full text-lime" />
       </div>
-      <p className={`${textSizeClasses[size]} text-gray-600 dark:text-gray-400`}>
+      <p className={`${textSizeClasses[size]} text-neutral-500`}>
         {message}
       </p>
     </div>
@@ -40,7 +40,7 @@ export function LoadingState({
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
         {content}
       </div>
     );
@@ -60,13 +60,13 @@ export function SkeletonLoader({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <Card key={i} className="p-6 animate-pulse">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+            <div className="w-12 h-12 bg-neutral-200 rounded-lg" />
             <div className="flex-1 space-y-3">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+              <div className="h-4 bg-neutral-200 rounded w-3/4" />
+              <div className="h-3 bg-neutral-200 rounded w-1/2" />
               <div className="flex gap-2">
-                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16" />
-                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16" />
+                <div className="h-6 bg-neutral-200 rounded w-16" />
+                <div className="h-6 bg-neutral-200 rounded w-16" />
               </div>
             </div>
           </div>
@@ -81,16 +81,16 @@ export function TableSkeletonLoader({ rows = 5, cols = 4 }: { rows?: number; col
   return (
     <div className="space-y-2">
       {/* Header */}
-      <div className="flex gap-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <div className="flex gap-4 p-4 bg-neutral-100 rounded-lg">
         {Array.from({ length: cols }).map((_, i) => (
-          <div key={i} className="flex-1 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          <div key={i} className="flex-1 h-4 bg-neutral-200 rounded animate-pulse" />
         ))}
       </div>
       {/* Rows */}
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex gap-4 p-4 border-b border-gray-200 dark:border-gray-700">
+        <div key={i} className="flex gap-4 p-4 border-b border-neutral-200">
           {Array.from({ length: cols }).map((_, j) => (
-            <div key={j} className="flex-1 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div key={j} className="flex-1 h-4 bg-neutral-200 rounded animate-pulse" />
           ))}
         </div>
       ))}

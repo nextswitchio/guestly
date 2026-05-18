@@ -128,12 +128,12 @@ export function WhatsAppCampaignForm({ eventId, onSubmit, onCancel }: WhatsAppCa
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               placeholder="Your WhatsApp message here..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-lime/20 focus:border-lime"
               rows={5}
               maxLength={1000}
               required
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-neutral-500 mt-1">
               {formData.message.length} / 1000 characters
             </p>
           </div>
@@ -155,13 +155,13 @@ export function WhatsAppCampaignForm({ eventId, onSubmit, onCancel }: WhatsAppCa
             </div>
             
             {showMediaOptions && (
-              <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+              <div className="space-y-3 p-4 bg-neutral-50 rounded-lg">
                 <div>
                   <label className="block text-sm mb-1">Media Type</label>
                   <select
                     value={formData.mediaType || ''}
                     onChange={(e) => setFormData({ ...formData, mediaType: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-neutral-200 rounded-lg"
                   >
                     <option value="">Select type</option>
                     <option value="image">Image</option>
@@ -199,7 +199,7 @@ export function WhatsAppCampaignForm({ eventId, onSubmit, onCancel }: WhatsAppCa
             </div>
             
             {showButtonOptions && (
-              <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+              <div className="space-y-3 p-4 bg-neutral-50 rounded-lg">
                 {formData.buttons?.map((button, index) => (
                   <div key={index} className="flex gap-2 items-start p-3 bg-white rounded border">
                     <div className="flex-1 space-y-2">
@@ -283,7 +283,7 @@ export function WhatsAppCampaignForm({ eventId, onSubmit, onCancel }: WhatsAppCa
             <select
               value={formData.segmentId}
               onChange={(e) => setFormData({ ...formData, segmentId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-lime/20 focus:border-lime"
             >
               <option value="">All attendees</option>
               <option value="ticket-holders">Ticket holders</option>

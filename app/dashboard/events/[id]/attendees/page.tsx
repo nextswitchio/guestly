@@ -2,9 +2,6 @@
 import { RefreshCw, Download, Mail, UserX } from 'lucide-react';
 
 import { useState, useEffect, use } from 'react';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 
 interface Attendee {
   id: string;
@@ -49,73 +46,74 @@ export default function EventAttendeesPage({ params }: { params: Promise<{ id: s
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <RefreshCw className="w-8 h-8 animate-spin text-slate-400" />
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Attendees</h1>
-          <p className="text-slate-500 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">Attendees</h1>
+          <p className="text-neutral-500 mt-1">
             {attendees.length} registered &middot; {checkedIn} checked in
           </p>
         </div>
-        <Button variant="outline">
-          <Download className="w-4 h-4 mr-2" />
+        <button className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors">
+          <Download className="w-4 h-4" />
           Export CSV
-        </Button>
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4">
-          <p className="text-sm text-slate-500">Total Registered</p>
-          <p className="text-2xl font-bold mt-1">{attendees.length}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-slate-500">Checked In</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <p className="text-sm text-neutral-500">Total Registered</p>
+          <p className="text-2xl font-bold mt-1 text-neutral-900">{attendees.length}</p>
+        </div>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <p className="text-sm text-neutral-500">Checked In</p>
           <p className="text-2xl font-bold mt-1 text-green-600">{checkedIn}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-slate-500">Not Checked In</p>
+        </div>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+          <p className="text-sm text-neutral-500">Not Checked In</p>
           <p className="text-2xl font-bold mt-1 text-amber-600">{attendees.length - checkedIn}</p>
-        </Card>
+        </div>
       </div>
 
-      <div className="flex gap-4 items-center">
-        <Input
+      <div>
+        <input
+          type="text"
           placeholder="Search by name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="max-w-sm"
+          className="h-12 rounded-xl border border-neutral-200 bg-white px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:outline-none focus:ring-2 focus:ring-lime/20 max-w-sm w-full"
         />
       </div>
 
-      <Card className="overflow-hidden">
+      <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="text-left px-6 py-3 text-sm font-semibold text-slate-600">Name</th>
-                <th className="text-left px-6 py-3 text-sm font-semibold text-slate-600">Email</th>
-                <th className="text-left px-6 py-3 text-sm font-semibold text-slate-600">Ticket</th>
-                <th className="text-left px-6 py-3 text-sm font-semibold text-slate-600">Ticket ID</th>
-                <th className="text-left px-6 py-3 text-sm font-semibold text-slate-600">Status</th>
-                <th className="text-left px-6 py-3 text-sm font-semibold text-slate-600">Actions</th>
+              <tr className="border-b border-neutral-100 bg-neutral-50">
+                <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Name</th>
+                <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Email</th>
+                <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Ticket</th>
+                <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Ticket ID</th>
+                <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Status</th>
+                <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredAttendees.map((attendee) => (
-                <tr key={attendee.id} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="px-6 py-4 text-sm font-medium">{attendee.name}</td>
-                  <td className="px-6 py-4 text-sm text-slate-500">{attendee.email}</td>
-                  <td className="px-6 py-4 text-sm">{attendee.ticketType}</td>
-                  <td className="px-6 py-4 text-sm text-slate-500 font-mono">{attendee.ticketId}</td>
+                <tr key={attendee.id} className="border-b border-neutral-100 hover:bg-neutral-50">
+                  <td className="px-6 py-4 text-sm font-medium text-neutral-900">{attendee.name}</td>
+                  <td className="px-6 py-4 text-sm text-neutral-500">{attendee.email}</td>
+                  <td className="px-6 py-4 text-sm text-neutral-900">{attendee.ticketType}</td>
+                  <td className="px-6 py-4 text-sm text-neutral-500 font-mono">{attendee.ticketId}</td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
                       attendee.checkedIn
                         ? 'bg-green-100 text-green-700'
                         : 'bg-amber-100 text-amber-700'
@@ -125,15 +123,15 @@ export default function EventAttendeesPage({ params }: { params: Promise<{ id: s
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <Mail className="w-3.5 h-3.5 mr-1.5" />
+                      <button className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors">
+                        <Mail className="w-3.5 h-3.5" />
                         Email
-                      </Button>
+                      </button>
                       {!attendee.checkedIn && (
-                        <Button size="sm" variant="outline" className="text-danger-600">
-                          <UserX className="w-3.5 h-3.5 mr-1.5" />
+                        <button className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors">
+                          <UserX className="w-3.5 h-3.5" />
                           Remove
-                        </Button>
+                        </button>
                       )}
                     </div>
                   </td>
@@ -141,7 +139,7 @@ export default function EventAttendeesPage({ params }: { params: Promise<{ id: s
               ))}
               {filteredAttendees.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-neutral-500">
                     No attendees found
                   </td>
                 </tr>
@@ -149,7 +147,7 @@ export default function EventAttendeesPage({ params }: { params: Promise<{ id: s
             </tbody>
           </table>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

@@ -128,7 +128,7 @@ export default function CampaignBuilder({
       case 'channels':
         return (
           <div className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-neutral-500">
               Select the marketing channels you want to use for this campaign
             </p>
             <ChannelSelector
@@ -141,13 +141,13 @@ export default function CampaignBuilder({
       case 'content':
         return (
           <div className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-neutral-500">
               Configure content for each selected channel
             </p>
             {formData.channels.length === 0 ? (
               <Card className="p-8 text-center">
                 <span className="text-6xl mb-2 block"><AlertTriangle className="h-4 w-4 inline-block" /></span>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-neutral-500">
                   Please select at least one channel in the previous step
                 </p>
               </Card>
@@ -213,21 +213,21 @@ export default function CampaignBuilder({
               <h4 className="font-semibold mb-2">Campaign Details</h4>
               <dl className="space-y-2">
                 <div className="flex justify-between">
-                  <dt className="text-gray-600 dark:text-gray-400">Name:</dt>
+                  <dt className="text-neutral-500">Name:</dt>
                   <dd className="font-medium">{formData.name}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600 dark:text-gray-400">Channels:</dt>
+                  <dt className="text-neutral-500">Channels:</dt>
                   <dd className="font-medium">{formData.channels.length}</dd>
                 </div>
                 {formData.budget && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-600 dark:text-gray-400">Budget:</dt>
+                    <dt className="text-neutral-500">Budget:</dt>
                     <dd className="font-medium">${formData.budget}</dd>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <dt className="text-gray-600 dark:text-gray-400">Schedule:</dt>
+                  <dt className="text-neutral-500">Schedule:</dt>
                   <dd className="font-medium">
                     {formData.scheduledAt
                       ? new Date(formData.scheduledAt).toLocaleString()
@@ -254,8 +254,8 @@ export default function CampaignBuilder({
               <div
                 className={`flex items-center justify-center w-10 h-10 rounded-full ${
                   index <= currentStepIndex
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                    ? 'bg-lime text-dark'
+                    : 'bg-neutral-200 text-neutral-500'
                 }`}
               >
                 <Icon name={step.icon as any} className="w-5 h-5" />
@@ -263,7 +263,7 @@ export default function CampaignBuilder({
               <div className="ml-2 flex-1">
                 <p
                   className={`text-sm font-medium ${
-                    index <= currentStepIndex ? 'text-primary-500' : 'text-gray-500'
+                    index <= currentStepIndex ? 'text-lime' : 'text-neutral-500'
                   }`}
                 >
                   {step.label}
@@ -272,7 +272,7 @@ export default function CampaignBuilder({
               {index < steps.length - 1 && (
                 <div
                   className={`h-1 flex-1 mx-2 ${
-                    index < currentStepIndex ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                    index < currentStepIndex ? 'bg-lime' : 'bg-neutral-200'
                   }`}
                 />
               )}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getReferralStats } from '@/lib/marketing';
+import { getReferralStats, getAllReferralLinks } from '@/lib/marketing';
+import { getEventById } from '@/lib/events';
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,16 +14,29 @@ export async function GET(req: NextRequest) {
     }
 
     const stats = getReferralStats(userId);
+    const allLinks = getAllReferralLinks();
+    const userLinks = allLinks.filter(l => l.userId === userId);
 
-    // Return rewards summary
-    const rewards = {
-      totalEarned: stats.totalEarned,
-      pendingRewards: stats.pendingRewards,
-      totalConversions: stats.totalConversions,
-      totalRevenue: stats.totalRevenue,
-    };
+    const linksWithTitles = userLinks.map(l => {
+      const event = getEventById(l.eventId);
+      return {
+        id: l.id,
+        eventId: l.eventId,
+        eventTitle: event?.title || `Event #${l.eventId}`,
+        url: l.url,
+        code: l.code,
+        clicks: l.clicks,
+        conversions: l.conversions,
+        earnedRewards: l.earnedRewards,
+        pendingRewards: l.pendingRewards,
+        createdAt: l.createdAt,
+      };
+    });
 
-    return NextResponse.json(rewards);
+    return NextResponse.json({
+      stats,
+      links: linksWithTitles,
+    });
   } catch (error) {
     console.error('Error getting referral rewards:', error);
     return NextResponse.json(

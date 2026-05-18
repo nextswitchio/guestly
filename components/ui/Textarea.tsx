@@ -66,7 +66,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="text-sm font-medium text-[var(--foreground)]"
+            className="text-sm font-medium text-neutral-900"
           >
             {label}
           </label>
@@ -80,10 +80,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             maxLength={maxLength}
             value={value}
             onChange={onChange}
-            className={`w-full rounded-xl border bg-[var(--surface-card)] px-3.5 py-2.5 text-[var(--foreground)] placeholder:text-[var(--foreground-subtle)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/30 ${
+            className={`w-full rounded-xl border bg-white px-3.5 py-2.5 text-neutral-900 placeholder:text-neutral-400 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/20 ${
               error
-                ? "border-danger-400 focus-visible:ring-danger-400/30"
-                : "border-[var(--surface-border)] hover:border-neutral-300 focus-visible:border-primary-500"
+                ? "border-red-400 focus-visible:ring-red-400/30"
+                : "border-neutral-200 hover:border-neutral-300 focus-visible:border-lime"
             } ${autoResize ? "resize-none overflow-hidden" : "resize-y"} ${className}`}
             style={autoResize ? { minHeight: "80px" } : undefined}
             {...props}
@@ -92,12 +92,12 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <div className="flex items-center justify-between gap-2">
           <div className="flex-1">
             {error && (
-              <p id={errorId} className="text-xs text-danger-600">
+              <p id={errorId} className="text-xs text-red-600">
                 {error}
               </p>
             )}
             {hint && !error && (
-              <p id={hintId} className="text-xs text-[var(--foreground-muted)]">
+              <p id={hintId} className="text-xs text-neutral-500">
                 {hint}
               </p>
             )}
@@ -106,8 +106,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             <p
               className={`text-xs ${
                 currentLength > maxLength * 0.9
-                  ? "text-danger-600"
-                  : "text-[var(--foreground-muted)]"
+                  ? "text-red-600"
+                  : "text-neutral-500"
               }`}
             >
               {currentLength}/{maxLength}

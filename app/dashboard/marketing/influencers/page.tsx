@@ -15,68 +15,48 @@ export default function InfluencersPage() {
   const [activeTab, setActiveTab] = useState<InfluencerTab>('discover');
 
   useEffect(() => {
-    // Get user ID from cookies
     const cookies = document.cookie.split(";");
     const userIdCookie = cookies.find((c) => c.trim().startsWith("user_id="));
-    
     if (userIdCookie) {
-      const id = userIdCookie.split("=")[1];
-      setOrganizerId(id);
+      setOrganizerId(userIdCookie.split("=")[1]);
     }
   }, []);
 
   if (!organizerId) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-20"><div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" /></div>;
   }
 
+  const tabs = [
+    { id: 'discover' as const, label: 'Discover', icon: 'search' as const },
+    { id: 'collaborations' as const, label: 'Collaborations', icon: 'users' as const },
+    { id: 'media-kit' as const, label: 'Media Kit', icon: 'package' as const },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Influencer Marketing</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <h1 className="text-2xl font-bold text-neutral-900">Influencer Marketing</h1>
+        <p className="text-neutral-500 mt-1">
           Discover, collaborate, and track influencer partnerships
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <div className="flex">
-            <button
-              onClick={() => setActiveTab('discover')}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'discover'
-                  ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-              }`}
-            >
-              <Icon name="search" className="w-4 h-4" />
-              Discover
-            </button>
-            <button
-              onClick={() => setActiveTab('collaborations')}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'collaborations'
-                  ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-              }`}
-            >
-              <Icon name="users" className="w-4 h-4" />
-              Collaborations
-            </button>
-            <button
-              onClick={() => setActiveTab('media-kit')}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'media-kit'
-                  ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-              }`}
-            >
-              <Icon name="package" className="w-4 h-4" />
-              Media Kit
-            </button>
-          </div>
-        </div>
+      <div className="flex gap-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              activeTab === tab.id
+                ? 'bg-lime text-dark'
+                : 'text-neutral-500 hover:bg-neutral-100'
+            }`}
+          >
+            <Icon name={tab.icon} size={16} />
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Content */}

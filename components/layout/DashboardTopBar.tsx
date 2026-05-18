@@ -92,7 +92,7 @@ export default function DashboardTopBar() {
   }
 
   return (
-    <header className={`sticky top-0 z-40 w-full bg-[var(--background)]/95 backdrop-blur-sm transition-[margin,width] duration-200 ease-linear ${headerLayout} relative`}>
+    <header className={`sticky top-0 z-40 w-full bg-white/95 backdrop-blur-sm transition-[margin,width] duration-200 ease-linear ${headerLayout} relative`}>
       {/* Place the sidebar trigger exactly on the sidebar border */}
       <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 hidden md:flex z-50">
         <SidebarTrigger className="border border-neutral-200 bg-white shadow-sm" />
@@ -110,7 +110,7 @@ export default function DashboardTopBar() {
             <input
               ref={inputRef}
               placeholder="Search or type a command"
-              className="h-10 w-full rounded-full border border-neutral-200 bg-white pl-10 pr-14 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-500/30"
+              className="h-10 w-full rounded-full border border-neutral-200 bg-white pl-10 pr-14 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-lime focus:ring-2 focus:ring-lime/20"
             />
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] font-medium text-neutral-500">
               ⌘ F
@@ -121,7 +121,7 @@ export default function DashboardTopBar() {
         <div className="flex items-center gap-2">
           <button className="relative flex h-9 w-9 items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700" aria-label="Notifications">
             <BellIcon />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary-500" />
+            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-lime" />
           </button>
           {role ? (
             <div ref={profileRef} className="relative hidden md:block">
@@ -150,7 +150,7 @@ export default function DashboardTopBar() {
                     Wallet
                   </Link>
                   <div className="border-t border-neutral-100">
-                    <button role="menuitem" onClick={handleLogout} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-warning-700 hover:bg-warning-50">
+                    <button role="menuitem" onClick={handleLogout} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-amber-700 hover:bg-amber-50">
                       Log out
                     </button>
                   </div>
@@ -160,12 +160,12 @@ export default function DashboardTopBar() {
           ) : (
             <div className="hidden items-center gap-2 md:flex">
               <Link href="/login" className="rounded-md px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100">Log in</Link>
-              <Link href="/register" className="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-700">Sign up</Link>
+              <Link href="/register" className="rounded-md bg-lime px-3 py-1.5 text-sm font-medium text-dark transition-colors hover:bg-lime-hover">Sign up</Link>
             </div>
           )}
         </div>
       </div>
-      <div className="h-0.5 w-full bg-gradient-to-r from-primary-200 via-primary-100 to-transparent" />
+      <div className="h-0.5 w-full bg-gradient-to-r from-lime/30 via-lime/20 to-transparent" />
     </header>
   );
 }

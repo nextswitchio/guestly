@@ -39,7 +39,7 @@ export default function ReferralDashboard({ userId }: ReferralDashboardProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Icon name="loader" className="w-8 h-8 animate-spin text-primary-500" />
+        <Icon name="loader" className="w-8 h-8 animate-spin text-lime" />
       </div>
     );
   }
@@ -49,7 +49,7 @@ export default function ReferralDashboard({ userId }: ReferralDashboardProps) {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Referral Program</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
+        <p className="text-neutral-500 mt-1">
           Share events with friends and earn rewards for every ticket they purchase
         </p>
       </div>
@@ -58,24 +58,24 @@ export default function ReferralDashboard({ userId }: ReferralDashboardProps) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Referrals</p>
-            <Icon name="users" className="w-5 h-5 text-primary-500" />
+            <p className="text-sm text-neutral-500">Total Referrals</p>
+            <Icon name="users" className="w-5 h-5 text-lime" />
           </div>
           <p className="text-2xl font-bold">{stats?.totalReferrals || 0}</p>
         </Card>
 
         <Card className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Conversions</p>
-            <Icon name="check-circle" className="w-5 h-5 text-success-500" />
+            <p className="text-sm text-neutral-500">Conversions</p>
+            <Icon name="check-circle" className="w-5 h-5 text-green-500" />
           </div>
           <p className="text-2xl font-bold">{stats?.totalConversions || 0}</p>
         </Card>
 
         <Card className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Earned</p>
-            <Icon name="dollar-sign" className="w-5 h-5 text-success-500" />
+            <p className="text-sm text-neutral-500">Total Earned</p>
+            <Icon name="dollar-sign" className="w-5 h-5 text-green-500" />
           </div>
           <p className="text-2xl font-bold text-green-500">
             ${stats?.totalEarned.toFixed(2) || '0.00'}
@@ -84,48 +84,48 @@ export default function ReferralDashboard({ userId }: ReferralDashboardProps) {
 
         <Card className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
-            <Icon name="clock" className="w-5 h-5 text-warning-500" />
+            <p className="text-sm text-neutral-500">Pending</p>
+            <Icon name="clock" className="w-5 h-5 text-amber-500" />
           </div>
-          <p className="text-2xl font-bold text-warning-500">
+          <p className="text-2xl font-bold text-amber-500">
             ${stats?.pendingRewards.toFixed(2) || '0.00'}
           </p>
         </Card>
       </div>
 
       {/* How It Works */}
-      <Card className="p-6 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20">
+      <Card className="p-6 bg-gradient-to-r from-lime/10 to-blue-50">
         <h3 className="text-lg font-semibold mb-4">How Referrals Work</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="flex gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary-500 text-white font-bold flex-shrink-0">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-lime text-dark font-bold flex-shrink-0">
               1
             </div>
             <div>
               <h4 className="font-semibold mb-1">Share Your Link</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-neutral-500">
                 Generate a unique referral link for any event and share it with friends
               </p>
             </div>
           </div>
           <div className="flex gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary-500 text-white font-bold flex-shrink-0">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-lime text-dark font-bold flex-shrink-0">
               2
             </div>
             <div>
               <h4 className="font-semibold mb-1">Friends Purchase</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-neutral-500">
                 When they buy tickets using your link, you earn a commission
               </p>
             </div>
           </div>
           <div className="flex gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary-500 text-white font-bold flex-shrink-0">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-lime text-dark font-bold flex-shrink-0">
               3
             </div>
             <div>
               <h4 className="font-semibold mb-1">Get Rewarded</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-neutral-500">
                 Rewards are credited to your wallet automatically
               </p>
             </div>
@@ -158,8 +158,8 @@ export default function ReferralDashboard({ userId }: ReferralDashboardProps) {
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <h4 className="font-semibold mb-1">Event #{event.eventId}</h4>
-                          <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
-                            <span>{event.conversions} conversions</span>
+                            <div className="flex gap-4 text-sm text-neutral-500">
+                              <span>{event.conversions} conversions</span>
                             <span className="text-green-500 font-medium">
                               ${event.earned.toFixed(2)} earned
                             </span>
@@ -173,9 +173,9 @@ export default function ReferralDashboard({ userId }: ReferralDashboardProps) {
                   ))
                 ) : (
                   <Card className="p-12 text-center">
-                    <Icon name="calendar" className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                    <Icon name="calendar" className="w-16 h-16 mx-auto text-neutral-400 mb-4" />
                     <h3 className="text-xl font-semibold mb-2">No referrals yet</h3>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-neutral-500">
                       Start sharing events to earn rewards
                     </p>
                   </Card>

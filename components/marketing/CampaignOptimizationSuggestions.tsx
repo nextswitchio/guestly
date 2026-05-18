@@ -73,11 +73,11 @@ export default function CampaignOptimizationSuggestions({
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+      <div className="bg-white rounded-2xl p-6 shadow-sm">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+          <div className="h-6 bg-neutral-200 rounded w-1/2"></div>
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div key={i} className="h-20 bg-neutral-200 rounded"></div>
           ))}
         </div>
       </div>
@@ -86,11 +86,11 @@ export default function CampaignOptimizationSuggestions({
 
   if (suggestions.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+      <div className="bg-white rounded-2xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-neutral-900 mb-2">
           Optimization Suggestions
         </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm text-neutral-500">
           No suggestions available yet. Check back after your campaign has more data.
         </p>
       </div>
@@ -100,19 +100,19 @@ export default function CampaignOptimizationSuggestions({
   const getTypeStyles = (type: OptimizationSuggestion['type']) => {
     switch (type) {
       case 'warning':
-        return 'border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20';
+        return 'border-amber-200 bg-amber-100';
       case 'success':
-        return 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20';
+        return 'border-green-200 bg-green-100';
       default:
-        return 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20';
+        return 'border-blue-200 bg-blue-100';
     }
   };
 
   const getImpactBadge = (impact: OptimizationSuggestion['impact']) => {
     const styles = {
-      high: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-      medium: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-      low: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+      high: 'bg-red-100 text-red-700',
+      medium: 'bg-amber-100 text-amber-700',
+      low: 'bg-neutral-100 text-neutral-700',
     };
 
     return (
@@ -123,8 +123,8 @@ export default function CampaignOptimizationSuggestions({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    <div className="bg-white rounded-2xl p-6 shadow-sm">
+      <h3 className="text-lg font-semibold text-neutral-900 mb-4">
         Optimization Suggestions
       </h3>
 
@@ -137,19 +137,19 @@ export default function CampaignOptimizationSuggestions({
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-medium text-gray-900 dark:text-white">
+                  <h4 className="font-medium text-neutral-900">
                     {suggestion.title}
                   </h4>
                   {getImpactBadge(suggestion.impact)}
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-neutral-500">
                   {suggestion.description}
                 </p>
               </div>
             </div>
 
             {suggestion.action && (
-              <button className="mt-3 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
+              <button className="mt-3 text-sm font-medium text-lime hover:text-lime/80">
                 {suggestion.action}<ArrowRight className="h-4 w-4 inline" />
               </button>
             )}

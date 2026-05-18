@@ -120,12 +120,12 @@ export default function Tooltip({
           ref={tooltipRef}
           id="tooltip"
           role="tooltip"
-          className={`fixed z-50 px-3 py-2 text-xs font-medium text-white bg-navy-800 dark:bg-navy-700 rounded-lg shadow-lg pointer-events-none animate-fade-in ${className}`}
+          className={`fixed z-50 px-3 py-2 text-xs font-medium text-white bg-neutral-900 rounded-lg shadow-lg pointer-events-none animate-fade-in ${className}`}
           style={{
             top: `${position.top}px`,
             left: `${position.left}px`,
-            animationDuration: "var(--duration-fast)",
-            animationTimingFunction: "var(--ease-out)",
+            animationDuration: "200ms",
+            animationTimingFunction: "ease-out",
           }}
         >
           {content}
@@ -137,7 +137,7 @@ export default function Tooltip({
 }
 
 function getArrowClasses(placement: Placement): string {
-  const baseClasses = "absolute w-2 h-2 bg-navy-800 dark:bg-navy-700 transform rotate-45";
+  const baseClasses = "absolute w-2 h-2 bg-neutral-900 transform rotate-45";
   
   switch (placement) {
     case "top":

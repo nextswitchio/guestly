@@ -21,7 +21,7 @@ const cryptoOptions: CryptoOption[] = [
     network: "TRC20 (Tron)",
     address: "TXYZabcdefghijklmnopqrstuvwxyz123456",
     icon: "₮",
-    color: "bg-success-500",
+    color: "bg-green-500",
   },
   {
     id: "usdt_erc20",
@@ -29,7 +29,7 @@ const cryptoOptions: CryptoOption[] = [
     network: "ERC20 (Ethereum)",
     address: "0x1234567890abcdef1234567890abcdef12345678",
     icon: "₮",
-    color: "bg-success-500",
+    color: "bg-green-500",
   },
   {
     id: "bitcoin",
@@ -37,7 +37,7 @@ const cryptoOptions: CryptoOption[] = [
     network: "BTC",
     address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
     icon: "₿",
-    color: "bg-warning-500",
+    color: "bg-amber-500",
   },
 ];
 
@@ -192,9 +192,9 @@ export default function CryptoPaymentUI() {
       {/* Success Notification */}
       {showNotification && (
         <div className="fixed right-4 top-4 z-50 animate-slide-in-right">
-          <div className="flex items-center gap-3 rounded-xl border border-success-200 bg-success-50 p-4 shadow-lg dark:border-success-800 dark:bg-success-900/20">
+          <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-4 shadow-lg">
             <svg
-              className="h-5 w-5 text-success-600 dark:text-success-400"
+              className="h-5 w-5 text-green-600"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -204,7 +204,7 @@ export default function CryptoPaymentUI() {
                 clipRule="evenodd"
               />
             </svg>
-            <p className="text-sm font-medium text-success-900 dark:text-success-100">
+            <p className="text-sm font-medium text-green-900">
               {notificationMessage}
             </p>
           </div>
@@ -213,11 +213,11 @@ export default function CryptoPaymentUI() {
 
       {/* Pending Deposits */}
       {pendingDeposits.length > 0 && (
-        <Card className="border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-900/20">
+        <Card className="border-lime/30 bg-lime/5">
           <div className="p-4">
             <div className="mb-3 flex items-center gap-2">
-              <div className="h-2 w-2 animate-pulse rounded-full bg-primary-600"></div>
-              <h3 className="text-sm font-semibold text-primary-900 dark:text-primary-100">
+              <div className="h-2 w-2 animate-pulse rounded-full bg-lime"></div>
+              <h3 className="text-sm font-semibold text-dark">
                 Pending Deposits
               </h3>
             </div>
@@ -229,7 +229,7 @@ export default function CryptoPaymentUI() {
                 return (
                   <div
                     key={deposit.id}
-                    className="rounded-lg border border-primary-200 bg-white p-3 dark:border-primary-700 dark:bg-neutral-800"
+                    className="rounded-lg border border-neutral-200 bg-white p-3"
                   >
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -239,23 +239,23 @@ export default function CryptoPaymentUI() {
                           {crypto.icon}
                         </div>
                         <div>
-                          <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                          <div className="text-sm font-semibold text-neutral-900">
                             {deposit.amount} {crypto.name}
                           </div>
-                          <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                          <div className="text-xs text-neutral-500">
                             ${deposit.amountUSD.toFixed(2)} USD
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-xs font-medium text-primary-700 dark:text-primary-300">
+                        <div className="text-xs font-medium text-lime">
                           {deposit.status === "pending" && "Waiting for transaction..."}
                           {deposit.status === "confirming" && `${deposit.confirmations}/${deposit.requiredConfirmations} confirmations`}
                           {deposit.status === "confirmed" && "Confirmed!"}
                           {deposit.status === "failed" && "Failed"}
                         </div>
                         {deposit.txHash && (
-                          <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                          <div className="mt-1 text-xs text-neutral-500">
                             TX: {deposit.txHash.substring(0, 10)}...
                           </div>
                         )}
@@ -265,9 +265,9 @@ export default function CryptoPaymentUI() {
                     {/* Progress Bar */}
                     {deposit.status === "confirming" && (
                       <div className="mt-2">
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200">
                           <div
-                            className="h-full rounded-full bg-primary-600 transition-all duration-500 dark:bg-primary-400"
+                            className="h-full rounded-full bg-lime transition-all duration-500"
                             style={{ width: `${progress}%` }}
                           ></div>
                         </div>
@@ -277,8 +277,8 @@ export default function CryptoPaymentUI() {
                     {/* Spinner for pending */}
                     {deposit.status === "pending" && (
                       <div className="mt-2 flex items-center gap-2">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600"></div>
-                        <span className="text-xs text-neutral-600 dark:text-neutral-400">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-lime/30 border-t-lime"></div>
+                        <span className="text-xs text-neutral-500">
                           Scanning blockchain...
                         </span>
                       </div>
@@ -293,7 +293,7 @@ export default function CryptoPaymentUI() {
 
       {/* Crypto Selection */}
       <div>
-        <label className="mb-3 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+        <label className="mb-3 block text-sm font-medium text-neutral-700">
           Select Cryptocurrency
         </label>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -304,8 +304,8 @@ export default function CryptoPaymentUI() {
               onClick={() => setSelectedCrypto(crypto.id)}
               className={`flex items-center gap-3 rounded-xl border p-4 text-left transition ${
                 selectedCrypto === crypto.id
-                  ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
-                  : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-600"
+                  ? "border-lime bg-lime/10"
+                  : "border-neutral-200 bg-white hover:border-neutral-300"
               }`}
             >
               <div
@@ -314,16 +314,16 @@ export default function CryptoPaymentUI() {
                 {crypto.icon}
               </div>
               <div className="flex-1">
-                <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                <div className="text-sm font-semibold text-neutral-900">
                   {crypto.name}
                 </div>
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                <div className="text-xs text-neutral-500">
                   {crypto.network}
                 </div>
               </div>
               {selectedCrypto === crypto.id && (
                 <svg
-                  className="h-5 w-5 text-primary-600 dark:text-primary-400"
+                  className="h-5 w-5 text-lime"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -341,7 +341,7 @@ export default function CryptoPaymentUI() {
 
       {/* Deposit Details */}
       <Card className="overflow-hidden">
-        <div className="bg-gradient-to-br from-primary-600 to-primary-700 p-6 text-white">
+        <div className="border-b border-neutral-100 p-6">
           <div className="flex items-center gap-2">
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold ${selected.color}`}
@@ -349,8 +349,8 @@ export default function CryptoPaymentUI() {
               {selected.icon}
             </div>
             <div>
-              <div className="text-sm font-medium opacity-90">Deposit {selected.name}</div>
-              <div className="text-xs opacity-75">{selected.network}</div>
+              <div className="text-sm font-medium text-neutral-900">Deposit {selected.name}</div>
+              <div className="text-xs text-neutral-500">{selected.network}</div>
             </div>
           </div>
         </div>
@@ -358,7 +358,7 @@ export default function CryptoPaymentUI() {
         <div className="p-6">
           {/* QR Code */}
           <div className="mb-6 flex justify-center">
-            <div className="rounded-2xl border-4 border-neutral-100 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800">
+              <div className="rounded-2xl border-4 border-neutral-100 bg-white p-4">
               <img
                 src={qrCodeUrl}
                 alt="Wallet QR Code"
@@ -371,12 +371,12 @@ export default function CryptoPaymentUI() {
 
           {/* Wallet Address */}
           <div className="mb-6">
-            <label className="mb-2 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+            <label className="mb-2 block text-xs font-medium text-neutral-500">
               Wallet Address
             </label>
             <div className="flex items-center gap-2">
-              <div className="flex-1 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-800">
-                <code className="block overflow-x-auto text-xs font-mono text-neutral-900 dark:text-neutral-100">
+              <div className="flex-1 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3">
+                <code className="block overflow-x-auto text-xs font-mono text-neutral-900">
                   {selected.address}
                 </code>
               </div>
@@ -425,10 +425,10 @@ export default function CryptoPaymentUI() {
 
           {/* Important Instructions */}
           <div className="space-y-4">
-            <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 dark:border-warning-800 dark:bg-warning-900/20">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
               <div className="flex gap-3">
                 <svg
-                  className="h-5 w-5 shrink-0 text-warning-600 dark:text-warning-400"
+                  className="h-5 w-5 shrink-0 text-amber-600"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -439,10 +439,10 @@ export default function CryptoPaymentUI() {
                   />
                 </svg>
                 <div className="flex-1">
-                  <div className="text-sm font-semibold text-warning-900 dark:text-warning-100">
+                  <div className="text-sm font-semibold text-amber-900">
                     Important Notice
                   </div>
-                  <div className="mt-1 text-xs leading-relaxed text-warning-800 dark:text-warning-200">
+                  <div className="mt-1 text-xs leading-relaxed text-amber-800">
                     Only send {selected.name} on the {selected.network} network to this address.
                     Sending any other cryptocurrency or using a different network will result in
                     permanent loss of funds.
@@ -453,12 +453,12 @@ export default function CryptoPaymentUI() {
 
             {/* Instructions */}
             <div className="space-y-3">
-              <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                Deposit Instructions
+              <div className="text-sm font-semibold text-neutral-900">
+                DepositInstructions
               </div>
-              <ol className="space-y-2 text-xs text-neutral-600 dark:text-neutral-400">
+              <ol className="space-y-2 text-xs text-neutral-500">
                 <li className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-lime/20 text-xs font-semibold text-dark">
                     1
                   </span>
                   <span>
@@ -466,7 +466,7 @@ export default function CryptoPaymentUI() {
                   </span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-lime/20 text-xs font-semibold text-dark">
                     2
                   </span>
                   <span>
@@ -475,7 +475,7 @@ export default function CryptoPaymentUI() {
                   </span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-lime/20 text-xs font-semibold text-dark">
                     3
                   </span>
                   <span>
@@ -484,7 +484,7 @@ export default function CryptoPaymentUI() {
                   </span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-lime/20 text-xs font-semibold text-dark">
                     4
                   </span>
                   <span>
@@ -496,10 +496,10 @@ export default function CryptoPaymentUI() {
             </div>
 
             {/* Network Fees Info */}
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-800">
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
               <div className="flex items-start gap-2">
                 <svg
-                  className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400"
+                  className="h-4 w-4 shrink-0 text-neutral-500"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -509,8 +509,8 @@ export default function CryptoPaymentUI() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <div className="flex-1 text-xs text-neutral-600 dark:text-neutral-400">
-                  <strong className="font-semibold text-neutral-900 dark:text-neutral-100">
+                <div className="flex-1 text-xs text-neutral-500">
+                  <strong className="font-semibold text-neutral-900">
                     Network Fees:
                   </strong>{" "}
                   You are responsible for any blockchain network fees charged by your wallet or
@@ -520,10 +520,10 @@ export default function CryptoPaymentUI() {
             </div>
 
             {/* Minimum Deposit */}
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-800">
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
               <div className="flex items-start gap-2">
                 <svg
-                  className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400"
+                  className="h-4 w-4 shrink-0 text-neutral-500"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -533,8 +533,8 @@ export default function CryptoPaymentUI() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <div className="flex-1 text-xs text-neutral-600 dark:text-neutral-400">
-                  <strong className="font-semibold text-neutral-900 dark:text-neutral-100">
+                <div className="flex-1 text-xs text-neutral-500">
+                  <strong className="font-semibold text-neutral-900">
                     Minimum Deposit:
                   </strong>{" "}
                   {selected.id === "bitcoin" ? "0.0001 BTC (~$5)" : "10 USDT"}. Deposits below this
@@ -545,12 +545,12 @@ export default function CryptoPaymentUI() {
           </div>
 
           {/* Track Deposit Form */}
-          <div className="border-t border-neutral-200 p-6 dark:border-neutral-700">
+          <div className="border-t border-neutral-200 p-6">
             <div className="mb-4">
-              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                Track Your Deposit
+              <h3 className="text-sm font-semibold text-neutral-900">
+                Track YourDeposit
               </h3>
-              <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+              <p className="mt-1 text-xs text-neutral-500">
                 After sending {selected.name}, enter the amount below to track confirmation status
               </p>
             </div>
@@ -564,7 +564,7 @@ export default function CryptoPaymentUI() {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder={`Amount in ${selected.name}`}
-                  className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-400"
+                  className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-500 focus:border-lime focus:outline-none focus:ring-2 focus:ring-lime/20"
                 />
               </div>
               <Button
@@ -590,11 +590,11 @@ export default function CryptoPaymentUI() {
 
       {/* Support Link */}
       <div className="text-center">
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+        <p className="text-xs text-neutral-500">
           Need help?{" "}
           <a
             href="/support"
-            className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+            className="font-medium text-lime hover:text-lime-hover"
           >
             Contact Support
           </a>

@@ -64,18 +64,18 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="w-8 h-8 animate-spin text-primary-500 text-2xl"><RefreshCw className="h-4 w-4 inline-block" /></div>
-      </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime"></div>
+        </div>
     );
   }
 
   if (!affiliate) {
     return (
       <Card className="p-12 text-center">
-        <Icon name="user-x" className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+        <Icon name="user-x" className="w-16 h-16 mx-auto text-neutral-400 mb-4" />
         <h3 className="text-xl font-semibold mb-2">Not an Affiliate</h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-neutral-500 mb-4">
           Register as an affiliate to start earning commissions
         </p>
         <Button href="/affiliate/register">Register Now</Button>
@@ -86,13 +86,13 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
   const getStatusColor = (status: Affiliate['status']) => {
     switch (status) {
       case 'approved':
-        return 'text-success-500 bg-success-50 dark:bg-success-900/20';
+        return 'text-green-500 bg-green-50';
       case 'pending':
-        return 'text-warning-500 bg-warning-50 dark:bg-warning-900/20';
+        return 'text-amber-500 bg-amber-50';
       case 'suspended':
-        return 'text-danger-500 bg-danger-50 dark:bg-danger-900/20';
+        return 'text-red-500 bg-red-50';
       default:
-        return 'text-gray-500 bg-gray-50 dark:bg-gray-900/20';
+        return 'text-neutral-500 bg-neutral-50';
     }
   };
 
@@ -102,7 +102,7 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Affiliate Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-neutral-500 mt-1">
             Track your performance and earnings
           </p>
         </div>
@@ -115,47 +115,47 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-6">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Earnings</p>
+            <p className="text-sm text-neutral-500">Total Earnings</p>
             <Icon name="dollar-sign" className="w-6 h-6 text-green-500" />
           </div>
           <p className="text-3xl font-bold text-green-500">
             ${affiliate.totalEarnings.toFixed(2)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Lifetime earnings</p>
+          <p className="text-xs text-neutral-500 mt-1">Lifetime earnings</p>
         </Card>
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
-            <Icon name="clock" className="w-6 h-6 text-warning-500" />
+            <p className="text-sm text-neutral-500">Pending</p>
+            <Icon name="clock" className="w-6 h-6 text-amber-500" />
           </div>
-          <p className="text-3xl font-bold text-warning-500">
+          <p className="text-3xl font-bold text-amber-500">
             ${affiliate.pendingEarnings.toFixed(2)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Available for payout</p>
+          <p className="text-xs text-neutral-500 mt-1">Available for payout</p>
         </Card>
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Paid Out</p>
+            <p className="text-sm text-neutral-500">Paid Out</p>
             <Icon name="check-circle" className="w-6 h-6 text-blue-500" />
           </div>
           <p className="text-3xl font-bold text-blue-500">
             ${affiliate.paidEarnings.toFixed(2)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Total paid</p>
+          <p className="text-xs text-neutral-500 mt-1">Total paid</p>
         </Card>
       </div>
 
       {/* Payout Action */}
       {affiliate.status === 'approved' && affiliate.pendingEarnings >= 50 && (
-        <Card className="p-4 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+        <Card className="p-4 bg-green-50 border-green-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Icon name="dollar-sign" className="w-8 h-8 text-green-500" />
               <div>
                 <p className="font-semibold">Ready for Payout</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-neutral-500">
                   You have ${affiliate.pendingEarnings.toFixed(2)} available
                 </p>
               </div>
@@ -167,12 +167,12 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
 
       {/* Pending Approval */}
       {affiliate.status === 'pending' && (
-        <Card className="p-4 bg-warning-50 dark:bg-warning-900/20 border-warning-200 dark:border-warning-800">
+        <Card className="p-4 bg-amber-50 border-amber-200">
           <div className="flex items-center gap-3">
-            <Icon name="clock" className="w-8 h-8 text-warning-500" />
+            <Icon name="clock" className="w-8 h-8 text-amber-500" />
             <div>
               <p className="font-semibold">Application Under Review</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-neutral-500">
                 Your affiliate application is being reviewed. You'll be notified once approved.
               </p>
             </div>
@@ -192,15 +192,15 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
                 <h3 className="text-lg font-semibold mb-4">Commission Details</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Commission Rate</span>
-                    <span className="font-bold text-primary-500">{affiliate.commissionRate}%</span>
+                    <span className="text-neutral-500">Commission Rate</span>
+                    <span className="font-bold text-lime">{affiliate.commissionRate}%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Cookie Duration</span>
+                    <span className="text-neutral-500">Cookie Duration</span>
                     <span className="font-medium">{affiliate.cookieDuration} days</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Active Links</span>
+                    <span className="text-neutral-500">Active Links</span>
                     <span className="font-medium">{affiliate.links.length}</span>
                   </div>
                 </div>
@@ -213,7 +213,7 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
                 <Card className="p-12 text-center">
                   <span className="text-6xl mb-4 block"><Link className="h-4 w-4 inline-block" /></span>
                   <h3 className="text-xl font-semibold mb-2">No affiliate links yet</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-neutral-500">
                     Generate affiliate links for events to start earning
                   </p>
                 </Card>
@@ -222,12 +222,12 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
                   <Card key={link.id} className="p-4">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-semibold">Event #{link.eventId}</h4>
-                      <code className="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                      <code className="text-sm bg-neutral-100 px-2 py-1 rounded">
                         {link.code}
                       </code>
                     </div>
                     <Input value={link.url} readOnly className="font-mono text-sm mb-2" />
-                    <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex gap-4 text-sm text-neutral-500">
                       <span>{link.clicks} clicks</span>
                       <span>{link.conversions} conversions</span>
                       <span className="text-green-500 font-medium">
@@ -241,9 +241,9 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
           )},
           { id: 'payouts', label: 'Payout History', content: (
             <Card className="p-12 text-center">
-              <Icon name="credit-card" className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+              <Icon name="credit-card" className="w-16 h-16 mx-auto text-neutral-400 mb-4" />
               <h3 className="text-xl font-semibold mb-2">No payout history</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-neutral-500">
                 Your payout requests will appear here
               </p>
             </Card>

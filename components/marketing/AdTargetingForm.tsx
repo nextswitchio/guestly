@@ -105,7 +105,7 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
           <Icon name="map-pin" className="w-5 h-5" />
           Locations
         </h4>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+        <p className="text-sm text-neutral-500 mb-3">
           Target specific cities or regions
         </p>
 
@@ -124,7 +124,7 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
             />
             <button
               onClick={() => addLocation(locationInput)}
-              className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
+              className="px-4 py-2 bg-lime text-dark rounded-2xl hover:bg-lime/90"
             >
               <Icon name="plus" className="w-5 h-5" />
             </button>
@@ -135,7 +135,7 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
               {targeting.locations.map((location) => (
                 <span
                   key={location}
-                  className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm"
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-lime/10 text-lime rounded-full text-sm"
                 >
                   {location}
                   <button onClick={() => removeLocation(location)}>
@@ -147,15 +147,15 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
           )}
 
           <div>
-            <p className="text-xs text-gray-500 mb-2">Popular locations:</p>
+            <p className="text-xs text-neutral-500 mb-2">Popular locations:</p>
             <div className="flex flex-wrap gap-2">
-              {popularLocations
+               {popularLocations
                 .filter((loc) => !targeting.locations.includes(loc))
                 .map((location) => (
                   <button
                     key={location}
                     onClick={() => addLocation(location)}
-                    className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-700"
+                    className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-neutral-200"
                   >
                     + {location}
                   </button>
@@ -189,7 +189,7 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
             max={65}
           />
         </div>
-        <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+        <div className="mt-3 text-sm text-neutral-500">
           Targeting ages {targeting.ageMin} - {targeting.ageMax}
         </div>
       </Card>
@@ -200,7 +200,7 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
           <Icon name="heart" className="w-5 h-5" />
           Interests
         </h4>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+        <p className="text-sm text-neutral-500 mb-3">
           Target people based on their interests
         </p>
 
@@ -219,7 +219,7 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
             />
             <button
               onClick={() => addInterest(interestInput)}
-              className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
+              className="px-4 py-2 bg-lime text-dark rounded-2xl hover:bg-lime/90"
             >
               <Icon name="plus" className="w-5 h-5" />
             </button>
@@ -230,7 +230,7 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
               {targeting.interests.map((interest) => (
                 <span
                   key={interest}
-                  className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm"
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm"
                 >
                   {interest}
                   <button onClick={() => removeInterest(interest)}>
@@ -242,15 +242,15 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
           )}
 
           <div>
-            <p className="text-xs text-gray-500 mb-2">Popular interests:</p>
+            <p className="text-xs text-neutral-500 mb-2">Popular interests:</p>
             <div className="flex flex-wrap gap-2">
-              {popularInterests
+               {popularInterests
                 .filter((int) => !targeting.interests.includes(int))
                 .map((interest) => (
                   <button
                     key={interest}
                     onClick={() => addInterest(interest)}
-                    className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-700"
+                    className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-neutral-200"
                   >
                     + {interest}
                   </button>
@@ -266,7 +266,7 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
           <Icon name="activity" className="w-5 h-5" />
           Behaviors
         </h4>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+        <p className="text-sm text-neutral-500 mb-3">
           Target based on user behaviors and activities
         </p>
 
@@ -285,7 +285,7 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
             />
             <button
               onClick={() => addBehavior(behaviorInput)}
-              className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
+              className="px-4 py-2 bg-lime text-dark rounded-2xl hover:bg-lime/90"
             >
               <Icon name="plus" className="w-5 h-5" />
             </button>
@@ -296,7 +296,7 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
               {targeting.behaviors.map((behavior) => (
                 <span
                   key={behavior}
-                  className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm"
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm"
                 >
                   {behavior}
                   <button onClick={() => removeBehavior(behavior)}>
@@ -308,15 +308,15 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
           )}
 
           <div>
-            <p className="text-xs text-gray-500 mb-2">Popular behaviors:</p>
+            <p className="text-xs text-neutral-500 mb-2">Popular behaviors:</p>
             <div className="flex flex-wrap gap-2">
-              {popularBehaviors
+               {popularBehaviors
                 .filter((beh) => !targeting.behaviors.includes(beh))
                 .map((behavior) => (
                   <button
                     key={behavior}
                     onClick={() => addBehavior(behavior)}
-                    className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-700"
+                    className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm hover:bg-neutral-200"
                   >
                     + {behavior}
                   </button>
@@ -327,17 +327,17 @@ export default function AdTargetingForm({ targeting, onChange }: AdTargetingForm
       </Card>
 
       {/* Estimated Reach */}
-      <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+      <Card className="p-4 bg-blue-50 border-blue-200">
         <div className="flex items-start gap-3">
-          <Icon name="target" className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+          <Icon name="target" className="w-5 h-5 text-blue-600 mt-0.5" />
           <div>
-            <p className="font-medium text-blue-900 dark:text-blue-100 mb-1">
+            <p className="font-medium text-blue-900 mb-1">
               Estimated Audience Reach
             </p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            <p className="text-2xl font-bold text-blue-600">
               {estimatedReach().toLocaleString()}
             </p>
-            <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+            <p className="text-sm text-blue-700 mt-1">
               people match your targeting criteria
             </p>
           </div>

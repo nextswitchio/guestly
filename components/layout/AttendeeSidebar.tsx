@@ -112,7 +112,7 @@ export default function AttendeeSidebar() {
         } ${
           active
             ? "bg-lime/15 text-white font-semibold"
-            : "text-navy-200 hover:bg-white/5 hover:text-white"
+            : "text-white/70 hover:bg-white/5 hover:text-white"
         }`}
       >
         {active && !collapsed && (
@@ -121,7 +121,7 @@ export default function AttendeeSidebar() {
         <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all ${
           active
             ? "bg-lime/20 text-lime"
-            : "bg-white/5 text-navy-300 group-hover:bg-white/10 group-hover:text-white"
+            : "bg-white/5 text-white/50 group-hover:bg-white/10 group-hover:text-white"
         }`}>
           <link.icon className="h-4 w-4" />
         </span>
@@ -174,9 +174,9 @@ export default function AttendeeSidebar() {
             title={collapsed ? "Sign Out" : undefined}
             className={`group relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-150 min-h-[44px] w-full ${
               collapsed ? "justify-center" : ""
-            } text-navy-200 hover:bg-white/5 hover:text-white`}
+            } text-white/70 hover:bg-white/5 hover:text-white`}
           >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-navy-300 group-hover:bg-white/10 group-hover:text-white transition-all">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-white/50 group-hover:bg-white/10 group-hover:text-white transition-all">
               <LogoutIcon className="h-4 w-4" />
             </span>
             {!collapsed && <span className="flex-1 truncate text-left">Sign Out</span>}
@@ -187,7 +187,7 @@ export default function AttendeeSidebar() {
         {mobileOpen && (
           <button
             onClick={() => sidebar?.setOpenMobile(false)}
-            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-lg text-navy-300 hover:bg-white/5 hover:text-white md:hidden"
+            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-lg text-white/50 hover:bg-white/5 hover:text-white md:hidden"
           >
             <XIcon className="h-5 w-5" />
           </button>

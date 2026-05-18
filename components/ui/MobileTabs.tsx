@@ -35,15 +35,15 @@ export default function MobileTabs({
   return (
     <div className={`w-full ${className}`}>
       {/* Tab Navigation */}
-      <div className="flex overflow-x-auto border-b border-[var(--surface-border)] bg-[var(--surface-card)] rounded-t-xl">
+      <div className="flex overflow-x-auto border-b border-neutral-200 bg-white rounded-t-xl">
         {items.map((item) => (
           <button
             key={item.id}
             onClick={() => handleTabChange(item.id)}
             className={`flex-1 min-w-0 px-4 py-3 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
               activeTab === item.id
-                ? "text-primary-600 border-b-2 border-primary-600 bg-primary-50/50"
-                : "text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface-hover)]"
+                ? "text-lime border-b-2 border-lime bg-lime/5"
+                : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50"
             }`}
           >
             <div className="flex items-center justify-center gap-2">
@@ -51,15 +51,15 @@ export default function MobileTabs({
                 <Icon 
                   name={item.icon as any} 
                   size={16} 
-                  className={activeTab === item.id ? "text-primary-600" : "text-[var(--foreground-muted)]"}
+                  className={activeTab === item.id ? "text-lime" : "text-neutral-500"}
                 />
               )}
               <span className="truncate">{item.title}</span>
               {item.badge && (
                 <span className={`inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full ${
                   activeTab === item.id
-                    ? "bg-primary-100 text-primary-700"
-                    : "bg-[var(--surface-bg)] text-[var(--foreground-muted)]"
+                    ? "bg-lime/10 text-lime"
+                    : "bg-neutral-50 text-neutral-500"
                 }`}>
                   {item.badge}
                 </span>
@@ -70,7 +70,7 @@ export default function MobileTabs({
       </div>
 
       {/* Tab Content */}
-      <div className="bg-[var(--surface-card)] rounded-b-xl">
+      <div className="bg-white rounded-b-xl">
         {activeItem && (
           <div className="p-4 animate-in fade-in-0 duration-200">
             {activeItem.content}

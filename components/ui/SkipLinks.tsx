@@ -63,10 +63,10 @@ export default function SkipLinks() {
       role="navigation"
       aria-label="Skip links"
     >
-      <div className="flex gap-2 p-2 bg-primary-600 text-white shadow-lg">
+      <div className="flex gap-2 p-2 bg-lime text-dark shadow-lg">
         <button
           onClick={skipToMain}
-          className="px-4 py-2 bg-primary-700 hover:bg-primary-800 focus:bg-primary-800 rounded text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+          className="px-4 py-2 bg-lime-hover hover:bg-lime-hover focus:bg-lime-hover rounded text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-lime focus:ring-offset-2 focus:ring-offset-lime"
           onFocus={() => setIsVisible(true)}
         >
           Skip to main content
@@ -74,7 +74,7 @@ export default function SkipLinks() {
         
         <button
           onClick={skipToNavigation}
-          className="px-4 py-2 bg-primary-700 hover:bg-primary-800 focus:bg-primary-800 rounded text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+          className="px-4 py-2 bg-lime-hover hover:bg-lime-hover focus:bg-lime-hover rounded text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-lime focus:ring-offset-2 focus:ring-offset-lime"
           onFocus={() => setIsVisible(true)}
         >
           Skip to navigation
@@ -82,7 +82,7 @@ export default function SkipLinks() {
         
         <button
           onClick={skipToSearch}
-          className="px-4 py-2 bg-primary-700 hover:bg-primary-800 focus:bg-primary-800 rounded text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+          className="px-4 py-2 bg-lime-hover hover:bg-lime-hover focus:bg-lime-hover rounded text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-lime focus:ring-offset-2 focus:ring-offset-lime"
           onFocus={() => setIsVisible(true)}
         >
           Skip to search

@@ -35,15 +35,15 @@ export default function PromoCodeStats({ promoCodeId }: PromoCodeStatsProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Icon name="loader" className="w-6 h-6 animate-spin text-primary-500" />
-      </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime"></div>
+        </div>
     );
   }
 
   if (!metrics) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-neutral-500">
         No statistics available
       </div>
     );
@@ -89,7 +89,7 @@ export default function PromoCodeStats({ promoCodeId }: PromoCodeStatsProps) {
         {stats.map((stat) => (
           <Card key={stat.label} className="p-4">
             <div className="flex items-start justify-between mb-2">
-              <p className="text-xs text-gray-600 dark:text-gray-400">{stat.label}</p>
+              <p className="text-xs text-neutral-500">{stat.label}</p>
               <Icon name={stat.icon as any} className={`w-4 h-4 ${stat.color}`} />
             </div>
             <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
@@ -103,12 +103,12 @@ export default function PromoCodeStats({ promoCodeId }: PromoCodeStatsProps) {
         <div className="space-y-3">
           <div>
             <div className="flex items-center justify-between text-sm mb-1">
-              <span className="text-gray-600 dark:text-gray-400">Revenue Impact</span>
+              <span className="text-neutral-500">Revenue Impact</span>
               <span className="font-medium text-green-500">
                 +${(metrics.totalRevenue - metrics.totalDiscount).toLocaleString()}
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-neutral-200 rounded-full h-2">
               <div
                 className="bg-green-500 h-2 rounded-full"
                 style={{
@@ -123,12 +123,12 @@ export default function PromoCodeStats({ promoCodeId }: PromoCodeStatsProps) {
 
           <div>
             <div className="flex items-center justify-between text-sm mb-1">
-              <span className="text-gray-600 dark:text-gray-400">Discount Given</span>
+              <span className="text-neutral-500">Discount Given</span>
               <span className="font-medium text-orange-500">
                 ${metrics.totalDiscount.toLocaleString()}
               </span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-neutral-200 rounded-full h-2">
               <div
                 className="bg-orange-500 h-2 rounded-full"
                 style={{
@@ -138,9 +138,9 @@ export default function PromoCodeStats({ promoCodeId }: PromoCodeStatsProps) {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="pt-3 border-t border-neutral-200">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Avg Discount per Order</span>
+              <span className="text-neutral-500">Avg Discount per Order</span>
               <span className="font-medium">
                 ${(metrics.totalDiscount / metrics.totalRedemptions || 0).toFixed(2)}
               </span>
@@ -148,7 +148,7 @@ export default function PromoCodeStats({ promoCodeId }: PromoCodeStatsProps) {
           </div>
 
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Revenue per Redemption</span>
+            <span className="text-neutral-500">Revenue per Redemption</span>
             <span className="font-medium">
               ${(metrics.totalRevenue / metrics.totalRedemptions || 0).toFixed(2)}
             </span>
@@ -157,14 +157,14 @@ export default function PromoCodeStats({ promoCodeId }: PromoCodeStatsProps) {
       </Card>
 
       {/* Insights */}
-      <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+        <Card className="p-4 bg-blue-100 border-blue-200">
         <div className="flex gap-3">
           <Icon name="info" className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+            <h4 className="font-semibold text-blue-900 mb-1">
               Performance Insights
             </h4>
-            <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+            <ul className="text-sm text-blue-800 space-y-1">
               {metrics.conversionRate > 5 && (
                 <li><CheckCircle className="h-4 w-4 inline-block" /> Strong conversion rate - this code is performing well</li>
               )}

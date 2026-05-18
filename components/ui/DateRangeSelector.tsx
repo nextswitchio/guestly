@@ -16,7 +16,7 @@ export default function DateRangeSelector({ value, onChange, className = "" }: D
   ];
 
   return (
-    <div className={`flex rounded-lg bg-[var(--surface-bg)] border border-[var(--surface-border)] p-1 ${className}`}>
+    <div className={`flex rounded-lg bg-neutral-50 border border-neutral-200 p-1 ${className}`}>
       {options.map((option) => (
         <button
           key={option.value}
@@ -24,8 +24,8 @@ export default function DateRangeSelector({ value, onChange, className = "" }: D
           className={`
             px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200
             ${value === option.value
-              ? 'bg-primary-500 text-white shadow-sm'
-              : 'text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface-hover)]'
+              ? 'bg-lime text-dark shadow-sm'
+              : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50'
             }
           `}
         >

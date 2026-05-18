@@ -1,8 +1,7 @@
-"use client";
+'use client';
 import { Backpack, Building2, Camera, Clapperboard, Globe, Map, Package, Pencil, ShoppingBag, Tag, Ticket } from 'lucide-react';
 import React from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import FileUpload from "@/components/ui/FileUpload";
@@ -84,7 +83,6 @@ export default function CreateEventPage() {
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [uploadingImage, setUploadingImage] = React.useState(false);
 
-  // Detect user's country and set as default
   React.useEffect(() => {
     const userCountry = detectUserCountry();
     if (!draft.country) {
@@ -209,8 +207,6 @@ export default function CreateEventPage() {
     setUploadingImage(true);
     const file = files[0];
     
-    // In production, upload to cloud storage (S3, Cloudinary, etc.)
-    // For now, create a local object URL
     const imageUrl = URL.createObjectURL(file);
     await save({ image: imageUrl });
     
@@ -238,12 +234,12 @@ export default function CreateEventPage() {
   return (
     <ProtectedRoute allowRoles={["organiser"]}>
       <div className="mx-auto max-w-5xl">
-        {/* Premium Header */}
+        {/* Header */}
         <div className="mb-8 flex items-start justify-between">
           <div className="flex items-center gap-4">
             <Link
               href="/dashboard/events"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 text-neutral-500 transition hover:bg-neutral-50 hover:border-neutral-300"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-500 transition hover:bg-neutral-50"
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -257,7 +253,7 @@ export default function CreateEventPage() {
             </div>
           </div>
           {lastSaved && (
-            <div className="flex items-center gap-2 rounded-lg bg-success-50 px-3 py-2 text-xs text-success-700">
+            <div className="flex items-center gap-2 rounded-lg bg-lime/10 px-3 py-2 text-xs text-lime-700">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
@@ -266,7 +262,7 @@ export default function CreateEventPage() {
           )}
         </div>
 
-        {/* Enhanced Stepper */}
+        {/* Stepper */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             {STEPS.map((s, i) => (
@@ -277,11 +273,11 @@ export default function CreateEventPage() {
                     disabled={i > step && !completedSteps[i - 1]}
                     className={`flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold transition ${
                       i === step
-                        ? "bg-primary-600 text-white shadow-lg shadow-primary-500/30"
+                        ? "bg-lime text-dark shadow-lg"
                         : completedSteps[i]
-                        ? "bg-success-500 text-white"
+                        ? "bg-lime-600 text-white"
                         : i < step
-                        ? "bg-success-100 text-success-700"
+                        ? "bg-lime/20 text-lime-700"
                         : "bg-neutral-100 text-neutral-400"
                     } ${i > step && !completedSteps[i - 1] ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:scale-105"}`}
                   >
@@ -294,23 +290,23 @@ export default function CreateEventPage() {
                     )}
                   </button>
                   <div className="text-center">
-                    <p className={`text-xs font-medium ${i === step ? "text-primary-600" : completedSteps[i] ? "text-success-600" : "text-neutral-500"}`}>
+                    <p className={`text-xs font-medium ${i === step ? "text-lime-600" : completedSteps[i] ? "text-lime-600" : "text-neutral-500"}`}>
                       {s.label}
                     </p>
                   </div>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div className={`h-0.5 flex-1 transition-all ${completedSteps[i] ? "bg-success-400" : "bg-neutral-200"}`} />
+                  <div className={`h-0.5 flex-1 transition-all ${completedSteps[i] ? "bg-lime-400" : "bg-neutral-200"}`} />
                 )}
               </React.Fragment>
             ))}
           </div>
         </div>
 
-        {/* Form Card with Premium Design */}
-        <Card className="relative overflow-hidden">
+        {/* Form Card */}
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6 sm:p-8">
           {saving && (
-            <div className="absolute right-4 top-4 flex items-center gap-2 rounded-lg bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary-700">
+            <div className="absolute right-4 top-4 flex items-center gap-2 rounded-lg bg-lime/10 px-3 py-1.5 text-xs font-medium text-lime-700">
               <svg className="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
@@ -324,7 +320,7 @@ export default function CreateEventPage() {
             <div className="flex flex-col gap-6">
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-neutral-900">Choose Your Event Type</h2>
-                <p className="mt-2 text-neutral-600">Select how attendees will experience your event</p>
+                <p className="mt-2 text-neutral-500">Select how attendees will experience your event</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 {[
@@ -364,12 +360,12 @@ export default function CreateEventPage() {
                     onClick={() => save({ type: t.type })}
                     className={`group relative flex flex-col items-center gap-3 rounded-2xl border-2 p-6 transition-all ${
                       draft.type === t.type
-                        ? "border-primary-600 bg-gradient-to-br from-primary-50 to-primary-100/50 shadow-lg"
-                        : "border-neutral-200 hover:border-primary-300 hover:shadow-md"
+                        ? "border-lime bg-lime/5 shadow-lg"
+                        : "border-neutral-200 hover:border-lime-300 hover:shadow-md"
                     }`}
                   >
                     <div className={`flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110 ${
-                      draft.type === t.type ? "bg-primary-600 text-white" : "bg-neutral-100 text-neutral-600"
+                      draft.type === t.type ? "bg-lime text-dark" : "bg-neutral-100 text-neutral-600"
                     }`}>
                       {t.icon}
                     </div>
@@ -378,7 +374,7 @@ export default function CreateEventPage() {
                       <p className="mt-1 text-xs text-neutral-500">{t.desc}</p>
                     </div>
                     {draft.type === t.type && (
-                      <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-primary-600 text-white">
+                      <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-lime text-dark">
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
@@ -403,7 +399,7 @@ export default function CreateEventPage() {
             <div className="flex flex-col gap-6">
               <div>
                 <h2 className="text-2xl font-bold text-neutral-900">Event Details</h2>
-                <p className="mt-1 text-neutral-600">Tell attendees what makes your event special</p>
+                <p className="mt-1 text-neutral-500">Tell attendees what makes your event special</p>
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="sm:col-span-2">
@@ -550,7 +546,7 @@ export default function CreateEventPage() {
                   <label className="mb-2 block text-sm font-medium text-neutral-700">Cover Image</label>
                   {draft.image ? (
                     <div className="space-y-3">
-                      <div className="overflow-hidden rounded-lg border border-neutral-200">
+                      <div className="overflow-hidden rounded-xl border border-neutral-200">
                         <img src={draft.image} alt="Cover preview" className="h-48 w-full object-cover" />
                       </div>
                       <button
@@ -580,23 +576,23 @@ export default function CreateEventPage() {
                     value={draft.description || ""}
                     onChange={(e) => save({ description: e.target.value })}
                     placeholder="Describe your event, what attendees can expect, and why they should attend..."
-                    className="w-full resize-none rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+                    className="w-full resize-none rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime/40"
                     rows={4}
                   />
                   {errors.description && <p className="mt-1 text-xs text-red-600">{errors.description}</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <div className="flex items-start gap-3 rounded-xl border-2 border-neutral-200 bg-neutral-50 p-4">
+                  <div className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                     <input
                       type="checkbox"
                       id="postEventCommunityAccess"
                       checked={draft.postEventCommunityAccess ?? true}
                       onChange={(e) => save({ postEventCommunityAccess: e.target.checked })}
-                      className="mt-0.5 h-5 w-5 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+                      className="mt-0.5 h-5 w-5 rounded border-neutral-300 text-lime-600 focus:ring-lime"
                     />
                     <label htmlFor="postEventCommunityAccess" className="flex-1 cursor-pointer">
                       <span className="font-medium text-neutral-900">Keep Community Active After Event</span>
-                      <p className="mt-1 text-xs text-neutral-600">Allow attendees to continue discussions and share memories after the event ends</p>
+                      <p className="mt-1 text-xs text-neutral-500">Allow attendees to continue discussions and share memories after the event ends</p>
                     </label>
                   </div>
                 </div>
@@ -609,7 +605,7 @@ export default function CreateEventPage() {
             <div className="flex flex-col gap-6">
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-neutral-900">When is Your Event?</h2>
-                <p className="mt-2 text-neutral-600">Choose the perfect date and time</p>
+                <p className="mt-2 text-neutral-500">Choose the perfect date and time</p>
               </div>
               <div className="mx-auto w-full max-w-md">
                 <Input 
@@ -620,14 +616,14 @@ export default function CreateEventPage() {
                   error={errors.date}
                 />
                 {draft.date && (
-                  <div className="mt-4 rounded-xl border border-primary-200 bg-primary-50 p-4">
-                    <div className="flex items-center gap-2 text-sm font-medium text-primary-900">
+                  <div className="mt-4 rounded-xl border border-lime-200 bg-lime/5 p-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-neutral-900">
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       {new Date(draft.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </div>
-                    <div className="mt-2 flex items-center gap-2 text-xs text-primary-700">
+                    <div className="mt-2 flex items-center gap-2 text-xs text-lime-700">
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -644,13 +640,13 @@ export default function CreateEventPage() {
             <div className="flex flex-col gap-6">
               <div>
                 <h2 className="text-2xl font-bold text-neutral-900">Ticket Pricing</h2>
-                <p className="mt-1 text-neutral-600">Set up your ticket types and pricing</p>
+                <p className="mt-1 text-neutral-500">Set up your ticket types and pricing</p>
               </div>
               <div className="space-y-4">
-                <div className="rounded-2xl border-2 border-neutral-200 bg-gradient-to-br from-neutral-50 to-white p-5">
+                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100">
-                      <svg className="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lime/20">
+                      <svg className="h-5 w-5 text-lime-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                       </svg>
                     </div>
@@ -680,16 +676,16 @@ export default function CreateEventPage() {
                     />
                   </div>
                 </div>
-                <div className="rounded-2xl border-2 border-warning-200 bg-gradient-to-br from-warning-50 to-white p-5">
+                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-warning-100">
-                      <svg className="h-5 w-5 text-warning-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lime/20">
+                      <svg className="h-5 w-5 text-lime-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-warning-900">VIP</h3>
-                      <p className="text-xs text-warning-600">Premium experience</p>
+                      <h3 className="font-semibold text-neutral-900">VIP</h3>
+                      <p className="text-xs text-neutral-500">Premium experience</p>
                     </div>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -723,18 +719,18 @@ export default function CreateEventPage() {
                 </div>
               )}
               {(draft.ticketSetup?.generalPrice !== undefined || draft.ticketSetup?.vipPrice !== undefined) && (
-                <div className="rounded-xl border border-primary-200 bg-primary-50 p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-primary-900">
+                <div className="rounded-xl border border-lime-200 bg-lime/5 p-4">
+                  <p className="flex items-center gap-2 text-sm font-medium text-neutral-900">
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Projected Revenue
                   </p>
-                  <p className="mt-2 text-2xl font-bold text-primary-900 tabular-nums">
+                  <p className="mt-2 text-2xl font-bold text-neutral-900 tabular-nums">
                     ${((draft.ticketSetup?.generalPrice || 0) * (draft.ticketSetup?.generalQty || 0) + 
                        (draft.ticketSetup?.vipPrice || 0) * (draft.ticketSetup?.vipQty || 0)).toLocaleString()}
                   </p>
-                  <p className="mt-1 text-xs text-primary-700">
+                  <p className="mt-1 text-xs text-lime-700">
                     {(draft.ticketSetup?.generalQty || 0) + (draft.ticketSetup?.vipQty || 0)} total tickets
                   </p>
                 </div>
@@ -747,7 +743,7 @@ export default function CreateEventPage() {
             <div className="flex flex-col gap-6">
               <div>
                 <h2 className="text-2xl font-bold text-neutral-900">Virtual Setup</h2>
-                <p className="mt-1 text-neutral-600">
+                <p className="mt-1 text-neutral-500">
                   {draft.type === "Virtual" 
                     ? "Configure your live stream" 
                     : draft.type === "Hybrid"
@@ -785,36 +781,36 @@ export default function CreateEventPage() {
                     value={draft.virtual?.accessControl || "ticket-holders"}
                     onChange={(e) => save({ virtual: { ...(draft.virtual || {}), accessControl: e.currentTarget.value as "ticket-holders" | "public" } })}
                     options={[
-                      { value: "ticket-holders", label: "🎟️ Ticket Holders Only" },
-                      { value: "public", label: "🌐 Public Access" },
+                      { value: "ticket-holders", label: "Ticket Holders Only" },
+                      { value: "public", label: "Public Access" },
                     ]}
                   />
 
-                  <div className="flex items-start gap-3 rounded-xl border-2 border-neutral-200 bg-neutral-50 p-4">
+                  <div className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                     <input
                       type="checkbox"
                       id="enableReplay"
                       checked={draft.virtual?.enableReplay || false}
                       onChange={(e) => save({ virtual: { ...(draft.virtual || {}), enableReplay: e.target.checked } })}
-                      className="mt-0.5 h-5 w-5 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+                      className="mt-0.5 h-5 w-5 rounded border-neutral-300 text-lime-600 focus:ring-lime"
                     />
                     <label htmlFor="enableReplay" className="flex-1 cursor-pointer">
                       <span className="font-medium text-neutral-900">Enable Replay Access</span>
-                      <p className="mt-1 text-xs text-neutral-600">Allow ticket holders to watch the recording after the event ends</p>
+                      <p className="mt-1 text-xs text-neutral-500">Allow ticket holders to watch the recording after the event ends</p>
                     </label>
                   </div>
 
                   {draft.virtual?.provider && (
-                    <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                       <div className="flex items-start gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100">
-                          <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lime/20">
+                          <svg className="h-4 w-4 text-lime-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         </div>
                         <div className="flex-1">
-                          <p className="text-xs font-medium text-blue-900">Setup Instructions</p>
-                          <p className="mt-1 text-xs text-blue-700">
+                          <p className="text-xs font-medium text-neutral-900">Setup Instructions</p>
+                          <p className="mt-1 text-xs text-neutral-500">
                             {draft.virtual?.provider === "Zoom" && "Paste your Zoom meeting link. Attendees will join directly from the event page."}
                             {draft.virtual?.provider === "Google Meet" && "Share your Google Meet link. Attendees will access it from the virtual lobby."}
                             {draft.virtual?.provider === "YouTube Live" && "Paste your YouTube Live stream URL. The video will be embedded on the event page."}
@@ -828,7 +824,7 @@ export default function CreateEventPage() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50 py-12 text-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100 text-4xl"><Building2 className="h-4 w-4 inline-block" /></div>
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100"><Building2 className="h-8 w-8 text-neutral-400" /></div>
                   <div>
                     <p className="font-semibold text-neutral-900">Physical Event</p>
                     <p className="mt-1 text-sm text-neutral-500">No virtual setup needed for in-person events</p>
@@ -843,27 +839,27 @@ export default function CreateEventPage() {
             <div className="flex flex-col gap-6">
               <div>
                 <h2 className="text-2xl font-bold text-neutral-900">Merchandise Store</h2>
-                <p className="mt-1 text-neutral-600">Sell products alongside your event (optional)</p>
+                <p className="mt-1 text-neutral-500">Sell products alongside your event (optional)</p>
               </div>
               
               <div className="grid gap-4 sm:grid-cols-2">
                 {[
-                  { value: false, label: "Skip Merchandise", desc: "No products", icon: "🚫" },
-                  { value: true, label: "Enable Store", desc: "Sell products", icon: "🛍️" },
+                  { value: false, label: "Skip Merchandise", desc: "No products" },
+                  { value: true, label: "Enable Store", desc: "Sell products" },
                 ].map((opt) => (
                   <button
                     key={String(opt.value)}
                     onClick={() => save({ merch: { ...(draft.merch || {}), enabled: opt.value } })}
                     className={`flex items-center gap-4 rounded-2xl border-2 p-5 text-left transition-all ${
                       draft.merch?.enabled === opt.value
-                        ? "border-primary-600 bg-gradient-to-br from-primary-50 to-primary-100/50 shadow-lg"
-                        : "border-neutral-200 hover:border-primary-300 hover:shadow-md"
+                        ? "border-lime bg-lime/5 shadow-lg"
+                        : "border-neutral-200 hover:border-lime-300 hover:shadow-md"
                     }`}
                   >
-                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl ${
-                      draft.merch?.enabled === opt.value ? "bg-primary-600 text-white" : "bg-neutral-100"
+                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl font-semibold ${
+                      draft.merch?.enabled === opt.value ? "bg-lime text-dark" : "bg-neutral-100 text-neutral-500"
                     }`}>
-                      {opt.icon}
+                      {opt.value ? "🛍️" : "🚫"}
                     </div>
                     <div>
                       <p className="font-semibold text-neutral-900">{opt.label}</p>
@@ -875,17 +871,17 @@ export default function CreateEventPage() {
 
               {draft.merch?.enabled && (
                 <div className="space-y-5">
-                  <div className="flex items-start gap-3 rounded-xl border-2 border-neutral-200 bg-neutral-50 p-4">
+                  <div className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                     <input
                       type="checkbox"
                       id="postEventMerchSales"
                       checked={draft.merch?.postEventSales || false}
                       onChange={(e) => save({ merch: { ...(draft.merch || {}), postEventSales: e.target.checked } })}
-                      className="mt-0.5 h-5 w-5 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+                      className="mt-0.5 h-5 w-5 rounded border-neutral-300 text-lime-600 focus:ring-lime"
                     />
                     <label htmlFor="postEventMerchSales" className="flex-1 cursor-pointer">
                       <span className="font-medium text-neutral-900">Keep Store Open After Event</span>
-                      <p className="mt-1 text-xs text-neutral-600">Continue selling merchandise after the event date</p>
+                      <p className="mt-1 text-xs text-neutral-500">Continue selling merchandise after the event date</p>
                     </label>
                   </div>
 
@@ -912,7 +908,7 @@ export default function CreateEventPage() {
                           },
                         });
                       }}
-                      className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
+                      className="flex items-center gap-2 rounded-xl bg-lime px-4 py-2 text-sm font-semibold text-dark transition hover:bg-lime-hover"
                     >
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -923,7 +919,7 @@ export default function CreateEventPage() {
 
                   {(!draft.merch?.products || draft.merch.products.length === 0) ? (
                     <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50 py-12 text-center">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 text-3xl"><Package className="h-4 w-4 inline-block" /></div>
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100"><Package className="h-8 w-8 text-neutral-400" /></div>
                       <div>
                         <p className="font-semibold text-neutral-900">No products yet</p>
                         <p className="mt-1 text-sm text-neutral-500">Click "Add Product" to create your first item</p>
@@ -932,7 +928,7 @@ export default function CreateEventPage() {
                   ) : (
                     <div className="space-y-4">
                       {draft.merch?.products?.map((product, index) => (
-                        <div key={index} className="rounded-xl border-2 border-neutral-200 bg-white p-5">
+                        <div key={index} className="rounded-xl border border-neutral-200 bg-white p-5">
                           <div className="mb-4 flex items-center justify-between">
                             <h4 className="font-semibold text-neutral-900">Product {index + 1}</h4>
                             <button
@@ -968,10 +964,10 @@ export default function CreateEventPage() {
                                 save({ merch: { ...draft.merch, products } });
                               }}
                               options={[
-                                { value: "Apparel", label: "👕 Apparel" },
-                                { value: "Accessories", label: "🎒 Accessories" },
-                                { value: "Prints", label: "🖼️ Prints" },
-                                { value: "Collectibles", label: "🏆 Collectibles" },
+                                { value: "Apparel", label: "Apparel" },
+                                { value: "Accessories", label: "Accessories" },
+                                { value: "Prints", label: "Prints" },
+                                { value: "Collectibles", label: "Collectibles" },
                               ]}
                             />
 
@@ -1047,58 +1043,55 @@ export default function CreateEventPage() {
             <div className="flex flex-col gap-6">
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-neutral-900">Review Your Event</h2>
-                <p className="mt-2 text-neutral-600">Everything looks good? Let's publish!</p>
+                <p className="mt-2 text-neutral-500">Everything looks good? Let's publish!</p>
               </div>
               
               <div className="space-y-4">
-                <div className="rounded-2xl border-2 border-neutral-200 bg-gradient-to-br from-neutral-50 to-white p-6">
+                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
                   <h3 className="mb-4 font-semibold text-neutral-900">Event Summary</h3>
                   <div className="space-y-3">
                     {[
-                      { label: "Type", value: draft.type || "—", icon: "📋" },
-                      { label: "Title", value: draft.title || "—", icon: "✏️" },
-                      { label: "Category", value: draft.category || "—", icon: "🏷️" },
-                      { label: "City", value: draft.city || "—", icon: "📍" },
-                      { label: "Date", value: draft.date ? new Date(draft.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "—", icon: "📅" },
-                      ...(draft.venue ? [{ label: "Venue", value: draft.venue, icon: "🏟️" }] : []),
-                      ...(draft.community ? [{ label: "Community", value: draft.community, icon: "👥" }] : []),
-                      ...(draft.communityType ? [{ label: "Community Type", value: draft.communityType.charAt(0).toUpperCase() + draft.communityType.slice(1), icon: "🏘️" }] : []),
-                      ...(draft.latitude && draft.longitude ? [{ label: "Coordinates", value: `${draft.latitude.toFixed(4)}, ${draft.longitude.toFixed(4)}`, icon: "🗺️" }] : []),
+                      { label: "Type", value: draft.type || "—" },
+                      { label: "Title", value: draft.title || "—" },
+                      { label: "Category", value: draft.category || "—" },
+                      { label: "City", value: draft.city || "—" },
+                      { label: "Date", value: draft.date ? new Date(draft.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "—" },
+                      ...(draft.venue ? [{ label: "Venue", value: draft.venue }] : []),
+                      ...(draft.community ? [{ label: "Community", value: draft.community }] : []),
+                      ...(draft.communityType ? [{ label: "Community Type", value: draft.communityType.charAt(0).toUpperCase() + draft.communityType.slice(1) }] : []),
+                      ...(draft.latitude && draft.longitude ? [{ label: "Coordinates", value: `${draft.latitude.toFixed(4)}, ${draft.longitude.toFixed(4)}` }] : []),
                     ].map((item) => (
                       <div key={item.label} className="flex items-center justify-between border-b border-neutral-100 pb-3 last:border-0 last:pb-0">
-                        <div className="flex items-center gap-2">
-                          <span>{item.icon}</span>
-                          <span className="text-sm text-neutral-600">{item.label}</span>
-                        </div>
+                        <span className="text-sm text-neutral-500">{item.label}</span>
                         <span className="text-sm font-medium text-neutral-900">{item.value}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="rounded-2xl border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-white p-6">
-                  <h3 className="mb-4 font-semibold text-primary-900">Tickets & Revenue</h3>
+                <div className="rounded-2xl border border-lime-200 bg-lime/5 p-6">
+                  <h3 className="mb-4 font-semibold text-neutral-900">Tickets & Revenue</h3>
                   <div className="space-y-3">
                     {draft.ticketSetup?.generalPrice !== undefined && (
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-primary-700">General Admission</span>
-                        <span className="text-sm font-medium text-primary-900">
+                        <span className="text-sm text-neutral-500">General Admission</span>
+                        <span className="text-sm font-medium text-neutral-900">
                           ${draft.ticketSetup.generalPrice} × {draft.ticketSetup.generalQty || 0} = ${(draft.ticketSetup.generalPrice * (draft.ticketSetup.generalQty || 0)).toLocaleString()}
                         </span>
                       </div>
                     )}
                     {draft.ticketSetup?.vipPrice !== undefined && (
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-primary-700">VIP</span>
-                        <span className="text-sm font-medium text-primary-900">
+                        <span className="text-sm text-neutral-500">VIP</span>
+                        <span className="text-sm font-medium text-neutral-900">
                           ${draft.ticketSetup.vipPrice} × {draft.ticketSetup.vipQty || 0} = ${(draft.ticketSetup.vipPrice * (draft.ticketSetup.vipQty || 0)).toLocaleString()}
                         </span>
                       </div>
                     )}
-                    <div className="border-t border-primary-200 pt-3">
+                    <div className="border-t border-lime-200 pt-3">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-primary-900">Projected Revenue</span>
-                        <span className="text-xl font-bold text-primary-900 tabular-nums">
+                        <span className="font-semibold text-neutral-900">Projected Revenue</span>
+                        <span className="text-xl font-bold text-neutral-900 tabular-nums">
                           ${((draft.ticketSetup?.generalPrice || 0) * (draft.ticketSetup?.generalQty || 0) + 
                              (draft.ticketSetup?.vipPrice || 0) * (draft.ticketSetup?.vipQty || 0)).toLocaleString()}
                         </span>
@@ -1108,52 +1101,52 @@ export default function CreateEventPage() {
                 </div>
 
                 {(draft.type === "Virtual" || draft.type === "Hybrid") && draft.virtual?.url && (
-                  <div className="rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6">
-                    <h3 className="mb-4 font-semibold text-blue-900">Virtual Access</h3>
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
+                    <h3 className="mb-4 font-semibold text-neutral-900">Virtual Access</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-blue-700">Provider</span>
-                        <span className="font-medium text-blue-900">{draft.virtual.provider || "—"}</span>
+                        <span className="text-neutral-500">Provider</span>
+                        <span className="font-medium text-neutral-900">{draft.virtual.provider || "—"}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-blue-700">Access</span>
-                        <span className="font-medium text-blue-900">{draft.virtual.accessControl === "public" ? "Public" : "Ticket Holders Only"}</span>
+                        <span className="text-neutral-500">Access</span>
+                        <span className="font-medium text-neutral-900">{draft.virtual.accessControl === "public" ? "Public" : "Ticket Holders Only"}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-blue-700">Replay</span>
-                        <span className="font-medium text-blue-900">{draft.virtual.enableReplay ? "Enabled" : "Disabled"}</span>
+                        <span className="text-neutral-500">Replay</span>
+                        <span className="font-medium text-neutral-900">{draft.virtual.enableReplay ? "Enabled" : "Disabled"}</span>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {draft.merch?.enabled && draft.merch.products && draft.merch.products.length > 0 && (
-                  <div className="rounded-2xl border-2 border-success-200 bg-gradient-to-br from-success-50 to-white p-6">
-                    <h3 className="mb-4 font-semibold text-success-900">Merchandise</h3>
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
+                    <h3 className="mb-4 font-semibold text-neutral-900">Merchandise</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-success-700">Products</span>
-                        <span className="font-medium text-success-900">{draft.merch.products.length} items</span>
+                        <span className="text-neutral-500">Products</span>
+                        <span className="font-medium text-neutral-900">{draft.merch.products.length} items</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-success-700">Post-Event Sales</span>
-                        <span className="font-medium text-success-900">{draft.merch.postEventSales ? "Enabled" : "Disabled"}</span>
+                        <span className="text-neutral-500">Post-Event Sales</span>
+                        <span className="font-medium text-neutral-900">{draft.merch.postEventSales ? "Enabled" : "Disabled"}</span>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="rounded-xl border border-warning-200 bg-warning-50 p-4">
+              <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-warning-100">
-                    <svg className="h-4 w-4 text-warning-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lime/20">
+                    <svg className="h-4 w-4 text-lime-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-warning-900">Ready to publish?</p>
-                    <p className="mt-1 text-xs text-warning-700">
+                    <p className="text-sm font-medium text-neutral-900">Ready to publish?</p>
+                    <p className="mt-1 text-xs text-neutral-500">
                       Once published, your event will be visible to attendees. You can still edit details later.
                     </p>
                   </div>
@@ -1162,12 +1155,12 @@ export default function CreateEventPage() {
             </div>
           )}
 
-          {/* Premium Navigation */}
-          <div className="mt-8 flex items-center justify-between border-t-2 border-neutral-100 pt-6">
+          {/* Navigation */}
+          <div className="mt-8 flex items-center justify-between border-t border-neutral-100 pt-6">
             <button
               onClick={prev}
               disabled={step === 0}
-              className="flex items-center gap-2 rounded-xl border-2 border-neutral-200 px-5 py-2.5 font-medium text-neutral-700 transition hover:border-neutral-300 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 py-2.5 font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -1179,7 +1172,7 @@ export default function CreateEventPage() {
               <button
                 onClick={next}
                 disabled={saving}
-                className="flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-2.5 font-semibold text-white shadow-lg shadow-primary-500/30 transition hover:bg-primary-700 disabled:opacity-60"
+                className="flex items-center gap-2 rounded-xl bg-lime px-6 py-2.5 font-semibold text-dark shadow-sm transition hover:bg-lime-hover disabled:opacity-60"
               >
                 {saving ? (
                   <>
@@ -1201,14 +1194,14 @@ export default function CreateEventPage() {
             ) : (
               <button
                 onClick={publish}
-                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-success-600 to-success-700 px-8 py-2.5 font-semibold text-white shadow-lg shadow-success-500/30 transition hover:from-success-700 hover:to-success-800"
+                className="flex items-center gap-2 rounded-xl bg-lime px-8 py-2.5 font-semibold text-dark shadow-sm transition hover:bg-lime-hover"
               >
                 <Icon name="rocket" size={20} />
                 Publish Event
               </button>
             )}
           </div>
-        </Card>
+        </div>
       </div>
     </ProtectedRoute>
   );

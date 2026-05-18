@@ -112,7 +112,7 @@ export function ABTestBuilder({ campaignId, onCreateTest }: ABTestBuilderProps) 
                   />
                   
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">
+                    <label className="block text-xs text-neutral-500 mb-1">
                       Traffic Allocation (%)
                     </label>
                     <Input

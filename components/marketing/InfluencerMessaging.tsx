@@ -158,7 +158,7 @@ export function InfluencerMessaging({
     return (
       <Card className="p-6">
         <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime"></div>
         </div>
       </Card>
     );
@@ -167,18 +167,18 @@ export function InfluencerMessaging({
   return (
     <Card className="flex flex-col h-[600px]">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-b border-neutral-200">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-lg font-semibold text-neutral-900">
               Messages
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-neutral-500">
               Chat with {currentUserRole === 'organizer' ? influencerName : organizerName}
             </p>
           </div>
           {unreadCount > 0 && (
-            <span className="px-2 py-1 text-xs font-medium text-white bg-primary-600 rounded-full">
+            <span className="px-2 py-1 text-xs font-medium text-dark bg-lime rounded-full">
               {unreadCount} new
             </span>
           )}
@@ -193,7 +193,7 @@ export function InfluencerMessaging({
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <Icon name="message-circle" className="w-16 h-16 text-gray-400 mb-3" />
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-neutral-500">
               No messages yet. Start the conversation!
             </p>
           </div>
@@ -208,8 +208,8 @@ export function InfluencerMessaging({
                 <div
                   className={`max-w-[70%] rounded-lg p-3 ${
                     isCurrentUser
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                      ? 'bg-lime text-dark'
+                      : 'bg-neutral-100 text-neutral-900'
                   }`}
                 >
                   {!isCurrentUser && (
@@ -230,8 +230,8 @@ export function InfluencerMessaging({
                           rel="noopener noreferrer"
                           className={`flex items-center gap-2 text-xs p-2 rounded ${
                             isCurrentUser
-                              ? 'bg-primary-700 hover:bg-primary-800'
-                              : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+                              ? 'bg-lime/80 hover:bg-lime'
+                              : 'bg-neutral-200 hover:bg-neutral-300'
                           }`}
                         >
                           <Icon name="paperclip" className="w-4 h-4" />
@@ -242,7 +242,7 @@ export function InfluencerMessaging({
                   )}
                   <p
                     className={`text-xs mt-1 ${
-                      isCurrentUser ? 'text-primary-100' : 'text-gray-500 dark:text-gray-400'
+                      isCurrentUser ? 'text-lime/80' : 'text-neutral-500'
                     }`}
                   >
                     {formatTimestamp(message.createdAt)}
@@ -259,7 +259,7 @@ export function InfluencerMessaging({
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <form onSubmit={handleSendMessage} className="p-4 border-t border-neutral-200">
         <div className="flex gap-2">
           <Input
             value={newMessage}
@@ -276,7 +276,7 @@ export function InfluencerMessaging({
             {sending ? <Icon name="loader" className="w-5 h-5 animate-spin" /> : <Icon name="send" className="w-5 h-5" />}
           </Button>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+        <p className="text-xs text-neutral-500 mt-2">
           Press Enter to send
         </p>
       </form>

@@ -10,43 +10,39 @@ export default function ContentMarketingPage() {
   const [showEditor, setShowEditor] = useState(false);
 
   useEffect(() => {
-    // Get user ID from cookies
     const cookies = document.cookie.split(";");
     const userIdCookie = cookies.find((c) => c.trim().startsWith("user_id="));
-    
     if (userIdCookie) {
-      const id = userIdCookie.split("=")[1];
-      setOrganizerId(id);
+      setOrganizerId(userIdCookie.split("=")[1]);
     }
   }, []);
 
   const handleDistribute = async (channels: string[]) => {
     try {
       // Handle content distribution logic here
-      // You could make an API call here to distribute the content
     } catch (error) {
       console.error('Failed to distribute content:', error);
     }
   };
 
   if (!organizerId) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center py-20"><div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" /></div>;
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Content Marketing</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <h1 className="text-2xl font-bold text-neutral-900">Content Marketing</h1>
+          <p className="text-neutral-500 mt-1">
             Create and distribute blog posts and content
           </p>
         </div>
         <button
           onClick={() => setShowEditor(!showEditor)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+          className="flex items-center gap-2 px-4 py-2.5 bg-lime text-dark font-semibold rounded-xl hover:bg-lime-hover transition-colors"
         >
-          <Icon name="plus" className="w-4 h-4" />
+          <Icon name="plus" size={16} />
           New Post
         </button>
       </div>
@@ -60,30 +56,30 @@ export default function ContentMarketingPage() {
       ) : (
         <div className="space-y-6">
           {/* Blog Posts List */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-4">
               Recent Posts
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                  className="flex items-center justify-between p-4 border border-neutral-200 rounded-xl hover:bg-neutral-50 cursor-pointer transition-colors"
                 >
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
+                    <h3 className="font-medium text-neutral-900">
                       Sample Blog Post Title {i}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-sm text-neutral-500 mt-1">
                       Published 2 days ago • 1.2K views
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 text-xs font-medium bg-success-100 text-success-700 rounded-full">
+                    <span className="px-3 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-lg">
                       Published
                     </span>
-                    <button className="p-2 text-gray-400 hover:text-gray-600">
-                      <Icon name="edit" className="w-4 h-4" />
+                    <button className="p-2 text-neutral-400 hover:text-neutral-600 transition-colors">
+                      <Icon name="edit" size={16} />
                     </button>
                   </div>
                 </div>

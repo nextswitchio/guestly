@@ -57,7 +57,7 @@ export default function AffiliatePerformance({ affiliateId }: AffiliatePerforman
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="w-6 h-6 animate-spin text-primary-500 text-xl"><RefreshCw className="h-4 w-4 inline-block" /></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" />
       </div>
     );
   }
@@ -65,8 +65,8 @@ export default function AffiliatePerformance({ affiliateId }: AffiliatePerforman
   if (!data) {
     return (
       <Card className="p-8 text-center">
-        <Icon name="bar-chart" className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-        <p className="text-gray-500">No performance data available</p>
+        <Icon name="bar-chart" className="w-12 h-12 mx-auto text-neutral-400 mb-2" />
+        <p className="text-neutral-500">No performance data available</p>
       </Card>
     );
   }
@@ -82,7 +82,7 @@ export default function AffiliatePerformance({ affiliateId }: AffiliatePerforman
       label: 'Conversions',
       value: data.totalConversions.toLocaleString(),
       icon: 'check-circle',
-      color: 'text-success-500',
+      color: 'text-green-600',
     },
     {
       label: 'Conversion Rate',
@@ -127,8 +127,8 @@ export default function AffiliatePerformance({ affiliateId }: AffiliatePerforman
               onClick={() => setTimeRange(option.value as typeof timeRange)}
               className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                 timeRange === option.value
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-lime text-dark'
+                  : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
               }`}
             >
               {option.label}
@@ -142,7 +142,7 @@ export default function AffiliatePerformance({ affiliateId }: AffiliatePerforman
         {metrics.map((metric) => (
           <Card key={metric.label} className="p-4">
             <div className="flex items-start justify-between mb-2">
-              <p className="text-xs text-gray-600 dark:text-gray-400">{metric.label}</p>
+              <p className="text-xs text-neutral-500">{metric.label}</p>
               <Icon name={metric.icon as any} className={`w-4 h-4 ${metric.color}`} />
             </div>
             <p className={`text-xl font-bold ${metric.color}`}>{metric.value}</p>
@@ -156,20 +156,20 @@ export default function AffiliatePerformance({ affiliateId }: AffiliatePerforman
         <div className="space-y-4">
           <div>
             <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-gray-600 dark:text-gray-400">Click-to-Conversion Rate</span>
+              <span className="text-neutral-500">Click-to-Conversion Rate</span>
               <span className="font-medium">{data.conversionRate.toFixed(2)}%</span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-neutral-200 rounded-full h-2">
               <div
-                className="bg-success-500 h-2 rounded-full"
+                className="bg-lime h-2 rounded-full"
                 style={{ width: `${Math.min(data.conversionRate, 100)}%` }}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-neutral-200">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              <p className="text-sm text-neutral-500 mb-1">
                 Earnings per Click
               </p>
               <p className="text-lg font-bold text-green-500">
@@ -177,7 +177,7 @@ export default function AffiliatePerformance({ affiliateId }: AffiliatePerforman
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              <p className="text-sm text-neutral-500 mb-1">
                 Earnings per Conversion
               </p>
               <p className="text-lg font-bold text-green-500">
@@ -196,15 +196,15 @@ export default function AffiliatePerformance({ affiliateId }: AffiliatePerforman
             {data.topEvents.slice(0, 5).map((event, index) => (
               <div
                 key={event.eventId}
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                className="flex items-center justify-between p-4 bg-neutral-50 rounded-2xl"
               >
                 <div className="flex items-center gap-3 flex-1">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 font-bold text-sm">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-lime/10 text-lime font-bold text-sm">
                     {index + 1}
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">{event.eventName || `Event #${event.eventId}`}</p>
-                    <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <div className="flex gap-4 text-sm text-neutral-500 mt-1">
                       <span>{event.clicks} clicks</span>
                       <span>{event.conversions} conversions</span>
                       <span>
@@ -215,7 +215,7 @@ export default function AffiliatePerformance({ affiliateId }: AffiliatePerforman
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-green-500">${event.earnings.toFixed(2)}</p>
-                  <p className="text-xs text-gray-500">earned</p>
+                  <p className="text-xs text-neutral-500">earned</p>
                 </div>
               </div>
             ))}
@@ -224,34 +224,34 @@ export default function AffiliatePerformance({ affiliateId }: AffiliatePerforman
       )}
 
       {/* Insights */}
-      <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+      <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50">
         <div className="flex gap-3">
           <Icon name="lightbulb" className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
           <div>
             <h4 className="font-semibold mb-2">Performance Insights</h4>
             <ul className="text-sm space-y-1">
               {data.conversionRate > 5 && (
-                <li className="text-success-600 dark:text-success-400">
+                <li className="text-green-600">
                  <Check className="h-4 w-4 inline" /> Excellent conversion rate - your promotional strategy is working well
                 </li>
               )}
               {data.totalConversions > 50 && (
-                <li className="text-success-600 dark:text-success-400">
+                <li className="text-green-600">
                  <Check className="h-4 w-4 inline" /> Strong performance with {data.totalConversions} conversions
                 </li>
               )}
               {data.averageOrderValue > 100 && (
-                <li className="text-success-600 dark:text-success-400">
+                <li className="text-green-600">
                  <Check className="h-4 w-4 inline" /> High average order value - attracting quality customers
                 </li>
               )}
               {data.conversionRate < 2 && data.totalClicks > 100 && (
-                <li className="text-warning-600 dark:text-warning-400">
-                  AlertTriangle Consider optimizing your promotional content to improve conversion rate
+                <li className="text-amber-600">
+                  <AlertTriangle className="h-4 w-4 inline" /> Consider optimizing your promotional content to improve conversion rate
                 </li>
               )}
               {data.totalClicks < 50 && (
-                <li className="text-blue-600 dark:text-blue-400">
+                <li className="text-blue-600">
                  <Lightbulb className="h-4 w-4 inline" /> Increase your promotional efforts to drive more traffic
                 </li>
               )}

@@ -55,10 +55,10 @@ export default function ViralLoopProgress({ eventId, userId }: ViralLoopProgress
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+      <div className="bg-white rounded-2xl p-6 shadow-sm">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div className="h-6 bg-neutral-200 rounded w-1/2"></div>
+          <div className="h-4 bg-neutral-200 rounded w-3/4"></div>
         </div>
       </div>
     );
@@ -74,29 +74,29 @@ export default function ViralLoopProgress({ eventId, userId }: ViralLoopProgress
     : 100;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+    <div className="bg-white rounded-2xl p-6 shadow-sm">
+      <h3 className="text-lg font-semibold text-neutral-900 mb-2">
         {viralLoop.name}
       </h3>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+      <p className="text-sm text-neutral-500 mb-6">
         {viralLoop.description}
       </p>
 
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span className="text-sm font-medium text-neutral-700">
             {viralLoop.currentReferrals} referrals
           </span>
           {nextMilestone && (
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-neutral-500">
               {nextMilestone.referrals - viralLoop.currentReferrals} more to unlock
             </span>
           )}
         </div>
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+        <div className="w-full bg-neutral-200 rounded-full h-3">
           <div
-            className="bg-primary-600 h-3 rounded-full transition-all duration-500"
+            className="bg-lime h-3 rounded-full transition-all duration-500"
             style={{ width: `${Math.min(progress, 100)}%` }}
           ></div>
         </div>
@@ -109,24 +109,24 @@ export default function ViralLoopProgress({ eventId, userId }: ViralLoopProgress
             key={index}
             className={`flex items-start gap-3 p-3 rounded-lg ${
               milestone.unlocked
-                ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
-                : 'bg-gray-50 dark:bg-gray-700/50'
+                ? 'bg-green-100 border border-green-200'
+                : 'bg-neutral-50'
             }`}
           >
             <div
               className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
                 milestone.unlocked
                   ? 'bg-green-500 text-white'
-                  : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400'
+                  : 'bg-neutral-200 text-neutral-500'
               }`}
             >
               {milestone.unlocked ? '<CheckCircle className="h-4 w-4 inline-block" />' : index + 1}
             </div>
             <div className="flex-1">
-              <div className="text-sm font-medium text-gray-900 dark:text-white">
+              <div className="text-sm font-medium text-neutral-900">
                 {milestone.referrals} referrals
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="text-sm text-neutral-500">
                 {milestone.reward}
               </div>
             </div>

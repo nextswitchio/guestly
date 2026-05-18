@@ -127,11 +127,11 @@ export default function GroupNotificationBell({ groupWalletId }: GroupNotificati
       {/* Bell Button */}
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 rounded-lg hover:bg-[var(--surface-hover)] transition-colors"
+        className="relative p-2 rounded-lg hover:bg-neutral-50 transition-colors"
         aria-label="Notifications"
       >
         <svg
-          className="w-6 h-6 text-[var(--foreground)]"
+          className="w-6 h-6 text-neutral-900"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -146,7 +146,7 @@ export default function GroupNotificationBell({ groupWalletId }: GroupNotificati
         
         {/* Unread Badge */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-[var(--color-danger-500)] text-white text-xs font-bold rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -154,13 +154,13 @@ export default function GroupNotificationBell({ groupWalletId }: GroupNotificati
 
       {/* Dropdown */}
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-96 bg-[var(--surface-card)] rounded-xl shadow-2xl border border-[var(--surface-border)] z-50 max-h-[600px] flex flex-col">
+        <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-neutral-200 z-50 max-h-[600px] flex flex-col">
           {/* Header */}
-          <div className="p-4 border-b border-[var(--surface-border)] flex items-center justify-between">
-            <h3 className="font-semibold text-[var(--foreground)]">
+          <div className="p-4 border-b border-neutral-200 flex items-center justify-between">
+            <h3 className="font-semibold text-neutral-900">
               Notifications
               {unreadCount > 0 && (
-                <span className="ml-2 text-sm text-[var(--foreground-muted)]">
+                <span className="ml-2 text-sm text-neutral-500">
                   ({unreadCount} unread)
                 </span>
               )}
@@ -169,7 +169,7 @@ export default function GroupNotificationBell({ groupWalletId }: GroupNotificati
               <button
                 onClick={markAllAsRead}
                 disabled={loading}
-                className="text-sm text-[var(--color-primary-500)] hover:text-[var(--color-primary-600)] font-medium disabled:opacity-50"
+                className="text-sm text-lime hover:text-lime-hover font-medium disabled:opacity-50"
               >
                 Mark all read
               </button>
@@ -181,17 +181,17 @@ export default function GroupNotificationBell({ groupWalletId }: GroupNotificati
             {notifications.length === 0 ? (
               <div className="p-8 text-center">
                 <Icon name="bell" size={48} className="text-neutral-400 mx-auto mb-2" />
-                <p className="text-[var(--foreground-muted)] text-sm">
+                <p className="text-neutral-500 text-sm">
                   No notifications yet
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-[var(--surface-border)]">
+              <div className="divide-y divide-neutral-200">
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 hover:bg-[var(--surface-hover)] transition-colors cursor-pointer ${
-                      !notification.read ? "bg-[var(--color-primary-50)] dark:bg-[var(--color-primary-900)]/10" : ""
+                    className={`p-4 hover:bg-neutral-50 transition-colors cursor-pointer ${
+                      !notification.read ? "bg-lime/5" : ""
                     }`}
                     onClick={() => {
                       if (!notification.read) {
@@ -202,12 +202,12 @@ export default function GroupNotificationBell({ groupWalletId }: GroupNotificati
                     <div className="flex items-start gap-3">
                       {/* Icon */}
                       <div className="flex-shrink-0">
-                        <Icon name={getNotificationIcon(notification.type) as any} size={24} className="text-primary-600" />
+                        <Icon name={getNotificationIcon(notification.type) as any} size={24} className="text-lime" />
                       </div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-[var(--foreground)] leading-relaxed">
+                        <p className="text-sm text-neutral-900 leading-relaxed">
                           {notification.message}
                         </p>
                         
@@ -215,12 +215,12 @@ export default function GroupNotificationBell({ groupWalletId }: GroupNotificati
                         {notification.metadata && (
                           <div className="mt-2 flex flex-wrap gap-2">
                             {notification.metadata.progress !== undefined && (
-                              <span className="text-xs px-2 py-1 bg-[var(--surface-bg)] rounded-full text-[var(--foreground-muted)]">
+                                <span className="text-xs px-2 py-1 bg-neutral-50 rounded-full text-neutral-500">
                                 {notification.metadata.progress}% complete
                               </span>
                             )}
                             {notification.metadata.amount !== undefined && (
-                              <span className="text-xs px-2 py-1 bg-[var(--color-success-100)] text-[var(--color-success-700)] rounded-full font-medium">
+                                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">
                                 ${notification.metadata.amount.toFixed(2)}
                               </span>
                             )}
@@ -228,14 +228,14 @@ export default function GroupNotificationBell({ groupWalletId }: GroupNotificati
                         )}
 
                         {/* Timestamp */}
-                        <p className="text-xs text-[var(--foreground-muted)] mt-2">
+                        <p className="text-xs text-neutral-500 mt-2">
                           {getRelativeTime(notification.createdAt)}
                         </p>
                       </div>
 
                       {/* Unread Indicator */}
                       {!notification.read && (
-                        <div className="w-2 h-2 bg-[var(--color-primary-500)] rounded-full flex-shrink-0 mt-1"></div>
+                        <div className="w-2 h-2 bg-lime rounded-full flex-shrink-0 mt-1"></div>
                       )}
                     </div>
                   </div>

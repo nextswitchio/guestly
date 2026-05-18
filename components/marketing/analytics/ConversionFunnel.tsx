@@ -17,34 +17,36 @@ interface Props {
 }
 
 export default function ConversionFunnel({ stages, title = 'Conversion Funnel', showInsights = true }: Props) {
+  const safeStages = stages ?? [];
+
   const maxUsers = useMemo(() => {
-    return Math.max(...stages.map(s => s.users), 1);
-  }, [stages]);
+    return Math.max(...safeStages.map(s => s.users), 1);
+  }, [safeStages]);
 
   const overallConversionRate = useMemo(() => {
-    if (stages.length < 2) return 0;
-    const firstStage = stages[0].users;
-    const lastStage = stages[stages.length - 1].users;
+    if (safeStages.length < 2) return 0;
+    const firstStage = safeStages[0].users;
+    const lastStage = safeStages[safeStages.length - 1].users;
     if (firstStage === 0) return 0;
     return (lastStage / firstStage) * 100;
-  }, [stages]);
+  }, [safeStages]);
 
   const biggestDropoff = useMemo(() => {
-    if (stages.length < 2) return null;
+    if (safeStages.length < 2) return null;
     let maxDropoff = 0;
     let maxDropoffStage = '';
     
-    for (let i = 1; i < stages.length; i++) {
-      if (stages[i].dropoffRate > maxDropoff) {
-        maxDropoff = stages[i].dropoffRate;
-        maxDropoffStage = `${stages[i - 1].stage}<ArrowRight className="h-4 w-4 inline" /> ${stages[i].stage}`;
+    for (let i = 1; i < safeStages.length; i++) {
+      if (safeStages[i].dropoffRate > maxDropoff) {
+        maxDropoff = safeStages[i].dropoffRate;
+        maxDropoffStage = `${safeStages[i - 1].stage}<ArrowRight className="h-4 w-4 inline" /> ${safeStages[i].stage}`;
       }
     }
     
     return { rate: maxDropoff, stage: maxDropoffStage };
-  }, [stages]);
+  }, [safeStages]);
 
-  if (stages.length === 0) {
+  if (safeStages.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
         No funnel data available
@@ -65,9 +67,9 @@ export default function ConversionFunnel({ stages, title = 'Conversion Funnel', 
 
       {/* Funnel stages */}
       <div className="space-y-1">
-        {stages.map((stage, index) => {
+        {safeStages.map((stage, index) => {
           const widthPercent = (stage.users / maxUsers) * 100;
-          const prevUsers = index > 0 ? stages[index - 1].users : stage.users;
+          const prevUsers = index > 0 ? safeStages[index - 1].users : stage.users;
           const stageConversionRate = prevUsers > 0 ? (stage.users / prevUsers) * 100 : 100;
 
           return (
@@ -79,7 +81,7 @@ export default function ConversionFunnel({ stages, title = 'Conversion Funnel', 
                     className={`h-full transition-all duration-500 flex items-center justify-between px-4 ${
                       index === 0
                         ? 'bg-gradient-to-r from-blue-500 to-blue-600'
-                        : index === stages.length - 1
+                        : index === safeStages.length - 1
                         ? 'bg-gradient-to-r from-green-500 to-green-600'
                         : 'bg-gradient-to-r from-purple-500 to-purple-600'
                     }`}
@@ -112,7 +114,7 @@ export default function ConversionFunnel({ stages, title = 'Conversion Funnel', 
               </div>
 
               {/* Drop-off indicator */}
-              {index < stages.length - 1 && stage.dropoffRate > 0 && (
+              {index < safeStages.length - 1 && stage.dropoffRate > 0 && (
                 <div className="flex items-center gap-2 py-1 px-2">
                   <Icon name="arrow-down" className="w-3 h-3 text-gray-400" />
                   <span className="text-xs text-gray-500">

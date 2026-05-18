@@ -112,7 +112,7 @@ export default function CampaignCalendar({ campaigns, onUpdate }: CampaignCalend
         {dayNames.map((day) => (
           <div
             key={day}
-            className="text-center text-sm font-semibold text-gray-600 dark:text-gray-400 py-2"
+            className="text-center text-sm font-semibold text-neutral-500 py-2"
           >
             {day}
           </div>
@@ -131,11 +131,11 @@ export default function CampaignCalendar({ campaigns, onUpdate }: CampaignCalend
           return (
             <div
               key={day}
-              className={`aspect-square border rounded-lg p-2 ${
+              className={`aspect-square border rounded-2xl p-2 ${
                 isToday(day)
-                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                  : 'border-gray-200 dark:border-gray-700'
-              } ${hasEvents ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800' : ''}`}
+                  ? 'border-lime bg-lime/10'
+                  : 'border-neutral-200'
+              } ${hasEvents ? 'cursor-pointer hover:bg-neutral-50' : ''}`}
             >
               <div className="text-sm font-medium mb-1">{day}</div>
               {hasEvents && (
@@ -143,14 +143,14 @@ export default function CampaignCalendar({ campaigns, onUpdate }: CampaignCalend
                   {dayCampaigns.slice(0, 2).map((campaign) => (
                     <div
                       key={campaign.id}
-                      className="text-xs px-1 py-0.5 rounded bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 truncate"
+                      className="text-xs px-1 py-0.5 rounded bg-lime/10 text-lime truncate"
                       title={campaign.name}
                     >
                       {campaign.name}
                     </div>
                   ))}
                   {dayCampaigns.length > 2 && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-neutral-500">
                       +{dayCampaigns.length - 2} more
                     </div>
                   )}
@@ -162,15 +162,15 @@ export default function CampaignCalendar({ campaigns, onUpdate }: CampaignCalend
       </div>
 
       {/* Legend */}
-      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <div className="mt-6 pt-6 border-t border-neutral-200">
         <div className="flex items-center gap-6 text-sm">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-primary-100 dark:bg-primary-900/40" />
-            <span className="text-gray-600 dark:text-gray-400">Scheduled Campaign</span>
+            <div className="w-4 h-4 rounded bg-lime/10" />
+            <span className="text-neutral-500">Scheduled Campaign</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded border-2 border-primary-500" />
-            <span className="text-gray-600 dark:text-gray-400">Today</span>
+            <div className="w-4 h-4 rounded border-2 border-lime" />
+            <span className="text-neutral-500">Today</span>
           </div>
         </div>
       </div>

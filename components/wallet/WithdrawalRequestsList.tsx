@@ -12,10 +12,10 @@ interface WithdrawalRequestsListProps {
 }
 
 const statusColors = {
-  pending: "bg-warning-100 text-warning-700",
-  processing: "bg-primary-100 text-primary-700",
-  completed: "bg-success-100 text-success-700",
-  failed: "bg-danger-100 text-danger-700",
+  pending: "bg-amber-100 text-amber-700",
+  processing: "bg-lime/10 text-lime",
+  completed: "bg-green-100 text-green-700",
+  failed: "bg-red-100 text-red-700",
   cancelled: "bg-neutral-100 text-neutral-700",
 };
 
@@ -76,7 +76,7 @@ export default function WithdrawalRequestsList({
         </h2>
         <button
           onClick={onRefresh}
-          className="text-xs font-medium text-primary-600 hover:underline"
+          className="text-xs font-medium text-lime hover:underline"
         >
           Refresh
         </button>
@@ -131,7 +131,7 @@ export default function WithdrawalRequestsList({
                 )}
 
                 {request.adminNotes && (
-                  <div className="mt-2 rounded-lg bg-primary-50 p-2 text-xs text-primary-700">
+                  <div className="mt-2 rounded-lg bg-lime/10 p-2 text-xs text-lime">
                     <span className="font-medium">Admin:</span>{" "}
                     {request.adminNotes}
                   </div>
@@ -158,20 +158,20 @@ export default function WithdrawalRequestsList({
             </div>
 
             {request.status === "processing" && (
-              <div className="rounded-lg bg-primary-50 p-2 text-xs text-primary-700">
+              <div className="rounded-lg bg-lime/10 p-2 text-xs text-lime">
                <Timer className="h-4 w-4 inline" /> Your withdrawal is being processed. This typically takes 1-3
                 business days.
               </div>
             )}
 
             {request.status === "completed" && request.completedAt && (
-              <div className="rounded-lg bg-success-50 p-2 text-xs text-success-700">
+              <div className="rounded-lg bg-green-50 p-2 text-xs text-green-700">
                <Check className="h-4 w-4 inline" /> Completed on {formatDate(request.completedAt)}
               </div>
             )}
 
             {request.status === "failed" && (
-              <div className="rounded-lg bg-danger-50 p-2 text-xs text-danger-700">
+              <div className="rounded-lg bg-red-50 p-2 text-xs text-red-700">
                <X className="h-4 w-4 inline" /> Withdrawal failed. Funds have been returned to your balance.
               </div>
             )}

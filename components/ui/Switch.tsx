@@ -42,9 +42,9 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(function Switch(
         disabled={disabled}
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
-        className={`relative inline-flex h-11 w-20 items-center rounded-full transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:ring-offset-2 ${
+        className={`relative inline-flex h-11 w-20 items-center rounded-full transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/40 focus-visible:ring-offset-2 ${
           checked
-            ? "bg-primary-500 hover:bg-primary-600"
+            ? "bg-lime hover:bg-lime-hover"
             : "bg-neutral-300 hover:bg-neutral-400"
         } ${
           disabled
@@ -62,7 +62,7 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(function Switch(
         <label
           id={labelId}
           htmlFor={switchId}
-          className={`text-sm font-medium text-[var(--foreground)] select-none ${
+          className={`text-sm font-medium text-neutral-900 select-none ${
             disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
           }`}
           onClick={!disabled ? handleToggle : undefined}

@@ -259,9 +259,9 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(function Slider(
     <div ref={ref} className={`w-full ${className}`}>
       {label && (
         <div className="flex items-center justify-between mb-3">
-          <label className="text-sm font-medium text-foreground">{label}</label>
+          <label className="text-sm font-medium text-neutral-900">{label}</label>
           {showValue && (
-            <span className="text-sm font-medium text-foreground-muted">
+            <span className="text-sm font-medium text-neutral-500">
               {mode === "range"
                 ? `${formatValue(startValue)} - ${formatValue(endValue)}`
                 : formatValue(endValue)}
@@ -274,14 +274,14 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(function Slider(
         {/* Track */}
         <div
           ref={trackRef}
-          className={`relative h-2 bg-surface-hover rounded-full ${
+            className={`relative h-2 bg-neutral-50 rounded-full ${
             disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={handleTrackClick}
         >
           {/* Active range */}
           <div
-            className="absolute h-full bg-primary-500 rounded-full transition-all duration-200 ease-out"
+            className="absolute h-full bg-lime rounded-full transition-all duration-200 ease-out"
             style={{
               left: `${startPercentage}%`,
               width: `${endPercentage - startPercentage}%`,
@@ -294,7 +294,7 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(function Slider(
               {stepMarkers.map((markerValue) => (
                 <div
                   key={markerValue}
-                  className="absolute top-1/2 -translate-y-1/2 w-1 h-1 bg-surface-border rounded-full"
+                  className="absolute top-1/2 -translate-y-1/2 w-1 h-1 bg-neutral-200 rounded-full"
                   style={{ left: `${getPercentage(markerValue)}%` }}
                 />
               ))}
@@ -304,13 +304,13 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(function Slider(
           {/* Start handle (for range mode) */}
           {mode === "range" && (
             <div
-              className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-primary-500 rounded-full shadow-md transition-all duration-200 ease-out ${
+              className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-lime rounded-full shadow-md transition-all duration-200 ease-out ${
                 disabled
                   ? "cursor-not-allowed"
                   : "cursor-grab active:cursor-grabbing hover:scale-110"
               } ${
-                isDragging === "start" ? "scale-110 shadow-lg ring-2 ring-primary-500/40" : ""
-              } focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:ring-offset-2`}
+                isDragging === "start" ? "scale-110 shadow-lg ring-2 ring-lime/20" : ""
+              } focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/20 focus-visible:ring-offset-2`}
               style={{ left: `${startPercentage}%` }}
               onMouseDown={handleMouseDown("start")}
               onTouchStart={handleTouchStart("start")}
@@ -326,13 +326,13 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(function Slider(
 
           {/* End handle */}
           <div
-            className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-primary-500 rounded-full shadow-md transition-all duration-200 ease-out ${
+            className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-lime rounded-full shadow-md transition-all duration-200 ease-out ${
               disabled
                 ? "cursor-not-allowed"
                 : "cursor-grab active:cursor-grabbing hover:scale-110"
             } ${
-              isDragging === "end" ? "scale-110 shadow-lg ring-2 ring-primary-500/40" : ""
-            } focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:ring-offset-2`}
+              isDragging === "end" ? "scale-110 shadow-lg ring-2 ring-lime/20" : ""
+            } focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/20 focus-visible:ring-offset-2`}
             style={{ left: `${endPercentage}%` }}
             onMouseDown={handleMouseDown("end")}
             onTouchStart={handleTouchStart("end")}
@@ -348,7 +348,7 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(function Slider(
 
         {/* Min/Max labels */}
         {showStepMarkers && (
-          <div className="flex justify-between mt-2 text-xs text-foreground-muted">
+          <div className="flex justify-between mt-2 text-xs text-neutral-500">
             <span>{formatValue(min)}</span>
             <span>{formatValue(max)}</span>
           </div>

@@ -7,7 +7,7 @@ interface LoaderProps {
 export default function Loader({ size = 24 }: LoaderProps) {
   return (
     <div
-      className="inline-block animate-spin rounded-full border-2 border-neutral-300 border-t-primary-600"
+      className="inline-block animate-spin rounded-full border-2 border-lime/20 border-t-lime"
       style={{ width: size, height: size }}
     />
   );

@@ -19,17 +19,17 @@ export default function CampaignCard({ campaign, onUpdate }: CampaignCardProps) 
   const getStatusColor = (status: Campaign['status']) => {
     switch (status) {
       case 'active':
-        return 'text-success-500 bg-success-50 dark:bg-success-900/20';
+        return 'text-green-700 bg-green-100';
       case 'scheduled':
-        return 'text-warning-500 bg-warning-50 dark:bg-warning-900/20';
+        return 'text-amber-700 bg-amber-100';
       case 'paused':
-        return 'text-gray-500 bg-gray-50 dark:bg-gray-900/20';
+        return 'text-neutral-500 bg-neutral-100';
       case 'completed':
-        return 'text-blue-500 bg-blue-50 dark:bg-blue-900/20';
+        return 'text-blue-700 bg-blue-100';
       case 'failed':
-        return 'text-danger-500 bg-danger-50 dark:bg-danger-900/20';
+        return 'text-red-700 bg-red-100';
       default:
-        return 'text-gray-500 bg-gray-50 dark:bg-gray-900/20';
+        return 'text-neutral-500 bg-neutral-100';
     }
   };
 
@@ -107,7 +107,7 @@ export default function CampaignCard({ campaign, onUpdate }: CampaignCardProps) 
               {campaign.status}
             </span>
           </div>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">{campaign.description}</p>
+          <p className="text-neutral-500 text-sm">{campaign.description}</p>
         </div>
         <div className="flex gap-2">
           {campaign.status === 'active' && (
@@ -138,26 +138,26 @@ export default function CampaignCard({ campaign, onUpdate }: CampaignCardProps) 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
         <div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Channels</p>
+          <p className="text-xs text-neutral-500">Channels</p>
           <p className="text-lg font-semibold">{campaign.channels.length}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Reach</p>
+          <p className="text-xs text-neutral-500">Reach</p>
           <p className="text-lg font-semibold">{campaign.metrics.reach.toLocaleString()}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Clicks</p>
+          <p className="text-xs text-neutral-500">Clicks</p>
           <p className="text-lg font-semibold">{campaign.metrics.clicks.toLocaleString()}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Conversions</p>
+          <p className="text-xs text-neutral-500">Conversions</p>
           <p className="text-lg font-semibold">{campaign.metrics.conversions.toLocaleString()}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">ROI</p>
+          <p className="text-xs text-neutral-500">ROI</p>
           <p
             className={`text-lg font-semibold ${
-              campaign.metrics.roi >= 0 ? 'text-success-500' : 'text-danger-500'
+              campaign.metrics.roi >= 0 ? 'text-green-500' : 'text-red-500'
             }`}
           >
             {campaign.metrics.roi.toFixed(1)}%
@@ -170,7 +170,7 @@ export default function CampaignCard({ campaign, onUpdate }: CampaignCardProps) 
         {campaign.channels.map((channel) => (
           <span
             key={channel.type}
-            className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-medium capitalize"
+            className="px-2 py-1 bg-neutral-100 rounded text-xs font-medium capitalize"
           >
             {channel.type}
           </span>
@@ -178,7 +178,7 @@ export default function CampaignCard({ campaign, onUpdate }: CampaignCardProps) 
       </div>
 
       {/* Dates */}
-      <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
+      <div className="flex gap-4 text-sm text-neutral-500">
         {campaign.scheduledAt && (
           <div className="flex items-center gap-1">
             <Icon name="clock" className="w-4 h-4" />
@@ -201,7 +201,7 @@ export default function CampaignCard({ campaign, onUpdate }: CampaignCardProps) 
 
       {/* Expanded Metrics */}
       {expanded && (
-        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="mt-6 pt-6 border-t border-neutral-200">
           <CampaignMetrics campaignId={campaign.id} />
         </div>
       )}

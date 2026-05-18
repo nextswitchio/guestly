@@ -3,8 +3,6 @@ import { Bell, Camera, Mail, MessageCircle, Pause, Play, RefreshCw, Smartphone, 
 
 import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import CampaignMetrics from '@/components/marketing/CampaignMetrics';
 import type { Campaign } from '@/lib/marketing';
@@ -57,8 +55,8 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <span className="text-4xl animate-spin"><RefreshCw className="h-4 w-4 inline-block" /></span>
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" />
       </div>
     );
   }
@@ -66,133 +64,138 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
   if (!campaign) {
     return (
       <div className="max-w-2xl mx-auto mt-12">
-        <Card className="p-12 text-center">
-          <span className="text-6xl mb-4 block"><XCircle className="h-4 w-4 inline-block" /></span>
-          <h2 className="text-2xl font-bold mb-2">Campaign Not Found</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-12 text-center">
+          <div className="flex h-16 w-16 mx-auto mb-4 items-center justify-center rounded-full bg-red-100">
+            <XCircle className="h-8 w-8 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-neutral-900 mb-2">Campaign Not Found</h2>
+          <p className="text-neutral-500 mb-4">
             The campaign you're looking for doesn't exist.
           </p>
-          <Button onClick={() => router.push('/dashboard/marketing')}>
+          <button
+            onClick={() => router.push('/dashboard/marketing')}
+            className="rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors"
+          >
             Back to Marketing
-          </Button>
-        </Card>
+          </button>
+        </div>
       </div>
     );
   }
 
+  const statusStyles: Record<string, string> = {
+    active: 'bg-green-100 text-green-700',
+    paused: 'bg-amber-100 text-amber-700',
+    completed: 'bg-neutral-100 text-neutral-700',
+    draft: 'bg-blue-100 text-blue-700',
+  };
+
+  const channelIcons: Record<string, React.ReactNode> = {
+    email: <Mail className="w-4 h-4" />,
+    sms: <MessageCircle className="w-4 h-4" />,
+    whatsapp: <Smartphone className="w-4 h-4" />,
+    push: <Bell className="w-4 h-4" />,
+    facebook: <Users className="w-4 h-4" />,
+    twitter: <span className="text-sm font-bold">𝕏</span>,
+    instagram: <Camera className="w-4 h-4" />,
+  };
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6 p-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
+          <button
             onClick={() => router.back()}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
           >
-            <Icon name="arrow-left" className="w-4 h-4" />
+            <Icon name="arrow-left" size={16} />
             Back
-          </Button>
+          </button>
           <div>
-            <h1 className="text-3xl font-bold">{campaign.name}</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {campaign.description}
-            </p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">{campaign.name}</h1>
+            <p className="text-neutral-500 mt-1">{campaign.description}</p>
           </div>
         </div>
 
         <div className="flex gap-2">
           {campaign.status === 'active' ? (
-            <Button variant="outline" onClick={handlePause}>
-              <span className="mr-2"><Pause className="h-4 w-4 inline-block" /></span>
+            <button
+              onClick={handlePause}
+              className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+            >
+              <Pause className="h-4 w-4" />
               Pause
-            </Button>
+            </button>
           ) : campaign.status === 'paused' ? (
-            <Button onClick={handleResume}>
-              <span className="mr-2"><Play className="h-4 w-4 inline-block" /></span>
+            <button
+              onClick={handleResume}
+              className="flex items-center gap-2 rounded-xl bg-lime px-4 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors"
+            >
+              <Play className="h-4 w-4" />
               Resume
-            </Button>
+            </button>
           ) : null}
-          <Button
-            variant="outline"
+          <button
             onClick={() => router.push(`/dashboard/marketing/campaigns/${id}/edit`)}
+            className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
           >
-            <Icon name="edit" className="w-4 h-4 mr-2" />
+            <Icon name="edit" size={16} />
             Edit
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Status Badge */}
-      <div>
-        <span
-          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-            campaign.status === 'active'
-              ? 'bg-success-100 text-success-700'
-              : campaign.status === 'paused'
-              ? 'bg-warning-100 text-warning-700'
-              : campaign.status === 'completed'
-              ? 'bg-gray-100 text-gray-700'
-              : 'bg-blue-100 text-blue-700'
-          }`}
-        >
-          {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
-        </span>
-      </div>
+      <span
+        className={`inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium ${
+          statusStyles[campaign.status] || 'bg-neutral-100 text-neutral-700'
+        }`}
+      >
+        {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
+      </span>
 
       {/* Metrics */}
       <CampaignMetrics campaignId={campaign.id} />
 
       {/* Campaign Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Campaign Information</h3>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm text-gray-600 dark:text-gray-400">Type</label>
-              <p className="font-medium capitalize">{campaign.type}</p>
-            </div>
-            <div>
-              <label className="text-sm text-gray-600 dark:text-gray-400">Budget</label>
-              <p className="font-medium">
-                {campaign.budget ? `₦${campaign.budget.toLocaleString()}` : 'Not set'}
-              </p>
-            </div>
-            <div>
-              <label className="text-sm text-gray-600 dark:text-gray-400">Spent</label>
-              <p className="font-medium">₦{campaign.spent.toLocaleString()}</p>
-            </div>
-            <div>
-              <label className="text-sm text-gray-600 dark:text-gray-400">Created</label>
-              <p className="font-medium">
-                {new Date(campaign.createdAt).toLocaleDateString()}
-              </p>
-            </div>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Campaign Information</h3>
+          <div className="space-y-4">
+            {[
+              { label: 'Type', value: campaign.type },
+              { label: 'Budget', value: campaign.budget ? `₦${campaign.budget.toLocaleString()}` : 'Not set' },
+              { label: 'Spent', value: `₦${campaign.spent.toLocaleString()}` },
+              { label: 'Created', value: new Date(campaign.createdAt).toLocaleDateString() },
+            ].map((item) => (
+              <div key={item.label}>
+                <label className="text-sm text-neutral-500">{item.label}</label>
+                <p className="font-medium text-neutral-900 capitalize">{item.value}</p>
+              </div>
+            ))}
           </div>
-        </Card>
+        </div>
 
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Active Channels</h3>
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Active Channels</h3>
           <div className="space-y-2">
             {campaign.channels.filter(c => c.enabled).map((channel, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded"
+                className="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl"
               >
-                <span className="text-xl">
-                  {channel.type === 'email' && 'Mail'}
-                  {channel.type === 'sms' && '💬'}
-                  {channel.type === 'whatsapp' && '📱'}
-                  {channel.type === 'push' && '🔔'}
-                  {channel.type === 'facebook' && '👥'}
-                  {channel.type === 'twitter' && '🐦'}
-                  {channel.type === 'instagram' && '📷'}
+                <span className="text-neutral-600">
+                  {channelIcons[channel.type] || channel.type}
                 </span>
-                <span className="font-medium capitalize">{channel.type}</span>
+                <span className="font-medium text-neutral-900 capitalize">{channel.type}</span>
               </div>
             ))}
+            {campaign.channels.filter(c => c.enabled).length === 0 && (
+              <p className="text-sm text-neutral-500">No active channels</p>
+            )}
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );

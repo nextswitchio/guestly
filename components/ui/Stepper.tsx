@@ -66,8 +66,8 @@ export default function Stepper({
                   <div
                     className={`w-0.5 flex-1 my-2 transition-colors duration-300 ${
                       status === "completed"
-                        ? "bg-primary-500"
-                        : "bg-surface-border"
+                        ? "bg-lime"
+                        : "bg-neutral-200"
                     }`}
                     style={{ minHeight: "32px" }}
                   />
@@ -122,8 +122,8 @@ export default function Stepper({
                 <div
                   className={`h-0.5 flex-1 mx-2 transition-colors duration-300 ${
                     status === "completed"
-                      ? "bg-primary-500"
-                      : "bg-surface-border"
+                      ? "bg-lime"
+                      : "bg-neutral-200"
                   }`}
                   style={{ maxWidth: "80px" }}
                 />
@@ -156,13 +156,13 @@ function StepIndicator({
     "flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ease-out";
 
   const statusClasses = {
-    completed: "bg-primary-500 text-white shadow-sm",
-    active: "bg-primary-500 text-white shadow-md ring-4 ring-primary-100",
-    upcoming: "bg-surface-card border-2 border-surface-border text-foreground-muted",
+    completed: "bg-lime text-white shadow-sm",
+    active: "bg-lime text-white shadow-md ring-4 ring-lime/20",
+    upcoming: "bg-white border-2 border-neutral-200 text-neutral-500",
   };
 
   const clickableClasses = isClickable
-    ? "cursor-pointer hover:scale-110 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:ring-offset-2"
+    ? "cursor-pointer hover:scale-110 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/20 focus-visible:ring-offset-2"
     : "";
 
   const classes = `${baseClasses} ${statusClasses[status]} ${clickableClasses}`;
@@ -235,13 +235,13 @@ function StepContent({
   compact = false,
 }: StepContentProps) {
   const statusClasses = {
-    completed: "text-foreground-muted",
-    active: "text-foreground font-semibold",
-    upcoming: "text-foreground-subtle",
+    completed: "text-neutral-500",
+    active: "text-neutral-900 font-semibold",
+    upcoming: "text-neutral-400",
   };
 
   const clickableClasses = isClickable
-    ? "cursor-pointer hover:text-foreground transition-colors duration-200"
+    ? "cursor-pointer hover:text-neutral-900 transition-colors duration-200"
     : "";
 
   const content = (
@@ -263,7 +263,7 @@ function StepContent({
     return (
       <button
         type="button"
-        className={`text-center ${compact ? "" : "text-left"} focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:rounded px-1 -mx-1`}
+        className={`text-center ${compact ? "" : "text-left"} focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/20 focus-visible:rounded px-1 -mx-1`}
         onClick={onClick}
       >
         {content}

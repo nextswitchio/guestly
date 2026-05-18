@@ -67,10 +67,10 @@ const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
           disabled={disabled}
           onClick={handleToggle}
           onKeyDown={handleKeyDown}
-          className={`relative flex items-center justify-center w-11 h-11 rounded border-2 transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40 focus-visible:ring-offset-2 ${
+          className={`relative flex items-center justify-center w-11 h-11 rounded border-2 transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-lime/20 focus-visible:ring-offset-2 ${
             isChecked || showIndeterminate
-              ? "border-primary-500 bg-primary-500"
-              : "border-neutral-300 bg-transparent hover:border-primary-400"
+              ? "border-lime bg-lime"
+              : "border-neutral-300 bg-transparent hover:border-lime"
           } ${
             disabled
               ? "opacity-50 cursor-not-allowed"
@@ -114,7 +114,7 @@ const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
               <label
                 id={labelId}
                 htmlFor={checkboxId}
-                className={`text-sm font-medium text-[var(--foreground)] select-none block ${
+                className={`text-sm font-medium text-neutral-900 select-none block ${
                   disabled ? "cursor-not-allowed" : "cursor-pointer"
                 }`}
                 onClick={!disabled ? handleToggle : undefined}
@@ -125,7 +125,7 @@ const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
             {description && (
               <p
                 id={descriptionId}
-                className="text-xs text-[var(--foreground-muted)] mt-1"
+                className="text-xs text-neutral-500 mt-1"
               >
                 {description}
               </p>
@@ -135,7 +135,7 @@ const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
         {error && (
           <p
             id={errorId}
-            className="text-sm text-danger-500 mt-2"
+            className="text-sm text-red-500 mt-2"
             role="alert"
           >
             {error}

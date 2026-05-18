@@ -120,7 +120,7 @@ export default function PromoCodeForm({
     <form onSubmit={handleSubmit} className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
       {/* Basic Information Section */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-neutral-700 uppercase tracking-wide">
           Basic Information
         </h3>
         
@@ -130,15 +130,15 @@ export default function PromoCodeForm({
             Event <span className="text-red-500">*</span>
           </label>
           {loadingEvents ? (
-            <div className="flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800">
+            <div className="flex items-center gap-2 px-3 py-2 border border-neutral-200 rounded-lg bg-neutral-50">
               <Icon name="loader" className="w-4 h-4 animate-spin" />
-              <span className="text-sm text-gray-500">Loading events...</span>
+              <span className="text-sm text-neutral-500">Loading events...</span>
             </div>
           ) : (
             <select
               value={formData.eventId}
               onChange={(e) => setFormData({ ...formData, eventId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white"
               required
               disabled={!!initialEventId}
             >
@@ -151,7 +151,7 @@ export default function PromoCodeForm({
             </select>
           )}
           {initialEventId && (
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-neutral-500 mt-1">
               Event is pre-selected and cannot be changed
             </p>
           )}
@@ -177,7 +177,7 @@ export default function PromoCodeForm({
                 <Icon name="refresh-cw" className="w-4 h-4" />
               </Button>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-neutral-500 mt-1">
               4-20 characters, letters and numbers only
             </p>
           </div>
@@ -195,7 +195,7 @@ export default function PromoCodeForm({
                     value: e.target.value === 'free' ? '0' : formData.value,
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm"
+                className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-sm"
                 required
               >
                 <option value="percentage">% Off</option>
@@ -210,8 +210,8 @@ export default function PromoCodeForm({
                 value={formData.value}
                 onChange={(e) => setFormData({ ...formData, value: e.target.value })}
                 placeholder={formData.type === 'percentage' ? '10' : '5.00'}
-                leftIcon={formData.type === 'fixed' ? <span className="text-gray-500">$</span> : undefined}
-                rightIcon={formData.type === 'percentage' ? <span className="text-gray-500">%</span> : undefined}
+                leftIcon={formData.type === 'fixed' ? <span className="text-neutral-500">$</span> : undefined}
+                rightIcon={formData.type === 'percentage' ? <span className="text-neutral-500">%</span> : undefined}
                 min="0"
                 max={formData.type === 'percentage' ? '100' : undefined}
                 step={formData.type === 'fixed' ? '0.01' : '1'}
@@ -233,8 +233,8 @@ export default function PromoCodeForm({
       </div>
 
       {/* Usage Limits Section */}
-      <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+      <div className="space-y-4 pt-4 border-t border-neutral-200">
+        <h3 className="text-sm font-semibold text-neutral-700 uppercase tracking-wide">
           Usage Limits
         </h3>
         
@@ -259,8 +259,8 @@ export default function PromoCodeForm({
       </div>
 
       {/* Date Range Section */}
-      <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+      <div className="space-y-4 pt-4 border-t border-neutral-200">
+        <h3 className="text-sm font-semibold text-neutral-700 uppercase tracking-wide">
           Validity Period
         </h3>
         
@@ -281,8 +281,8 @@ export default function PromoCodeForm({
       </div>
 
       {/* Advanced Options Section */}
-      <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+      <div className="space-y-4 pt-4 border-t border-neutral-200">
+        <h3 className="text-sm font-semibold text-neutral-700 uppercase tracking-wide">
           Advanced Options
         </h3>
         
@@ -317,14 +317,14 @@ export default function PromoCodeForm({
             type="checkbox"
             checked={formData.stackable}
             onChange={(e) => setFormData({ ...formData, stackable: e.target.checked })}
-            className="w-4 h-4 text-primary-500 rounded"
+            className="w-4 h-4 text-lime rounded"
           />
           <span className="text-sm">Allow stacking with other promo codes</span>
         </label>
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-900 pb-2">
+      <div className="flex gap-2 pt-4 border-t border-neutral-200 sticky bottom-0 bg-white pb-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
           Cancel
         </Button>

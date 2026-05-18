@@ -18,7 +18,7 @@ export function Select({
     <div className="flex flex-col gap-1">
       {label && <label className="text-sm text-neutral-700">{label}</label>}
       <select
-        className={`h-11 w-full rounded-md border bg-white px-3 text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 ${error ? "border-red-500 focus:ring-red-500" : "border-neutral-300"
+        className={`h-11 w-full rounded-md border bg-white px-3 text-neutral-900 focus:outline-none focus:ring-2 focus:ring-lime/20 focus:border-lime ${error ? "border-red-500 focus:ring-red-500" : "border-neutral-200"
           } ${className}`}
         {...props}
       >

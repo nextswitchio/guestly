@@ -136,10 +136,10 @@ export default function AdCampaignBuilder({
                   <button
                     key={obj.value}
                     onClick={() => setFormData({ ...formData, objective: obj.value as any })}
-                    className={`p-4 rounded-lg border-2 transition-all ${
+                    className={`p-4 rounded-2xl border-2 transition-all ${
                       formData.objective === obj.value
-                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                        ? 'border-lime bg-lime/10'
+                        : 'border-neutral-200 hover:border-neutral-300'
                     }`}
                   >
                     <Icon name={obj.icon as any} className="w-6 h-6 mx-auto mb-2" />
@@ -180,27 +180,27 @@ export default function AdCampaignBuilder({
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setFormData({ ...formData, budget: { ...formData.budget, type: 'daily' } })}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`p-4 rounded-2xl border-2 transition-all ${
                     formData.budget.type === 'daily'
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                      : 'border-gray-200 dark:border-gray-700'
+                      ? 'border-lime bg-lime/10'
+                      : 'border-neutral-200'
                   }`}
                 >
                   <Icon name="calendar" className="w-6 h-6 mx-auto mb-2" />
                   <div className="text-sm font-medium">Daily Budget</div>
-                  <div className="text-xs text-gray-500 mt-1">Spend per day</div>
+                  <div className="text-xs text-neutral-500 mt-1">Spend per day</div>
                 </button>
                 <button
                   onClick={() => setFormData({ ...formData, budget: { ...formData.budget, type: 'lifetime' } })}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`p-4 rounded-2xl border-2 transition-all ${
                     formData.budget.type === 'lifetime'
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                      : 'border-gray-200 dark:border-gray-700'
+                      ? 'border-lime bg-lime/10'
+                      : 'border-neutral-200'
                   }`}
                 >
                   <Icon name="trending-up" className="w-6 h-6 mx-auto mb-2" />
                   <div className="text-sm font-medium">Lifetime Budget</div>
-                  <div className="text-xs text-gray-500 mt-1">Total campaign spend</div>
+                  <div className="text-xs text-neutral-500 mt-1">Total campaign spend</div>
                 </button>
               </div>
             </div>
@@ -232,10 +232,10 @@ export default function AdCampaignBuilder({
             </div>
 
             {formData.budget.amount && (
-              <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+              <Card className="p-4 bg-blue-50 border-blue-200">
                 <div className="flex items-start gap-3">
-                  <Icon name="info" className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-                  <div className="text-sm text-blue-900 dark:text-blue-100">
+                  <Icon name="info" className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div className="text-sm text-blue-900">
                     <p className="font-medium mb-1">Estimated Results</p>
                     <p>
                       With a ${formData.budget.amount} {formData.budget.type} budget, you can expect:
@@ -257,31 +257,31 @@ export default function AdCampaignBuilder({
           <div className="space-y-4">
             <Card className="p-4">
               <h4 className="font-semibold mb-3">Campaign Summary</h4>
-              <dl className="space-y-2">
+                <dl className="space-y-2">
                 <div className="flex justify-between">
-                  <dt className="text-gray-600 dark:text-gray-400">Name:</dt>
+                  <dt className="text-neutral-500">Name:</dt>
                   <dd className="font-medium">{formData.name}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600 dark:text-gray-400">Platform:</dt>
+                  <dt className="text-neutral-500">Platform:</dt>
                   <dd className="font-medium capitalize">{formData.platform}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600 dark:text-gray-400">Objective:</dt>
+                  <dt className="text-neutral-500">Objective:</dt>
                   <dd className="font-medium capitalize">{formData.objective}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600 dark:text-gray-400">Budget:</dt>
+                  <dt className="text-neutral-500">Budget:</dt>
                   <dd className="font-medium">
                     ${formData.budget.amount} {formData.budget.type}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600 dark:text-gray-400">Locations:</dt>
+                  <dt className="text-neutral-500">Locations:</dt>
                   <dd className="font-medium">{formData.targeting.locations.length || 'All'}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600 dark:text-gray-400">Age Range:</dt>
+                  <dt className="text-neutral-500">Age Range:</dt>
                   <dd className="font-medium">
                     {formData.targeting.ageMin}-{formData.targeting.ageMax}
                   </dd>
@@ -291,16 +291,16 @@ export default function AdCampaignBuilder({
 
             <Card className="p-4">
               <h4 className="font-semibold mb-3">Ad Preview</h4>
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <div className="border border-neutral-200 rounded-2xl p-4">
                 {formData.creative.imageUrl && (
                   <img
                     src={formData.creative.imageUrl}
                     alt="Ad creative"
-                    className="w-full rounded-lg mb-3"
+                    className="w-full rounded-2xl mb-3"
                   />
                 )}
                 <h5 className="font-semibold mb-1">{formData.creative.headline}</h5>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                <p className="text-sm text-neutral-500 mb-3">
                   {formData.creative.description}
                 </p>
                 <Button size="sm">{formData.creative.callToAction}</Button>
@@ -341,8 +341,8 @@ export default function AdCampaignBuilder({
               <div
                 className={`flex items-center justify-center w-10 h-10 rounded-full ${
                   index <= currentStepIndex
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                    ? 'bg-lime text-dark'
+                    : 'bg-neutral-200 text-neutral-500'
                 }`}
               >
                 <Icon name={step.icon as any} className="w-5 h-5" />
@@ -350,7 +350,7 @@ export default function AdCampaignBuilder({
               <div className="ml-2 flex-1">
                 <p
                   className={`text-sm font-medium ${
-                    index <= currentStepIndex ? 'text-primary-500' : 'text-gray-500'
+                    index <= currentStepIndex ? 'text-lime' : 'text-neutral-500'
                   }`}
                 >
                   {step.label}
@@ -359,7 +359,7 @@ export default function AdCampaignBuilder({
               {index < steps.length - 1 && (
                 <div
                   className={`h-1 flex-1 mx-2 ${
-                    index < currentStepIndex ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                    index < currentStepIndex ? 'bg-lime' : 'bg-neutral-200'
                   }`}
                 />
               )}

@@ -91,28 +91,28 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
   };
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="bg-white rounded-2xl shadow">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Discover Influencers</h3>
+      <div className="p-6 border-b border-neutral-200">
+        <h3 className="text-lg font-semibold text-neutral-900 mb-4">Discover Influencers</h3>
 
         {/* Search Bar */}
         <div className="flex gap-2 mb-4">
           <div className="flex-1 relative">
-            <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search by name, username, or niche..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full pl-10 pr-4 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-lime/20 focus:border-lime"
               onKeyPress={e => e.key === 'Enter' && handleSearch()}
             />
           </div>
           <button
             onClick={handleSearch}
             disabled={loading}
-            className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-lime text-dark rounded-lg hover:bg-lime/80 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Searching...' : 'Search'}
           </button>
@@ -123,7 +123,7 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
           <select
             value={filters.platform}
             onChange={e => setFilters({ ...filters, platform: e.target.value })}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-lime/20 focus:border-lime"
           >
             <option value="all">All Platforms</option>
             <option value="instagram">Instagram</option>
@@ -137,7 +137,7 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
             value={filters.minFollowers}
             onChange={e => setFilters({ ...filters, minFollowers: e.target.value })}
             placeholder="Min followers"
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-lime/20 focus:border-lime"
           />
 
           <input
@@ -145,13 +145,13 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
             value={filters.maxFollowers}
             onChange={e => setFilters({ ...filters, maxFollowers: e.target.value })}
             placeholder="Max followers"
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-lime/20 focus:border-lime"
           />
 
           <select
             value={filters.niche}
             onChange={e => setFilters({ ...filters, niche: e.target.value })}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-lime/20 focus:border-lime"
           >
             <option value="all">All Niches</option>
             <option value="lifestyle">Lifestyle</option>
@@ -164,7 +164,7 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
           <select
             value={filters.location}
             onChange={e => setFilters({ ...filters, location: e.target.value })}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-lime/20 focus:border-lime"
           >
             <option value="all">All Locations</option>
             <option value="lagos">Lagos</option>
@@ -180,11 +180,11 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="animate-pulse flex gap-4 p-4 border border-gray-200 rounded-lg">
-                <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
+              <div key={i} className="animate-pulse flex gap-4 p-4 border border-neutral-200 rounded-lg">
+                <div className="w-16 h-16 bg-neutral-200 rounded-full"></div>
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-4 bg-neutral-200 rounded w-1/3"></div>
+                  <div className="h-3 bg-neutral-200 rounded w-1/2"></div>
                 </div>
               </div>
             ))}
@@ -194,16 +194,16 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
             {influencers.map(influencer => (
               <div
                 key={influencer.id}
-                className="flex items-start gap-4 p-4 border border-gray-200 rounded-lg hover:border-primary-300 transition-colors"
+                className="flex items-start gap-4 p-4 border border-neutral-200 rounded-lg hover:border-lime transition-colors"
               >
                 <div className="relative">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-16 h-16 bg-neutral-200 rounded-full overflow-hidden">
                     {influencer.avatar && (
                       <img src={influencer.avatar} alt={influencer.name} className="w-full h-full object-cover" />
                     )}
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center border-2 border-white">
-                    <Icon name={getPlatformIcon(influencer.platform) as any} className="w-3 h-3 text-gray-600" />
+                    <Icon name={getPlatformIcon(influencer.platform) as any} className="w-3 h-3 text-neutral-500" />
                   </div>
                 </div>
 
@@ -211,11 +211,11 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="text-base font-semibold text-gray-900">{influencer.name}</h4>
                     {influencer.verified && (
-                      <Icon name="check-circle" className="w-4 h-4 text-primary-500" />
+                      <Icon name="check-circle" className="w-4 h-4 text-lime" />
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">{influencer.username}</p>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                  <p className="text-sm text-neutral-500 mb-2">{influencer.username}</p>
+                  <div className="flex items-center gap-4 text-sm text-neutral-500 mb-2">
                     <span className="flex items-center gap-1">
                       <Icon name="users" className="w-4 h-4" />
                       {formatNumber(influencer.followers)} followers
@@ -231,7 +231,7 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {influencer.niche.map(tag => (
-                      <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                      <span key={tag} className="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded">
                         {tag}
                       </span>
                     ))}
@@ -240,14 +240,14 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
 
                 <div className="flex flex-col items-end gap-2">
                   <div className="text-right">
-                    <div className="text-sm font-semibold text-gray-900">
+                    <div className="text-sm font-semibold text-neutral-900">
                       {formatNumber(influencer.averageReach)}
                     </div>
-                    <div className="text-xs text-gray-500">avg. reach</div>
+                    <div className="text-xs text-neutral-500">avg. reach</div>
                   </div>
                   <button
                     onClick={() => onInvite(influencer.id)}
-                    className="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700"
+                    className="px-4 py-2 bg-lime text-dark text-sm rounded-lg hover:bg-lime/80"
                   >
                     Invite
                   </button>
@@ -257,9 +257,9 @@ export function InfluencerDiscovery({ organizerId, onInvite }: InfluencerDiscove
           </div>
         ) : (
           <div className="text-center py-12">
-            <Icon name="search" className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-500 mb-2">No influencers found</p>
-            <p className="text-sm text-gray-400">Try adjusting your search criteria</p>
+            <Icon name="search" className="w-16 h-16 mx-auto mb-4 text-neutral-300" />
+            <p className="text-neutral-500 mb-2">No influencers found</p>
+            <p className="text-sm text-neutral-400">Try adjusting your search criteria</p>
           </div>
         )}
       </div>

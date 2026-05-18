@@ -24,14 +24,14 @@ function Tabs({ tabs, defaultTabId }: TabsProps) {
             <button
               key={t.id}
               className={`relative px-4 py-3 text-sm font-medium transition min-h-[44px] flex items-center ${active === t.id
-                  ? "text-primary-700"
+                  ? "text-lime-hover"
                   : "text-neutral-500 hover:text-neutral-700"
                 }`}
               onClick={() => setActive(t.id)}
             >
               {t.label}
               {active === t.id && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-primary-600" />
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-lime" />
               )}
             </button>
           ))}

@@ -23,35 +23,35 @@ const platformConfig = {
     label: 'Facebook',
     icon: 'facebook' as const,
     color: 'text-blue-600',
-    bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+    bgColor: 'bg-blue-50',
     description: 'Connect your Facebook page to auto-post events',
   },
   instagram: {
     label: 'Instagram',
     icon: 'instagram' as const,
     color: 'text-pink-500',
-    bgColor: 'bg-pink-50 dark:bg-pink-900/20',
+    bgColor: 'bg-pink-50',
     description: 'Share events to Instagram feed and stories',
   },
   twitter: {
     label: 'Twitter / X',
     icon: 'twitter' as const,
     color: 'text-sky-500',
-    bgColor: 'bg-sky-50 dark:bg-sky-900/20',
+    bgColor: 'bg-sky-50',
     description: 'Tweet events to your followers',
   },
   linkedin: {
     label: 'LinkedIn',
     icon: 'linkedin' as const,
     color: 'text-blue-700',
-    bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+    bgColor: 'bg-blue-50',
     description: 'Post events to your LinkedIn company page',
   },
   tiktok: {
     label: 'TikTok',
     icon: 'video' as const,
-    color: 'text-gray-900 dark:text-white',
-    bgColor: 'bg-gray-50 dark:bg-gray-800',
+    color: 'text-neutral-900',
+    bgColor: 'bg-neutral-50',
     description: 'Share event videos on TikTok',
   },
 };
@@ -167,8 +167,8 @@ export function SocialMediaConnector({
   if (loading) {
     return (
       <Card className="p-8 text-center">
-        <Icon name="spinner" className="w-8 h-8 mx-auto animate-spin text-primary-500" />
-        <p className="mt-4 text-gray-600 dark:text-gray-400">Loading social accounts...</p>
+        <Icon name="spinner" className="w-8 h-8 mx-auto animate-spin text-lime" />
+        <p className="mt-4 text-neutral-500">Loading social accounts...</p>
       </Card>
     );
   }
@@ -178,7 +178,7 @@ export function SocialMediaConnector({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold">Social Media Accounts</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-neutral-500">
             Connect your social media accounts to auto-post events
           </p>
         </div>
@@ -205,18 +205,18 @@ export function SocialMediaConnector({
                   <div className="flex items-center justify-between mb-1">
                     <h4 className="font-semibold">{config.label}</h4>
                     {isConnected && (
-                      <span className="flex items-center gap-1 text-xs text-success-600 dark:text-success-400">
+                      <span className="flex items-center gap-1 text-xs text-green-600">
                         <Icon name="check-circle" className="w-4 h-4" />
                         Connected
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    <p className="text-sm text-neutral-500 mb-3">
                     {config.description}
                   </p>
                   
                   {isConnected && account?.accountName && (
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mb-3">
+                    <p className="text-xs text-neutral-500 mb-3">
                       <Icon name="user" className="w-3 h-3 inline mr-1" />
                       {account.accountName}
                     </p>
@@ -258,9 +258,9 @@ export function SocialMediaConnector({
       </div>
 
       {accounts.filter((a) => a.connected).length === 0 && (
-        <Card className="p-6 text-center bg-gray-50 dark:bg-gray-800/50">
-          <Icon name="alert-circle" className="w-16 h-16 mx-auto text-warning-500 mb-3" />
-          <p className="text-gray-600 dark:text-gray-400">
+        <Card className="p-6 text-center bg-neutral-50">
+          <Icon name="alert-circle" className="w-16 h-16 mx-auto text-amber-500 mb-3" />
+          <p className="text-neutral-500">
             No social accounts connected yet. Connect accounts to enable auto-posting.
           </p>
         </Card>

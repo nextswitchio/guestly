@@ -23,11 +23,11 @@ export default function MetricCard({
   loading = false 
 }: MetricCardProps) {
   const colors = {
-    blue: 'bg-primary-50 text-primary-600',
-    green: 'bg-success-50 text-success-600',
+    blue: 'bg-lime/10 text-lime',
+    green: 'bg-green-50 text-green-600',
     purple: 'bg-purple-50 text-purple-600',
     orange: 'bg-orange-50 text-orange-600',
-    red: 'bg-danger-50 text-danger-600',
+    red: 'bg-red-50 text-red-600',
   };
 
   const formatValue = (val: string | number): string => {
@@ -43,10 +43,10 @@ export default function MetricCard({
   };
 
   const getChangeColor = (changeValue?: number): string => {
-    if (changeValue === undefined) return 'text-[var(--foreground-muted)]';
-    if (changeValue > 0) return 'text-success-600';
-    if (changeValue < 0) return 'text-danger-600';
-    return 'text-[var(--foreground-muted)]';
+    if (changeValue === undefined) return 'text-neutral-500';
+    if (changeValue > 0) return 'text-green-600';
+    if (changeValue < 0) return 'text-red-600';
+    return 'text-neutral-500';
   };
 
   const getChangeIcon = (changeValue?: number): string => {
@@ -60,13 +60,13 @@ export default function MetricCard({
     return (
       <Card className="p-6 animate-pulse">
         <div className="flex items-center justify-between mb-4">
-          <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
-          <div className="w-8 h-4 bg-gray-200 rounded"></div>
+          <div className="w-12 h-12 bg-neutral-200 rounded-xl"></div>
+          <div className="w-8 h-4 bg-neutral-200 rounded"></div>
         </div>
         <div className="space-y-2">
-          <div className="w-20 h-4 bg-gray-200 rounded"></div>
-          <div className="w-24 h-8 bg-gray-200 rounded"></div>
-          <div className="w-16 h-3 bg-gray-200 rounded"></div>
+          <div className="w-20 h-4 bg-neutral-200 rounded"></div>
+          <div className="w-24 h-8 bg-neutral-200 rounded"></div>
+          <div className="w-16 h-3 bg-neutral-200 rounded"></div>
         </div>
       </Card>
     );
@@ -78,11 +78,11 @@ export default function MetricCard({
         <div className={`p-3 rounded-xl ${colors[variant]}`}>
           <Icon name={icon as any} size={24} />
         </div>
-        <span className="text-[10px] font-bold text-navy-400 uppercase tracking-wider">Live</span>
+        <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Live</span>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-[var(--foreground-muted)] mb-1">{title}</h3>
-        <p className="text-2xl font-bold text-[var(--foreground)] mb-2">{formatValue(value)}</p>
+        <h3 className="text-sm font-medium text-neutral-500 mb-1">{title}</h3>
+        <p className="text-2xl font-bold text-neutral-900 mb-2">{formatValue(value)}</p>
         {(change !== undefined || changeLabel) && (
           <p className={`text-xs font-medium flex items-center gap-1 ${getChangeColor(change)}`}>
             {change !== undefined && (

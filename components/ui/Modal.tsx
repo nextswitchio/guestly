@@ -117,10 +117,10 @@ function Modal({
     >
       {/* Backdrop with blur effect */}
       <div
-        className={`absolute inset-0 bg-navy-900/60 backdrop-blur-md ${
+        className={`absolute inset-0 bg-neutral-900/60 backdrop-blur-md ${
           prefersReducedMotion 
             ? "transition-none" 
-            : "transition-opacity duration-[var(--duration-normal)] ease-[var(--ease-spring-gentle)]"
+            : "transition-opacity duration-300"
         }`}
         onClick={handleOverlayClick}
         aria-hidden="true"
@@ -128,28 +128,28 @@ function Modal({
       {/* Panel with spring scale-in animation */}
       <div
         ref={panelRef}
-        className={`relative z-50 w-full ${sizeClass(size)} rounded-2xl bg-[var(--surface-card)] border border-[var(--surface-border)] shadow-2xl ${scaleInClass}`}
+        className={`relative z-50 w-full ${sizeClass(size)} rounded-2xl bg-white border border-neutral-200 shadow-2xl ${scaleInClass}`}
       >
         {/* Header */}
         {(title || (onClose && showCloseButton)) && (
-          <div className="flex items-start justify-between gap-4 border-b border-[var(--surface-border)] px-6 py-4">
+          <div className="flex items-start justify-between gap-4 border-b border-neutral-200 px-6 py-4">
             <div>
               {title && (
-                <h2 id={titleId} className="text-lg font-semibold text-[var(--foreground)]">
+                <h2 id={titleId} className="text-lg font-semibold text-neutral-900">
                   {title}
                 </h2>
               )}
               {description && (
-                <p className="mt-0.5 text-sm text-[var(--foreground-muted)]">{description}</p>
+                <p className="mt-0.5 text-sm text-neutral-500">{description}</p>
               )}
             </div>
             {onClose && showCloseButton && (
               <button
                 onClick={onClose}
-                className={`shrink-0 rounded-xl p-1.5 text-[var(--foreground-muted)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 spring-tap ${
+                className={`shrink-0 rounded-xl p-1.5 text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-lime focus:ring-offset-2 spring-tap ${
                   prefersReducedMotion 
                     ? "transition-none" 
-                    : "transition-all duration-[var(--duration-fast)] ease-[var(--ease-spring)]"
+                    : "transition-all duration-200"
                 }`}
                 aria-label="Close modal"
               >
@@ -164,7 +164,7 @@ function Modal({
         <div className="px-6 py-5">{children}</div>
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 border-t border-[var(--surface-border)] px-6 py-4">
+          <div className="flex items-center justify-end gap-3 border-t border-neutral-200 px-6 py-4">
             {footer}
           </div>
         )}

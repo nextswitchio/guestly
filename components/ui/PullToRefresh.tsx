@@ -35,7 +35,7 @@ export function PullToRefresh({
     <div className={`relative ${className}`}>
       {/* Pull indicator */}
       <div
-        className={`absolute top-0 left-0 right-0 z-10 flex items-center justify-center bg-[var(--surface-card)] border-b border-[var(--surface-border)] transition-all duration-300 ease-out ${
+        className={`absolute top-0 left-0 right-0 z-10 flex items-center justify-center bg-white border-b border-neutral-200 transition-all duration-300 ease-out ${
           state.isPulling || state.isRefreshing
             ? 'opacity-100 pointer-events-auto'
             : 'opacity-0 pointer-events-none'
@@ -49,10 +49,10 @@ export function PullToRefresh({
           {/* Loading spinner or arrow icon */}
           <div className="relative">
             {state.isRefreshing ? (
-              <div className="w-5 h-5 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600" />
+              <div className="w-5 h-5 animate-spin rounded-full border-2 border-lime/20 border-t-lime" />
             ) : (
               <svg
-                className={`w-5 h-5 text-primary-600 transition-transform duration-200 ${
+                className={`w-5 h-5 text-lime transition-transform duration-200 ${
                   state.canRefresh ? 'rotate-180' : 'rotate-0'
                 }`}
                 fill="none"
@@ -66,7 +66,7 @@ export function PullToRefresh({
           </div>
           
           {/* Status text */}
-          <span className="text-sm font-medium text-[var(--foreground-muted)]">
+          <span className="text-sm font-medium text-neutral-500">
             {getDisplayText()}
           </span>
         </div>

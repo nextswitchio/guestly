@@ -82,7 +82,7 @@ const channelOptions: ChannelOption[] = [
     label: 'TikTok',
     description: 'Create TikTok videos and posts',
     icon: 'video',
-    color: 'text-gray-900 dark:text-white',
+    color: 'text-neutral-900',
   },
 ];
 
@@ -109,13 +109,13 @@ export default function ChannelSelector({ selectedChannels, onChange }: ChannelS
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-neutral-500">
           {selectedChannels.length} channel{selectedChannels.length !== 1 ? 's' : ''} selected
         </p>
         {selectedChannels.length > 0 && (
           <button
             onClick={() => onChange([])}
-            className="text-sm text-primary-500 hover:text-primary-600"
+            className="text-sm text-lime hover:text-lime/80"
           >
             Clear all
           </button>
@@ -130,15 +130,15 @@ export default function ChannelSelector({ selectedChannels, onChange }: ChannelS
               key={option.type}
               className={`p-4 cursor-pointer transition-all ${
                 selected
-                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                  : 'hover:border-gray-300 dark:hover:border-gray-600'
+                  ? 'border-lime bg-lime/10'
+                  : 'hover:border-neutral-300'
               }`}
               onClick={() => toggleChannel(option.type)}
             >
               <div className="flex items-start gap-3">
                 <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-lg ${
-                    selected ? 'bg-primary-100 dark:bg-primary-900/40' : 'bg-gray-100 dark:bg-gray-800'
+                  className={`flex items-center justify-center w-10 h-10 rounded-2xl ${
+                    selected ? 'bg-lime/10' : 'bg-neutral-100'
                   }`}
                 >
                   <Icon name={option.icon as any} className={`w-5 h-5 ${option.color}`} />
@@ -147,10 +147,10 @@ export default function ChannelSelector({ selectedChannels, onChange }: ChannelS
                   <div className="flex items-center justify-between mb-1">
                     <h4 className="font-semibold">{option.label}</h4>
                     {selected && (
-                      <Icon name="check-circle" className="w-5 h-5 text-primary-500" />
+                      <Icon name="check-circle" className="w-5 h-5 text-lime" />
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-neutral-500">
                     {option.description}
                   </p>
                 </div>
@@ -171,7 +171,7 @@ export default function ChannelSelector({ selectedChannels, onChange }: ChannelS
               return (
                 <div
                   key={channel.type}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-neutral-50 rounded-2xl"
                 >
                   <div className="flex items-center gap-3">
                     <Icon name={option.icon as any} className={`w-5 h-5 ${option.color}`} />

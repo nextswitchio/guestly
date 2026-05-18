@@ -23,16 +23,16 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 function colorMap(variant: Variant) {
   const map: Record<Variant, string> = {
     neutral: "bg-neutral-100 text-neutral-700",
-    primary: "bg-primary-100 text-primary-700",
-    success: "bg-success-50 text-success-700",
-    warning: "bg-warning-100 text-warning-800",
-    danger: "bg-danger-50 text-danger-700",
-    navy: "bg-navy-800 text-white",
-    virtual: "bg-primary-500 text-white",
-    hybrid: "bg-navy-700 text-primary-300",
-    physical: "bg-success-500 text-white",
-    free: "bg-success-50 text-success-700",
-    live: "bg-danger-500 text-white",
+    primary: "bg-lime/10 text-lime",
+    success: "bg-green-50 text-green-700",
+    warning: "bg-amber-100 text-amber-800",
+    danger: "bg-red-50 text-red-700",
+    navy: "bg-neutral-900 text-white",
+    virtual: "bg-lime text-dark",
+    hybrid: "bg-neutral-800 text-lime",
+    physical: "bg-green-500 text-white",
+    free: "bg-green-50 text-green-700",
+    live: "bg-red-500 text-white",
   };
   return map[variant] ?? map.neutral;
 }
@@ -40,15 +40,15 @@ function colorMap(variant: Variant) {
 function dotColor(variant: Variant, prefersReducedMotion: boolean) {
   const map: Record<Variant, string> = {
     neutral: "bg-neutral-500",
-    primary: "bg-primary-500",
-    success: "bg-success-500",
-    warning: "bg-warning-500",
-    danger: "bg-danger-500",
+    primary: "bg-lime",
+    success: "bg-green-500",
+    warning: "bg-amber-500",
+    danger: "bg-red-500",
     navy: "bg-white",
     virtual: "bg-white",
-    hybrid: "bg-primary-300",
+    hybrid: "bg-lime",
     physical: "bg-white",
-    free: "bg-success-500",
+    free: "bg-green-500",
     live: prefersReducedMotion ? "bg-white" : "bg-white animate-pulse-subtle",
   };
   return map[variant] ?? map.neutral;

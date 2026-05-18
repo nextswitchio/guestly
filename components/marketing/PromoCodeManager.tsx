@@ -78,13 +78,13 @@ export default function PromoCodeManager({ organizerId, eventId }: PromoCodeMana
   const getTypeColor = (type: PromoCode['type']) => {
     switch (type) {
       case 'percentage':
-        return 'text-blue-500 bg-blue-50 dark:bg-blue-900/20';
+        return 'text-blue-500 bg-blue-50';
       case 'fixed':
-        return 'text-green-500 bg-green-50 dark:bg-green-900/20';
+        return 'text-green-500 bg-green-50';
       case 'free':
-        return 'text-purple-500 bg-purple-50 dark:bg-purple-900/20';
+        return 'text-purple-500 bg-purple-50';
       default:
-        return 'text-gray-500 bg-gray-50 dark:bg-gray-900/20';
+        return 'text-neutral-500 bg-neutral-50';
     }
   };
 
@@ -94,7 +94,7 @@ export default function PromoCodeManager({ organizerId, eventId }: PromoCodeMana
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Promo Codes</h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-neutral-500 mt-1">
             Create and manage discount codes for your events
           </p>
         </div>
@@ -109,19 +109,19 @@ export default function PromoCodeManager({ organizerId, eventId }: PromoCodeMana
         placeholder="Search promo codes..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        leftIcon={<Icon name="search" className="w-5 h-5 text-gray-400" />}
+        leftIcon={<Icon name="search" className="w-5 h-5 text-neutral-400" />}
       />
 
       {/* Promo Codes List */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Icon name="loader" className="w-8 h-8 animate-spin text-primary-500" />
+          <Icon name="loader" className="w-8 h-8 animate-spin text-lime" />
         </div>
       ) : filteredPromoCodes.length === 0 ? (
         <Card className="p-12 text-center">
-          <Icon name="tag" className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+          <Icon name="tag" className="w-16 h-16 mx-auto text-neutral-400 mb-4" />
           <h3 className="text-xl font-semibold mb-2">No promo codes found</h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-neutral-500 mb-4">
             Create your first promo code to incentivize ticket purchases
           </p>
           <Button onClick={() => setShowCreateModal(true)}>Create Promo Code</Button>
@@ -133,22 +133,22 @@ export default function PromoCodeManager({ organizerId, eventId }: PromoCodeMana
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <code className="text-lg font-bold text-primary-500">
+                    <code className="text-lg font-bold text-lime">
                       {promoCode.code}
                     </code>
                     {!promoCode.active && (
-                      <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded">
+                      <span className="px-2 py-0.5 bg-neutral-200 text-neutral-600 text-xs rounded">
                         Inactive
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-neutral-500">
                     {promoCode.description}
                   </p>
                 </div>
                 <button
                   onClick={() => setSelectedPromoCode(promoCode)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="text-neutral-400 hover:text-neutral-600"
                 >
                   <Icon name="more-vertical" className="w-5 h-5" />
                 </button>
@@ -156,13 +156,13 @@ export default function PromoCodeManager({ organizerId, eventId }: PromoCodeMana
 
               <div className="space-y-2 mb-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Type:</span>
+                  <span className="text-neutral-500">Type:</span>
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${getTypeColor(promoCode.type)}`}>
                     {getTypeLabel(promoCode.type)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Value:</span>
+                  <span className="text-neutral-500">Value:</span>
                   <span className="font-medium">
                     {promoCode.type === 'percentage'
                       ? `${promoCode.value}%`
@@ -172,7 +172,7 @@ export default function PromoCodeManager({ organizerId, eventId }: PromoCodeMana
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Used:</span>
+                  <span className="text-neutral-500">Used:</span>
                   <span className="font-medium">
                     {promoCode.usageCount}
                     {promoCode.usageLimit ? ` / ${promoCode.usageLimit}` : ''}
@@ -180,7 +180,7 @@ export default function PromoCodeManager({ organizerId, eventId }: PromoCodeMana
                 </div>
                 {promoCode.expiresAt && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">Expires:</span>
+                    <span className="text-neutral-500">Expires:</span>
                     <span className="font-medium">
                       {new Date(promoCode.expiresAt).toLocaleDateString()}
                     </span>

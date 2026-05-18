@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Icon from '@/components/ui/Icon';
 
-interface EmailTemplate {
+export interface EmailTemplate {
   id: string;
   name: string;
   subject: string;
@@ -165,12 +165,12 @@ export function EmailTemplateLibrary({
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'announcement': return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
-      case 'reminder': return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300';
-      case 'promotional': return 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300';
-      case 'follow-up': return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300';
-      case 'transactional': return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
-      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
+      case 'announcement': return 'bg-blue-100 text-blue-700';
+      case 'reminder': return 'bg-amber-100 text-amber-700';
+      case 'promotional': return 'bg-purple-100 text-purple-700';
+      case 'follow-up': return 'bg-green-100 text-green-700';
+      case 'transactional': return 'bg-neutral-100 text-neutral-700';
+      default: return 'bg-neutral-100 text-neutral-700';
     }
   };
 
@@ -180,7 +180,7 @@ export function EmailTemplateLibrary({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Email Templates</h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-neutral-500 mt-1">
             Choose from pre-designed templates or create your own
           </p>
         </div>
@@ -194,12 +194,12 @@ export function EmailTemplateLibrary({
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <div className="relative">
-            <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
             <input
               placeholder="Search templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-10 pr-3.5 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] text-[var(--foreground)] placeholder:text-[var(--foreground-subtle)] transition-all"
+              className="w-full h-10 pl-10 pr-3.5 rounded-xl border border-neutral-200 bg-neutral-50 text-neutral-900 placeholder:text-neutral-400 transition-all"
             />
           </div>
         </div>
@@ -208,10 +208,10 @@ export function EmailTemplateLibrary({
             <button
               key={category.value}
               onClick={() => setSelectedCategory(category.value)}
-              className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
+              className={`px-4 py-2 rounded-2xl whitespace-nowrap transition-colors ${
                 selectedCategory === category.value
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-lime text-dark'
+                  : 'bg-neutral-100 hover:bg-neutral-200'
               }`}
             >
               {category.label}
@@ -223,9 +223,9 @@ export function EmailTemplateLibrary({
       {/* Templates Grid */}
       {filteredTemplates.length === 0 ? (
         <Card className="p-12 text-center">
-          <Icon name="document" className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+          <Icon name="document" className="w-16 h-16 mx-auto mb-4 text-neutral-400" />
           <h3 className="text-lg font-semibold mb-2">No templates found</h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-neutral-500 mb-4">
             Try adjusting your search or filters
           </p>
           <Button onClick={onCreateNew} variant="outline">
@@ -237,8 +237,8 @@ export function EmailTemplateLibrary({
           {filteredTemplates.map(template => (
             <Card key={template.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               {/* Thumbnail */}
-              <div className="aspect-video bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900 dark:to-primary-800 flex items-center justify-center">
-                <Icon name="megaphone" className="w-16 h-16 text-primary-600 dark:text-primary-400" />
+              <div className="aspect-video bg-gradient-to-br from-lime/10 to-lime/20 flex items-center justify-center">
+                <Icon name="megaphone" className="w-16 h-16 text-lime" />
               </div>
 
               {/* Content */}
@@ -246,7 +246,7 @@ export function EmailTemplateLibrary({
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">{template.name}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-sm text-neutral-500 mt-1">
                       {template.description}
                     </p>
                   </div>
@@ -270,13 +270,13 @@ export function EmailTemplateLibrary({
                     {template.category}
                   </span>
                   {!template.isCustom && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300">
+                    <span className="text-xs px-2 py-1 rounded-full bg-lime/10 text-lime">
                       Preset
                     </span>
                   )}
                 </div>
 
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-xs text-neutral-500">
                   Subject: {template.subject}
                 </div>
 
