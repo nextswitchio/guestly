@@ -5,7 +5,10 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig: NextConfig = {
-  // Use webpack instead of Turbopack
+  // Turbopack configuration (empty to silence warning)
+  turbopack: {},
+  
+  // Bundle optimization
   experimental: {
     optimizePackageImports: [
       'framer-motion',
@@ -138,7 +141,7 @@ const nextConfig: NextConfig = {
           
           // Socket.IO
           socketio: {
-            test: /[\\/]node_modules[\\/]socket\.io-client[\\/]/,
+            test: /[\\/]node_modules[\\/]socket\\.io-client[\\/]/,
             name: 'socketio',
             chunks: 'all',
             priority: 20,
@@ -173,7 +176,8 @@ const nextConfig: NextConfig = {
   },
   
   // Output optimization
-  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
+  // Note: standalone mode disabled temporarily due to build issues
+  // output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
 };
 
 export default withBundleAnalyzer(nextConfig);

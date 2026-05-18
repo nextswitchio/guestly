@@ -1,5 +1,6 @@
-import { Bot } from 'lucide-react';
 "use client";
+
+import { Bot } from 'lucide-react';
 import React from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
