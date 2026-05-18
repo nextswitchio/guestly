@@ -65,7 +65,7 @@ function StepCard({ step, index }: { step: (typeof steps)[0]; index: number }) {
 
       {/* Content */}
       <motion.div variants={textVariants} className="mt-2 space-y-3">
-        <h3 className="text-xl sm:text-[24px] font-medium text-white">
+        <h3 className="text-xl sm:text-[24px] font-semibold text-lime">
           {step.title}
         </h3>
         <p className="text-white text-sm sm:text-base leading-relaxed">
@@ -129,11 +129,11 @@ export function HowItWorks() {
 
       {/* Subtle grid pattern overlay */}
       <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
+            "linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)",
+          backgroundSize: "120px 120px",
         }}
       />
     </section>
