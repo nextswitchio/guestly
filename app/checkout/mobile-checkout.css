@@ -1,0 +1,188 @@
+/* Mobile Checkout Optimizations */
+
+/* Prevent zoom on input focus on iOS */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Mobile-friendly touch targets */
+.mobile-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Prevent horizontal scrolling on mobile */
+@media screen and (max-width: 768px) {
+  .checkout-container {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+}
+
+/* Mobile keyboard optimizations */
+@media screen and (max-width: 768px) {
+  /* Reduce viewport height when keyboard is open */
+  .mobile-keyboard-open {
+    height: 50vh;
+  }
+  
+  /* Sticky button adjustments for mobile keyboard */
+  .mobile-sticky-button {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 16px;
+    background: linear-gradient(to top, #0f172a, rgba(15, 23, 42, 0.95));
+    backdrop-filter: blur(8px);
+  }
+  
+  /* Safe area adjustments for mobile devices */
+  .mobile-safe-area {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Enhanced mobile form styling */
+@media screen and (max-width: 768px) {
+  .mobile-form-section {
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+  }
+  
+  .mobile-form-title {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .mobile-trust-signals {
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  
+  .mobile-trust-signal {
+    min-height: 44px;
+    padding: 0.75rem;
+  }
+}
+
+/* Mobile payment method selector optimizations */
+@media screen and (max-width: 768px) {
+  .mobile-payment-method {
+    min-height: 72px;
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+  
+  .mobile-payment-icon {
+    height: 3rem;
+    width: 3rem;
+  }
+  
+  .mobile-payment-radio {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+}
+
+/* Mobile order summary optimizations */
+@media screen and (max-width: 768px) {
+  .mobile-order-item {
+    gap: 0.75rem;
+  }
+  
+  .mobile-order-icon {
+    height: 2.5rem;
+    width: 2.5rem;
+    flex-shrink: 0;
+  }
+  
+  .mobile-order-text {
+    min-width: 0;
+    flex: 1;
+  }
+  
+  .mobile-order-price {
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+  }
+}
+
+/* Mobile stepper optimizations */
+@media screen and (max-width: 768px) {
+  .mobile-stepper {
+    margin-bottom: 2rem;
+  }
+  
+  .mobile-stepper-step {
+    font-size: 0.875rem;
+  }
+}
+
+/* Mobile loading states */
+@media screen and (max-width: 768px) {
+  .mobile-loading-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .mobile-loading-spinner {
+    height: 1rem;
+    width: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile gesture support */
+@media screen and (max-width: 768px) {
+  .mobile-swipeable {
+    touch-action: pan-x;
+  }
+  
+  .mobile-no-scroll {
+    touch-action: none;
+  }
+}
+
+/* Mobile accessibility improvements */
+@media screen and (max-width: 768px) {
+  .mobile-focus-visible:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  .mobile-high-contrast {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Mobile performance optimizations */
+@media screen and (max-width: 768px) {
+  .mobile-optimized {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  
+  .mobile-smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}

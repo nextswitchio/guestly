@@ -1,0 +1,219 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-dark: #001c24;
+  --color-lime: #c7fd02;
+  --color-lime-hover: #e0ff33;
+
+  --font-inter: "Inter", sans-serif;
+  --font-dm: "DM Sans", sans-serif;
+
+  --breakpoint-xs: 350px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 976px;
+  --breakpoint-mlg: 1100px;
+  --breakpoint-xl: 1440px;
+}
+
+@font-face {
+  font-family: 'Aeonik Pro';
+  src: url('/fonts/AeonikPro-Regular.woff2') format('woff2'),
+       url('/fonts/AeonikPro-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aeonik Pro';
+  src: url('/fonts/AeonikPro-Medium.woff2') format('woff2'),
+       url('/fonts/AeonikPro-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aeonik Pro';
+  src: url('/fonts/AeonikPro-Bold.woff2') format('woff2'),
+       url('/fonts/AeonikPro-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Backward compat — dashboard/admin components use these via var(--) */
+  --color-primary-50: #f9ffcc;
+  --color-primary-100: #f3ff99;
+  --color-primary-200: #e8ff33;
+  --color-primary-300: #c7fd02;
+  --color-primary-400: #a8cc30;
+  --color-primary-500: #c7fd02;
+  --color-primary-600: #86a320;
+  --color-primary-700: #637a14;
+  --color-primary-800: #3f500a;
+  --color-primary-900: #1a2005;
+
+  --color-navy-50: #d4e8eb;
+  --color-navy-100: #a8d2d7;
+  --color-navy-200: #6aacb4;
+  --color-navy-300: #3d8993;
+  --color-navy-400: #1e6470;
+  --color-navy-500: #0d3f49;
+  --color-navy-600: #0a3038;
+  --color-navy-700: #001c24;
+  --color-navy-800: #001922;
+  --color-navy-900: #001c24;
+
+  --color-success-50: #edf7ee;
+  --color-success-100: #c9e9cb;
+  --color-success-200: #96d49a;
+  --color-success-300: #5eba63;
+  --color-success-400: #30a63b;
+  --color-success-500: #248232;
+  --color-success-600: #1c6e28;
+  --color-success-700: #155920;
+  --color-success-800: #0e4518;
+  --color-success-900: #083011;
+
+  --color-danger-50: #fdeced;
+  --color-danger-100: #f9cdd0;
+  --color-danger-200: #f39ba0;
+  --color-danger-300: #ec676f;
+  --color-danger-400: #e64450;
+  --color-danger-500: #DF2935;
+  --color-danger-600: #c01f2a;
+  --color-danger-700: #9c1621;
+  --color-danger-800: #780f18;
+  --color-danger-900: #540a11;
+
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+
+  --color-neutral-50: #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
+
+  --surface-bg: #001c24;
+  --surface-card: #051f26;
+  --surface-border: rgba(255,255,255,0.08);
+  --surface-hover: #0a2d36;
+  --surface-elevated: #0d333b;
+  --foreground: #ffffff;
+  --foreground-muted: rgba(255,255,255,0.7);
+  --foreground-subtle: rgba(255,255,255,0.4);
+
+  --font-sans: 'DM Sans', 'Inter', 'Aeonik Pro', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --elevation-2: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  color-scheme: dark light;
+}
+
+/* Light-theme override for auth pages and other places that must remain light */
+.auth-light {
+  color-scheme: light;
+  --surface-bg: #ffffff;
+  --surface-card: #ffffff;
+  --surface-border: #E5E7EB;
+  --surface-hover: #F8FAFC;
+  --surface-elevated: #ffffff;
+  --foreground: #0f172a;
+  --foreground-muted: #6B7280;
+  --foreground-subtle: #9CA3AF;
+}
+
+/* Light-theme override for public pages (explore, events, etc.) */
+.public-light {
+  color-scheme: light;
+  --surface-bg: #ffffff;
+  --surface-card: #ffffff;
+  --surface-border: #E5E7EB;
+  --surface-hover: #F8FAFC;
+  --surface-elevated: #ffffff;
+  --foreground: #0f172a;
+  --foreground-muted: #6B7280;
+  --foreground-subtle: #9CA3AF;
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.glass-dark {
+  background: rgba(0, 28, 36, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.33%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.hidden-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hidden-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+::selection {
+  background-color: #c7fd02;
+  color: #001c24;
+}
+
+::-moz-selection {
+  background-color: #c7fd02;
+  color: #001c24;
+}
+
+:focus-visible {
+  outline: 2px solid #c7fd02;
+  outline-offset: 2px;
+}
