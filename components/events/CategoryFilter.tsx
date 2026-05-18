@@ -28,7 +28,7 @@ export default function CategoryFilter({ value = "", onChange, isDark = false }:
           <button
             key={cat.value}
             onClick={() => onChange?.(cat.value)}
-            className={`group relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-[var(--duration-normal)] ease-[var(--ease-out)] ${
+            className={`group relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-[var(--duration-normal)] ease-[var(--ease-out)] ${
               isDark
                 ? active
                   ? "bg-lime text-dark shadow-md scale-105"
@@ -46,7 +46,7 @@ export default function CategoryFilter({ value = "", onChange, isDark = false }:
             
             {/* Active indicator */}
             {active && !isDark && (
-              <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 opacity-20 blur-sm" />
+              <div className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 opacity-20 blur-sm" />
             )}
           </button>
         );

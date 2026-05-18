@@ -190,286 +190,277 @@ export default function ExplorePage() {
               : "opacity-0 translate-y-8"
           }`}
         >
-          <div className="grid lg:grid-cols-[280px_1fr] gap-6">
-            {/* Mobile filter toggle */}
-            <div className="lg:hidden flex items-center gap-2 mb-4">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                </svg>
-                Filters
-                {hasActiveFilters && (
-                  <span className="h-5 w-5 rounded-full bg-lime text-dark text-[10px] font-bold flex items-center justify-center">
-                    {[category, community, communityType, timeFilter !== "all" ? "1" : null].filter(Boolean).length}
-                  </span>
-                )}
-              </button>
-              {hasActiveFilters && (
-                <button
-                  onClick={onClearFilters}
-                  className="text-xs font-medium text-slate-500 hover:text-slate-700 underline"
-                >
-                  Clear all
-                </button>
-              )}
-            </div>
-
-            {/* Sidebar filters - hidden on mobile unless toggled */}
-            <div className={`space-y-4 ${showFilters ? "fixed inset-0 z-50 flex flex-col bg-dark lg:static lg:z-auto lg:bg-dark rounded-2xl lg:rounded-2xl overflow-y-auto" : "hidden lg:block"} lg:bg-dark lg:rounded-2xl lg:p-6`}>
-              {showFilters && (
-                <div className="flex items-center justify-between p-4 border-b border-[#0a3038] lg:hidden">
-                  <h2 className="text-lg font-bold text-white">Filters</h2>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="p-2 rounded-lg hover:bg-[#0a3038] transition-colors"
-                  >
-                    <svg className="w-5 h-5 text-[#6aacb4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-              <div className="p-4 lg:p-0 space-y-4">
-                {/* Search card */}
-                <div className="bg-[#0a3038] rounded-2xl border border-[#1e6470] p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                    <Icon name="search" size={16} className="text-[#6aacb4]" />
-                    <span>Search</span>
-                  </h3>
-                  <SearchBar value={q} onChange={setQ} onSearch={onSearch} isDark={true} />
-                </div>
-
-                {/* Category card */}
-                <div className="bg-[#0a3038] rounded-2xl border border-[#1e6470] p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                    <Icon name="target" size={16} className="text-[#6aacb4]" />
-                    <span>Category</span>
-                    {category && (
-                      <span className="ml-auto h-5 w-5 flex items-center justify-center rounded-full bg-lime text-dark text-xs font-bold">
-                        1
-                      </span>
-                    )}
-                  </h3>
-                  <CategoryFilter value={category} onChange={onCategoryChange} isDark={true} />
-                </div>
-
-                {/* Time filter card */}
-                <div className="bg-[#0a3038] rounded-2xl border border-[#1e6470] p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                    <Icon name="calendar" size={16} className="text-[#6aacb4]" />
-                    <span>When</span>
-                    {timeFilter !== "all" && (
-                      <span className="ml-auto h-5 w-5 flex items-center justify-center rounded-full bg-lime text-dark text-xs font-bold">
-                        1
-                      </span>
-                    )}
-                  </h3>
-                  <TimeFilter
-                    value={timeFilter}
-                    startDate={startDate}
-                    endDate={endDate}
-                    onChange={onTimeFilterChange}
-                    isDark={true}
-                  />
-                </div>
-
-                {/* Community filter card */}
-                <div className="bg-[#0a3038] rounded-2xl border border-[#1e6470] p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                    <Icon name="users" size={16} className="text-[#6aacb4]" />
-                    <span>Community</span>
-                    {(community || communityType) && (
-                      <span className="ml-auto h-5 w-5 flex items-center justify-center rounded-full bg-lime text-dark text-xs font-bold">
-                        {[community, communityType].filter(Boolean).length}
-                      </span>
-                    )}
-                  </h3>
-                  <CommunityFilter
-                    selectedCommunity={community}
-                    selectedCommunityType={communityType}
-                    onCommunityChange={onCommunityChange}
-                    onCommunityTypeChange={onCommunityTypeChange}
-                    isDark={true}
-                  />
-                </div>
-
-                {/* Clear filters button */}
-                {hasActiveFilters && (
-                  <button
-                    onClick={() => { onClearFilters(); setShowFilters(false); }}
-                    className="w-full h-11 px-4 rounded-xl text-sm font-semibold text-lime hover:text-dark hover:bg-lime border border-lime hover:border-lime transition-all flex items-center justify-center gap-2 bg-dark"
-                  >
-                    <Icon name="x" size={16} />
-                    <span>Clear all filters</span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Main content area */}
-            <div className="space-y-6">
-              {/* Sort and results bar */}
-              <div className="bg-white rounded-2xl border border-slate-100 px-6 py-4 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  {/* Results count */}
-                  <div className={`transition-all duration-[var(--duration-normal)] ${
-                    isTransitioning ? "opacity-50" : "opacity-100"
-                  }`}>
-                    {!loading && (
-                      <div className="flex items-center gap-3">
-                        <p className="text-sm font-medium text-slate-900">
-                          {items.length === 0 
-                            ? "No events found" 
-                            : `${items.length} event${items.length === 1 ? "" : "s"}`
-                          }
-                        </p>
-                        {hasActiveFilters && (
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            {q && (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-lime/10 text-dark rounded-lg text-xs font-medium">
-                                <Icon name="search" size={12} />
-                                <span>"{q.length > 20 ? q.slice(0, 20) + "..." : q}"</span>
+          <div className="space-y-6">
+            {/* Top bar with results count, filters toggle, and sort */}
+            <div className="bg-white rounded-2xl border border-slate-100 px-6 py-4 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                {/* Results count */}
+                <div className={`transition-all duration-[var(--duration-normal)] ${
+                  isTransitioning ? "opacity-50" : "opacity-100"
+                }`}>
+                  {!loading && (
+                    <div className="flex items-center gap-3">
+                      <p className="text-sm font-medium text-slate-900">
+                        {items.length === 0 
+                          ? "No events found" 
+                          : `${items.length} event${items.length === 1 ? "" : "s"}`
+                        }
+                      </p>
+                      {hasActiveFilters && (
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {q && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-lime/10 text-dark rounded-lg text-xs font-medium">
+                              <Icon name="search" size={12} />
+                              <span>"{q.length > 20 ? q.slice(0, 20) + "..." : q}"</span>
+                            </span>
+                          )}
+                          {category && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-lime/10 text-dark rounded-lg text-xs font-medium">
+                              <Icon name="target" size={12} />
+                              <span>{category}</span>
+                            </span>
+                          )}
+                          {timeFilter !== "all" && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-lime/10 text-dark rounded-lg text-xs font-medium">
+                              <Icon name="calendar" size={12} />
+                              <span>
+                                {timeFilter === "custom" 
+                                  ? "Custom dates"
+                                  : timeFilter.replace("-", " ")
+                                }
                               </span>
-                            )}
-                            {category && (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-lime/10 text-dark rounded-lg text-xs font-medium">
-                                <Icon name="target" size={12} />
-                                <span>{category}</span>
-                              </span>
-                            )}
-                            {timeFilter !== "all" && (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-lime/10 text-dark rounded-lg text-xs font-medium">
-                                <Icon name="calendar" size={12} />
-                                <span>
-                                  {timeFilter === "custom" 
-                                    ? "Custom dates"
-                                    : timeFilter.replace("-", " ")
-                                  }
-                                </span>
-                              </span>
-                            )}
-                            {(community || communityType) && (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-lime/10 text-dark rounded-lg text-xs font-medium">
-                                <Icon name="users" size={12} />
-                                <span>{community || communityType}</span>
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Sort dropdown and loading */}
-                  <div className="flex items-center gap-3">
-                    {(loading || isTransitioning) && (
-                      <div className="flex items-center gap-2 text-sm text-slate-500">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-lime border-t-lime" />
-                        <span className="hidden sm:inline">Loading...</span>
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center gap-2">
-                      <label htmlFor="sort" className="text-sm text-slate-500 hidden sm:inline">
-                        Sort by:
-                      </label>
-                      <select
-                        id="sort"
-                        value={sortBy}
-                        onChange={(e) => onSortChange(e.target.value as SortOption)}
-                        className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 transition-all duration-[var(--duration-fast)] hover:border-lime focus:border-lime focus:outline-none focus:ring-2 focus:ring-lime/20 cursor-pointer"
-                      >
-                        <option value="date">Date</option>
-                        <option value="popularity">Popularity</option>
-                        <option value="price">Price</option>
-                        <option value="name">Name</option>
-                      </select>
+                            </span>
+                          )}
+                          {(community || communityType) && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-lime/10 text-dark rounded-lg text-xs font-medium">
+                              <Icon name="users" size={12} />
+                              <span>{community || communityType}</span>
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
+                  )}
+                </div>
+
+                {/* Controls: Filters toggle + Sort dropdown + Loading */}
+                <div className="flex items-center gap-3">
+                  {(loading || isTransitioning) && (
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-lime border-t-lime" />
+                      <span className="hidden sm:inline">Loading...</span>
+                    </div>
+                  )}
+                  
+                  {/* Filters toggle button */}
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
+                      showFilters
+                        ? "bg-lime text-dark"
+                        : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Filters
+                    {hasActiveFilters && (
+                      <span className="h-5 w-5 rounded-full bg-dark/10 text-[10px] font-bold flex items-center justify-center">
+                        {[category, community, communityType, timeFilter !== "all" ? "1" : null].filter(Boolean).length}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Sort dropdown */}
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="sort" className="text-sm text-slate-500 hidden sm:inline">
+                      Sort by:
+                    </label>
+                    <select
+                      id="sort"
+                      value={sortBy}
+                      onChange={(e) => onSortChange(e.target.value as SortOption)}
+                      className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 transition-all duration-[var(--duration-fast)] hover:border-lime focus:border-lime focus:outline-none focus:ring-2 focus:ring-lime/20 cursor-pointer"
+                    >
+                      <option value="date">Date</option>
+                      <option value="popularity">Popularity</option>
+                      <option value="price">Price</option>
+                      <option value="name">Name</option>
+                    </select>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Events grid */}
-              {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {Array.from({ length: 9 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-80 animate-pulse rounded-2xl bg-slate-100 border border-slate-100 shadow-sm"
-                      style={{
-                        animationDelay: `${i * 100}ms`,
-                      }}
-                    />
-                  ))}
+            {/* Collapsible filter panel */}
+            {showFilters && (
+              <div className="bg-[#001c24] rounded-2xl p-6 animate-[slideDown_var(--duration-normal)_var(--ease-out)]">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-bold text-white">Filters</h2>
+                  <div className="flex items-center gap-3">
+                    {hasActiveFilters && (
+                      <button
+                        onClick={() => { onClearFilters(); }}
+                        className="text-sm font-medium text-lime hover:text-lime/80 transition-colors"
+                      >
+                        Clear all
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setShowFilters(false)}
+                      className="p-2 rounded-lg hover:bg-[#0a3038] transition-colors"
+                    >
+                      <svg className="w-5 h-5 text-[#6aacb4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-              ) : items.length === 0 ? (
-                <div className="flex justify-center py-12">
-                  <EmptyState
-                    icon="search"
-                    title={
-                      q 
-                        ? `No events found for "${q}"` 
-                        : category 
-                        ? `No ${category.toLowerCase()} events found`
-                        : "No events available"
-                    }
-                    description="Try adjusting your search or filters to find events."
-                    action={hasActiveFilters ? {
-                      label: "Clear filters",
-                      onClick: onClearFilters
-                    } : {
-                      label: "Browse all events",
-                      href: "/"
+                <div className="grid sm:grid-cols-2 gap-6">
+                  {/* Search */}
+                  <div className="rounded-2xl shadow-sm">
+                    <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                      <Icon name="search" size={16} className="text-[#6aacb4]" />
+                      <span>Search</span>
+                    </h3>
+                    <SearchBar value={q} onChange={setQ} onSearch={onSearch} isDark={true} />
+                  </div>
+
+                  {/* Category */}
+                  <div className="rounded-2xl shadow-sm">
+                    <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                      <Icon name="target" size={16} className="text-[#6aacb4]" />
+                      <span>Category</span>
+                      {category && (
+                        <span className="ml-auto h-5 w-5 flex items-center justify-center rounded-full bg-lime text-dark text-xs font-bold">
+                          1
+                        </span>
+                      )}
+                    </h3>
+                    <CategoryFilter value={category} onChange={onCategoryChange} isDark={true} />
+                  </div>
+
+                  {/* Time filter */}
+                  <div className="rounded-2xl shadow-sm">
+                    <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                      <Icon name="calendar" size={16} className="text-[#6aacb4]" />
+                      <span>When</span>
+                      {timeFilter !== "all" && (
+                        <span className="ml-auto h-5 w-5 flex items-center justify-center rounded-full bg-lime text-dark text-xs font-bold">
+                          1
+                        </span>
+                      )}
+                    </h3>
+                    <TimeFilter
+                      value={timeFilter}
+                      startDate={startDate}
+                      endDate={endDate}
+                      onChange={onTimeFilterChange}
+                      isDark={true}
+                    />
+                  </div>
+
+                  {/* Community filter */}
+                  <div className="rounded-2xl shadow-sm">
+                    <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                      <Icon name="users" size={16} className="text-[#6aacb4]" />
+                      <span>Community</span>
+                      {(community || communityType) && (
+                        <span className="ml-auto h-5 w-5 flex items-center justify-center rounded-full bg-lime text-dark text-xs font-bold">
+                          {[community, communityType].filter(Boolean).length}
+                        </span>
+                      )}
+                    </h3>
+                    <CommunityFilter
+                      selectedCommunity={community}
+                      selectedCommunityType={communityType}
+                      onCommunityChange={onCommunityChange}
+                      onCommunityTypeChange={onCommunityTypeChange}
+                      isDark={true}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Events grid */}
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-80 animate-pulse rounded-2xl bg-slate-100 border border-slate-100 shadow-sm"
+                    style={{
+                      animationDelay: `${i * 100}ms`,
                     }}
                   />
-                </div>
-              ) : (
-                <div
-                  ref={gridRef}
-                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-                >
-                  {items.map((event, index) => (
-                    <div
-                      key={event.id}
-                      className={`transition-all duration-700 ease-[var(--ease-out)] ${
-                        visibleItems[index]
-                          ? "opacity-100 translate-y-0 scale-100"
-                          : "opacity-0 translate-y-8 scale-95"
-                      }`}
-                      style={{
-                        transitionDelay: `${index * 100}ms`,
-                      }}
-                    >
-                      <EventCard
-                        id={event.id}
-                        title={event.title}
-                        description={event.description}
-                        date={event.date}
-                        city={event.city}
-                        category={event.category}
-                        image={event.image}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Pagination */}
-              {pageCount > 1 && !loading && (
-                <div className="flex justify-center pt-4">
-                  <div className="bg-white rounded-2xl border border-slate-100 p-2 shadow-sm">
-                    <Pagination
-                      page={page}
-                      pageCount={pageCount}
-                      onPageChange={(p) => load(p, category, sortBy, q, community, communityType, timeFilter, startDate, endDate)}
+                ))}
+              </div>
+            ) : items.length === 0 ? (
+              <div className="flex justify-center py-12">
+                <EmptyState
+                  icon="search"
+                  title={
+                    q 
+                      ? `No events found for "${q}"` 
+                      : category 
+                      ? `No ${category.toLowerCase()} events found`
+                      : "No events available"
+                  }
+                  description="Try adjusting your search or filters to find events."
+                  action={hasActiveFilters ? {
+                    label: "Clear filters",
+                    onClick: onClearFilters
+                  } : {
+                    label: "Browse all events",
+                    href: "/"
+                  }}
+                />
+              </div>
+            ) : (
+              <div
+                ref={gridRef}
+className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
+              >
+                {items.map((event, index) => (
+                  <div
+                    key={event.id}
+                    className={`transition-all duration-700 ease-[var(--ease-out)] ${
+                      visibleItems[index]
+                        ? "opacity-100 translate-y-0 scale-100"
+                        : "opacity-0 translate-y-8 scale-95"
+                    }`}
+                    style={{
+                      transitionDelay: `${index * 100}ms`,
+                    }}
+                  >
+                    <EventCard
+                      id={event.id}
+                      title={event.title}
+                      description={event.description}
+                      date={event.date}
+                      city={event.city}
+                      category={event.category}
+                      image={event.image}
                     />
                   </div>
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {pageCount > 1 && !loading && (
+              <div className="flex justify-center pt-4">
+                <div className="bg-white rounded-2xl border border-slate-100 p-2 shadow-sm">
+                  <Pagination
+                    page={page}
+                    pageCount={pageCount}
+                    onPageChange={(p) => load(p, category, sortBy, q, community, communityType, timeFilter, startDate, endDate)}
+                  />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
         </div>

@@ -111,7 +111,7 @@ export default function TimeFilter({
             <button
               key={filter.value}
               onClick={() => handleQuickFilterClick(filter.value)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-[var(--duration-fast)] flex items-center gap-2 ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-[var(--duration-fast)] flex items-center gap-2 ${
                 isDark
                   ? value === filter.value
                     ? "bg-lime text-dark shadow-md scale-105"
