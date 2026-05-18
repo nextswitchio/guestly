@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "dev": "node server.js",
-    "build": "next build",
+    "build": "next build --webpack",
     "build:analyze": "ANALYZE=true npm run build",
     "build:size": "npm run build && node scripts/bundle-size-report.js",
     "start": "NODE_ENV=production node server.js",

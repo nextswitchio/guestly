@@ -5,10 +5,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig: NextConfig = {
-  // Turbopack configuration (empty to silence warning)
-  turbopack: {},
-  
-  // Bundle optimization
+  // Use webpack instead of Turbopack
   experimental: {
     optimizePackageImports: [
       'framer-motion',
@@ -16,6 +13,12 @@ const nextConfig: NextConfig = {
       'react-leaflet',
       'socket.io-client'
     ],
+    turbopackOptions: {
+      // Disable Turbopack since we're using webpack
+      resolve: {
+        fallback: {},
+      },
+    },
   },
   
   // Compiler optimizations
@@ -24,6 +27,8 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
     // Enable React compiler optimizations
     reactRemoveProperties: process.env.NODE_ENV === 'production',
+    // Use SWC for minification
+    swcMinify: true,
   },
   
   // Image optimization
