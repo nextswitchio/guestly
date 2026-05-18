@@ -1,5 +1,4 @@
 const { createServer } = require('http');
-const { parse } = require('url');
 const next = require('next');
 const { Server } = require("socket.io");
 
@@ -20,7 +19,8 @@ const eventRooms = new Map();
 
 app.prepare().then(() => {
   const server = createServer((req, res) => {
-    const parsedUrl = parse(req.url, true);
+    // Use WHATWG URL API instead of deprecated url.parse()
+    const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
     handle(req, res, parsedUrl);
   });
 
