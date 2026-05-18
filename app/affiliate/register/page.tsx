@@ -41,13 +41,13 @@ export default function AffiliateRegisterPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center px-4">
-        <Card className="p-8 sm:p-12 max-w-md w-full text-center rounded-2xl border-slate-100 shadow-sm">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4">
+        <Card className="p-8 sm:p-12 max-w-md w-full text-center rounded-2xl border-neutral-200 shadow-sm">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
-          <h1 className="text-2xl font-black tracking-tight text-slate-900 mb-2">
+          <h1 className="text-2xl font-bold text-neutral-900 mb-2">
             Registration Successful!
           </h1>
-          <p className="text-slate-500 mb-6">
+          <p className="text-neutral-500 mb-6">
             Welcome to the Guestly Affiliate Program. Check your email for next steps.
           </p>
           <Button href="/affiliate-auth/login" className="w-full">
@@ -60,21 +60,21 @@ export default function AffiliateRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-neutral-50">
       <div className="max-w-lg mx-auto px-4 sm:px-6 py-24">
         <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Users className="w-8 h-8 text-primary-600" />
+          <div className="w-16 h-16 bg-lime/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Users className="w-8 h-8 text-lime" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">
+          <h1 className="text-3xl sm:text-4xl font-bold text-neutral-900">
             Join the Affiliate Program
           </h1>
-          <p className="text-lg text-slate-500 mt-2">
+          <p className="text-lg text-neutral-500 mt-2">
             Earn commission by referring events to your network
           </p>
         </div>
 
-        <Card className="p-6 sm:p-8 rounded-2xl border border-slate-100 shadow-sm">
+        <Card className="p-6 sm:p-8 rounded-2xl border border-neutral-200 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               label="Full Name"
@@ -119,9 +119,9 @@ export default function AffiliateRegisterPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-neutral-500">
               Already have an account?{' '}
-              <Link href="/affiliate-auth/login" className="text-primary-600 font-medium hover:underline">
+              <Link href="/affiliate-auth/login" className="text-lime font-medium hover:underline">
                 Sign in
               </Link>
             </p>

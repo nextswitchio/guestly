@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Icon } from "@/components/ui/Icon";
 import Switch from "@/components/ui/Switch";
 import Modal from "@/components/ui/Modal";
+import IdentityVerification, { type IdentityData } from "@/components/identity/IdentityVerification";
 
-type TabType = "profile" | "notifications" | "security" | "billing" | "team";
+type TabType = "profile" | "identity" | "notifications" | "security" | "billing" | "team";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<TabType>("profile");
@@ -16,6 +17,30 @@ export default function SettingsPage() {
   const [website, setWebsite] = useState("https://myorg.com");
   const [bio, setBio] = useState("We create amazing events");
   const [saving, setSaving] = useState(false);
+  const [identityData, setIdentityData] = useState<IdentityData | null>(null);
+  const [identityLoading, setIdentityLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/identity')
+      .then(r => r.json())
+      .then(d => { if (d.verification) setIdentityData(d.verification); })
+      .catch(() => {})
+      .finally(() => setIdentityLoading(false));
+  }, []);
+
+  const handleIdentitySubmit = async (data: IdentityData) => {
+    const res = await fetch('/api/identity/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to submit');
+    }
+    const result = await res.json();
+    setIdentityData({ ...data, id: result.verification.id, status: result.verification.status, submittedAt: result.verification.submittedAt });
+  };
   
   const [notifs, setNotifs] = useState({
     sales: true,
@@ -82,8 +107,9 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: "profile" as const, label: "Profile", icon: "user" as const },
+    { id: "identity" as const, label: "Identity", icon: "shield" as const },
     { id: "notifications" as const, label: "Notifications", icon: "bell" as const },
-    { id: "security" as const, label: "Security", icon: "shield" as const },
+    { id: "security" as const, label: "Security", icon: "lock" as const },
     { id: "billing" as const, label: "Billing", icon: "credit-card" as const },
     { id: "team" as const, label: "Team", icon: "users" as const },
   ];
@@ -241,6 +267,30 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </>
+            )}
+
+            {/* Identity Verification Tab */}
+            {activeTab === "identity" && (
+              <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold text-neutral-900">Identity Verification</h2>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    Verify your identity to build trust with attendees and comply with platform requirements
+                  </p>
+                </div>
+                {identityLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" />
+                  </div>
+                ) : (
+                  <IdentityVerification
+                    userId="organiser_123"
+                    role="organiser"
+                    existingData={identityData}
+                    onSubmit={handleIdentitySubmit}
+                  />
+                )}
+              </div>
             )}
 
             {/* Notifications Tab */}

@@ -1232,6 +1232,44 @@ export interface ShareLeaderboard {
   generatedAt: number;
 }
 
+// ── Identity Verification Types ──────────────────────────────────────────────
+
+export type IdentityDocType = 'passport' | 'drivers_license' | 'national_id' | 'voters_card' | 'residence_permit';
+export type VerificationStatus = 'pending' | 'under_review' | 'verified' | 'rejected';
+export type UserRole = 'organiser' | 'vendor' | 'affiliate';
+
+export interface IdentityDocument {
+  id: string;
+  userId: string;
+  role: UserRole;
+  docType: IdentityDocType;
+  docNumber: string;
+  legalFirstName: string;
+  legalLastName: string;
+  dateOfBirth: string;
+  nationality: string;
+  documentFrontUrl: string;
+  documentBackUrl?: string;
+  selfieUrl?: string;
+  status: VerificationStatus;
+  rejectionReason?: string;
+  submittedAt: number;
+  reviewedAt?: number;
+  reviewedBy?: string;
+}
+
+export interface IdentityVerificationSubmission {
+  docType: IdentityDocType;
+  docNumber: string;
+  legalFirstName: string;
+  legalLastName: string;
+  dateOfBirth: string;
+  nationality: string;
+  documentFrontUrl: string;
+  documentBackUrl?: string;
+  selfieUrl?: string;
+}
+
 // ── Module-Scoped Storage ────────────────────────────────────────────────────
 
 const campaigns: Record<string, Campaign> = {};
@@ -1267,6 +1305,7 @@ const socialProofData: Record<string, SocialProofData> = {};
 const eventReviews: Record<string, EventReview[]> = {};
 const dripCampaigns: Record<string, DripCampaign> = {};
 const dripEnrollments: Record<string, DripEnrollment[]> = {};
+const identityDocuments: Record<string, IdentityDocument> = {};
 const shareEvents: Record<string, ShareEvent[]> = {};
 const viralLoops: Record<string, ViralLoop> = {};
 const viralLoopProgress: Record<string, ViralLoopProgress[]> = {}; // userId -> progress array
@@ -9316,5 +9355,123 @@ export function deleteInfluencerMessage(
   // Remove message from thread
   thread.messages.splice(messageIndex, 1);
   
+  return true;
+}
+
+// ── Identity Verification Functions ──────────────────────────────────────────
+
+/**
+ * Submit identity verification for a user
+ */
+export function submitIdentityVerification(
+  userId: string,
+  role: UserRole,
+  data: IdentityVerificationSubmission
+): IdentityDocument {
+  // Check if user already has a pending or verified submission
+  const existing = Object.values(identityDocuments).find(
+    doc => doc.userId === userId && doc.role === role && (doc.status === 'pending' || doc.status === 'verified')
+  );
+
+  if (existing && existing.status === 'verified') {
+    throw new Error('Identity already verified');
+  }
+
+  // If there's a pending submission, update it
+  if (existing && existing.status === 'pending') {
+    const updated: IdentityDocument = {
+      ...existing,
+      docType: data.docType,
+      docNumber: data.docNumber,
+      legalFirstName: data.legalFirstName,
+      legalLastName: data.legalLastName,
+      dateOfBirth: data.dateOfBirth,
+      nationality: data.nationality,
+      documentFrontUrl: data.documentFrontUrl,
+      documentBackUrl: data.documentBackUrl,
+      selfieUrl: data.selfieUrl,
+      submittedAt: Date.now(),
+    };
+    identityDocuments[existing.id] = updated;
+    return updated;
+  }
+
+  // Create new submission
+  const doc: IdentityDocument = {
+    id: id('identity'),
+    userId,
+    role,
+    docType: data.docType,
+    docNumber: data.docNumber,
+    legalFirstName: data.legalFirstName,
+    legalLastName: data.legalLastName,
+    dateOfBirth: data.dateOfBirth,
+    nationality: data.nationality,
+    documentFrontUrl: data.documentFrontUrl,
+    documentBackUrl: data.documentBackUrl,
+    selfieUrl: data.selfieUrl,
+    status: 'pending',
+    submittedAt: Date.now(),
+  };
+
+  identityDocuments[doc.id] = doc;
+  return doc;
+}
+
+/**
+ * Get identity verification status for a user
+ */
+export function getIdentityVerification(userId: string, role: UserRole): IdentityDocument | null {
+  return Object.values(identityDocuments).find(
+    doc => doc.userId === userId && doc.role === role
+  ) || null;
+}
+
+/**
+ * Update verification status (admin function)
+ */
+export function updateVerificationStatus(
+  documentId: string,
+  status: VerificationStatus,
+  rejectionReason?: string,
+  reviewedBy?: string
+): IdentityDocument | null {
+  const doc = identityDocuments[documentId];
+  if (!doc) return null;
+
+  doc.status = status;
+  doc.rejectionReason = rejectionReason;
+  doc.reviewedAt = Date.now();
+  doc.reviewedBy = reviewedBy;
+
+  return doc;
+}
+
+/**
+ * List all identity verifications (admin function)
+ */
+export function listIdentityVerifications(filters?: {
+  role?: UserRole;
+  status?: VerificationStatus;
+}): IdentityDocument[] {
+  let docs = Object.values(identityDocuments);
+
+  if (filters?.role) {
+    docs = docs.filter(doc => doc.role === filters.role);
+  }
+
+  if (filters?.status) {
+    docs = docs.filter(doc => doc.status === filters.status);
+  }
+
+  return docs.sort((a, b) => b.submittedAt - a.submittedAt);
+}
+
+/**
+ * Delete identity document (admin function)
+ */
+export function deleteIdentityDocument(documentId: string): boolean {
+  if (!identityDocuments[documentId]) return false;
+  delete identityDocuments[documentId];
   return true;
 }
