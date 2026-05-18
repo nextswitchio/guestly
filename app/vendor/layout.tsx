@@ -11,15 +11,11 @@ import Footer from "@/components/layout/Footer";
 export default function VendorLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLandingPage = pathname === "/vendor";
+  const isOnboarding = pathname === "/vendor/onboarding";
 
-  if (isLandingPage) {
+  if (isLandingPage || isOnboarding) {
     return (
-      <div className="flex min-h-screen flex-col bg-dark">
-        <TopNav />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <BottomNav />
-      </div>
+      <>{children}</>
     );
   }
 
