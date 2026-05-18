@@ -15,9 +15,6 @@ const nextConfig: NextConfig = {
     ],
   },
   
-  // SWC minification
-  swcMinify: true,
-  
   // Compiler optimizations
   compiler: {
     // Remove console logs in production
