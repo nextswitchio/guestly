@@ -141,7 +141,7 @@ const nextConfig: NextConfig = {
           
           // Socket.IO
           socketio: {
-            test: /[\\/]node_modules[\\/]socket\.io-client[\\/]/,
+            test: /[\\/]node_modules[\\/]socket\\.io-client[\\/]/,
             name: 'socketio',
             chunks: 'all',
             priority: 20,
