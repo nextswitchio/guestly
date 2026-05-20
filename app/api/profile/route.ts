@@ -1,34 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
+import { BACKEND_URL } from "@/lib/api/client";
+
+function getAuthHeaders(req: NextRequest): Record<string, string> {
+  const token = req.cookies.get("access_token")?.value;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export async function GET(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  const role = req.cookies.get("role")?.value;
-  
-  if (!userId) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/users/me`, {
+      headers: getAuthHeaders(req),
+    });
+    const data = await res.json();
+    return NextResponse.json({ success: true, profile: data }, { status: res.status });
+  } catch {
+    return NextResponse.json({ success: false, error: "Backend unavailable" }, { status: 503 });
   }
+}
+
+export async function PUT(req: NextRequest) {
+  const token = req.cookies.get("access_token")?.value;
+  const body = await req.json().catch(() => ({}));
 
   try {
-    // Mock user profile data
-    const profile = {
-      id: userId,
-      email: userId,
-      name: role === 'organiser' ? 'Test Organiser' : 'Test Attendee',
-      role,
-      createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000, // 30 days ago
-      eventsAttended: role === 'attendee' ? 5 : 0,
-      eventsOrganized: role === 'organiser' ? 3 : 0
-    };
-    
-    return NextResponse.json({
-      success: true,
-      data: profile
+    const res = await fetch(`${BACKEND_URL}/api/v1/users/me`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
     });
-  } catch (error) {
-    console.error('Error fetching profile:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch profile' },
-      { status: 500 }
-    );
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
   }
 }

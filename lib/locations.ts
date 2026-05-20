@@ -114,6 +114,20 @@ export async function detectUserCountryBrowser(): Promise<Country> {
 }
 
 // Synchronous fallback for server-side rendering
-export function detectUserCountry(): Country {
-  return "Nigeria";
+export function detectUserCountry(headers?: Headers): Country {
+  if (headers) {
+    const vercelCountry = headers.get('x-vercel-ip-country');
+    if (vercelCountry) {
+      if (vercelCountry.toLowerCase() === 'gh') return 'Ghana';
+      if (vercelCountry.toLowerCase() === 'ke') return 'Kenya';
+      if (vercelCountry.toLowerCase() === 'ng') return 'Nigeria';
+    }
+    const cfCountry = headers.get('cf-ipcountry');
+    if (cfCountry) {
+      if (cfCountry.toLowerCase() === 'gh') return 'Ghana';
+      if (cfCountry.toLowerCase() === 'ke') return 'Kenya';
+      if (cfCountry.toLowerCase() === 'ng') return 'Nigeria';
+    }
+  }
+  return 'Nigeria';
 }

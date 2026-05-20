@@ -200,14 +200,14 @@ export function EnhancedUserManagementTable({
         <div className="text-sm text-right">
           {value && typeof value === 'number' && value > 0 ? (
             <span className="text-[var(--foreground)]">
-              {DataTableFormatters.currency(value / 100)}
+              {DataTableFormatters.currency(value)}
             </span>
           ) : (
-            <span className="text-[var(--foreground-muted)]">$0</span>
+            <span className="text-[var(--foreground-muted)]">₦0</span>
           )}
         </div>
       ),
-      exportRender: (value) => value && typeof value === 'number' ? DataTableFormatters.currency(value / 100) : '$0',
+      exportRender: (value) => value && typeof value === 'number' ? DataTableFormatters.currency(value) : '₦0',
     },
     {
       key: 'profileCompleteness',
@@ -529,7 +529,7 @@ function UserDetailsModal({
   }, [user.id]);
 
   const formatCurrency = (amount: number) => {
-    return DataTableFormatters.currency(amount / 100);
+    return DataTableFormatters.currency(amount);
   };
 
   return (

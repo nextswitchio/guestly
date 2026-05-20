@@ -4,7 +4,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Icon from "@/components/ui/Icon";
-import { UserManagementTable } from "@/components/admin/UserManagementTable";
+import { EnhancedUserManagementTable } from "@/components/admin/EnhancedUserManagementTable";
 import { UserStatsCards } from "@/components/admin/UserStatsCards";
 import { UserFilters } from "@/components/admin/UserFilters";
 
@@ -18,7 +18,6 @@ export default function AdminUsersPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [totalPages, setTotalPages] = React.useState(1);
 
-  // Fetch user statistics
   const fetchStats = React.useCallback(async () => {
     try {
       const response = await fetch('/api/admin/users?stats=true');
@@ -31,7 +30,6 @@ export default function AdminUsersPage() {
     }
   }, []);
 
-  // Fetch users with filters
   const fetchUsers = React.useCallback(async () => {
     setLoading(true);
     try {
@@ -58,33 +56,29 @@ export default function AdminUsersPage() {
     }
   }, [currentPage, searchQuery, roleFilter, statusFilter]);
 
-  // Initial data fetch
   React.useEffect(() => {
     fetchStats();
     fetchUsers();
   }, [fetchStats, fetchUsers]);
 
-  // Handle search with debounce
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      setCurrentPage(1); // Reset to first page on search
+      setCurrentPage(1);
       fetchUsers();
     }, 300);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Handle filter changes
   const handleFilterChange = (type: 'role' | 'status', value: string) => {
     if (type === 'role') {
       setRoleFilter(value);
     } else {
       setStatusFilter(value);
     }
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1);
   };
 
-  // Handle user role/status update
   const handleUserUpdate = async (userId: string, updates: { role?: string; status?: string }) => {
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
@@ -95,7 +89,6 @@ export default function AdminUsersPage() {
 
       const data = await response.json();
       if (data.success) {
-        // Refresh users list and stats
         fetchUsers();
         fetchStats();
       } else {
@@ -106,9 +99,60 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleBulkUpdate = async (userIds: string[], updates: { role?: string; status?: string }) => {
+    try {
+      const response = await fetch('/api/admin/users/bulk', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds, updates })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        fetchUsers();
+        fetchStats();
+      }
+    } catch (error) {
+      console.error('Error bulk updating users:', error);
+    }
+  };
+
+  const handleUserDelete = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        fetchUsers();
+        fetchStats();
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  };
+
+  const handleBulkDelete = async (userIds: string[]) => {
+    try {
+      const response = await fetch('/api/admin/users/bulk', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        fetchUsers();
+        fetchStats();
+      }
+    } catch (error) {
+      console.error('Error bulk deleting users:', error);
+    }
+  };
+
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-[var(--foreground)]">User Management</h1>
         <p className="text-sm text-[var(--foreground-muted)]">
@@ -116,10 +160,8 @@ export default function AdminUsersPage() {
         </p>
       </div>
 
-      {/* User Statistics */}
       {stats && <UserStatsCards stats={stats} />}
 
-      {/* Search and Filters */}
       <Card className="p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex-1 max-w-md">
@@ -143,15 +185,16 @@ export default function AdminUsersPage() {
         </div>
       </Card>
 
-      {/* Users Table */}
       <Card className="overflow-hidden">
-        <UserManagementTable
+        <EnhancedUserManagementTable
           users={users}
           loading={loading}
           onUserUpdate={handleUserUpdate}
+          onBulkUpdate={handleBulkUpdate}
+          onUserDelete={handleUserDelete}
+          onBulkDelete={handleBulkDelete}
         />
         
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-[var(--surface-border)] px-6 py-4">
             <div className="text-sm text-[var(--foreground-muted)]">

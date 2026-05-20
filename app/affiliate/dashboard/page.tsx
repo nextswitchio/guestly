@@ -48,10 +48,29 @@ export default function AffiliateDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleCollaborationAction = async (collabId: string, action: 'accept' | 'decline') => {
+    try {
+      setActionLoading(collabId);
+      const res = await fetch('/api/affiliates/collaborations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ collaborationId: collabId, action }),
+      });
+      if (res.ok) {
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Error handling collaboration:', error);
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -203,8 +222,20 @@ export default function AffiliateDashboardPage() {
                   <p className="text-sm text-neutral-500 capitalize">{collab.compensationType.replace('-', ' ')}{collab.commissionRate ? ` • ${collab.commissionRate}% commission` : collab.compensationAmount ? ` • ₦${collab.compensationAmount.toLocaleString()}` : collab.freeTicketCount ? ` • ${collab.freeTicketCount} free tickets` : ''}</p>
                 </div>
                 <div className="flex gap-2">
-                  <button className="rounded-xl bg-lime px-4 py-2 text-sm font-semibold text-dark hover:bg-lime-hover transition-colors">Accept</button>
-                  <button className="rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors">Decline</button>
+                  <button
+                    onClick={() => handleCollaborationAction(collab.id, 'accept')}
+                    disabled={actionLoading === collab.id}
+                    className="rounded-xl bg-lime px-4 py-2 text-sm font-semibold text-dark hover:bg-lime-hover transition-colors disabled:opacity-50"
+                  >
+                    {actionLoading === collab.id ? '...' : 'Accept'}
+                  </button>
+                  <button
+                    onClick={() => handleCollaborationAction(collab.id, 'decline')}
+                    disabled={actionLoading === collab.id}
+                    className="rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors disabled:opacity-50"
+                  >
+                    {actionLoading === collab.id ? '...' : 'Decline'}
+                  </button>
                 </div>
               </div>
             ))}

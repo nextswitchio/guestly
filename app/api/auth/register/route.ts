@@ -1,32 +1,71 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createWallet } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const email: string = body?.email || "";
-  const role: "attendee" | "organiser" | "vendor" = body?.role || "attendee";
-  if (!email) {
-    return NextResponse.json({ ok: false, error: "Email required" }, { status: 400 });
+  const { email, password, displayName, role } = body;
+
+  if (!email || !password || !displayName) {
+    return NextResponse.json(
+      { ok: false, error: "Email, password, and display name required" },
+      { status: 400 }
+    );
   }
-  
-  // Generate a unique user ID for the new user
-  // In a real system, this would come from the database after user creation
-  const userId = `user_${Math.random().toString(36).slice(2)}_${Date.now().toString(36)}`;
-  
+
   try {
-    // Create wallet automatically for the new user
-    createWallet(userId);
-    
-    return NextResponse.json({ 
-      ok: true, 
-      role, 
-      userId,
-      message: "Registered. Check your email to verify." 
+    const res = await fetch(`${BACKEND_URL}/api/v1/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, display_name: displayName, role }),
     });
-  } catch (error) {
-    return NextResponse.json({ 
-      ok: false, 
-      error: error instanceof Error ? error.message : "Failed to create wallet" 
-    }, { status: 500 });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { ok: false, error: data.detail || "Registration failed" },
+        { status: res.status }
+      );
+    }
+
+    const response = NextResponse.json({
+      ok: true,
+      user: data.user,
+      role: data.user?.role,
+    });
+
+    if (data.tokens) {
+      response.cookies.set("access_token", data.tokens.access_token, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: data.tokens.expires_in || 1800,
+      });
+      response.cookies.set("refresh_token", data.tokens.refresh_token, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      response.cookies.set("role", data.user?.role || "attendee", {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      response.cookies.set("user_id", data.user?.id || "", {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+    }
+
+    return response;
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Backend unavailable" },
+      { status: 503 }
+    );
   }
 }

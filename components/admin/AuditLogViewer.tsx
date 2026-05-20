@@ -46,24 +46,24 @@ const actionIcons: Record<string, string> = {
 };
 
 const actionColors: Record<string, string> = {
-  user_role_changed: 'bg-blue-100 text-blue-800',
-  user_status_changed: 'bg-blue-100 text-blue-800',
-  event_featured: 'bg-green-100 text-green-800',
-  event_unfeatured: 'bg-yellow-100 text-yellow-800',
-  dispute_created: 'bg-red-100 text-red-800',
-  dispute_assigned: 'bg-orange-100 text-orange-800',
-  dispute_resolved: 'bg-green-100 text-green-800',
-  dispute_rejected: 'bg-red-100 text-red-800',
-  refund_processed: 'bg-purple-100 text-purple-800',
-  announcement_created: 'bg-blue-100 text-blue-800',
-  announcement_published: 'bg-green-100 text-green-800',
-  announcement_deleted: 'bg-red-100 text-red-800',
-  commission_settled: 'bg-green-100 text-green-800',
-  fraud_alert_created: 'bg-red-100 text-red-800',
-  fraud_alert_resolved: 'bg-green-100 text-green-800',
-  platform_settings_changed: 'bg-gray-100 text-gray-800',
-  admin_login: 'bg-blue-100 text-blue-800',
-  admin_logout: 'bg-gray-100 text-gray-800',
+  user_role_changed: 'bg-[var(--color-primary-100)] text-[var(--color-primary-800)]',
+  user_status_changed: 'bg-[var(--color-primary-100)] text-[var(--color-primary-800)]',
+  event_featured: 'bg-[var(--color-success-100)] text-[var(--color-success-800)]',
+  event_unfeatured: 'bg-[var(--color-warning-100)] text-[var(--color-warning-800)]',
+  dispute_created: 'bg-[var(--color-danger-100)] text-[var(--color-danger-800)]',
+  dispute_assigned: 'bg-[var(--color-orange-100)] text-[var(--color-orange-800)]',
+  dispute_resolved: 'bg-[var(--color-success-100)] text-[var(--color-success-800)]',
+  dispute_rejected: 'bg-[var(--color-danger-100)] text-[var(--color-danger-800)]',
+  refund_processed: 'bg-[var(--color-purple-100)] text-[var(--color-purple-800)]',
+  announcement_created: 'bg-[var(--color-primary-100)] text-[var(--color-primary-800)]',
+  announcement_published: 'bg-[var(--color-success-100)] text-[var(--color-success-800)]',
+  announcement_deleted: 'bg-[var(--color-danger-100)] text-[var(--color-danger-800)]',
+  commission_settled: 'bg-[var(--color-success-100)] text-[var(--color-success-800)]',
+  fraud_alert_created: 'bg-[var(--color-danger-100)] text-[var(--color-danger-800)]',
+  fraud_alert_resolved: 'bg-[var(--color-success-100)] text-[var(--color-success-800)]',
+  platform_settings_changed: 'bg-[var(--surface-secondary)] text-[var(--foreground-muted)]',
+  admin_login: 'bg-[var(--color-primary-100)] text-[var(--color-primary-800)]',
+  admin_logout: 'bg-[var(--surface-secondary)] text-[var(--foreground-muted)]',
 };
 
 export function AuditLogViewer({ className }: AuditLogViewerProps) {
@@ -147,8 +147,8 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
 
   const formatDetails = (details: Record<string, any>) => {
     return Object.entries(details).map(([key, value]) => (
-      <span key={key} className="text-xs text-gray-600">
-        {key}: <span className="font-medium">{JSON.stringify(value)}</span>
+      <span key={key} className="text-xs text-[var(--foreground-muted)]">
+        {key}: <span className="font-medium text-[var(--foreground)]">{JSON.stringify(value)}</span>
       </span>
     ));
   };
@@ -156,7 +156,7 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
   if (error) {
     return (
       <Card className={`p-6 ${className}`}>
-        <div className="text-center text-red-600">
+        <div className="text-center text-[var(--color-danger-600)]">
           <Icon name="alert-triangle" className="h-8 w-8 mx-auto mb-2" />
           <p>{error}</p>
           <Button onClick={fetchLogs} className="mt-4">
@@ -169,11 +169,10 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
 
   return (
     <div className={className}>
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Audit Logs</h2>
-          <p className="text-gray-600">Track all administrative actions and changes</p>
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">Audit Logs</h2>
+          <p className="text-[var(--foreground-muted)]">Track all administrative actions and changes</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -189,7 +188,6 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
         </div>
       </div>
 
-      {/* Filters */}
       {showFilters && (
         <Card className="p-4 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -199,7 +197,7 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
               onChange={(e) => handleFilterChange('adminUserId', e.target.value)}
             />
             <select
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="px-3 py-2 border border-[var(--surface-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] bg-[var(--surface-primary)] text-[var(--foreground)]"
               value={filters.action}
               onChange={(e) => handleFilterChange('action', e.target.value)}
             >
@@ -213,7 +211,7 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
               <option value="announcement_created">Announcement Created</option>
             </select>
             <select
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="px-3 py-2 border border-[var(--surface-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] bg-[var(--surface-primary)] text-[var(--foreground)]"
               value={filters.targetType}
               onChange={(e) => handleFilterChange('targetType', e.target.value)}
             >
@@ -245,80 +243,79 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
         </Card>
       )}
 
-      {/* Logs Table */}
       <Card className="overflow-hidden">
         {loading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading audit logs...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary-600)] mx-auto"></div>
+            <p className="mt-2 text-[var(--foreground-muted)]">Loading audit logs...</p>
           </div>
         ) : logs.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-[var(--foreground-muted)]">
             <Icon name="file-text" className="h-8 w-8 mx-auto mb-2" />
             <p>No audit logs found</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-[var(--surface-secondary)] border-b border-[var(--surface-border)]">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
                     Action
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
                     Admin
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
                     Target
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
                     Details
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
                     Timestamp
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-[var(--surface-primary)] divide-y divide-[var(--surface-border)]">
                 {logs.map((log) => {
                   const actionIcon = actionIcons[log.action] || 'file-text';
                   return (
-                    <tr key={log.id} className="hover:bg-gray-50">
+                    <tr key={log.id} className="hover:bg-[var(--surface-hover)]">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className={`p-2 rounded-full ${actionColors[log.action] || 'bg-gray-100 text-gray-800'}`}>
+                          <div className={`p-2 rounded-full ${actionColors[log.action] || 'bg-[var(--surface-secondary)] text-[var(--foreground-muted)]'}`}>
                             <Icon name={actionIcon as any} className="h-4 w-4" />
                           </div>
                           <div className="ml-3">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-[var(--foreground)]">
                               {formatAction(log.action)}
                             </div>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[var(--surface-secondary)] text-[var(--foreground-muted)]">
                               {log.targetType}
                             </span>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{log.adminUserName}</div>
-                        <div className="text-xs text-gray-500">{log.adminUserId}</div>
+                        <div className="text-sm text-[var(--foreground)]">{log.adminUserName}</div>
+                        <div className="text-xs text-[var(--foreground-muted)]">{log.adminUserId}</div>
                         {log.ipAddress && (
-                          <div className="text-xs text-gray-400">{log.ipAddress}</div>
+                          <div className="text-xs text-[var(--foreground-muted)]">{log.ipAddress}</div>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-[var(--foreground)]">
                           {log.targetName || log.targetId}
                         </div>
-                        <div className="text-xs text-gray-500">{log.targetId}</div>
+                        <div className="text-xs text-[var(--foreground-muted)]">{log.targetId}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 space-y-1">
+                        <div className="text-sm text-[var(--foreground)] space-y-1">
                           {formatDetails(log.details)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
+                        <div className="flex items-center text-sm text-[var(--foreground)]">
                           <Icon name="clock" className="h-4 w-4 mr-1" />
                           {new Date(log.timestamp).toLocaleString()}
                         </div>
@@ -331,10 +328,9 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
           </div>
         )}
 
-        {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="px-6 py-3 border-t bg-gray-50 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
+          <div className="px-6 py-3 border-t border-[var(--surface-border)] bg-[var(--surface-secondary)] flex items-center justify-between">
+            <div className="text-sm text-[var(--foreground-muted)]">
               Showing {((pagination.page - 1) * pagination.limit) + 1} to{' '}
               {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
               {pagination.total} results
@@ -348,7 +344,7 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
               >
                 Previous
               </Button>
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-[var(--foreground-muted)]">
                 Page {pagination.page} of {pagination.totalPages}
               </span>
               <Button

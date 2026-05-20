@@ -1,83 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getNotifications, markAllUserNotificationsRead } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * GET /api/notifications
- * Get notifications for authenticated user
- */
+function getAuthHeaders(req: NextRequest): Record<string, string> {
+  const token = req.cookies.get("access_token")?.value;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl;
+  const page = searchParams.get("page") || "1";
+  const page_size = searchParams.get("page_size") || "20";
+
   try {
-    const userId = req.cookies.get("user_id")?.value;
-
-    if (!userId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { code: "UNAUTHORIZED", message: "Unauthorized" },
-        },
-        { status: 401 }
-      );
-    }
-
-    const { searchParams } = new URL(req.url);
-    const unreadOnly = searchParams.get("unreadOnly") === "true";
-
-    const notifications = getNotifications(userId, unreadOnly);
-
-    return NextResponse.json({
-      success: true,
-      data: notifications,
-    });
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Failed to fetch notifications",
-        },
-      },
-      { status: 500 }
+    const res = await fetch(
+      `${BACKEND_URL}/api/v1/community/notifications?page=${page}&page_size=${page_size}`,
+      { headers: getAuthHeaders(req) }
     );
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ notifications: [], total: 0, unread_count: 0 });
   }
 }
 
-/**
- * PUT /api/notifications
- * Mark all notifications as read
- */
-export async function PUT(req: NextRequest) {
-  try {
-    const userId = req.cookies.get("user_id")?.value;
+export async function POST(req: NextRequest) {
+  const token = req.cookies.get("access_token")?.value;
+  const body = await req.json().catch(() => ({}));
+  const { searchParams } = req.nextUrl;
+  const action = searchParams.get("action");
 
-    if (!userId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { code: "UNAUTHORIZED", message: "Unauthorized" },
-        },
-        { status: 401 }
-      );
+  if (action === "read-all") {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/v1/community/notifications/read-all`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+      const data = await res.json();
+      return NextResponse.json(data, { status: res.status });
+    } catch {
+      return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
     }
-
-    const count = markAllUserNotificationsRead(userId);
-
-    return NextResponse.json({
-      success: true,
-      data: { markedCount: count },
-    });
-  } catch (error) {
-    console.error("Error marking notifications as read:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Failed to mark notifications as read",
-        },
-      },
-      { status: 500 }
-    );
   }
+
+  return NextResponse.json({ error: "Unknown action" }, { status: 400 });
 }

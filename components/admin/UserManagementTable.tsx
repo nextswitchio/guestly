@@ -43,12 +43,12 @@ export function UserManagementTable({ users, loading, onUserUpdate }: UserManage
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NGN',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount / 100); // Assuming amounts are in cents
+    }).format(amount);
   };
 
   const handleViewDetails = (user: AdminUser) => {
@@ -257,12 +257,12 @@ function UserDetailsModal({
   }, [user.id]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NGN',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount / 100);
+    }).format(amount);
   };
 
   return (

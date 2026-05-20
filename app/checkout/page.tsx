@@ -218,21 +218,25 @@ function CheckoutContent() {
       
       Promise.all(promises).then(async results => {
         if (results.every(r => r.success)) {
-          // In this demo, we simulate instant payment and confirmation
           const firstOrderId = results[0].order?.id || results[0].orderId;
           
-          // Call payment API to mark as paid
-          await fetch("/api/payment", {
+          const payRes = await fetch("/api/payment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ orderId: firstOrderId, method: "wallet" }),
           });
+          const payData = await payRes.json();
+          
+          if (!payData.ok) {
+            setProcessing(false);
+            alert(payData.error || "Payment failed");
+            return;
+          }
 
           setShowConfetti(true);
           setProcessing(false);
           setOrderComplete(true);
           
-          // Fetch the full order details for the confirmation view
           const orderRes = await fetch(`/api/orders?id=${firstOrderId}`);
           const orderData = await orderRes.json();
           if (orderData.order) {
@@ -240,7 +244,6 @@ function CheckoutContent() {
           }
           
           clearAll();
-          // We don't redirect immediately anymore, we show the confirmation in-place or after a delay
           setTimeout(() => {
             const ids = results.map(r => r.order?.id || r.orderId).filter(Boolean).join(",");
             router.replace(`/confirmation/${ids.split(',')[0]}?allIds=${ids}`);
@@ -256,7 +259,6 @@ function CheckoutContent() {
     if (!order) return;
     
     setProcessing(true);
-    // Instant payment for ticket-only flow
     fetch("/api/payment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

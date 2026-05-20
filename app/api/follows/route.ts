@@ -1,26 +1,70 @@
 import { NextRequest, NextResponse } from "next/server";
-import { followUser, unfollowUser, getFollowing } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
+
+function getAuthHeaders(req: NextRequest): Record<string, string> {
+  const token = req.cookies.get("access_token")?.value;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export async function GET(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  const { searchParams } = req.nextUrl;
+  const type = searchParams.get("type") || "following";
 
-  const following = getFollowing(userId);
-  return NextResponse.json({ success: true, data: following });
+  try {
+    const res = await fetch(
+      `${BACKEND_URL}/api/v1/community/${type}`,
+      { headers: getAuthHeaders(req) }
+    );
+    const data = await res.json();
+    return NextResponse.json({ success: true, data }, { status: res.status });
+  } catch {
+    return NextResponse.json({ success: true, data: [] });
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  const token = req.cookies.get("access_token")?.value;
+  const body = await req.json().catch(() => ({}));
 
-  const { organizerId, action } = await req.json();
-  if (!organizerId) return NextResponse.json({ success: false, error: "organizerId required" }, { status: 400 });
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/community/follow`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        following_id: body.followingId,
+        follow_type: body.followType || "organizer",
+      }),
+    });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
+  }
+}
 
-  if (action === "unfollow") {
-    unfollowUser(userId, organizerId);
-    return NextResponse.json({ success: true, following: false });
+export async function DELETE(req: NextRequest) {
+  const token = req.cookies.get("access_token")?.value;
+  const { searchParams } = req.nextUrl;
+  const followingId = searchParams.get("followingId");
+  const followType = searchParams.get("followType") || "organizer";
+
+  if (!followingId) {
+    return NextResponse.json({ error: "followingId required" }, { status: 400 });
   }
 
-  followUser(userId, organizerId, "organizer");
-  return NextResponse.json({ success: true, following: true });
+  try {
+    const res = await fetch(
+      `${BACKEND_URL}/api/v1/community/follow/${followingId}?follow_type=${followType}`,
+      {
+        method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
+    return new NextResponse(null, { status: res.status });
+  } catch {
+    return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
+  }
 }

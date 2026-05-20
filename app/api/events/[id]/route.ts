@@ -1,27 +1,63 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getEventById, events } from "@/lib/events";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * GET /api/events/[id]
- * Fetch a single event by ID
- */
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const eventId = id;
 
-  const event = getEventById(eventId);
-  if (!event) {
-    return NextResponse.json(
-      { success: false, error: "Event not found" },
-      { status: 404 }
-    );
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`);
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
   }
+}
 
-  return NextResponse.json({
-    success: true,
-    data: event
-  });
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const token = req.cookies.get("access_token")?.value;
+  const body = await req.json().catch(() => ({}));
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const token = req.cookies.get("access_token")?.value;
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, {
+      method: "DELETE",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    return new NextResponse(null, { status: res.status });
+  } catch {
+    return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
+  }
 }

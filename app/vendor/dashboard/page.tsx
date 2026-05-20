@@ -12,12 +12,16 @@ export default function VendorDashboardPage() {
   const [pendingInvitations, setPendingInvitations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<{ plan: string; expiresAt: number } | null>(null);
+  const [vendorId, setVendorId] = useState<string>("");
 
   useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     setLoading(true);
     try {
+      const userId = document.cookie.match(/user_id=([^;]+)/)?.[1];
+      if (userId) setVendorId(userId);
+
       const [subRes, invitesRes] = await Promise.all([
         fetch("/api/vendor/subscription"),
         fetch("/api/vendors/invitations"),
@@ -115,9 +119,9 @@ export default function VendorDashboardPage() {
         ))}
       </div>
 
-      {isPremium && (
+      {isPremium && vendorId && (
         <div className="mb-2">
-          <VendorAnalytics vendorId={""} />
+          <VendorAnalytics vendorId={vendorId} />
         </div>
       )}
 

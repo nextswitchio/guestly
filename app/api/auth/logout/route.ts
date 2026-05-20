@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function POST(_req: NextRequest) {
-  const res = NextResponse.json({ ok: true });
-  res.cookies.set("access_token", "", { httpOnly: true, path: "/", maxAge: 0 });
-  res.cookies.set("refresh_token", "", { httpOnly: true, path: "/", maxAge: 0 });
-  res.cookies.set("role", "", { httpOnly: true, path: "/", maxAge: 0 });
-  res.cookies.set("user_id", "", { httpOnly: true, path: "/", maxAge: 0 });
-  return res;
+export async function POST() {
+  const response = NextResponse.json({ ok: true });
+  response.cookies.set("access_token", "", { maxAge: 0, path: "/" });
+  response.cookies.set("refresh_token", "", { maxAge: 0, path: "/" });
+  response.cookies.set("role", "", { maxAge: 0, path: "/" });
+  response.cookies.set("user_id", "", { maxAge: 0, path: "/" });
+  return response;
 }

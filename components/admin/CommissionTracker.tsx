@@ -35,6 +35,7 @@ interface Commission {
 export default function CommissionTracker() {
   const [summary, setSummary] = React.useState<CommissionSummary | null>(null);
   const [commissions, setCommissions] = React.useState<Commission[]>([]);
+  const [trends, setTrends] = React.useState<{ label: string; value: number }[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
 
@@ -46,7 +47,6 @@ export default function CommissionTracker() {
     try {
       setLoading(true);
       
-      // Fetch summary
       const summaryResponse = await fetch('/api/admin/commissions?action=summary');
       const summaryData = await summaryResponse.json();
       
@@ -54,7 +54,13 @@ export default function CommissionTracker() {
         setSummary(summaryData.data);
       }
 
-      // Fetch commissions
+      const trendsResponse = await fetch('/api/admin/commissions?action=trends');
+      const trendsData = await trendsResponse.json();
+      
+      if (trendsData.success) {
+        setTrends(trendsData.data);
+      }
+
       const statusFilter = selectedStatus !== 'all' ? `&status=${selectedStatus}` : '';
       const commissionsResponse = await fetch(`/api/admin/commissions?${statusFilter}`);
       const commissionsData = await commissionsResponse.json();
@@ -107,10 +113,10 @@ export default function CommissionTracker() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD',
-    }).format(amount / 100);
+      currency: 'NGN',
+    }).format(amount);
   };
 
   const getStatusColor = (status: string) => {
@@ -201,10 +207,10 @@ export default function CommissionTracker() {
             <div className="h-64">
               <BarChart 
                 data={[
-                  { label: "Settled", value: summary.totalSettled / 100 },
-                  { label: "Pending", value: summary.totalPending / 100 },
-                  { label: "Processing", value: summary.totalProcessing / 100 },
-                  { label: "Disputed", value: summary.totalDisputed / 100 },
+                  { label: "Settled", value: summary.totalSettled },
+                  { label: "Pending", value: summary.totalPending },
+                  { label: "Processing", value: summary.totalProcessing },
+                  { label: "Disputed", value: summary.totalDisputed },
                 ]}
               />
             </div>
@@ -213,18 +219,11 @@ export default function CommissionTracker() {
           <Card className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-semibold text-[var(--foreground)]">Commission Trends</h3>
-              <span className="text-xs text-[var(--foreground-muted)]">Last 6 months</span>
+              <span className="text-xs text-[var(--foreground-muted)]">Last {trends.length} months</span>
             </div>
             <div className="h-64">
               <LineChart 
-                data={[
-                  { label: "Jan", value: 4500 },
-                  { label: "Feb", value: 5200 },
-                  { label: "Mar", value: 6100 },
-                  { label: "Apr", value: 5900 },
-                  { label: "May", value: 7200 },
-                  { label: "Jun", value: 8500 },
-                ]}
+                data={trends.length > 0 ? trends : [{ label: "No data", value: 0 }]}
                 color="#4392F1"
               />
             </div>

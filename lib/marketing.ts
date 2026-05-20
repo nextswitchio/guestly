@@ -6330,6 +6330,29 @@ export function deleteBlogPost(postId: string): boolean {
   return true;
 }
 
+const newsletterSubscribers: Record<string, { email: string; subscribedAt: number; confirmed: boolean }> = {};
+
+export function subscribeToNewsletter(email: string) {
+  const existing = Object.values(newsletterSubscribers).find(s => s.email === email);
+  if (existing) {
+    return { success: false, message: 'Already subscribed' };
+  }
+  const id = `ns_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  newsletterSubscribers[id] = { email, subscribedAt: Date.now(), confirmed: true };
+  return { success: true, id, email };
+}
+
+export function getNewsletterSubscribers() {
+  return Object.values(newsletterSubscribers);
+}
+
+export function unsubscribeFromNewsletter(email: string) {
+  const entry = Object.entries(newsletterSubscribers).find(([, s]) => s.email === email);
+  if (!entry) return { success: false, message: 'Not subscribed' };
+  delete newsletterSubscribers[entry[0]];
+  return { success: true };
+}
+
 /**
  * Distribution result for blog post distribution across channels
  * Requirements: 16.3

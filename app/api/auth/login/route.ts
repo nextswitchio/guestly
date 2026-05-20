@@ -1,47 +1,68 @@
 import { NextRequest, NextResponse } from "next/server";
-
-function makeToken(prefix: string) {
-  const rand = Math.random().toString(36).slice(2);
-  const time = Date.now().toString(36);
-  return `${prefix}.${rand}.${time}`;
-}
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const email: string = body?.email || "";
-  const role: "attendee" | "organiser" | "vendor" | "admin" = body?.role || "attendee";
+  const { email, password } = body;
 
   if (!email) {
     return NextResponse.json({ ok: false, error: "Email required" }, { status: 400 });
   }
 
-  const access = makeToken("access");
-  const refresh = makeToken("refresh");
-  const res = NextResponse.json({ ok: true, role });
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-  res.cookies.set("access_token", access, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 15,
-  });
-  res.cookies.set("refresh_token", refresh, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
-  res.cookies.set("role", role, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
-  res.cookies.set("user_id", email.toLowerCase(), {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
-  return res;
+    const data = await res.json();
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { ok: false, error: data.detail || "Login failed" },
+        { status: res.status }
+      );
+    }
+
+    const response = NextResponse.json({
+      ok: true,
+      user: data.user,
+      role: data.user?.role,
+    });
+
+    if (data.tokens) {
+      response.cookies.set("access_token", data.tokens.access_token, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: data.tokens.expires_in || 1800,
+      });
+      response.cookies.set("refresh_token", data.tokens.refresh_token, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      response.cookies.set("role", data.user?.role || "attendee", {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      response.cookies.set("user_id", data.user?.id || "", {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+    }
+
+    return response;
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Backend unavailable" },
+      { status: 503 }
+    );
+  }
 }

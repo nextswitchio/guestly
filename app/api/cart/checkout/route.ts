@@ -1,51 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createOrder } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-// Simple in-memory cart storage
-const userCarts: Record<string, any[]> = {};
+function getAuthHeaders(req: NextRequest): Record<string, string> {
+  const token = req.cookies.get("access_token")?.value;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export async function POST(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  
-  if (!userId) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  const token = req.cookies.get("access_token")?.value;
+  const body = await req.json().catch(() => ({}));
+
+  const { eventId, items, shippingAddress } = body;
+
+  if (!eventId || !items) {
+    return NextResponse.json(
+      { success: false, error: "Event ID and items required" },
+      { status: 400 }
+    );
   }
 
   try {
-    const body = await req.json();
-    const { paymentMethod, shippingAddress } = body;
-    
-    const cart = userCarts[userId] || [];
-    
-    if (cart.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "Cart is empty" },
-        { status: 400 }
-      );
-    }
-    
-    // Create a mock order for merchandise
-    const orderId = Math.random().toString(36).substr(2, 9);
-    const total = cart.length * 3000; // Mock total
-    
-    // Clear cart after checkout
-    userCarts[userId] = [];
-    
-    return NextResponse.json({
-      success: true,
-      data: {
-        orderId,
-        total,
-        status: 'paid',
-        items: cart,
-        shippingAddress
-      }
+    const res = await fetch(`${BACKEND_URL}/api/v1/merchandise/orders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        event_id: eventId,
+        items: items.map((item: any) => ({
+          product_id: item.productId,
+          quantity: item.quantity,
+          size: item.size,
+        })),
+        shipping_address: shippingAddress,
+      }),
     });
-  } catch (error) {
-    console.error('Error during checkout:', error);
+
+    const data = await res.json();
+
+    if (res.ok) {
+      return NextResponse.json({ success: true, order: data, orderId: data.id });
+    }
+
     return NextResponse.json(
-      { success: false, error: 'Checkout failed' },
-      { status: 500 }
+      { success: false, error: data.detail || "Checkout failed" },
+      { status: res.status }
+    );
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Backend unavailable" },
+      { status: 503 }
     );
   }
 }

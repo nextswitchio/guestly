@@ -1,28 +1,4 @@
 User-agent: *
 Allow: /
-Allow: /explore
-Allow: /events/
-Allow: /vendors/
-Allow: /organisers/
-Allow: /affiliates/
-Allow: /near
-Allow: /cities/
-Allow: /communities/
 
-# Block authenticated areas
-Disallow: /dashboard/
-Disallow: /attendee/
-Disallow: /vendor/
-Disallow: /affiliate/
-Disallow: /admin/
-Disallow: /organiser/
-Disallow: /wallet/
-Disallow: /payment/
-Disallow: /api/
-
-# Block search parameters that create duplicate content
-Disallow: /*?
-Disallow: /*&
-
-# Sitemap
 Sitemap: https://guestly.com/sitemap.xml

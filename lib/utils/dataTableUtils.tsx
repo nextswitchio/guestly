@@ -97,8 +97,8 @@ export class DataTableExporter {
 
 // Common column formatters
 export const DataTableFormatters = {
-  currency: (amount: number, currency: string = 'USD'): string => {
-    return new Intl.NumberFormat('en-US', {
+  currency: (amount: number, currency: string = 'NGN'): string => {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
       currency,
       minimumFractionDigits: 0,

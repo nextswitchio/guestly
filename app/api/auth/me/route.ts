@@ -1,33 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { CacheHelpers } from "@/lib/cache";
-import { createConditionalResponse, CacheConfigs } from "@/lib/middleware/cache";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
-  const access = req.cookies.get("access_token")?.value;
-  const role = req.cookies.get("role")?.value;
-  const userId = req.cookies.get("user_id")?.value;
-  
-  if (!access || !role) {
-    return NextResponse.json({ ok: false }, { status: 401 });
+  const token = req.cookies.get("access_token")?.value;
+
+  if (!token) {
+    return NextResponse.json({ ok: false, error: "Not authenticated" }, { status: 401 });
   }
-  
+
   try {
-    // Cache user profile data
-    const userData = await CacheHelpers.cacheUserProfile(
-      userId!,
-      () => ({ ok: true, role, userId })
-    );
-    
-    // Return cached response with appropriate headers for private data
-    return createConditionalResponse(req, userData, {
-      ...CacheConfigs.userProfile,
-      generateETag: true,
+    const res = await fetch(`${BACKEND_URL}/api/v1/users/me`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    return NextResponse.json(
-      { ok: false, error: 'Failed to fetch user profile' },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const response = NextResponse.json({ ok: false, error: "Token expired" }, { status: 401 });
+      response.cookies.set("access_token", "", { maxAge: 0, path: "/" });
+      response.cookies.set("refresh_token", "", { maxAge: 0, path: "/" });
+      response.cookies.set("role", "", { maxAge: 0, path: "/" });
+      response.cookies.set("user_id", "", { maxAge: 0, path: "/" });
+      return response;
+    }
+
+    const user = await res.json();
+    return NextResponse.json({ ok: true, user });
+  } catch {
+    return NextResponse.json({ ok: false, error: "Backend unavailable" }, { status: 503 });
   }
 }

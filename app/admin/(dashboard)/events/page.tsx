@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import EventPerformanceSummary from '@/components/admin/EventPerformanceSummary';
-import EventPerformanceTable from '@/components/admin/EventPerformanceTable';
+import EnhancedEventPerformanceTable from '@/components/admin/EnhancedEventPerformanceTable';
 import EventDetailsModal from '@/components/admin/EventDetailsModal';
 
 export default function AdminEventsPage() {
@@ -27,13 +27,10 @@ export default function AdminEventsPage() {
         </p>
       </div>
 
-      {/* Performance Summary */}
       <EventPerformanceSummary />
 
-      {/* Performance Table */}
-      <EventPerformanceTable onEventClick={handleEventClick} />
+      <EnhancedEventPerformanceTable onEventClick={handleEventClick} />
 
-      {/* Event Details Modal */}
       <EventDetailsModal
         eventId={selectedEventId}
         isOpen={isModalOpen}

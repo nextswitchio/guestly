@@ -4,11 +4,14 @@ import { PageHeader } from "@/components/PageHeader";
 import { listBlogPosts } from '@/lib/marketing';
 import Link from 'next/link';
 import { StarIcon } from '@/utils/icons';
+import { useState } from 'react';
 
 export default function BlogPage() {
   const posts = listBlogPosts('public');
   const featuredPost = posts[0];
   const remainingPosts = posts.slice(1);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
@@ -22,6 +25,27 @@ export default function BlogPage() {
     const words = content.split(/\s+/).length;
     const minutes = Math.ceil(words / 200);
     return `${minutes} min read`;
+  };
+
+  const handleNewsletterSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    setNewsletterStatus('loading');
+    try {
+      const res = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+      if (res.ok) {
+        setNewsletterStatus('success');
+        setNewsletterEmail('');
+      } else {
+        setNewsletterStatus('error');
+      }
+    } catch {
+      setNewsletterStatus('error');
+    }
   };
 
   return (
@@ -199,16 +223,33 @@ export default function BlogPage() {
             <p className="mt-3 text-slate-600">
               Get event tips, industry insights, and platform updates delivered to your inbox.
             </p>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-slate-900 placeholder-slate-400 focus:border-lime focus:outline-none focus:ring-1 focus:ring-lime sm:w-80"
-              />
-              <button className="rounded-xl bg-lime px-6 py-3 font-bold text-[#001C24] transition-all hover:bg-lime-hover">
-                Subscribe
-              </button>
-            </div>
+            {newsletterStatus === 'success' ? (
+              <p className="mt-6 rounded-xl bg-green-50 px-5 py-3 text-green-700 font-medium">
+                Thanks for subscribing! Check your inbox for a confirmation email.
+              </p>
+            ) : newsletterStatus === 'error' ? (
+              <p className="mt-6 rounded-xl bg-red-50 px-5 py-3 text-red-700 font-medium">
+                Something went wrong. Please try again.
+              </p>
+            ) : (
+              <form onSubmit={handleNewsletterSubscribe} className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <input
+                  type="email"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-slate-900 placeholder-slate-400 focus:border-lime focus:outline-none focus:ring-1 focus:ring-lime sm:w-80"
+                />
+                <button
+                  type="submit"
+                  disabled={newsletterStatus === 'loading'}
+                  className="rounded-xl bg-lime px-6 py-3 font-bold text-[#001C24] transition-all hover:bg-lime-hover disabled:opacity-50"
+                >
+                  {newsletterStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </section>

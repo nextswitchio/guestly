@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Routes that require authentication
 const PROTECTED_ROUTES = [
   "/dashboard",
   "/attendee",
@@ -13,26 +12,17 @@ const PROTECTED_ROUTES = [
   "/payment",
 ];
 
-// Routes that should redirect if already authenticated
 const AUTH_ROUTES = ["/login", "/register", "/signup"];
-
-// Admin-only routes
 const ADMIN_ROUTES = ["/admin"];
-
-// Vendor-only routes
 const VENDOR_ROUTES = ["/vendor"];
-
-// Affiliate-only routes
 const AFFILIATE_ROUTES = ["/affiliate"];
 
-// Routes that should redirect to dashboard if authenticated
 const AUTH_REDIRECT_MAP: Record<string, string> = {
   "/login": "/attendee",
   "/register": "/attendee",
   "/signup": "/attendee",
 };
 
-// Role-specific redirect if user tries to access wrong role area
 const ROLE_REDIRECT_MAP: Record<string, Record<string, string>> = {
   attendee: {
     "/admin": "/attendee",
@@ -93,8 +83,18 @@ export function proxy(request: NextRequest) {
   const role = request.cookies.get("role")?.value;
   const accessToken = request.cookies.get("access_token")?.value;
 
-  // API routes are always public (individual routes handle auth)
+  // API routes: check for auth token on protected API endpoints
   if (pathname.startsWith("/api/")) {
+    const protectedApiPrefixes = ["/api/admin/", "/api/orders/", "/api/wallet/", "/api/profile/"];
+    const isProtectedApi = protectedApiPrefixes.some((prefix) => pathname.startsWith(prefix));
+
+    if (isProtectedApi && !accessToken) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.next();
   }
 
@@ -108,7 +108,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check if user is authenticated (has role and access token cookies)
   const isAuthenticated = !!role && !!accessToken;
 
   // If trying to access auth pages while authenticated, redirect to appropriate dashboard
@@ -119,7 +118,6 @@ export function proxy(request: NextRequest) {
 
   // If trying to access protected route without authentication
   if (isProtectedRoute(pathname) && !isAuthenticated) {
-    // Determine the login page based on the route
     if (isAdminRoute(pathname)) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
@@ -132,7 +130,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Role-based access control: prevent users from accessing other role areas
+  // Role-based access control
   if (isAuthenticated && role) {
     const roleRedirects = ROLE_REDIRECT_MAP[role];
     if (roleRedirects) {
@@ -145,19 +143,19 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // Admin route protection: only admin role can access /admin
+  // Admin route protection
   const adminNext = pathname["/admin".length];
   if (pathname.startsWith("/admin") && (adminNext === "/" || adminNext === undefined) && isAuthenticated && role !== "admin") {
     return NextResponse.redirect(new URL("/attendee", request.url));
   }
 
-  // Vendor route protection: only vendor role can access /vendor
+  // Vendor route protection
   const vendorNext = pathname["/vendor".length];
   if (pathname.startsWith("/vendor") && (vendorNext === "/" || vendorNext === undefined) && isAuthenticated && role !== "vendor") {
     return NextResponse.redirect(new URL("/attendee", request.url));
   }
 
-  // Affiliate route protection: only affiliate role can access /affiliate
+  // Affiliate route protection
   const affiliateNext = pathname["/affiliate".length];
   if (pathname.startsWith("/affiliate") && (affiliateNext === "/" || affiliateNext === undefined) && isAuthenticated && role !== "affiliate") {
     return NextResponse.redirect(new URL("/attendee", request.url));
@@ -168,13 +166,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public directory)
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

@@ -13,16 +13,21 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
 
   React.useEffect(() => {
-    // Check if already logged in as admin
     async function checkAuth() {
-      const res = await fetch("/api/auth/me", { method: "GET" });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.role === "admin") {
-          router.replace("/admin");
+      try {
+        const res = await fetch("/api/auth/me", { method: "GET" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user?.role === "admin") {
+            router.replace("/admin");
+          }
         }
+      } catch {
+        // Backend not available, skip auth check
       }
     }
     checkAuth();
@@ -32,24 +37,31 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
-    // Simulate login for now - in real app this would be a POST to /api/auth/login
-    // We'll mock setting cookies here by calling a mock endpoint or directly if possible
-    // Since we don't have a login API yet, let's just simulate and redirect
-    setTimeout(() => {
-      // Mocking successful login by setting cookies (this usually happens on server)
-      document.cookie = "access_token=mock_admin_token; path=/";
-      document.cookie = "role=admin; path=/";
-      document.cookie = "user_id=admin_1; path=/";
-      
-      setLoading(false);
+
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        setError(data.error || "Invalid credentials");
+        setLoading(false);
+        return;
+      }
+
       router.replace("/admin");
-    }, 1500);
+    } catch {
+      setError("Connection failed. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--surface-bg)] px-4">
-      {/* Decorative background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-1/4 -right-1/4 h-[600px] w-[600px] rounded-full bg-primary-500/5 blur-[120px]" />
         <div className="absolute -bottom-1/4 -left-1/4 h-[600px] w-[600px] rounded-full bg-danger-500/5 blur-[120px]" />
@@ -77,8 +89,10 @@ export default function AdminLoginPage() {
             <div className="space-y-4">
               <Input
                 label="Admin Identifier"
-                type="text"
-                placeholder="Email or Username"
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
                 className="bg-[var(--surface-bg)]"
               />
@@ -87,6 +101,8 @@ export default function AdminLoginPage() {
                   label="Secure Access Key"
                   type="password"
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   required
                   className="bg-[var(--surface-bg)]"
                 />
