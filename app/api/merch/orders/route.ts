@@ -1,69 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createMerchOrder, orderRequiresShipping } from "@/lib/store";
-import type { ShippingAddress } from "@/types/merchandise";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(req: NextRequest) {
   try {
-    const userId = req.cookies.get("user_id")?.value;
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
-    const { eventId, items, shippingAddress } = body;
+    const { event_id, items, shipping_address } = body;
 
-    if (!eventId || !items || !Array.isArray(items) || items.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "Invalid request data" },
-        { status: 400 }
-      );
+    if (!event_id || !items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
     }
 
-    // Check if any items require shipping
-    const needsShipping = orderRequiresShipping(items);
-    
-    if (needsShipping && !shippingAddress) {
-      return NextResponse.json(
-        { success: false, error: "Shipping address required for delivery items" },
-        { status: 400 }
-      );
-    }
-
-    // Validate shipping address if provided
-    if (shippingAddress) {
-      const requiredFields: (keyof ShippingAddress)[] = [
-        "fullName",
-        "addressLine1",
-        "city",
-        "state",
-        "postalCode",
-        "country",
-        "phone",
-      ];
-      
-      for (const field of requiredFields) {
-        if (!shippingAddress[field]) {
-          return NextResponse.json(
-            { success: false, error: `Missing required field: ${field}` },
-            { status: 400 }
-          );
-        }
-      }
-    }
-
-    const order = createMerchOrder(userId, eventId, items, shippingAddress);
-
-    return NextResponse.json({
-      success: true,
-      order,
+    const res = await fetch(`${BACKEND_URL}/api/v1/merch/orders`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ event_id, items, shipping_address }),
     });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message || "Failed to create order" },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to create order" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, order: data });
+  } catch {
+    return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
   }
 }

@@ -1,46 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserOrders } from "@/lib/store";
-import { CacheHelpers, CacheKeys } from "@/lib/cache";
-import { createConditionalResponse, CacheConfigs } from "@/lib/middleware/cache";
-
-function userId(req: NextRequest) {
-  return req.cookies.get("user_id")?.value;
-}
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
-  const requestingUserId = userId(req);
-  const { userId: targetUserId } = await params;
-  
-  // Only allow users to access their own orders
-  if (!requestingUserId || requestingUserId !== targetUserId) {
-    return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
-  }
-  
   try {
-    // Cache user orders with appropriate tags
-    const orders = await CacheHelpers.cacheUserProfile(
-      targetUserId,
-      () => getUserOrders(targetUserId),
-      {
-        ttl: 2 * 60 * 1000, // 2 minutes for orders (they change frequently)
-        staleTime: 30 * 1000, // 30 seconds stale time
-      }
-    );
-    
-    const responseData = { ok: true, orders };
-    
-    // Return cached response with private cache headers
-    return createConditionalResponse(req, responseData, {
-      ...CacheConfigs.userProfile,
-      maxAge: 120, // 2 minutes for orders
-      staleWhileRevalidate: 30, // 30 seconds
-      generateETag: true,
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { userId: targetUserId } = await params;
+    const requestingUserId = req.cookies.get("user_id")?.value;
+
+    if (!requestingUserId || requestingUserId !== targetUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/orders/?page=1&page_size=50`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error('Error fetching user orders:', error);
-    return NextResponse.json(
-      { ok: false, error: 'Failed to fetch orders' },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch orders" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ ok: true, orders: data.orders || [] });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
   }
 }

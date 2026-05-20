@@ -4,6 +4,8 @@ import React from "react";
 import Switch from "@/components/ui/Switch";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import { useNotifications } from "@/lib/hooks/useNotifications";
+import PushNotificationRegistration from "./PushNotificationRegistration";
 
 interface NotificationPreferencesProps {
   userId: string;
@@ -12,6 +14,7 @@ interface NotificationPreferencesProps {
 export default function NotificationPreferences({ userId }: NotificationPreferencesProps) {
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
+  const [generating, setGenerating] = React.useState(false);
   const [preferences, setPreferences] = React.useState({
     geoNotificationsEnabled: true,
     notificationRadius: 10,
@@ -30,6 +33,15 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
     "Faith",
     "Education",
   ];
+
+  // Subscribe to real-time notifications
+  useNotifications({
+    userId,
+    enabled: preferences.geoNotificationsEnabled,
+    onNotification: (notification) => {
+      console.log("New notification:", notification);
+    },
+  });
 
   React.useEffect(() => {
     fetchPreferences();
@@ -71,13 +83,33 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
         // Show success feedback
         alert("Notification preferences saved successfully!");
       } else {
-        alert("Failed to save preferences: " + data.error.message);
+        alert("Failed to save preferences: " + (data.error?.message || data.error || "Unknown error"));
       }
     } catch (error) {
       console.error("Error saving preferences:", error);
       alert("Failed to save preferences");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function generateNotifications() {
+    setGenerating(true);
+    try {
+      const response = await fetch("/api/community/notifications/geo", {
+        method: "POST",
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert(`Found ${data.notifications_created} events you might love! Check your notifications.`);
+      } else {
+        alert("Failed to generate notifications: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error generating notifications:", error);
+      alert("Failed to generate notifications");
+    } finally {
+      setGenerating(false);
     }
   }
 
@@ -102,6 +134,14 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
 
   return (
     <div className="space-y-6">
+      {/* Push Notification Registration */}
+      <div className="p-4 bg-[var(--surface-card)] rounded-lg border border-[var(--surface-border)]">
+        <h3 className="font-semibold text-[var(--foreground)] mb-3">
+          Push Notifications
+        </h3>
+        <PushNotificationRegistration />
+      </div>
+
       {/* Enable/Disable Geo Notifications */}
       <div className="flex items-center justify-between p-4 bg-[var(--surface-card)] rounded-lg border border-[var(--surface-border)]">
         <div>
@@ -216,6 +256,18 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
                 />
               </div>
             </div>
+          </div>
+
+          {/* Generate Notifications Now */}
+          <div className="flex justify-end gap-3">
+            <Button
+              onClick={generateNotifications}
+              loading={generating}
+              disabled={generating}
+              variant="secondary"
+            >
+              Find Events Near Me
+            </Button>
           </div>
         </>
       )}

@@ -1,96 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  getReminders,
-  generateRemindersForTarget,
-  getSavingsTargets,
-} from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * GET /api/wallet/savings/reminders
- * Get all reminders for the authenticated user
- */
 export async function GET(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) {
-    return NextResponse.json(
-      { success: false, error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
-      { status: 401 }
-    );
-  }
-
   try {
-    const includeProcessed = req.nextUrl.searchParams.get("includeProcessed") === "true";
-    const reminders = getReminders(userId, includeProcessed);
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: reminders,
+    const includeProcessed = req.nextUrl.searchParams.get("includeProcessed") === "true";
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/savings/reminders?include_processed=${includeProcessed}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error("Error fetching reminders:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: error instanceof Error ? error.message : "Failed to fetch reminders",
-        },
-      },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch reminders" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch reminders" }, { status: 500 });
   }
 }
 
-/**
- * POST /api/wallet/savings/reminders
- * Generate reminders for all savings targets or a specific target
- */
 export async function POST(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) {
-    return NextResponse.json(
-      { success: false, error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
-      { status: 401 }
-    );
-  }
-
   try {
-    const body = await req.json();
-    const { savingsTargetId } = body;
-
-    let allReminders: any[] = [];
-
-    if (savingsTargetId) {
-      // Generate reminders for specific target
-      const reminders = generateRemindersForTarget(userId, savingsTargetId);
-      allReminders = reminders;
-    } else {
-      // Generate reminders for all targets
-      const targets = getSavingsTargets(userId);
-      for (const target of targets) {
-        const reminders = generateRemindersForTarget(userId, target.id);
-        allReminders.push(...reminders);
-      }
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        generated: allReminders.length,
-        reminders: allReminders,
+    const body = await req.json();
+    const { savings_target_id } = body;
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/savings/reminders`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({ savings_target_id }),
     });
-  } catch (error) {
-    console.error("Error generating reminders:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: error instanceof Error ? error.message : "Failed to generate reminders",
-        },
-      },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to generate reminders" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to generate reminders" }, { status: 500 });
   }
 }

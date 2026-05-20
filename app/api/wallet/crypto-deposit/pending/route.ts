@@ -1,28 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPendingCryptoDeposits } from "@/lib/store";
-
-function userId(req: NextRequest) {
-  const role = req.cookies.get("role")?.value;
-  return role === "attendee" ? "attendee-user" : "organiser-user";
-}
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
-  const user = userId(req);
-  const deposits = getPendingCryptoDeposits(user);
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  return NextResponse.json({
-    success: true,
-    deposits: deposits.map((d) => ({
-      id: d.id,
-      cryptoType: d.cryptoType,
-      amount: d.amount,
-      amountUSD: d.amountUSD,
-      status: d.status,
-      confirmations: d.confirmations,
-      requiredConfirmations: d.requiredConfirmations,
-      txHash: d.txHash,
-      createdAt: d.createdAt,
-      updatedAt: d.updatedAt,
-    })),
-  });
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/crypto-deposits?status=pending`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch deposits" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, deposits: data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch deposits" }, { status: 500 });
+  }
 }

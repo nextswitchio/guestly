@@ -1,68 +1,102 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getVendorByUserId, getServiceProfile, updateServiceProfile, deleteServiceProfile } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const vendor = getVendorByUserId(userId);
-  if (!vendor) return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
+    const { id } = await params;
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/service-profiles/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-  const profile = getServiceProfile(id);
-  if (!profile || profile.vendorId !== vendor.id) {
-    return NextResponse.json({ error: "Service profile not found" }, { status: 404 });
+    if (!res.ok) {
+      return NextResponse.json({ error: "Service profile not found" }, { status: 404 });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ ok: true, profile: data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch service profile" }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true, profile });
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const vendor = getVendorByUserId(userId);
-  if (!vendor) return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
+    const { id } = await params;
+    const body = await req.json();
 
-  const body = await req.json();
-  const profile = updateServiceProfile(id, body);
-  if (!profile) {
-    return NextResponse.json({ error: "Service profile not found" }, { status: 404 });
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/service-profiles/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to update" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ ok: true, profile: data });
+  } catch {
+    return NextResponse.json({ error: "Failed to update service profile" }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true, profile });
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const vendor = getVendorByUserId(userId);
-  if (!vendor) return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
+    const { id } = await params;
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/service-profiles/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-  const deleted = deleteServiceProfile(id);
-  if (!deleted) {
-    return NextResponse.json({ error: "Service profile not found" }, { status: 404 });
+    if (!res.ok) {
+      return NextResponse.json({ error: "Service profile not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "Failed to delete service profile" }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true });
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const vendor = getVendorByUserId(userId);
-  if (!vendor) return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
+    const { id } = await params;
+    const body = await req.json();
 
-  const body = await req.json();
-  const profile = updateServiceProfile(id, body);
-  if (!profile) {
-    return NextResponse.json({ error: "Service profile not found" }, { status: 404 });
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/service-profiles/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to update" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ ok: true, profile: data });
+  } catch {
+    return NextResponse.json({ error: "Failed to update service profile" }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true, profile });
 }

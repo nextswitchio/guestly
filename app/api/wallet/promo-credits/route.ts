@@ -1,74 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
-import { 
-  addPromoCredit, 
-  getPromoCredits, 
-  getActivePromoCredits,
-  getWallet 
-} from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-// GET /api/wallet/promo-credits - Get user's promo credits
 export async function GET(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/promo-credits`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch promo credits" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch promo credits" }, { status: 500 });
   }
-
-  const activeOnly = req.nextUrl.searchParams.get("active") === "true";
-  const promoCredits = activeOnly 
-    ? getActivePromoCredits(userId) 
-    : getPromoCredits(userId);
-  
-  const wallet = getWallet(userId);
-
-  return NextResponse.json({ 
-    success: true, 
-    promoCredits,
-    totalPromoBalance: wallet?.promoBalance || 0
-  });
 }
 
-// POST /api/wallet/promo-credits - Add promo credit (admin/campaign)
 export async function POST(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
-    const { targetUserId, amount, type, description, expiresAt } = body;
+    const { target_user_id, amount, credit_type, description, expires_at } = body;
 
-    if (!targetUserId || !amount || !type || !description) {
-      return NextResponse.json(
-        { success: false, error: "Missing required fields" },
-        { status: 400 }
-      );
+    if (!target_user_id || !amount || !credit_type || !description) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    if (amount <= 0) {
-      return NextResponse.json(
-        { success: false, error: "Amount must be positive" },
-        { status: 400 }
-      );
-    }
-
-    const promoCredit = addPromoCredit(
-      targetUserId,
-      amount,
-      type,
-      description,
-      expiresAt
-    );
-
-    return NextResponse.json({ 
-      success: true, 
-      promoCredit 
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/promo-credits`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ target_user_id, amount, credit_type, description, expires_at }),
     });
-  } catch (error) {
-    console.error("Error adding promo credit:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to add promo credit" },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to add promo credit" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to add promo credit" }, { status: 500 });
   }
 }

@@ -1,60 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTeamMembers, hasEventPermission, getUserProfile } from "@/lib/store";
-import { getEventById } from "@/lib/events";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id: eventId } = await params;
-    const userId = req.cookies.get("user_id")?.value;
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    // Check if event exists
-    const event = getEventById(eventId);
-    if (!event) {
-      return NextResponse.json(
-        { success: false, error: "Event not found" },
-        { status: 404 }
-      );
-    }
-
-    // Check if user has permission to view team
-    if (!hasEventPermission(eventId, userId, "canViewAnalytics")) {
-      return NextResponse.json(
-        { success: false, error: "Insufficient permissions" },
-        { status: 403 }
-      );
-    }
-
-    const members = getTeamMembers(eventId);
-
-    // Enrich members with user profile data
-    const enrichedMembers = members.map((member) => {
-      const profile = getUserProfile(member.userId);
-      return {
-        ...member,
-        displayName: profile?.displayName || "Unknown User",
-        avatar: profile?.avatar,
-      };
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${eventId}/team`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: enrichedMembers,
-    });
-  } catch (error) {
-    console.error("Error fetching team members:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch team" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch team members" }, { status: 500 });
   }
 }

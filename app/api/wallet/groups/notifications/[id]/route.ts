@@ -1,46 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { markNotificationRead } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * PATCH /api/wallet/groups/notifications/[id]
- * Mark a specific notification as read
- */
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = req.cookies.get("user_id")?.value;
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
-    const notification = markNotificationRead(userId, id);
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/groups/notifications/${id}/read`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-    if (!notification) {
-      return NextResponse.json(
-        { success: false, error: "Notification not found" },
-        { status: 404 }
-      );
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Notification not found" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: notification,
-    });
-  } catch (error) {
-    console.error("Error marking notification as read:", error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to mark notification as read" 
-      },
-      { status: 500 }
-    );
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to mark notification as read" }, { status: 500 });
   }
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getProductById } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -7,25 +7,22 @@ export async function GET(req: NextRequest) {
     const ids = searchParams.get("ids");
 
     if (!ids) {
-      return NextResponse.json(
-        { success: false, error: "Product IDs required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Product IDs required" }, { status: 400 });
     }
 
     const productIds = ids.split(",");
-    const products = productIds
-      .map(id => getProductById(id))
-      .filter(p => p !== null);
+    const products = await Promise.all(
+      productIds.map(async (id) => {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merch/products/${id}`);
+        return res.ok ? res.json() : null;
+      })
+    );
 
     return NextResponse.json({
       success: true,
-      products,
+      products: products.filter(Boolean),
     });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message || "Failed to fetch products" },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
 }

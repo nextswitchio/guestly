@@ -1,17 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ensureWallet } from "@/lib/store";
-
-function userId(req: NextRequest) {
-  const role = req.cookies.get("role")?.value;
-  return role === "attendee" ? "attendee-user" : "organiser-user";
-}
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
-  const w = ensureWallet(userId(req));
-  return NextResponse.json({ 
-    ok: true, 
-    balance: w.balance,
-    promoBalance: w.promoBalance || 0
-  });
-}
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch wallet" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({
+      ok: true,
+      balance: data.balance || 0,
+      promoBalance: data.promo_balance || 0,
+    });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch wallet" }, { status: 500 });
+  }
+}

@@ -1,31 +1,63 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getVendorByUserId, listServiceProfiles, addServiceProfile, getMaxServiceProfiles } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
 
-  const vendor = getVendorByUserId(userId);
-  if (!vendor) return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-  const profiles = listServiceProfiles(vendor.id);
-  return NextResponse.json({ ok: true, profiles });
+    if (!res.ok) {
+      return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
+    }
+
+    const vendor = await res.json();
+    return NextResponse.json({ ok: true, profiles: vendor.service_profiles || [] });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch service profiles" }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
 
-  const vendor = getVendorByUserId(userId);
-  if (!vendor) return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
+    const vendorRes = await fetch(`${BACKEND_URL}/api/v1/vendors/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-  const existing = listServiceProfiles(vendor.id);
-  const max = getMaxServiceProfiles(vendor.subscription);
-  if (existing.length >= max) {
-    return NextResponse.json({ error: "Service profile limit reached. Upgrade your subscription." }, { status: 400 });
+    if (!vendorRes.ok) {
+      return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
+    }
+
+    const vendor = await vendorRes.json();
+    const body = await req.json();
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/${vendor.id}/services`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to create service profile" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ ok: true, profile: data }, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: "Failed to create service profile" }, { status: 500 });
   }
-
-  const body = await req.json();
-  const profile = addServiceProfile(vendor.id, body);
-  return NextResponse.json({ ok: true, profile }, { status: 201 });
 }

@@ -1,28 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateVendorInviteStatus, listVendorInvitations } from "@/lib/store";
-
-// This API lists and updates vendor invitations for the current vendor user
-// GET: list invites for vendorUserId from cookie
-// PATCH: update invite status with { eventId, status }
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
-  const vendorUserId = req.cookies.get("user_id")?.value;
-  if (!vendorUserId) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-  const data = listVendorInvitations(vendorUserId);
-  return NextResponse.json({ ok: true, data });
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/invitations`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch invitations" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ ok: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch invitations" }, { status: 500 });
+  }
 }
 
 export async function PATCH(req: NextRequest) {
-  const vendorUserId = req.cookies.get("user_id")?.value;
-  if (!vendorUserId) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-  const body = await req.json().catch(() => ({}));
-  const eventId: string = body?.eventId || "";
-  const status: "invited" | "accepted" | "declined" = body?.status;
-  if (!eventId || !status) return NextResponse.json({ ok: false, error: "Invalid body" }, { status: 400 });
   try {
-    const link = updateVendorInviteStatus(eventId, vendorUserId, status);
-    return NextResponse.json({ ok: true, data: link });
-  } catch (e) {
-    return NextResponse.json({ ok: false, error: (e as Error).message }, { status: 400 });
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const body = await req.json();
+    const { invitation_id, status } = body;
+
+    if (!invitation_id || !status) {
+      return NextResponse.json({ error: "invitation_id and status required" }, { status: 400 });
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/invitations/${invitation_id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to update invitation" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ ok: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to update invitation" }, { status: 500 });
   }
 }

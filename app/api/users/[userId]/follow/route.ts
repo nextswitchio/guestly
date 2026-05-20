@@ -1,152 +1,98 @@
 import { NextRequest, NextResponse } from "next/server";
-import { followUser, unfollowUser, isFollowing } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * POST /api/users/[userId]/follow
- * Follow a user or organizer
- */
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const { userId: followingId } = await params;
-    const followerId = req.cookies.get("user_id")?.value;
+    const token = req.cookies.get("access_token")?.value;
 
-    if (!followerId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { code: "UNAUTHORIZED", message: "Unauthorized" },
-        },
-        { status: 401 }
-      );
-    }
-
-    // Can't follow yourself
-    if (followerId === followingId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { code: "BAD_REQUEST", message: "Cannot follow yourself" },
-        },
-        { status: 400 }
-      );
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
     const { type = "user" } = body;
 
-    const follow = followUser(followerId, followingId, type);
-
-    return NextResponse.json({
-      success: true,
-      data: follow,
-    });
-  } catch (error) {
-    console.error("Error following user:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Failed to follow user",
-        },
+    const res = await fetch(`${BACKEND_URL}/api/v1/community/follow`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-      { status: 500 }
-    );
+      body: JSON.stringify({ following_id: followingId, follow_type: type }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to follow" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json({ error: "Failed to follow user" }, { status: 500 });
   }
 }
 
-/**
- * DELETE /api/users/[userId]/follow
- * Unfollow a user or organizer
- */
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const { userId: followingId } = await params;
-    const followerId = req.cookies.get("user_id")?.value;
+    const token = req.cookies.get("access_token")?.value;
 
-    if (!followerId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { code: "UNAUTHORIZED", message: "Unauthorized" },
-        },
-        { status: 401 }
-      );
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const success = unfollowUser(followerId, followingId);
+    const url = new URL(req.url);
+    const type = url.searchParams.get("type") || "user";
 
-    if (!success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { code: "NOT_FOUND", message: "Follow relationship not found" },
-        },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: { message: "Unfollowed successfully" },
+    const res = await fetch(`${BACKEND_URL}/api/v1/community/follow/${followingId}?follow_type=${type}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error("Error unfollowing user:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Failed to unfollow user",
-        },
-      },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to unfollow" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    return NextResponse.json({ message: "Unfollowed successfully" });
+  } catch {
+    return NextResponse.json({ error: "Failed to unfollow user" }, { status: 500 });
   }
 }
 
-/**
- * GET /api/users/[userId]/follow
- * Check if authenticated user is following this user
- */
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId: followingId } = await params;
-    const followerId = req.cookies.get("user_id")?.value;
+    const { userId: targetId } = await params;
+    const token = req.cookies.get("access_token")?.value;
 
-    if (!followerId) {
-      return NextResponse.json({
-        success: true,
-        data: { isFollowing: false },
-      });
+    if (!token) {
+      return NextResponse.json({ isFollowing: false });
     }
 
-    const following = isFollowing(followerId, followingId);
-
-    return NextResponse.json({
-      success: true,
-      data: { isFollowing: following },
+    const res = await fetch(`${BACKEND_URL}/api/v1/community/following`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error("Error checking follow status:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Failed to check follow status",
-        },
-      },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      return NextResponse.json({ isFollowing: false });
+    }
+
+    const following = await res.json();
+    const isFollowing = following.some((f: { following_id: string }) => f.following_id === targetId);
+
+    return NextResponse.json({ isFollowing });
+  } catch {
+    return NextResponse.json({ isFollowing: false });
   }
 }

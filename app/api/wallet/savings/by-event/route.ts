@@ -1,49 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSavingsTargets } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * GET /api/wallet/savings/by-event?eventId=xxx
- * Get savings target for a specific event
- */
 export async function GET(req: NextRequest) {
   try {
-    const userId = req.cookies.get("user_id")?.value;
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
     const eventId = searchParams.get("eventId");
 
     if (!eventId) {
-      return NextResponse.json(
-        { success: false, error: "Event ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Event ID is required" }, { status: 400 });
     }
 
-    const targets = getSavingsTargets(userId);
-    const eventTarget = targets.find(t => t.eventId === eventId);
-
-    if (!eventTarget) {
-      return NextResponse.json({
-        success: true,
-        target: null,
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      target: eventTarget,
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/savings?event_id=${eventId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error("Error fetching savings target:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch target" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    const target = (data.data || []).find((t: { event_id: string }) => t.event_id === eventId) || null;
+
+    return NextResponse.json({ success: true, target });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch savings target" }, { status: 500 });
   }
 }

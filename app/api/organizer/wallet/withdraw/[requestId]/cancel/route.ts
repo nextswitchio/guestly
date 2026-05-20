@@ -1,30 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cancelWithdrawalRequest } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ requestId: string }> }
 ) {
-  const userId = req.cookies.get("user_id")?.value;
-  const role = req.cookies.get("role")?.value;
-
-  if (!userId || role !== "organiser") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const { requestId } = await params;
-    const request = cancelWithdrawalRequest(requestId, userId);
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: request,
+    const { requestId } = await params;
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/withdrawals/${requestId}/cancel`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error: any) {
-    console.error("Error cancelling withdrawal request:", error);
-    return NextResponse.json(
-      { success: false, error: error.message || "Failed to cancel withdrawal request" },
-      { status: 400 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to cancel withdrawal" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to cancel withdrawal" }, { status: 500 });
   }
 }

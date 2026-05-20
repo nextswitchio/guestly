@@ -1,57 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addMoney } from "@/lib/store";
-
-function userId(req: NextRequest) {
-  const role = req.cookies.get("role")?.value;
-  return role === "attendee" ? "attendee-user" : "organiser-user";
-}
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => ({}));
-  const amount: number = body?.amount || 0;
-  const paymentMethod: string = body?.method || body?.paymentMethod || "card";
-
-  if (amount <= 0) {
-    return NextResponse.json({ success: false, error: "Invalid amount" }, { status: 400 });
-  }
-
-  // Validate payment method specific fields
-  if (paymentMethod === "card") {
-    const cardDetails = body?.cardDetails || {};
-    const { number: cardNumber, expiry: cardExpiry, cvv: cardCvv } = cardDetails;
-    if (!cardNumber || !cardExpiry || !cardCvv) {
-      return NextResponse.json(
-        { success: false, error: "Missing card details" },
-        { status: 400 }
-      );
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    // In a real implementation, you would process the card payment here
-    // For now, we'll simulate a successful payment
-  } else if (paymentMethod === "mobile_money") {
-    const { mobileProvider, phoneNumber } = body;
-    if (!mobileProvider || !phoneNumber) {
-      return NextResponse.json(
-        { success: false, error: "Missing mobile money details" },
-        { status: 400 }
-      );
+
+    const body = await req.json().catch(() => ({}));
+    const amount = body?.amount || 0;
+
+    if (amount <= 0) {
+      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
-    // In a real implementation, you would initiate mobile money payment here
-    // For now, we'll simulate a successful payment
-  } else if (paymentMethod === "bank_transfer") {
-    // For bank transfer, we just provide instructions
-    // In a real implementation, you would track the pending transfer
-    // For now, we'll add the funds immediately for demo purposes
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/add`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ amount }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to add funds" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, transaction: data });
+  } catch {
+    return NextResponse.json({ error: "Failed to add funds" }, { status: 500 });
   }
-
-  // Add funds to wallet
-  const description = `Wallet top up via ${
-    paymentMethod === "card"
-      ? "card"
-      : paymentMethod === "bank_transfer"
-      ? "bank transfer"
-      : "mobile money"
-  }`;
-  const balance = addMoney(userId(req), amount, description);
-
-  return NextResponse.json({ success: true, balance });
 }

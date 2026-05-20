@@ -2,13 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { saveEvent, incrementEventSaves, clearCityStatsCache, listSavedEvents } from "@/lib/store";
 import { getEventById } from "@/lib/events";
 
-function userId(req: NextRequest) {
-  const role = req.cookies.get("role")?.value;
-  return role === "attendee" ? "attendee-user" : "organiser-user";
+function getUserId(req: NextRequest): string {
+  return req.cookies.get("user_id")?.value || "anonymous";
 }
 
 export async function GET(req: NextRequest) {
-  const uid = userId(req);
+  const uid = getUserId(req);
   const ids = listSavedEvents(uid);
   const events = ids.map(getEventById).filter(Boolean);
   return NextResponse.json({ ok: true, data: events });
@@ -26,15 +25,13 @@ export async function POST(req: NextRequest) {
     eventId = fd?.get("eventId")?.toString();
   }
   if (!eventId) return NextResponse.json({ ok: false, error: "eventId required" }, { status: 400 });
-  
-  saveEvent(userId(req), eventId);
-  
-  // Update event metrics and clear city cache for trending calculation
+
+  saveEvent(getUserId(req), eventId);
   incrementEventSaves(eventId);
   const event = getEventById(eventId);
   if (event) {
     clearCityStatsCache(event.city);
   }
-  
+
   return NextResponse.json({ ok: true });
 }

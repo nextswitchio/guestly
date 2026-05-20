@@ -1,58 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkAllEventsDeadlineReminders, clearOldReminders } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * Check deadline reminders for all events
- * This endpoint should be called periodically (e.g., via cron job or scheduled task)
- * GET /api/reminders/check-all
- */
 export async function GET(_req: NextRequest) {
   try {
-    // Check all events for deadline reminders
-    const results = checkAllEventsDeadlineReminders();
-    
-    // Clear old reminders (older than 30 days)
-    const clearedCount = clearOldReminders();
-    
-    // Calculate totals
-    const totalReminders = results.reduce((sum, r) => sum + r.reminders.total, 0);
-    const totalTaskReminders = results.reduce((sum, r) => sum + r.reminders.taskReminders.length, 0);
-    const totalMilestoneAlerts = results.reduce((sum, r) => sum + r.reminders.milestoneAlerts.length, 0);
-    const totalBudgetReminders = results.reduce((sum, r) => sum + r.reminders.budgetReminders.length, 0);
-    
-    return NextResponse.json({
-      success: true,
-      data: {
-        eventsChecked: results.length,
-        totalReminders,
-        breakdown: {
-          taskReminders: totalTaskReminders,
-          milestoneAlerts: totalMilestoneAlerts,
-          budgetReminders: totalBudgetReminders,
-        },
-        clearedOldReminders: clearedCount,
-        results: results.map(r => ({
-          eventId: r.eventId,
-          remindersCount: r.reminders.total,
-        })),
-      },
+    const token = _req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/community/reminders/check-all`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error("Error checking all reminders:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to check reminders",
-      },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to check reminders" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to check reminders" }, { status: 500 });
   }
 }
 
-/**
- * Manually trigger reminder check (for testing)
- * POST /api/reminders/check-all
- */
 export async function POST(req: NextRequest) {
   return GET(req);
 }

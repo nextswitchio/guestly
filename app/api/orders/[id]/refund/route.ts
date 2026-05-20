@@ -1,42 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { refundOrder, getOrder } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const orderId = id;
-    const body = await req.json().catch(() => ({}));
-    const reason = body?.reason;
-
-    // Get order to verify it exists
-    const order = getOrder(orderId);
-    if (!order) {
-      return NextResponse.json(
-        { success: false, error: "Order not found" },
-        { status: 404 }
-      );
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Process refund
-    const result = refundOrder(orderId, reason);
+    const { id } = await params;
+    const body = await req.json().catch(() => ({}));
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        orderId: result.order.id,
-        refundAmount: result.refundAmount,
-        refundedAt: result.refundedAt,
-        message: "Refund processed successfully. Funds have been added to your wallet."
-      }
+    const res = await fetch(`${BACKEND_URL}/api/v1/orders/${id}/refund`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reason: body?.reason }),
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to process refund";
-    return NextResponse.json(
-      { success: false, error: message },
-      { status: 400 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Refund failed" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to process refund" }, { status: 500 });
   }
 }

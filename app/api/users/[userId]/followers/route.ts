@@ -1,34 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getFollowers } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * GET /api/users/[userId]/followers
- * Get list of followers for a user
- */
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = await params;
+    const token = req.cookies.get("access_token")?.value;
 
-    const followers = getFollowers(userId);
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: followers,
+    const res = await fetch(`${BACKEND_URL}/api/v1/community/followers`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error("Error fetching followers:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Failed to fetch followers",
-        },
-      },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch followers" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch followers" }, { status: 500 });
   }
 }

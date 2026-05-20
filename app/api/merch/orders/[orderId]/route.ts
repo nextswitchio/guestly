@@ -1,37 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMerchOrder } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { orderId } = await params;
-    
-    if (!orderId) {
-      return NextResponse.json(
-        { success: false, error: "Order ID required" },
-        { status: 400 }
-      );
-    }
-
-    const order = getMerchOrder(orderId);
-    
-    if (!order) {
-      return NextResponse.json(
-        { success: false, error: "Order not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      order,
+    const res = await fetch(`${BACKEND_URL}/api/v1/merch/orders/${orderId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message || "Failed to fetch order" },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, order: data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 });
   }
 }

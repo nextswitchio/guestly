@@ -1,128 +1,63 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  getVendorPaymentById,
-  updateVendorPaymentStatus,
-  type VendorPayment,
-} from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * GET /api/vendor/payments/[id]
- * Get a specific payment request
- */
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const userId = req.cookies.get("user_id")?.value;
-  const role = req.cookies.get("role")?.value;
-
-  if (!userId) {
-    return NextResponse.json(
-      { success: false, error: { code: "UNAUTHORIZED", message: "Authentication required" } },
-      { status: 401 }
-    );
-  }
-
   try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const { id } = await params;
-    const payment = getVendorPaymentById(id);
-
-    if (!payment) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "Payment not found" } },
-        { status: 404 }
-      );
-    }
-
-    // Check authorization: vendor can see their own payments, organizer can see payments for their events
-    if (role === "vendor" && payment.vendorUserId !== userId) {
-      return NextResponse.json(
-        { success: false, error: { code: "FORBIDDEN", message: "Access denied" } },
-        { status: 403 }
-      );
-    }
-
-    if (role === "organiser" && payment.organizerUserId !== userId) {
-      return NextResponse.json(
-        { success: false, error: { code: "FORBIDDEN", message: "Access denied" } },
-        { status: 403 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: payment,
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/payments/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: { code: "FETCH_ERROR", message: error.message } },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Payment not found" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch payment" }, { status: 500 });
   }
 }
 
-/**
- * PATCH /api/vendor/payments/[id]
- * Update payment status (organizer only)
- */
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const userId = req.cookies.get("user_id")?.value;
-  const role = req.cookies.get("role")?.value;
-
-  if (!userId || role !== "organiser") {
-    return NextResponse.json(
-      { success: false, error: { code: "UNAUTHORIZED", message: "Organizer authentication required" } },
-      { status: 401 }
-    );
-  }
-
   try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Organizer authentication required" }, { status: 401 });
+    }
+
     const { id } = await params;
-    const payment = getVendorPaymentById(id);
-
-    if (!payment) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "Payment not found" } },
-        { status: 404 }
-      );
-    }
-
-    // Verify organizer owns this event
-    if (payment.organizerUserId !== userId) {
-      return NextResponse.json(
-        { success: false, error: { code: "FORBIDDEN", message: "Access denied" } },
-        { status: 403 }
-      );
-    }
-
     const body = await req.json();
-    const { status, paymentMethod, transactionReference } = body;
 
-    if (!status || !["pending", "processing", "paid", "cancelled"].includes(status)) {
-      return NextResponse.json(
-        { success: false, error: { code: "INVALID_INPUT", message: "Valid status is required" } },
-        { status: 400 }
-      );
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/payments/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to update payment" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
     }
 
-    const updatedPayment = updateVendorPaymentStatus(
-      id,
-      status,
-      paymentMethod,
-      transactionReference
-    );
-
-    return NextResponse.json({
-      success: true,
-      data: updatedPayment,
-    });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: { code: "UPDATE_ERROR", message: error.message } },
-      { status: 500 }
-    );
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to update payment" }, { status: 500 });
   }
 }

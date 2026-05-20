@@ -42,6 +42,8 @@ export default function AttendeePage() {
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [referralStats, setReferralStats] = React.useState<{ totalReferrals: number; totalEarned: number } | null>(null);
   const [followedOrganizers, setFollowedOrganizers] = React.useState<any[]>([]);
+  const [recommended, setRecommended] = React.useState<any[]>([]);
+  const [recommendationsLoading, setRecommendationsLoading] = React.useState(false);
 
   React.useEffect(() => {
     fetch("/api/wallet").then(r => r.json()).then(d => { if (d.success) setWallet(d.data); }).catch(() => {});
@@ -50,12 +52,33 @@ export default function AttendeePage() {
     fetch("/api/notifications?unreadOnly=true").then(r => r.json()).then(d => { if (d.success) setUnreadCount(d.data.length); }).catch(() => {});
     fetch("/api/referrals/stats").then(r => r.json()).then(d => { setReferralStats(d); }).catch(() => {});
     fetch("/api/follows").then(r => r.json()).then(d => { if (d.success) setFollowedOrganizers(d.data); }).catch(() => {});
+
+    // Fetch personalized recommendations
+    setRecommendationsLoading(true);
+    fetch("/api/community/events/recommendations?limit=10")
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          setRecommended(d.data.map((e: any) => ({
+            id: e.id,
+            title: e.title,
+            description: e.description,
+            date: e.date,
+            category: e.category,
+            city: e.city,
+            image: e.image,
+            eventType: e.event_type,
+            distanceKm: e.distance_km,
+          })));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setRecommendationsLoading(false));
   }, []);
 
   const allEvents = filterEvents({}).data;
   const upcoming = allEvents.filter((e) => new Date(e.date) > new Date());
   const past = allEvents.filter((e) => new Date(e.date) <= new Date());
-  const recommended = filterEvents({ category: "Tech" }).data;
   const saved = savedIds.map(id => getEventById(id)).filter(Boolean) as typeof allEvents;
 
   const sectionMap: Record<TabKey, typeof allEvents> = { upcoming, saved, recommended, past };
@@ -187,7 +210,12 @@ export default function AttendeePage() {
         </div>
 
         {/* Event Grid */}
-        {events.length === 0 ? (
+        {tab === "recommended" && recommendationsLoading ? (
+          <div className="rounded-xl bg-white p-8 shadow-sm border border-neutral-200/60 flex flex-col items-center justify-center py-12">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-lime border-t-transparent mb-4" />
+            <p className="text-sm text-neutral-500">Finding events you&apos;ll love...</p>
+          </div>
+        ) : events.length === 0 ? (
           <div className="rounded-xl bg-white p-8 shadow-sm border border-neutral-200/60 flex justify-center">
             <EmptyState
               icon="calendar"
@@ -215,6 +243,7 @@ export default function AttendeePage() {
                   city={e.city}
                   category={e.category}
                   image={e.image}
+                  distanceKm={(e as any).distanceKm}
                 />
               ))}
             </div>

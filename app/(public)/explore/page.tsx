@@ -71,13 +71,14 @@ export default function ExplorePage() {
     try {
       const res = await fetch(`/api/events?${params.toString()}`);
       const data = await res.json();
-      if (res.ok) {
-        setItems(data.data as ApiEvent[]);
-        setPageCount(data.pageCount as number);
-        setPage(p);
-      }
+      // Handle both data.data and data.events response formats
+      const events = (data?.data ?? data?.events ?? []) as ApiEvent[];
+      setItems(events);
+      setPageCount(data?.pageCount ?? data?.page_count ?? 1);
+      setPage(p);
     } catch (error) {
       console.error("Failed to load events:", error);
+      setItems([]);
     } finally {
       setLoading(false);
       setIsTransitioning(false);

@@ -1,76 +1,64 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createWithdrawalRequest, getUserWithdrawalRequests } from "@/lib/store";
-import type { WithdrawalMethod, BankDetails, CryptoWithdrawalDetails } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  const role = req.cookies.get("role")?.value;
-
-  if (!userId || role !== "organiser") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const body = await req.json();
-    const { amount, method, bankDetails, cryptoDetails, notes } = body;
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    // Validate input
+    const body = await req.json();
+    const { amount, method, bank_details, crypto_details, notes } = body;
+
     if (!amount || amount <= 0) {
-      return NextResponse.json(
-        { success: false, error: "Invalid withdrawal amount" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid withdrawal amount" }, { status: 400 });
     }
 
     if (!method || (method !== "bank" && method !== "crypto")) {
-      return NextResponse.json(
-        { success: false, error: "Invalid withdrawal method" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid withdrawal method" }, { status: 400 });
     }
 
-    const request = createWithdrawalRequest(
-      userId,
-      amount,
-      method as WithdrawalMethod,
-      bankDetails as BankDetails | undefined,
-      cryptoDetails as CryptoWithdrawalDetails | undefined,
-      notes
-    );
-
-    return NextResponse.json({
-      success: true,
-      data: request,
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/withdraw`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ amount, method, bank_details, crypto_details, notes }),
     });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to create withdrawal" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
   } catch (error: any) {
-    console.error("Error creating withdrawal request:", error);
-    return NextResponse.json(
-      { success: false, error: error.message || "Failed to create withdrawal request" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: error.message || "Failed to create withdrawal" }, { status: 400 });
   }
 }
 
 export async function GET(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
-  const role = req.cookies.get("role")?.value;
-
-  if (!userId || role !== "organiser") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const requests = getUserWithdrawalRequests(userId);
-    
-    return NextResponse.json({
-      success: true,
-      data: requests,
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/withdrawals`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error("Error fetching withdrawal requests:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch withdrawal requests" },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch withdrawals" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch withdrawals" }, { status: 500 });
   }
 }

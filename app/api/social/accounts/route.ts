@@ -1,29 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getSocialAccounts } from '@/lib/store';
+import { NextRequest, NextResponse } from "next/server";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
   try {
-    // Get organizerId from cookie or query param
-    const organizerId = req.cookies.get('user_id')?.value;
-
-    if (!organizerId) {
-      return NextResponse.json(
-        { success: false, error: 'Not authenticated' },
-        { status: 401 }
-      );
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const accounts = getSocialAccounts(organizerId);
-
-    return NextResponse.json({
-      success: true,
-      accounts,
+    const res = await fetch(`${BACKEND_URL}/api/v1/community/social/accounts`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error: any) {
-    console.error('Get social accounts error:', error);
-    return NextResponse.json(
-      { success: false, error: error.message || 'Failed to get accounts' },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch accounts" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, accounts: data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch accounts" }, { status: 500 });
   }
 }

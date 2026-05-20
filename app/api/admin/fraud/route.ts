@@ -1,48 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
-import { 
-  getFraudAlerts, 
-  runFraudDetection, 
-  getFraudDetectionStats,
-  type FraudAlertType,
-  type FraudAlertSeverity 
-} from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(request: NextRequest) {
   try {
+    const token = request.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const action = searchParams.get('action');
+    const action = searchParams.get("action");
 
-    if (action === 'stats') {
-      const stats = getFraudDetectionStats();
-      return NextResponse.json({ success: true, data: stats });
+    if (action === "stats") {
+      const res = await fetch(`${BACKEND_URL}/api/v1/admin/fraud/stats`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = res.ok ? await res.json() : {};
+      return NextResponse.json({ success: true, data });
     }
 
-    if (action === 'run-detection') {
-      const results = runFraudDetection();
-      return NextResponse.json({ success: true, data: results });
+    if (action === "run-detection") {
+      const res = await fetch(`${BACKEND_URL}/api/v1/admin/fraud/detect`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = res.ok ? await res.json() : {};
+      return NextResponse.json({ success: true, data });
     }
 
-    // Default: get alerts with filters
-    const status = searchParams.get('status') as any;
-    const severity = searchParams.get('severity') as FraudAlertSeverity;
-    const type = searchParams.get('type') as FraudAlertType;
-    const assignedTo = searchParams.get('assignedTo') ?? undefined;
-    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
+    const status = searchParams.get("status") || undefined;
+    const severity = searchParams.get("severity") || undefined;
+    const type = searchParams.get("type") || undefined;
+    const limit = searchParams.get("limit") || undefined;
 
-    const alerts = getFraudAlerts({
-      status,
-      severity,
-      type,
-      assignedTo,
-      limit,
+    const params = new URLSearchParams();
+    if (status) params.set("status", status);
+    if (severity) params.set("severity", severity);
+    if (type) params.set("type", type);
+    if (limit) params.set("limit", limit);
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/admin/fraud?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    return NextResponse.json({ success: true, data: alerts });
-  } catch (error) {
-    console.error('Error in fraud detection API:', error);
-    return NextResponse.json(
-      { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
-      { status: 500 }
-    );
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch alerts" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch fraud alerts" }, { status: 500 });
   }
 }

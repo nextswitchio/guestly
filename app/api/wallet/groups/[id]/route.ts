@@ -1,57 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getGroupWallet } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * GET /api/wallet/groups/[id]
- * Get a specific group wallet by ID
- */
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = req.cookies.get("user_id")?.value;
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
-    const groupWallet = getGroupWallet(id);
-
-    if (!groupWallet) {
-      return NextResponse.json(
-        { success: false, error: "Group wallet not found" },
-        { status: 404 }
-      );
-    }
-
-    // Check if user is a member or creator
-    const isMember =
-      groupWallet.createdBy === userId ||
-      groupWallet.members.some((m) => m.userId === userId);
-
-    if (!isMember) {
-      return NextResponse.json(
-        { success: false, error: "Access denied" },
-        { status: 403 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: groupWallet,
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/groups/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error("Error fetching group wallet:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to fetch group wallet",
-      },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Group wallet not found" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch group wallet" }, { status: 500 });
   }
 }

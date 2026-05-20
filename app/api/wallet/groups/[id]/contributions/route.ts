@@ -1,63 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getGroupWallet, getGroupContributions, getGroupContributionStats } from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * GET /api/wallet/groups/[id]/contributions
- * Get contribution history for a group wallet
- */
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
-    const userId = req.cookies.get("user_id")?.value;
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const groupWallet = getGroupWallet(id);
-
-    if (!groupWallet) {
-      return NextResponse.json(
-        { success: false, error: "Group wallet not found" },
-        { status: 404 }
-      );
-    }
-
-    // Check if user is a member or creator
-    const isMember = groupWallet.members.some(m => m.userId === userId) || groupWallet.createdBy === userId;
-    
-    if (!isMember) {
-      return NextResponse.json(
-        { success: false, error: "You are not a member of this group wallet" },
-        { status: 403 }
-      );
-    }
-
-    // Get contributions sorted by most recent first
-    const contributions = getGroupContributions(id)
-      .sort((a, b) => b.timestamp - a.timestamp);
-
-    // Get contribution statistics
-    const stats = getGroupContributionStats(id);
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        contributions,
-        stats,
-      },
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/groups/${id}/contributions`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error("Error fetching group contributions:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch contributions" },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch contributions" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch contributions" }, { status: 500 });
   }
 }

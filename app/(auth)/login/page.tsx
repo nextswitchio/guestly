@@ -8,9 +8,11 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (data: { email: string; password: string }) => {
     setError("");
+    setLoading(true);
     const role = searchParams.get("role") || "attendee";
     try {
       const res = await fetch("/api/auth/login", {
@@ -21,6 +23,7 @@ function LoginContent() {
       const result = await res.json();
       if (!res.ok || !result.ok) {
         setError(result.error || "Login failed. Please try again.");
+        setLoading(false);
         return;
       }
       if (role === "organiser") {
@@ -30,6 +33,7 @@ function LoginContent() {
       }
     } catch {
       setError("Something went wrong. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -47,7 +51,14 @@ function LoginContent() {
           {error}
         </div>
       )}
-      <SigninForm onSubmit={handleLogin} />
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[var(--color-primary-500)] border-t-transparent" />
+          <p className="mt-4 text-sm text-neutral-600">Signing you in...</p>
+        </div>
+      ) : (
+        <SigninForm onSubmit={handleLogin} />
+      )}
     </motion.div>
   );
 }

@@ -1,81 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  createVendorPaymentRequest,
-  getVendorPayments,
-  getVendorPaymentStats,
-  type VendorPayment,
-} from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * GET /api/vendor/payments
- * Get all payment requests for the authenticated vendor
- */
 export async function GET(req: NextRequest) {
-  const vendorUserId = req.cookies.get("user_id")?.value;
-  const role = req.cookies.get("role")?.value;
-
-  if (!vendorUserId || role !== "vendor") {
-    return NextResponse.json(
-      { success: false, error: { code: "UNAUTHORIZED", message: "Vendor authentication required" } },
-      { status: 401 }
-    );
-  }
-
   try {
-    const payments = getVendorPayments(vendorUserId);
-    const stats = getVendorPaymentStats(vendorUserId);
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Vendor authentication required" }, { status: 401 });
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        payments,
-        stats,
-      },
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/payments`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: { code: "FETCH_ERROR", message: error.message } },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch payments" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch payments" }, { status: 500 });
   }
 }
 
-/**
- * POST /api/vendor/payments
- * Create a new payment request
- */
 export async function POST(req: NextRequest) {
-  const vendorUserId = req.cookies.get("user_id")?.value;
-  const role = req.cookies.get("role")?.value;
-
-  if (!vendorUserId || role !== "vendor") {
-    return NextResponse.json(
-      { success: false, error: { code: "UNAUTHORIZED", message: "Vendor authentication required" } },
-      { status: 401 }
-    );
-  }
-
   try {
-    const body = await req.json();
-    const { eventId, amount, notes } = body;
-
-    if (!eventId || !amount || amount <= 0) {
-      return NextResponse.json(
-        { success: false, error: { code: "INVALID_INPUT", message: "Event ID and valid amount are required" } },
-        { status: 400 }
-      );
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Vendor authentication required" }, { status: 401 });
     }
 
-    const payment = createVendorPaymentRequest(vendorUserId, eventId, amount, notes);
+    const body = await req.json();
+    const { event_id, amount, notes } = body;
 
-    return NextResponse.json({
-      success: true,
-      data: payment,
+    if (!event_id || !amount || amount <= 0) {
+      return NextResponse.json({ error: "Event ID and valid amount are required" }, { status: 400 });
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/payments`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ event_id, amount, notes }),
     });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: { code: "CREATE_ERROR", message: error.message } },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to create payment" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to create payment" }, { status: 500 });
   }
 }

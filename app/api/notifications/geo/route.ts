@@ -1,45 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  getGeoNotifications,
-  markGeoNotificationSent,
-  getNearbyEventsForUser,
-} from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-/**
- * GET /api/notifications/geo
- * Get geo-targeted notifications for the authenticated user
- */
 export async function GET(req: NextRequest) {
   try {
-    const userId = req.cookies.get("user_id")?.value;
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
-        { status: 401 }
-      );
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
     const unsentOnly = searchParams.get("unsentOnly") === "true";
 
-    const notifications = getGeoNotifications(userId, unsentOnly);
-
-    return NextResponse.json({
-      success: true,
-      data: notifications,
+    const res = await fetch(`${BACKEND_URL}/api/v1/community/notifications/geo?unsent_only=${unsentOnly}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  } catch (error) {
-    console.error("Error fetching geo notifications:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Failed to fetch geo notifications",
-        },
-      },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch geo notifications" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch geo notifications" }, { status: 500 });
   }
 }

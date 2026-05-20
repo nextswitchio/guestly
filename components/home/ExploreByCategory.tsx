@@ -71,7 +71,7 @@ export function ExploreByCategory() {
             >
               <motion.div
                 variants={itemVariants}
-                whileHover={{ y: -8, scale: 1.05, rotate: [0, -10, 10, 0] }}
+                whileHover={{ y: -8, scale: 1.05, rotate: [-10, 10] }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className="w-16 h-16 sm:w-32 sm:h-32 rounded-full border border-dark group-hover:border-lime group-hover:bg-lime-hover/5 flex items-center justify-center transition-all duration-300"

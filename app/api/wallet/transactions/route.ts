@@ -1,13 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { listTransactions } from "@/lib/store";
-
-function userId(req: NextRequest) {
-  const role = req.cookies.get("role")?.value;
-  return role === "attendee" ? "attendee-user" : "organiser-user";
-}
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
-  const list = listTransactions(userId(req));
-  return NextResponse.json({ ok: true, transactions: list });
-}
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    const url = new URL(req.url);
+    const page = url.searchParams.get("page") || "1";
+    const pageSize = url.searchParams.get("pageSize") || "50";
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/transactions?page=${page}&page_size=${pageSize}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch transactions" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ ok: true, transactions: data.transactions || [] });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch transactions" }, { status: 500 });
+  }
+}

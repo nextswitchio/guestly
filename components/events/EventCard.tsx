@@ -41,13 +41,19 @@ export default function EventCard(props: EventCardProps) {
     >
       {/* Image */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
-        <Image
-          src={props.image}
-          alt={props.title}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        {props.image ? (
+          <Image
+            src={props.image}
+            alt={props.title}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-slate-400">
+            <Icon name="image" size={48} />
+          </div>
+        )}
         
         {/* Subtle gradient for text readability if badges are present */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />

@@ -1,16 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addSavings } from "@/lib/store";
-
-function userId(req: NextRequest) {
-  const role = req.cookies.get("role")?.value;
-  return role === "attendee" ? "attendee-user" : "organiser-user";
-}
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => ({}));
-  const amount: number = body?.amount || 0;
-  if (amount <= 0) return NextResponse.json({ ok: false, error: "Invalid amount" }, { status: 400 });
-  addSavings(userId(req), amount);
-  return NextResponse.json({ ok: true });
-}
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    const body = await req.json().catch(() => ({}));
+    const amount = body?.amount || 0;
+    if (amount <= 0) {
+      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/savings`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ amount }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to add savings" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "Failed to add savings" }, { status: 500 });
+  }
+}

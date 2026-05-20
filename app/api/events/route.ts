@@ -5,10 +5,14 @@ export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const params = new URLSearchParams();
 
-  const fields = ["q", "category", "country", "city", "event_type", "status", "page", "page_size"];
+  const fields = ["q", "category", "country", "city", "event_type", "status", "page", "page_size", "pageSize"];
   fields.forEach((f) => {
     const val = searchParams.get(f);
-    if (val) params.set(f, val);
+    if (val) {
+      // Normalize pageSize to page_size for backend
+      const key = f === "pageSize" ? "page_size" : f;
+      params.set(key, val);
+    }
   });
 
   const query = params.toString();

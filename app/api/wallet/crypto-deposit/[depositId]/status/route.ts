@@ -1,57 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { pollCryptoDepositStatus, getCryptoDeposit } from "@/lib/store";
-
-function userId(req: NextRequest) {
-  const role = req.cookies.get("role")?.value;
-  return role === "attendee" ? "attendee-user" : "organiser-user";
-}
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ depositId: string }> }
 ) {
-  const { depositId } = await params;
+  try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  if (!depositId) {
-    return NextResponse.json(
-      { success: false, error: "Deposit ID required" },
-      { status: 400 }
-    );
+    const { depositId } = await params;
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/crypto-deposits/${depositId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      return NextResponse.json({ error: "Deposit not found" }, { status: 404 });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, deposit: data });
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch deposit" }, { status: 500 });
   }
-
-  // Poll for status update
-  const deposit = pollCryptoDepositStatus(depositId);
-
-  if (!deposit) {
-    return NextResponse.json(
-      { success: false, error: "Deposit not found" },
-      { status: 404 }
-    );
-  }
-
-  // Verify the deposit belongs to the requesting user
-  const user = userId(req);
-  if (deposit.userId !== user) {
-    return NextResponse.json(
-      { success: false, error: "Unauthorized" },
-      { status: 403 }
-    );
-  }
-
-  return NextResponse.json({
-    success: true,
-    deposit: {
-      id: deposit.id,
-      cryptoType: deposit.cryptoType,
-      amount: deposit.amount,
-      amountUSD: deposit.amountUSD,
-      status: deposit.status,
-      confirmations: deposit.confirmations,
-      requiredConfirmations: deposit.requiredConfirmations,
-      txHash: deposit.txHash,
-      createdAt: deposit.createdAt,
-      updatedAt: deposit.updatedAt,
-      confirmedAt: deposit.confirmedAt,
-    },
-  });
 }

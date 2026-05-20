@@ -1,77 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { inviteVendorToEvent, createNotification, getEventOrganizer } from "@/lib/store";
-import { getEventById } from "@/lib/events";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Only organizers can invite vendors" }, { status: 401 });
+    }
+
     const { id: eventId } = await params;
-    const userId = req.cookies.get("user_id")?.value;
-    const role = req.cookies.get("role")?.value;
-
-    if (!userId || role !== "organiser") {
-      return NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "Only organizers can invite vendors" } },
-        { status: 401 }
-      );
-    }
-
-    const event = getEventById(eventId);
-    if (!event) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "Event not found" } },
-        { status: 404 }
-      );
-    }
-
-    // Verify the organizer owns this event
-    const organizerId = getEventOrganizer(eventId);
-    if (organizerId !== userId) {
-      return NextResponse.json(
-        { success: false, error: { code: "FORBIDDEN", message: "You don't have permission to invite vendors to this event" } },
-        { status: 403 }
-      );
-    }
-
     const body = await req.json();
-    const { vendorUserId } = body;
+    const { vendor_user_id } = body;
 
-    if (!vendorUserId) {
-      return NextResponse.json(
-        { success: false, error: { code: "INVALID_REQUEST", message: "vendorUserId is required" } },
-        { status: 400 }
-      );
+    if (!vendor_user_id) {
+      return NextResponse.json({ error: "vendor_user_id is required" }, { status: 400 });
     }
 
-    // Create the invitation
-    const invitation = inviteVendorToEvent(eventId, vendorUserId);
-
-    // Send notification to vendor
-    createNotification(
-      vendorUserId,
-      "vendor_invitation",
-      "New Event Invitation",
-      `You've been invited to provide services for ${event.title}`,
-      eventId
-    );
-
-    return NextResponse.json({
-      success: true,
-      data: invitation,
-    });
-  } catch (error: any) {
-    console.error("Error inviting vendor:", error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: { 
-          code: "INTERNAL_ERROR", 
-          message: error.message || "Failed to invite vendor" 
-        } 
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${eventId}/vendors/invite`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-      { status: 500 }
-    );
+      body: JSON.stringify({ vendor_user_id }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to invite vendor" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ error: "Failed to invite vendor" }, { status: 500 });
   }
 }

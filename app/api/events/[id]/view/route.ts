@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { incrementEventViews, clearCityStatsCache } from "@/lib/store";
-import { getEventById } from "@/lib/events";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(
   req: NextRequest,
@@ -8,28 +7,22 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    
-    // Increment view count
-    incrementEventViews(id);
-    
-    // Clear city cache to update trending events
-    const event = getEventById(id);
-    if (event) {
-      clearCityStatsCache(event.city);
+    const token = req.cookies.get("access_token")?.value;
+
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}/view`, {
+      method: "POST",
+      headers,
+    });
+
+    if (!res.ok) {
+      return NextResponse.json({ success: false });
     }
-    
+
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error tracking event view:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "TRACKING_ERROR",
-          message: "Failed to track event view",
-        },
-      },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ success: false });
   }
 }

@@ -225,3 +225,41 @@ export function emitDiscussionTyping(
   const socket = getSocket();
   socket.emit("discussion-typing", { eventId, threadId, userId, userName, isTyping });
 }
+
+// Notification event types
+export interface GeoNotification {
+  id: string;
+  event_id: string;
+  title: string;
+  message: string;
+  distance: number;
+  type: "geo_notification";
+  created_at: string;
+}
+
+export interface NewNotificationEvent {
+  id: string;
+  event_id: string;
+  title: string;
+  message: string;
+  distance: number;
+  type: string;
+  created_at: string;
+}
+
+// Notification subscription helpers
+export function subscribeNotifications(userId: string) {
+  const socket = getSocket();
+  socket.emit("subscribe_notifications", { user_id: userId });
+}
+
+export function unsubscribeNotifications() {
+  const socket = getSocket();
+  socket.emit("unsubscribe_notifications");
+}
+
+export function onNewNotification(callback: (notification: NewNotificationEvent) => void) {
+  const socket = getSocket();
+  socket.on("new_notification", callback);
+  return () => socket.off("new_notification", callback);
+}

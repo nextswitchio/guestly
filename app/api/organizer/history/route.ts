@@ -1,57 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { 
-  getOrganizerHistory, 
-  getOrganizerPerformancePattern,
-  getOrganizerEvents 
-} from "@/lib/store";
+import { BACKEND_URL } from "@/lib/api/client";
 
-function userId(req: NextRequest) {
-  return req.cookies.get("user_id")?.value || "";
-}
-
-/**
- * GET /api/organizer/history
- * Get organizer's event history and performance pattern
- */
 export async function GET(req: NextRequest) {
   try {
-    const organizerId = userId(req);
-    
-    if (!organizerId) {
-      return NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
-        { status: 401 }
-      );
+    const token = req.cookies.get("access_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
-    
-    // Get organizer's event history
-    const history = getOrganizerHistory(organizerId);
-    
-    // Get performance pattern
-    const pattern = getOrganizerPerformancePattern(organizerId);
-    
-    // Get all event IDs for this organizer
-    const eventIds = getOrganizerEvents(organizerId);
-    
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/my`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch history" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
+    }
+
+    const data = await res.json();
     return NextResponse.json({
       success: true,
       data: {
-        history,
-        pattern,
-        eventIds,
+        history: data.events || [],
+        pattern: {
+          totalEvents: data.total || 0,
+          avgAttendance: 0,
+          avgRevenue: 0,
+        },
+        eventIds: (data.events || []).map((e: { id: string }) => e.id),
       },
     });
-  } catch (error) {
-    console.error("Error fetching organizer history:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Failed to fetch organizer history",
-        },
-      },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch organizer history" }, { status: 500 });
   }
 }
