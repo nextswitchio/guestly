@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addReplyToThread, listThreadReplies } from "@/lib/store";
+import { fetchBackendJson } from "@/lib/api/proxy";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; threadId: string }> }
 ) {
   const { threadId } = await params;
-  const replies = listThreadReplies(threadId);
-  return NextResponse.json({ success: true, data: replies });
+  const { data, status, ok } = await fetchBackendJson(req, `/api/v1/community/discussions/${threadId}/replies`);
+  if (!ok) return NextResponse.json(data, { status });
+  return NextResponse.json({ success: true, data });
 }
 
 export async function POST(
@@ -16,16 +17,6 @@ export async function POST(
 ) {
   try {
     const { threadId } = await params;
-    const userId = req.cookies.get("user_id")?.value;
-    const role = req.cookies.get("role")?.value;
-    
-    if (!userId || !role) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-    
     const body = await req.json();
     const { content, parentReplyId } = body;
     
@@ -36,29 +27,13 @@ export async function POST(
       );
     }
     
-    // Generate author name based on role
-    const authorName = role === "organiser" 
-      ? "Organizer" 
-      : role === "vendor" 
-        ? "Vendor" 
-        : "Attendee";
-    
-    const reply = addReplyToThread(
-      threadId,
-      userId,
-      authorName,
-      content.trim(),
-      parentReplyId
+    const { data, status, ok } = await fetchBackendJson(
+      req,
+      `/api/v1/community/discussions/${threadId}/replies`,
+      { method: "POST", body: JSON.stringify({ content: content.trim(), parent_reply_id: parentReplyId }) },
     );
-    
-    if (!reply) {
-      return NextResponse.json(
-        { success: false, error: parentReplyId ? "Parent reply not found" : "Thread not found" },
-        { status: 404 }
-      );
-    }
-    
-    return NextResponse.json({ success: true, data: reply });
+    if (!ok) return NextResponse.json(data, { status });
+    return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error("Error creating reply:", error);
     return NextResponse.json(

@@ -50,6 +50,12 @@ export async function POST(req: NextRequest) {
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
       });
+      response.cookies.set("user_role", data.user?.role || "attendee", {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
       response.cookies.set("user_id", data.user?.id || "", {
         httpOnly: true,
         sameSite: "lax",

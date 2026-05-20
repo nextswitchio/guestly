@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
       response.cookies.set("access_token", "", { maxAge: 0, path: "/" });
       response.cookies.set("refresh_token", "", { maxAge: 0, path: "/" });
       response.cookies.set("role", "", { maxAge: 0, path: "/" });
+      response.cookies.set("user_role", "", { maxAge: 0, path: "/" });
       return response;
     }
 

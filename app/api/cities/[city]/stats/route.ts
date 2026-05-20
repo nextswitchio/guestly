@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCityStats } from "@/lib/store";
+import { fetchBackendJson } from "@/lib/api/proxy";
 
 export async function GET(
   req: NextRequest,
@@ -8,12 +8,16 @@ export async function GET(
   try {
     const { city } = await params;
     const decodedCity = decodeURIComponent(city);
-    
-    const stats = getCityStats(decodedCity);
+    const { data, status, ok } = await fetchBackendJson(
+      req,
+      `/api/v1/community/cities/${encodeURIComponent(decodedCity)}/stats`,
+    );
+
+    if (!ok) return NextResponse.json(data, { status });
     
     return NextResponse.json({
       success: true,
-      data: stats,
+      data,
     });
   } catch (error) {
     console.error("Error fetching city stats:", error);

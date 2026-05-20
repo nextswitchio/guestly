@@ -1,24 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDiscussionThread, listThreadReplies } from "@/lib/store";
+import { fetchBackendJson } from "@/lib/api/proxy";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; threadId: string }> }
 ) {
   const { threadId } = await params;
-  
-  const thread = getDiscussionThread(threadId);
-  if (!thread) {
-    return NextResponse.json(
-      { success: false, error: "Thread not found" },
-      { status: 404 }
-    );
-  }
-  
-  const replies = listThreadReplies(threadId);
-  
+  const [threadResult, repliesResult] = await Promise.all([
+    fetchBackendJson(req, `/api/v1/community/discussions/${threadId}`),
+    fetchBackendJson(req, `/api/v1/community/discussions/${threadId}/replies`),
+  ]);
+
+  if (!threadResult.ok) return NextResponse.json(threadResult.data, { status: threadResult.status });
+  if (!repliesResult.ok) return NextResponse.json(repliesResult.data, { status: repliesResult.status });
+
   return NextResponse.json({ 
     success: true, 
-    data: { thread, replies } 
+    data: { thread: threadResult.data, replies: repliesResult.data } 
   });
 }

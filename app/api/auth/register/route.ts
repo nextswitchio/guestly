@@ -3,7 +3,8 @@ import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const { email, password, displayName, role } = body;
+  const { email, password, role } = body;
+  const displayName = body.displayName || body.fullName;
 
   if (!email || !password || !displayName) {
     return NextResponse.json(
@@ -48,6 +49,12 @@ export async function POST(req: NextRequest) {
         maxAge: 60 * 60 * 24 * 7,
       });
       response.cookies.set("role", data.user?.role || "attendee", {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      response.cookies.set("user_role", data.user?.role || "attendee", {
         httpOnly: true,
         sameSite: "lax",
         path: "/",

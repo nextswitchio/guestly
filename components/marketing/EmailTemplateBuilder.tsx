@@ -13,14 +13,12 @@ interface EmailBlock {
   styles?: Record<string, string>;
 }
 
+import type { EmailTemplate } from '@/lib/marketing';
+
 interface EmailTemplateBuilderProps {
   organizerId: string;
-  initialTemplate?: {
-    name: string;
-    subject: string;
-    blocks: EmailBlock[];
-  };
-  onSave: (template: { name: string; subject: string; blocks: EmailBlock[] }) => void;
+  initialTemplate?: EmailTemplate;
+  onSave: (template: EmailTemplate) => void;
   onCancel: () => void;
 }
 

@@ -44,7 +44,25 @@ export default function NewServiceProfilePage() {
         body: JSON.stringify({ ...form, minBudget: form.minBudget ? parseFloat(form.minBudget) : undefined, maxBudget: form.maxBudget ? parseFloat(form.maxBudget) : undefined }),
       });
       if (res.ok) router.push('/vendor/service-profiles');
-      else { const d = await res.json(); setError(d.error || 'Failed to create profile'); }
+      else { 
+        const d = await res.json(); 
+        let errorMsg = 'Failed to create profile';
+        
+        if (d.error) {
+          errorMsg = typeof d.error === 'string' 
+            ? d.error 
+            : Array.isArray(d.error)
+            ? d.error[0]?.msg || 'Validation error'
+            : d.error.msg || 'Validation error';
+        } else if (d.detail) {
+          errorMsg = typeof d.detail === 'string'
+            ? d.detail
+            : Array.isArray(d.detail)
+            ? d.detail[0]?.msg || 'Validation error'
+            : 'Validation error';
+        }
+        setError(errorMsg);
+      }
     } catch { setError('Network error.'); }
     finally { setSaving(false); }
   };
@@ -107,7 +125,7 @@ export default function NewServiceProfilePage() {
               <div className="flex flex-wrap gap-2">{form.tags.map(tag => <span key={tag} className="inline-flex items-center gap-1 px-3 py-1 bg-lime/10 text-dark rounded-full text-sm">{tag}<button type="button" onClick={() => removeTag(tag)} className="hover:text-dark/70"><X className="w-3 h-3" /></button></span>)}</div>
             )}
           </div>
-          {error && <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-700 border border-red-200"><AlertCircle className="w-4 h-4 shrink-0" />{error}</div>}
+          {error && <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-700 border border-red-200"><AlertCircle className="w-4 h-4 shrink-0" />{typeof error === 'string' ? error : String(error)}</div>}
           <div className="flex gap-3 pt-2">
             <Button type="submit" loading={saving}><Save className="w-4 h-4 mr-2" />Create Profile</Button>
             <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>

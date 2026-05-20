@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveEvent, incrementEventSaves, clearCityStatsCache, listSavedEvents } from "@/lib/store";
-import { getEventById } from "@/lib/events";
-
-function getUserId(req: NextRequest): string {
-  return req.cookies.get("user_id")?.value || "anonymous";
-}
+import { fetchBackendJson } from "@/lib/api/proxy";
 
 export async function GET(req: NextRequest) {
-  const uid = getUserId(req);
-  const ids = listSavedEvents(uid);
-  const events = ids.map(getEventById).filter(Boolean);
-  return NextResponse.json({ ok: true, data: events });
+  const { data, status, ok } = await fetchBackendJson(req, "/api/v1/events/bookmarks");
+  if (!ok) return NextResponse.json(data, { status });
+  return NextResponse.json({ ok: true, data });
 }
 
 export async function POST(req: NextRequest) {
@@ -26,12 +20,13 @@ export async function POST(req: NextRequest) {
   }
   if (!eventId) return NextResponse.json({ ok: false, error: "eventId required" }, { status: 400 });
 
-  saveEvent(getUserId(req), eventId);
-  incrementEventSaves(eventId);
-  const event = getEventById(eventId);
-  if (event) {
-    clearCityStatsCache(event.city);
-  }
+  const { data, status, ok } = await fetchBackendJson(
+    req,
+    `/api/v1/events/bookmark?event_id=${encodeURIComponent(eventId)}`,
+    { method: "POST" },
+  );
+
+  if (!ok) return NextResponse.json(data, { status });
 
   return NextResponse.json({ ok: true });
 }

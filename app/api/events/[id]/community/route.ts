@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addDiscussion, listDiscussions } from "@/lib/store";
-
-function roleName(role?: string) {
-  if (role === "organiser") return "Organiser";
-  if (role === "vendor") return "Vendor";
-  return "Attendee";
-}
+import { fetchBackendJson } from "@/lib/api/proxy";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const posts = listDiscussions(id);
-  return NextResponse.json({ ok: true, data: posts });
+  const { data, status, ok } = await fetchBackendJson(req, `/api/v1/community/events/${id}/discussions`);
+  if (!ok) return NextResponse.json(data, { status });
+  return NextResponse.json({ ok: true, data });
 }
 
 export async function POST(
@@ -27,14 +22,18 @@ export async function POST(
     if (!message.trim()) {
       return NextResponse.json({ ok: false, error: "Message required" }, { status: 400 });
     }
-    const role = req.cookies.get("role")?.value;
-    if (!role) {
-      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-    }
-    const post = addDiscussion(id, roleName(role), message.trim());
-    return NextResponse.json({ ok: true, data: post });
+    const trimmed = message.trim();
+    const { data, status, ok } = await fetchBackendJson(
+      req,
+      `/api/v1/community/events/${id}/discussions`,
+      {
+        method: "POST",
+        body: JSON.stringify({ title: trimmed.slice(0, 80), content: trimmed }),
+      },
+    );
+    if (!ok) return NextResponse.json(data, { status });
+    return NextResponse.json({ ok: true, data });
   } catch (e) {
     return NextResponse.json({ ok: false, error: "Failed to post" }, { status: 500 });
   }
 }
-

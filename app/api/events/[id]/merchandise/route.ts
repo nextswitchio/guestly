@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getProductsByEvent } from "@/lib/store";
+import { fetchBackendJson } from "@/lib/api/proxy";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const eventId = id;
   
   try {
-    const products = getProductsByEvent(eventId);
+    const { data, status, ok } = await fetchBackendJson(req, `/api/v1/merchandise/events/${eventId}/products`);
+    if (!ok) return NextResponse.json(data, { status });
     
     return NextResponse.json({
       success: true,
-      data: products || []
+      data: data?.products || []
     });
   } catch (error) {
     console.error('Error fetching merchandise:', error);
@@ -33,12 +34,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   try {
     const body = await req.json();
-    const { products } = body;
-    
-    // Mock adding merchandise products
+    const products = Array.isArray(body.products) ? body.products : [body];
+    const created = [];
+
+    for (const product of products) {
+      const { data, status, ok } = await fetchBackendJson(
+        req,
+        `/api/v1/merchandise/events/${eventId}/products`,
+        { method: "POST", body: JSON.stringify(product) },
+      );
+      if (!ok) return NextResponse.json(data, { status });
+      created.push(data);
+    }
+
     return NextResponse.json({
       success: true,
-      data: { eventId, products }
+      data: { eventId, products: created }
     });
   } catch (error) {
     console.error('Error adding merchandise:', error);

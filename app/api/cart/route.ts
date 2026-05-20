@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Simple in-memory cart storage (in production, this would be in a database or session)
-const userCarts: Record<string, any[]> = {};
+function readCart(req: NextRequest, userId: string): any[] {
+  const raw = req.cookies.get("cart")?.value;
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(decodeURIComponent(raw));
+    if (Array.isArray(parsed)) return parsed;
+    const userCart = parsed?.[userId];
+    return Array.isArray(userCart) ? userCart : [];
+  } catch {
+    return [];
+  }
+}
 
 export async function GET(req: NextRequest) {
   const userId = req.cookies.get("user_id")?.value;
@@ -11,7 +21,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const cart = userCarts[userId] || [];
+    const cart = readCart(req, userId);
     
     return NextResponse.json({
       success: true,

@@ -22,6 +22,9 @@ export async function proxyToBackend(
   const authHeader = req.headers.get("authorization");
   if (authHeader) {
     headers["Authorization"] = authHeader;
+  } else {
+    const token = req.cookies.get("access_token")?.value;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
   }
 
   const res = await fetch(fullUrl, {
@@ -38,6 +41,30 @@ export async function proxyToBackend(
 
   const text = await res.text();
   return new NextResponse(text, { status: res.status });
+}
+
+export async function fetchBackendJson(
+  req: NextRequest,
+  backendPath: string,
+  init: RequestInit = {},
+): Promise<{ data: any; status: number; ok: boolean }> {
+  const url = `${BACKEND_URL.replace(/\/$/, "")}${backendPath}`;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(init.headers as Record<string, string> | undefined),
+  };
+
+  const authHeader = req.headers.get("authorization");
+  if (authHeader) {
+    headers.Authorization = authHeader;
+  } else {
+    const token = req.cookies.get("access_token")?.value;
+    if (token) headers.Authorization = `Bearer ${token}`;
+  }
+
+  const res = await fetch(url, { ...init, headers });
+  const data = await res.json().catch(() => null);
+  return { data, status: res.status, ok: res.ok };
 }
 
 export function getBearerToken(req: NextRequest): string | null {

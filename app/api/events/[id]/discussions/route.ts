@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { 
-  createDiscussionThread, 
-  listDiscussionThreads 
-} from "@/lib/store";
+import { fetchBackendJson } from "@/lib/api/proxy";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const threads = listDiscussionThreads(id);
-  return NextResponse.json({ success: true, data: threads });
+  const { data, status, ok } = await fetchBackendJson(req, `/api/v1/community/events/${id}/discussions`);
+  if (!ok) return NextResponse.json(data, { status });
+  return NextResponse.json({ success: true, data });
 }
 
 export async function POST(
@@ -19,16 +17,6 @@ export async function POST(
 ) {
   try {
     const { id: eventId } = await params;
-    const userId = req.cookies.get("user_id")?.value;
-    const role = req.cookies.get("role")?.value;
-    
-    if (!userId || !role) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-    
     const body = await req.json();
     const { title, content } = body;
     
@@ -39,22 +27,13 @@ export async function POST(
       );
     }
     
-    // Generate author name based on role
-    const authorName = role === "organiser" 
-      ? "Organizer" 
-      : role === "vendor" 
-        ? "Vendor" 
-        : "Attendee";
-    
-    const thread = createDiscussionThread(
-      eventId,
-      userId,
-      authorName,
-      title.trim(),
-      content.trim()
+    const { data, status, ok } = await fetchBackendJson(
+      req,
+      `/api/v1/community/events/${eventId}/discussions`,
+      { method: "POST", body: JSON.stringify({ title: title.trim(), content: content.trim() }) },
     );
-    
-    return NextResponse.json({ success: true, data: thread });
+    if (!ok) return NextResponse.json(data, { status });
+    return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error("Error creating discussion thread:", error);
     return NextResponse.json(

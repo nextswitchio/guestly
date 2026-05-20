@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Simple in-memory cart storage
-const userCarts: Record<string, any[]> = {};
+function readCartStore(req: NextRequest, userId: string): Record<string, any[]> {
+  const raw = req.cookies.get("cart")?.value;
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(decodeURIComponent(raw));
+    if (Array.isArray(parsed)) return { [userId]: parsed };
+    return parsed && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
 
 export async function POST(req: NextRequest) {
   const userId = req.cookies.get("user_id")?.value;
@@ -14,10 +23,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { type, productId, quantity, variant } = body;
     
-    if (!userCarts[userId]) {
-      userCarts[userId] = [];
-    }
-    
     const cartItem = {
       id: Math.random().toString(36).substr(2, 9),
       type,
@@ -26,13 +31,20 @@ export async function POST(req: NextRequest) {
       variant,
       addedAt: Date.now()
     };
-    
-    userCarts[userId].push(cartItem);
-    
-    return NextResponse.json({
+
+    const cartStore = readCartStore(req, userId);
+    cartStore[userId] = [...(cartStore[userId] || []), cartItem];
+    const response = NextResponse.json({
       success: true,
       data: cartItem
     });
+    response.cookies.set("cart", encodeURIComponent(JSON.stringify(cartStore)), {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+    
+    return response;
   } catch (error) {
     console.error('Error adding to cart:', error);
     return NextResponse.json(

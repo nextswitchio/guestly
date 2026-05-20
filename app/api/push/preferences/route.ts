@@ -1,30 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateNotificationPreferences, getNotificationPreferences } from "@/lib/marketing";
+import { fetchBackendJson } from "@/lib/api/proxy";
 
 export async function PATCH(req: NextRequest) {
   try {
-    const userId = req.cookies.get("user_id")?.value;
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized - Login required" },
-        { status: 401 }
-      );
-    }
-
     const body = await req.json();
     const { enablePromotional, enableTransactional, enableEventUpdates, enableReminders } = body;
+    const categories = [
+      enablePromotional ? "promotional" : null,
+      enableTransactional ? "transactional" : null,
+      enableEventUpdates ? "eventUpdates" : null,
+      enableReminders ? "reminders" : null,
+    ].filter(Boolean);
 
-    const preferences = updateNotificationPreferences(userId, {
-      categories: {
-        promotional: enablePromotional,
-        transactional: enableTransactional,
-        eventUpdates: enableEventUpdates,
-        reminders: enableReminders,
-      },
-    });
+    const { data, status, ok } = await fetchBackendJson(
+      req,
+      "/api/v1/community/notifications/preferences",
+      { method: "PUT", body: JSON.stringify({ categories }) },
+    );
 
-    return NextResponse.json(preferences);
+    if (!ok) return NextResponse.json(data, { status });
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Error updating notification preferences:", error);
     return NextResponse.json(
@@ -36,18 +31,9 @@ export async function PATCH(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const userId = req.cookies.get("user_id")?.value;
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized - Login required" },
-        { status: 401 }
-      );
-    }
-
-    const preferences = getNotificationPreferences(userId);
-
-    return NextResponse.json(preferences);
+    const { data, status, ok } = await fetchBackendJson(req, "/api/v1/community/notifications/preferences");
+    if (!ok) return NextResponse.json(data, { status });
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Error fetching notification preferences:", error);
     return NextResponse.json(

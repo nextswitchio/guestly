@@ -5,43 +5,74 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { User, Star, Phone, Mail, Globe, MapPin, Building2, Save, Edit3, RefreshCw } from "lucide-react";
 
+type VendorClientProfile = {
+  businessName?: string;
+  category?: string;
+  description?: string;
+  services?: string[];
+  pricing?: string;
+  location?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  rating?: number;
+  reviewCount?: number;
+  completedEvents?: number;
+};
+
 export default function VendorProfilePage() {
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<VendorClientProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({ businessName: "", category: "", description: "", services: "", pricing: "", location: "", phone: "", email: "", website: "" });
 
-  useEffect(() => { load(); }, []);
+  const applyProfile = (nextProfile: VendorClientProfile) => {
+    setProfile(nextProfile);
+    setForm({
+      businessName: nextProfile.businessName || "", category: nextProfile.category || "", description: nextProfile.description || "",
+      services: (nextProfile.services || []).join(", "), pricing: nextProfile.pricing || "", location: nextProfile.location || "",
+      phone: nextProfile.phone || "", email: nextProfile.email || "", website: nextProfile.website || "",
+    });
+  };
+
+  const fetchProfile = async () => {
+    const res = await fetch("/api/vendor/profile");
+    if (!res.ok) return null;
+    const d = await res.json();
+    return d.success && d.data ? d.data as VendorClientProfile : null;
+  };
 
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/vendor/profile");
-      if (res.ok) {
-        const d = await res.json();
-        if (d.success && d.data) {
-          setProfile(d.data);
-          setForm({
-            businessName: d.data.businessName || "", category: d.data.category || "", description: d.data.description || "",
-            services: (d.data.services || []).join(", "), pricing: d.data.pricing || "", location: d.data.location || "",
-            phone: d.data.phone || "", email: d.data.email || "", website: d.data.website || "",
-          });
-        }
-      }
+      const nextProfile = await fetchProfile();
+      if (nextProfile) applyProfile(nextProfile);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchProfile()
+      .then(nextProfile => { if (!cancelled && nextProfile) applyProfile(nextProfile); })
+      .catch(e => console.error(e))
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
     try {
       const res = await fetch("/api/vendor/profile", {
-        method: "PUT", headers: { "Content-Type": "application/json" },
+        method: profile ? "PUT" : "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, services: form.services.split(",").map(s => s.trim()).filter(Boolean), website: form.website || undefined }),
       });
       if (res.ok) { await load(); setEditMode(false); }
-      else { const d = await res.json(); alert(d.error?.message || "Failed to save"); }
+      else {
+        const d = await res.json();
+        alert(typeof d.error === "string" ? d.error : d.error?.message || "Failed to save");
+      }
     } catch { alert("Failed to save"); }
     finally { setSaving(false); }
   };
@@ -127,11 +158,11 @@ export default function VendorProfilePage() {
                 <h3 className="text-sm font-semibold text-dark mb-1.5">About</h3>
                 <p className="text-sm text-gray-500">{profile?.description}</p>
               </div>
-              {profile?.services?.length > 0 && (
+              {profile?.services && profile.services.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-dark mb-1.5">Services</h3>
                   <div className="flex flex-wrap gap-2">
-                    {profile.services.map((s: string, i: number) => <span key={i} className="rounded-full bg-lime/10 px-3 py-1 text-xs font-medium text-dark">{s}</span>)}
+                    {profile?.services?.map((s: string, i: number) => <span key={i} className="rounded-full bg-lime/10 px-3 py-1 text-xs font-medium text-dark">{s}</span>)}
                   </div>
                 </div>
               )}

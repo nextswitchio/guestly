@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
       response.cookies.set("access_token", "", { maxAge: 0, path: "/" });
       response.cookies.set("refresh_token", "", { maxAge: 0, path: "/" });
       response.cookies.set("role", "", { maxAge: 0, path: "/" });
+      response.cookies.set("user_role", "", { maxAge: 0, path: "/" });
       response.cookies.set("user_id", "", { maxAge: 0, path: "/" });
       return response;
     }
