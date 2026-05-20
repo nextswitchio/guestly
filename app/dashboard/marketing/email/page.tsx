@@ -2,19 +2,24 @@
 
 import { useState, useEffect } from 'react';
 import { Icon } from '@/components/ui/Icon';
+import Button from '@/components/ui/Button';
 import { EmailTemplateLibrary } from '@/components/marketing/EmailTemplateLibrary';
 import { EmailTemplateBuilder } from '@/components/marketing/EmailTemplateBuilder';
-import { EmailCampaignForm } from '@/components/marketing/EmailCampaignForm';
+import { EmailCampaignComposer } from '@/components/marketing/EmailCampaignComposer';
 import EmailMetricsPanel from '@/components/marketing/EmailMetricsPanel';
+import type { EmailTemplate } from '@/components/marketing/EmailTemplateLibrary';
+import type { CampaignSendData } from '@/components/marketing/EmailCampaignComposer';
 
 type EmailTab = 'templates' | 'campaigns' | 'metrics';
+type ComposerMode = 'none' | 'builder' | 'composer';
 
 export default function EmailMarketingPage() {
   const [organizerId, setOrganizerId] = useState<string>('');
   const [activeTab, setActiveTab] = useState<EmailTab>('templates');
-  const [customTemplates, setCustomTemplates] = useState<any[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
-  const [showBuilder, setShowBuilder] = useState(false);
+  const [customTemplates, setCustomTemplates] = useState<EmailTemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
+  const [composerMode, setComposerMode] = useState<ComposerMode>('none');
+  const [sentCampaigns, setSentCampaigns] = useState<CampaignSendData[]>([]);
 
   useEffect(() => {
     const cookies = document.cookie.split(";");
@@ -24,27 +29,40 @@ export default function EmailMarketingPage() {
     }
   }, []);
 
-  const handleSelectTemplate = (template: any) => {
+  const handleSelectTemplate = (template: EmailTemplate) => {
     setSelectedTemplate(template);
-    setShowBuilder(true);
+    setComposerMode('composer');
   };
 
   const handleCreateNew = () => {
     setSelectedTemplate(null);
-    setShowBuilder(true);
+    setComposerMode('builder');
   };
 
   const handleDeleteTemplate = (templateId: string) => {
     setCustomTemplates(prev => prev.filter(t => t.id !== templateId));
   };
 
-  const handleSaveTemplate = (template: any) => {
+  const handleSaveTemplate = (template: EmailTemplate) => {
     if (template.id) {
       setCustomTemplates(prev => prev.map(t => t.id === template.id ? template : t));
     } else {
       setCustomTemplates(prev => [...prev, { ...template, id: `custom-${Date.now()}`, isCustom: true }]);
     }
-    setShowBuilder(false);
+    setComposerMode('none');
+    setSelectedTemplate(null);
+  };
+
+  const handleSendCampaign = (data: CampaignSendData) => {
+    setSentCampaigns(prev => [...prev, data]);
+    setComposerMode('none');
+    setSelectedTemplate(null);
+    setActiveTab('campaigns');
+  };
+
+  const handleBackFromComposer = () => {
+    setComposerMode('none');
+    setSelectedTemplate(null);
   };
 
   if (!organizerId) {
@@ -67,52 +85,94 @@ export default function EmailMarketingPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-              activeTab === tab.id
-                ? 'bg-lime text-dark'
-                : 'text-neutral-500 hover:bg-neutral-100'
-            }`}
-          >
-            <Icon name={tab.icon} size={16} />
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Content */}
-      {activeTab === 'templates' && (
-        <div className="space-y-6">
-          {showBuilder ? (
-            <EmailTemplateBuilder 
-              organizerId={organizerId}
-              initialTemplate={selectedTemplate}
-              onSave={handleSaveTemplate}
-              onCancel={() => setShowBuilder(false)}
-            />
-          ) : (
-            <EmailTemplateLibrary 
-              templates={customTemplates}
-              onSelectTemplate={handleSelectTemplate}
-              onCreateNew={handleCreateNew}
-              onDeleteTemplate={handleDeleteTemplate}
-            />
-          )}
+      {composerMode === 'none' && (
+        <div className="flex gap-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'bg-lime text-dark'
+                  : 'text-neutral-500 hover:bg-neutral-100'
+              }`}
+            >
+              <Icon name={tab.icon} size={16} />
+              {tab.label}
+            </button>
+          ))}
         </div>
       )}
 
-      {activeTab === 'campaigns' && (
-        <EmailCampaignForm 
+      {/* Content */}
+      {activeTab === 'templates' && composerMode === 'none' && (
+        <div className="space-y-6">
+          <EmailTemplateLibrary 
+            templates={customTemplates}
+            onSelectTemplate={handleSelectTemplate}
+            onCreateNew={handleCreateNew}
+            onDeleteTemplate={handleDeleteTemplate}
+          />
+        </div>
+      )}
+
+      {activeTab === 'templates' && composerMode === 'builder' && (
+        <EmailTemplateBuilder 
           organizerId={organizerId}
-          events={[]}
-          templates={[]}
-          onSubmit={() => {}}
-          onCancel={() => {}}
+          initialTemplate={selectedTemplate || undefined}
+          onSave={handleSaveTemplate}
+          onCancel={handleBackFromComposer}
         />
+      )}
+
+      {activeTab === 'templates' && composerMode === 'composer' && selectedTemplate && (
+        <EmailCampaignComposer
+          organizerId={organizerId}
+          template={selectedTemplate}
+          onBack={handleBackFromComposer}
+          onSend={handleSendCampaign}
+        />
+      )}
+
+      {activeTab === 'campaigns' && (
+        <div className="space-y-6">
+          {sentCampaigns.length === 0 ? (
+            <div className="text-center py-16">
+              <Icon name="megaphone" className="w-16 h-16 mx-auto mb-4 text-neutral-300" />
+              <h3 className="text-lg font-semibold text-neutral-900">No campaigns yet</h3>
+              <p className="text-neutral-500 mt-1 mb-4">Create your first email campaign from the Templates tab</p>
+              <Button onClick={() => setActiveTab('templates')} variant="outline">
+                Browse Templates
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-neutral-900">Sent Campaigns</h2>
+                <Button onClick={() => setActiveTab('templates')}>
+                  <Icon name="plus" className="w-4 h-4 mr-2" />
+                  New Campaign
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {sentCampaigns.map((campaign, i) => (
+                  <div key={i} className="p-4 rounded-xl border border-neutral-200 bg-white flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-neutral-900">{campaign.subject}</p>
+                      <p className="text-sm text-neutral-500">
+                        {campaign.estimatedRecipients} recipients
+                        {campaign.sendImmediately ? ' • Sent immediately' : ` • Scheduled for ${new Date(campaign.scheduledAt!).toLocaleString()}`}
+                      </p>
+                    </div>
+                    <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                      Sent
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       )}
 
       {activeTab === 'metrics' && (

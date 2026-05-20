@@ -76,30 +76,6 @@ export function AnnouncementBanner({ announcements, onDismiss }: AnnouncementBan
           text: 'text-lime',
           icon: 'text-lime',
         };
-      case 'high':
-        return {
-          bg: 'bg-amber-50 border-amber-200',
-          text: 'text-amber-800',
-          icon: 'text-amber-600',
-        };
-      case 'medium':
-        return {
-          bg: 'bg-lime/5 border-lime',
-          text: 'text-lime',
-          icon: 'text-lime',
-        };
-      case 'low':
-        return {
-          bg: 'bg-neutral-50 border-neutral-200',
-          text: 'text-neutral-800',
-          icon: 'text-neutral-600',
-        };
-      default:
-        return {
-          bg: 'bg-lime/5 border-lime',
-          text: 'text-lime',
-          icon: 'text-lime',
-        };
     }
   };
 

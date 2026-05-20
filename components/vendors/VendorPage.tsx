@@ -8,7 +8,7 @@ const VendorPage = () => {
     {
       label: "List Your Business",
       variant: "primary" as const,
-      href: "/vendor/onboarding",
+      href: "/vendor-auth/register",
     },
     {
       label: "Partner Sign in",

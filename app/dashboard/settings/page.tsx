@@ -61,6 +61,9 @@ export default function SettingsPage() {
   const [cardName, setCardName] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [accountHolderName, setAccountHolderName] = useState("");
   const [savingPayment, setSavingPayment] = useState(false);
 
   const [paymentMethods, setPaymentMethods] = useState([
@@ -68,18 +71,25 @@ export default function SettingsPage() {
   ]);
 
   const handleSavePayment = async () => {
-    if (!cardNumber || !cardName || !cardExpiry || !cardCvc) return;
+    if (paymentMethod === "card") {
+      if (!cardNumber || !cardName || !cardExpiry || !cardCvc) return;
+    } else {
+      if (!bankName || !accountNumber || !accountHolderName) return;
+    }
     setSavingPayment(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    const last4 = cardNumber.replace(/\s/g, "").slice(-4);
+    const last4 = (paymentMethod === "card" ? cardNumber : accountNumber).replace(/\s/g, "").slice(-4);
     setPaymentMethods((prev) => [
       ...prev,
-      { id: Date.now().toString(), type: "visa" as const, last4, expiry: cardExpiry, default: false },
+      { id: Date.now().toString(), type: "visa" as const, last4, expiry: paymentMethod === "card" ? cardExpiry : "N/A", default: false },
     ]);
     setCardNumber("");
     setCardName("");
     setCardExpiry("");
     setCardCvc("");
+    setBankName("");
+    setAccountNumber("");
+    setAccountHolderName("");
     setSavingPayment(false);
     setPaymentModalOpen(false);
   };
@@ -678,6 +688,8 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">Bank Name</label>
                   <input
                     type="text"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
                     placeholder="Enter bank name"
                     className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
                   />
@@ -686,6 +698,8 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">Account Number</label>
                   <input
                     type="text"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
                     placeholder="Enter account number"
                     maxLength={10}
                     className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
@@ -695,6 +709,8 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">Account Holder Name</label>
                   <input
                     type="text"
+                    value={accountHolderName}
+                    onChange={(e) => setAccountHolderName(e.target.value)}
                     placeholder="Enter account holder name"
                     className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
                   />
@@ -712,7 +728,7 @@ export default function SettingsPage() {
             </button>
             <button
               onClick={handleSavePayment}
-              disabled={savingPayment || (paymentMethod === "card" && (!cardNumber || !cardName || !cardExpiry || !cardCvc))}
+              disabled={savingPayment || (paymentMethod === "card" ? (!cardNumber || !cardName || !cardExpiry || !cardCvc) : (!bankName || !accountNumber || !accountHolderName))}
               className="rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover disabled:opacity-50 transition-colors"
             >
               {savingPayment ? "Adding..." : "Add Payment Method"}

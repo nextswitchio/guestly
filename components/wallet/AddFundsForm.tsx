@@ -225,7 +225,7 @@ export default function AddFundsForm() {
                   </button>
                 ))}
               </div>
-              {error && paymentMethod !== "crypto" && (
+              {error && (
                 <p className="mt-3 text-sm text-red-500">{error}</p>
               )}
             </div>

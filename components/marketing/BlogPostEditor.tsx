@@ -7,38 +7,110 @@ import { Card } from '@/components/ui/Card';
 
 interface BlogPostEditorProps {
   organizerId: string;
+  eventId?: string;
   initialData?: {
+    id?: string;
     title: string;
     content: string;
     excerpt: string;
-    coverImage?: string;
+    featuredImage?: string;
     tags: string[];
+    status?: string;
   };
   onSave: (data: any) => void;
   onCancel: () => void;
 }
 
-export function BlogPostEditor({ organizerId, initialData, onSave, onCancel }: BlogPostEditorProps) {
+export function BlogPostEditor({ organizerId, eventId, initialData, onSave, onCancel }: BlogPostEditorProps) {
   const [title, setTitle] = useState(initialData?.title || '');
   const [content, setContent] = useState(initialData?.content || '');
   const [excerpt, setExcerpt] = useState(initialData?.excerpt || '');
-  const [coverImage, setCoverImage] = useState(initialData?.coverImage || '');
+  const [featuredImage, setFeaturedImage] = useState(initialData?.featuredImage || '');
   const [tags, setTags] = useState(initialData?.tags?.join(', ') || '');
+  const [publishAsUpdate, setPublishAsUpdate] = useState(!!eventId);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSave = () => {
-    onSave({
-      title,
-      content,
-      excerpt,
-      coverImage,
-      tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-    });
+  const handleSave = async (status: 'draft' | 'published') => {
+    if (!title.trim() || !content.trim()) {
+      setError('Title and content are required');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const payload = {
+        title,
+        content,
+        excerpt,
+        featuredImage,
+        tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+        status,
+        category: 'Event Update',
+        seoMetadata: { metaTitle: title, metaDescription: excerpt, keywords: tags.split(',').map(t => t.trim()).filter(Boolean) },
+        eventId: publishAsUpdate && eventId ? eventId : undefined,
+      };
+
+      let response;
+      if (initialData?.id) {
+        response = await fetch(`/api/content/posts/${initialData.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+      } else {
+        response = await fetch('/api/content/posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+      }
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to save post');
+      }
+
+      const data = await response.json();
+      onSave(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save post');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Blog Post Editor</h2>
-      
+      <h2 className="text-2xl font-bold mb-6">
+        {initialData?.id ? 'Edit Post' : 'New Blog Post'}
+      </h2>
+
+      {error && (
+        <div className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
+      {eventId && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-lime/20 bg-lime/5 p-3">
+          <input
+            type="checkbox"
+            id="publishAsUpdate"
+            checked={publishAsUpdate}
+            onChange={(e) => setPublishAsUpdate(e.target.checked)}
+            className="h-4 w-4 rounded border-slate-300 text-lime focus:ring-lime"
+          />
+          <label htmlFor="publishAsUpdate" className="text-sm text-slate-700">
+            Publish as an event update on the community page
+          </label>
+        </div>
+      )}
+
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-2">Title</label>
@@ -60,10 +132,10 @@ export function BlogPostEditor({ organizerId, initialData, onSave, onCancel }: B
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Cover Image URL</label>
+          <label className="block text-sm font-medium mb-2">Featured Image URL</label>
           <Input
-            value={coverImage}
-            onChange={(e) => setCoverImage(e.target.value)}
+            value={featuredImage}
+            onChange={(e) => setFeaturedImage(e.target.value)}
             placeholder="https://example.com/image.jpg"
           />
         </div>
@@ -88,8 +160,13 @@ export function BlogPostEditor({ organizerId, initialData, onSave, onCancel }: B
         </div>
 
         <div className="flex gap-3 pt-4">
-          <Button onClick={handleSave}>Save Draft</Button>
-          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+          <Button onClick={() => handleSave('published')} disabled={saving}>
+            {saving ? 'Publishing...' : 'Publish'}
+          </Button>
+          <Button onClick={() => handleSave('draft')} variant="outline" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Draft'}
+          </Button>
+          <Button variant="ghost" onClick={onCancel} disabled={saving}>Cancel</Button>
         </div>
       </div>
     </Card>

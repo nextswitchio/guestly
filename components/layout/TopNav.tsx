@@ -14,6 +14,7 @@ const navLinks = [
   { label: "Vendors", href: "/vendors" },
   { label: "Organisers", href: "/organisers" },
   { label: "Affiliate", href: "/affiliates" },
+  { label: "Guestly Journal", href: "/blog" },
 ];
 
 export default function TopNav() {

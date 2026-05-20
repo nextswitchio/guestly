@@ -25,7 +25,7 @@ export function RecentPurchasePopup({ eventId }: RecentPurchasePopupProps) {
         const res = await fetch(`/api/social-proof/${eventId}/recent-purchases`);
         if (res.ok) {
           const data = await res.json();
-          setPurchases(data.purchases || []);
+          setPurchases(data.recentPurchases || []);
         }
       } catch (error) {
         console.error('Failed to fetch recent purchases:', error);

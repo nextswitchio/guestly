@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
       type: type as any,
     });
 
-    return NextResponse.json(campaigns);
+    return NextResponse.json({ campaigns, total: campaigns.length });
   } catch (error) {
     console.error('Error listing campaigns:', error);
     return NextResponse.json(

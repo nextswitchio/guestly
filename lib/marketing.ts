@@ -6287,6 +6287,11 @@ export function getBlogPost(postId: string): BlogPost | null {
 }
 
 export function listBlogPosts(organizerId: string): BlogPost[] {
+  if (organizerId === 'public') {
+    return Object.values(blogPosts)
+      .filter(p => p.status === 'published')
+      .sort((a, b) => (b.publishedAt || b.createdAt) - (a.publishedAt || a.createdAt));
+  }
   return Object.values(blogPosts)
     .filter(p => p.organizerId === organizerId)
     .sort((a, b) => b.createdAt - a.createdAt);
@@ -6295,6 +6300,10 @@ export function listBlogPosts(organizerId: string): BlogPost[] {
 export function getAllBlogPosts(): BlogPost[] {
   return Object.values(blogPosts)
     .sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export function getBlogPostBySlug(slug: string): BlogPost | null {
+  return Object.values(blogPosts).find(p => p.slug === slug) || null;
 }
 
 export function publishBlogPost(postId: string): BlogPost | null {

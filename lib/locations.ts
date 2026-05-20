@@ -78,9 +78,42 @@ export function getCities(country: Country, state: string): string[] {
   return LOCATION_DATA[country].majorCities[state] || [];
 }
 
-// Helper to detect user's country (placeholder - would use IP geolocation in production)
+// Helper to detect user's country using browser geolocation API
+export async function detectUserCountryBrowser(): Promise<Country> {
+  try {
+    // Try browser geolocation API first
+    if (typeof navigator !== "undefined" && "geolocation" in navigator) {
+      return new Promise<Country>((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            // Use reverse geocoding to determine country
+            try {
+              const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+              );
+              const data = await response.json();
+              const country = data?.address?.country;
+              if (country?.toLowerCase().includes("nigeria")) return resolve("Nigeria");
+              if (country?.toLowerCase().includes("ghana")) return resolve("Ghana");
+              if (country?.toLowerCase().includes("kenya")) return resolve("Kenya");
+              resolve("Nigeria");
+            } catch {
+              resolve("Nigeria");
+            }
+          },
+          () => resolve("Nigeria"),
+          { timeout: 5000 }
+        );
+      });
+    }
+    return "Nigeria";
+  } catch {
+    return "Nigeria";
+  }
+}
+
+// Synchronous fallback for server-side rendering
 export function detectUserCountry(): Country {
-  // In production, this would use IP geolocation API
-  // For now, default to Nigeria
   return "Nigeria";
 }

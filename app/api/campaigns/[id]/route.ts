@@ -34,7 +34,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(campaign);
+    return NextResponse.json({ campaign });
   } catch (error) {
     console.error('Error getting campaign:', error);
     return NextResponse.json(

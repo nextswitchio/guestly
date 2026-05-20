@@ -5,16 +5,80 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import EmptyState from "@/components/ui/EmptyState";
 
-const posts = [
-  { id: 1, author: "Ada O.", message: "Super excited for this event! Who else is going?", likes: 12, replies: 4, time: "3h ago" },
-  { id: 2, author: "Kwame A.", message: "Any vegetarian food options available?", likes: 5, replies: 2, time: "6h ago" },
-  { id: 3, author: "Fatima B.", message: "The lineup looks amazing. Can't wait!", likes: 18, replies: 6, time: "1d ago" },
-];
+interface Discussion {
+  id: string;
+  userId: string;
+  userName: string;
+  title: string;
+  content: string;
+  timestamp: number;
+  replies: number;
+  likes: number;
+}
 
-export default function CommunityTab() {
+interface CommunityTabProps {
+  eventId: string;
+}
+
+export default function CommunityTab({ eventId }: CommunityTabProps) {
   const [postText, setPostText] = React.useState("");
-  const totalEngagement = posts.reduce((sum, p) => sum + p.likes + p.replies, 0);
-  const avgEngagement = posts.length > 0 ? (totalEngagement / posts.length).toFixed(1) : 0;
+  const [postTitle, setPostTitle] = React.useState("");
+  const [discussions, setDiscussions] = React.useState<Discussion[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [posting, setPosting] = React.useState(false);
+
+  React.useEffect(() => {
+    fetchDiscussions();
+  }, [eventId]);
+
+  const fetchDiscussions = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/events/${eventId}/discussions`);
+      if (res.ok) {
+        const data = await res.json();
+        setDiscussions(data.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch discussions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePost = async () => {
+    if (!postText.trim()) return;
+    setPosting(true);
+    try {
+      const res = await fetch(`/api/events/${eventId}/discussions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ title: postTitle || 'Update', content: postText }),
+      });
+      if (res.ok) {
+        setPostText('');
+        setPostTitle('');
+        fetchDiscussions();
+      }
+    } catch (error) {
+      console.error('Failed to post:', error);
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  const totalEngagement = discussions.reduce((sum, d) => sum + (d.likes || 0) + d.replies, 0);
+  const avgEngagement = discussions.length > 0 ? (totalEngagement / discussions.length).toFixed(1) : 0;
+
+  const formatDate = (timestamp: number) => {
+    const diff = Date.now() - timestamp;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours < 1) return 'Just now';
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -29,19 +93,19 @@ export default function CommunityTab() {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
               <p className="text-sm text-white/80">Total Posts</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums">{posts.length}</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{loading ? '...' : discussions.length}</p>
             </div>
             <div>
               <p className="text-sm text-white/80">Total Likes</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums">{posts.reduce((s, p) => s + p.likes, 0)}</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{loading ? '...' : discussions.reduce((s, d) => s + (d.likes || 0), 0)}</p>
             </div>
             <div>
               <p className="text-sm text-white/80">Total Replies</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums">{posts.reduce((s, p) => s + p.replies, 0)}</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{loading ? '...' : discussions.reduce((s, d) => s + d.replies, 0)}</p>
             </div>
             <div>
               <p className="text-sm text-white/80">Avg. Engagement</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums">{avgEngagement}</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums">{loading ? '...' : avgEngagement}</p>
             </div>
           </div>
         </div>
@@ -54,6 +118,13 @@ export default function CommunityTab() {
             O
           </div>
           <div className="flex-1">
+            <input
+              type="text"
+              value={postTitle}
+              onChange={(e) => setPostTitle(e.target.value)}
+              placeholder="Post title (optional)..."
+              className="w-full mb-2 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+            />
             <textarea
               value={postText}
               onChange={(e) => setPostText(e.target.value)}
@@ -61,24 +132,9 @@ export default function CommunityTab() {
               className="w-full resize-none rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
               rows={3}
             />
-            <div className="mt-3 flex items-center justify-between">
-              <div className="flex gap-2">
-                <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-600">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                  </svg>
-                </button>
-                <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-600">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
-                  </svg>
-                </button>
-              </div>
-              <Button size="sm" disabled={!postText.trim()}>
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                </svg>
-                Post
+            <div className="mt-3 flex items-center justify-end">
+              <Button size="sm" onClick={handlePost} disabled={!postText.trim() || posting}>
+                {posting ? 'Posting...' : 'Post'}
               </Button>
             </div>
           </div>
@@ -89,28 +145,28 @@ export default function CommunityTab() {
       <div>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-neutral-900">Recent Activity</h3>
-          <div className="flex gap-2">
-            <button className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50">
-              All Posts
-            </button>
-            <button className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-500 transition hover:bg-neutral-50">
-              Questions
-            </button>
-            <button className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-500 transition hover:bg-neutral-50">
-              Updates
-            </button>
-          </div>
         </div>
 
-        {posts.length === 0 ? (
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="animate-pulse p-4">
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 rounded-full bg-neutral-200" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-24 bg-neutral-200 rounded" />
+                    <div className="h-3 w-full bg-neutral-200 rounded" />
+                    <div className="h-3 w-3/4 bg-neutral-200 rounded" />
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : discussions.length === 0 ? (
           <EmptyState
             icon="message-circle"
             title="No community posts yet"
             description="Start the conversation! Share updates, answer questions, and engage with your attendees to build excitement."
-            action={{
-              label: "Create First Post",
-              onClick: () => {},
-            }}
             tips={[
               "Share behind-the-scenes content to build anticipation",
               "Answer attendee questions to improve their experience",
@@ -119,19 +175,20 @@ export default function CommunityTab() {
           />
         ) : (
           <div className="flex flex-col gap-3">
-            {posts.map((p) => (
-              <Card key={p.id} className="transition-all hover:shadow-md">
+            {discussions.map((d) => (
+              <Card key={d.id} className="transition-all hover:shadow-md">
                 <div className="flex items-start gap-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-primary-600 text-sm font-bold text-white">
-                    {p.author.charAt(0)}
+                    {d.userName.charAt(0)}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-neutral-900">{p.author}</span>
+                      <span className="text-sm font-semibold text-neutral-900">{d.userName}</span>
                       <span className="text-xs text-neutral-400">•</span>
-                      <span className="text-xs text-neutral-500">{p.time}</span>
+                      <span className="text-xs text-neutral-500">{formatDate(d.timestamp)}</span>
                     </div>
-                    <p className="mt-2 text-sm leading-relaxed text-neutral-700">{p.message}</p>
+                    {d.title && <p className="mt-1 text-sm font-medium text-neutral-900">{d.title}</p>}
+                    <p className="mt-2 text-sm leading-relaxed text-neutral-700">{d.content}</p>
                     <div className="mt-4 flex items-center gap-6">
                       <button className="group flex items-center gap-2 text-sm text-neutral-500 transition hover:text-primary-600">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 transition group-hover:bg-primary-50">
@@ -139,7 +196,7 @@ export default function CommunityTab() {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                           </svg>
                         </div>
-                        <span className="font-medium">{p.likes}</span>
+                        <span className="font-medium">{d.likes || 0}</span>
                       </button>
                       <button className="group flex items-center gap-2 text-sm text-neutral-500 transition hover:text-primary-600">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 transition group-hover:bg-primary-50">
@@ -147,15 +204,7 @@ export default function CommunityTab() {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                           </svg>
                         </div>
-                        <span className="font-medium">{p.replies}</span>
-                      </button>
-                      <button className="group flex items-center gap-2 text-sm text-neutral-500 transition hover:text-primary-600">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 transition group-hover:bg-primary-50">
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
-                          </svg>
-                        </div>
-                        <span className="font-medium">Share</span>
+                        <span className="font-medium">{d.replies}</span>
                       </button>
                     </div>
                   </div>

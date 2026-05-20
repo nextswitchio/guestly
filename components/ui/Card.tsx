@@ -16,7 +16,7 @@ function variantClasses(variant: CardVariant, hoverable: boolean) {
     elevated: "bg-white border border-neutral-200",
     flat: "bg-white border border-neutral-200",
     bordered: "bg-transparent border-2 border-neutral-200",
-    navy: "bg-neutral-900 border border-neutral-700 text-white",
+    navy: "bg-navy-800 border border-navy-700 text-white",
   };
 
   // Shadow classes based on variant

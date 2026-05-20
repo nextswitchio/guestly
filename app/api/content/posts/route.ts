@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createBlogPost, listBlogPosts } from '@/lib/marketing';
+import { createBlogPost, listBlogPosts, getAllBlogPosts } from '@/lib/marketing';
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,8 +28,20 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const eventId = searchParams.get('eventId');
     const userId = req.cookies.get('user_id')?.value;
 
+    // Public access for event-specific queries (community page)
+    if (eventId) {
+      const allPosts = getAllBlogPosts();
+      const filtered = allPosts.filter(
+        (p) => p.eventId === eventId && p.status === 'published'
+      );
+      return NextResponse.json({ posts: filtered });
+    }
+
+    // Authenticated access for organizer's own posts
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -38,7 +50,6 @@ export async function GET(req: NextRequest) {
     }
 
     const posts = listBlogPosts(userId);
-
     return NextResponse.json({ posts });
   } catch (error) {
     console.error('Error listing blog posts:', error);

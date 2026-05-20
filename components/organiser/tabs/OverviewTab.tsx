@@ -40,7 +40,7 @@ export default function OverviewTab({ eventId }: { eventId: string }) {
           setStats({
             ticketsSold: data.data.ticketsSold || 0,
             revenue: data.data.revenue || 0,
-            checkIns: 0, // TODO: Implement check-in tracking
+            checkIns: data.data.checkIns || 0,
             savedBy: data.data.saves || 0,
           });
         }

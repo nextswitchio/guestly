@@ -28,8 +28,12 @@ export function EventReviews({ eventId }: EventReviewsProps) {
         const res = await fetch(`/api/social-proof/${eventId}/reviews`);
         if (res.ok) {
           const data = await res.json();
-          setReviews(data.reviews || []);
-          setAverageRating(data.averageRating || 0);
+          const fetchedReviews = data.reviews || [];
+          setReviews(fetchedReviews);
+          if (fetchedReviews.length > 0) {
+            const avg = fetchedReviews.reduce((sum: number, r: Review) => sum + r.rating, 0) / fetchedReviews.length;
+            setAverageRating(Math.round(avg * 10) / 10);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch reviews:', error);

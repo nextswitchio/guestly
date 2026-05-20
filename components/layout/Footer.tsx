@@ -19,8 +19,8 @@ const footerLinks = {
     { label: "Organisers", href: "/organisers" },
     { label: "Affiliates", href: "/affiliates" },
     { label: "Vendors", href: "/vendors" },
-    { label: "Blogs", href: "#" },
-    { label: "About Guestly", href: "#" },
+    { label: "Blog", href: "/blog" },
+    { label: "About Guestly", href: "/about" },
   ],
   account: [
     { label: "Log in", href: "/login" },

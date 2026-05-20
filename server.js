@@ -8,13 +8,10 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 
 // Import store functions for persistent chat and presence
-let storeModule;
-try {
-  storeModule = require('./lib/store.ts');
-} catch (e) {
-  // Fallback if TypeScript module can't be loaded directly
-  storeModule = null;
-}
+// Note: store.ts is TypeScript and cannot be required directly in Node.js
+// In production, the store logic runs within Next.js API routes
+// Socket.IO server handles real-time messaging independently
+let storeModule = null;
 
 const eventRooms = new Map();
 
@@ -24,12 +21,18 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl);
   });
 
+  // Configure CORS from environment variable or default to localhost
+  const corsOrigins = process.env.SOCKET_CORS_ORIGINS
+    ? process.env.SOCKET_CORS_ORIGINS.split(',').map(origin => origin.trim())
+    : ['http://localhost:3000'];
+
   const io = new Server(server, {
     path: "/api/socket/io",
     addTrailingSlash: false,
     cors: {
-      origin: "*",
-      methods: ["GET", "POST"]
+      origin: corsOrigins,
+      methods: ["GET", "POST"],
+      credentials: true
     }
   });
 

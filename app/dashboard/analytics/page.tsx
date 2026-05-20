@@ -156,10 +156,10 @@ export default function AnalyticsPage() {
                         <h3 className="text-lg font-semibold text-neutral-900 mb-4">Revenue Over Time</h3>
                         <div className="h-80">
                           <LineChart
-                            data={data.revenueByMonth.map(item => ({
+                            data={data?.revenueByMonth?.map(item => ({
                               label: item.month,
                               value: item.revenue
-                            }))}
+                            })) || []}
                             color="#84cc16"
                             formatValue={(v) => `₦${v.toLocaleString()}`}
                           />
@@ -175,11 +175,11 @@ export default function AnalyticsPage() {
                         <h3 className="text-lg font-semibold text-neutral-900 mb-4">Tickets by Category</h3>
                         <div className="h-80">
                           <PieChart
-                            data={data.ticketsByCategory.map(item => ({
+                            data={data?.ticketsByCategory?.map(item => ({
                               label: item.category,
                               value: item.count,
                               color: item.color
-                            }))}
+                            })) || []}
                           />
                         </div>
                       </div>
@@ -202,7 +202,7 @@ export default function AnalyticsPage() {
                               </tr>
                             </thead>
                             <tbody>
-                              {data.topEvents.map((ev, i) => (
+                              {data?.topEvents?.map((ev, i) => (
                                 <tr key={ev.name} className="border-b border-neutral-100 last:border-0">
                                   <td className="py-3">
                                     <div className="flex items-center gap-3">
@@ -216,7 +216,7 @@ export default function AnalyticsPage() {
                                   <td className="py-3 text-right font-medium tabular-nums text-neutral-900">₦{ev.revenue.toLocaleString()}</td>
                                   <td className="py-3 text-right tabular-nums text-neutral-500">{ev.views.toLocaleString()}</td>
                                 </tr>
-                              ))}
+                              )) || []}
                             </tbody>
                           </table>
                         </div>
