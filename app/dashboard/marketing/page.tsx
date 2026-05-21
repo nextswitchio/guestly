@@ -76,16 +76,12 @@ export default function MarketingPage() {
     { id: 'viral-loops' as const, label: 'Viral Loops', icon: 'rocket' as const },
   ];
 
-  const handleSaveEmailTemplate = (template: { name: string; subject: string; blocks: any[] }) => {
+  const handleSaveEmailTemplate = (template: EmailTemplate) => {
     const newTemplate: EmailTemplate = {
-      id: `custom-${Date.now()}`,
-      name: template.name,
-      subject: template.subject,
-      category: 'announcement',
-      thumbnail: '',
-      description: 'Custom template',
-      blocks: template.blocks,
-      createdAt: Date.now(),
+      ...template,
+      id: editingTemplate?.id || template.id || `custom-${Date.now()}`,
+      description: template.description || 'Custom template',
+      createdAt: editingTemplate?.createdAt || template.createdAt || Date.now(),
       isCustom: true,
     };
     if (editingTemplate) {
@@ -145,7 +141,7 @@ export default function MarketingPage() {
               </button>
               <EmailTemplateBuilder
                 organizerId={organizerId}
-                initialTemplate={editingTemplate ? { name: editingTemplate.name, subject: editingTemplate.subject, blocks: editingTemplate.blocks } : undefined}
+                initialTemplate={editingTemplate || undefined}
                 onSave={handleSaveEmailTemplate}
                 onCancel={handleCancelEmailBuilder}
               />

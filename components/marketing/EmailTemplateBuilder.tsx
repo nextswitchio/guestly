@@ -13,7 +13,7 @@ interface EmailBlock {
   styles?: Record<string, string>;
 }
 
-import type { EmailTemplate } from '@/lib/marketing';
+import type { EmailTemplate } from './EmailTemplateLibrary';
 
 interface EmailTemplateBuilderProps {
   organizerId: string;
@@ -95,7 +95,17 @@ export function EmailTemplateBuilder({ organizerId, initialTemplate, onSave, onC
       alert('Please provide template name and subject');
       return;
     }
-    onSave({ name: templateName, subject, blocks });
+    onSave({
+      id: initialTemplate?.id || '',
+      name: templateName,
+      subject,
+      category: initialTemplate?.category || 'announcement',
+      thumbnail: initialTemplate?.thumbnail || '',
+      description: initialTemplate?.description || '',
+      blocks,
+      createdAt: initialTemplate?.createdAt || Date.now(),
+      isCustom: initialTemplate?.isCustom ?? true,
+    });
   };
 
   const selectedBlock = blocks.find(b => b.id === selectedBlockId);
