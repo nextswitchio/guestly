@@ -115,14 +115,14 @@ export default function EnhancedEventPerformanceTable({
       sortable: true,
       render: (value, row) => (
         <div>
-          <div className="text-sm font-medium text-[var(--foreground)] cursor-pointer hover:text-primary-600"
+          <div className="text-sm font-medium text-slate-900 cursor-pointer hover:text-primary-600"
                onClick={() => onEventClick?.(row.id)}>
             {row.title}
           </div>
-          <div className="text-sm text-[var(--foreground-muted)]">
+          <div className="text-sm text-slate-500">
             {row.category} • {row.city}, {row.country}
           </div>
-          <div className="text-xs text-[var(--foreground-muted)]">
+          <div className="text-xs text-slate-500">
             {row.eventType}
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function EnhancedEventPerformanceTable({
       header: 'Date',
       sortable: true,
       render: (value) => (
-        <span className="text-sm text-[var(--foreground)]">
+        <span className="text-sm text-slate-900">
           {value ? DataTableFormatters.date(value) : '-'}
         </span>
       ),
@@ -168,10 +168,10 @@ export default function EnhancedEventPerformanceTable({
       align: 'right',
       render: (value, row) => (
         <div className="text-right">
-          <div className="text-sm font-medium text-[var(--foreground)]">
+          <div className="text-sm font-medium text-slate-900">
             {DataTableFormatters.number(row.ticketsSold)}
           </div>
-          <div className="text-xs text-[var(--foreground-muted)]">
+          <div className="text-xs text-slate-500">
             of {DataTableFormatters.number(row.totalTickets)}
           </div>
           {row.attendanceRate !== undefined && (
@@ -190,13 +190,13 @@ export default function EnhancedEventPerformanceTable({
       align: 'right',
       render: (value, row) => (
         <div className="text-right">
-          <div className="text-sm font-medium text-[var(--foreground)]">
+          <div className="text-sm font-medium text-slate-900">
             {DataTableFormatters.currency(row.revenue, 'NGN')}
           </div>
-          <div className="text-xs text-[var(--foreground-muted)]">
+          <div className="text-xs text-slate-500">
             {row.orders} orders
           </div>
-          <div className="text-xs text-[var(--foreground-muted)]">
+          <div className="text-xs text-slate-500">
             {DataTableFormatters.currency(row.averageOrderValue, 'NGN')} avg
           </div>
         </div>
@@ -210,7 +210,7 @@ export default function EnhancedEventPerformanceTable({
       align: 'center',
       render: (value) => (
         <div className="text-center">
-          <div className="text-sm font-medium text-[var(--foreground)]">
+          <div className="text-sm font-medium text-slate-900">
             {value ? DataTableFormatters.percentage(Number(value) / 100) : '-'}
           </div>
         </div>
@@ -306,7 +306,7 @@ export default function EnhancedEventPerformanceTable({
 
   if (error) {
     return (
-      <div className="bg-[var(--surface-card)] rounded-lg border border-[var(--surface-border)] p-6">
+      <div className="bg-white rounded-lg border border-neutral-200 p-6">
         <div className="text-center text-danger-600">
           <Icon name="alert-circle" size={48} className="mx-auto mb-4" />
           <p className="text-lg font-medium">Error loading events</p>
@@ -324,8 +324,8 @@ export default function EnhancedEventPerformanceTable({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--foreground)]">Event Performance</h2>
-          <p className="text-sm text-[var(--foreground-muted)]">
+          <h2 className="text-xl font-semibold text-slate-900">Event Performance</h2>
+          <p className="text-sm text-slate-500">
             Monitor and analyze event performance metrics
           </p>
         </div>

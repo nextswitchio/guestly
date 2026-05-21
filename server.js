@@ -1,5 +1,4 @@
 const { createServer } = require('http');
-const { parse } = require('url');
 const next = require('next');
 const { Server } = require("socket.io");
 
@@ -17,7 +16,15 @@ const eventRooms = new Map();
 
 app.prepare().then(() => {
   const server = createServer((req, res) => {
-    const parsedUrl = parse(req.url, true);
+    const requestUrl = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
+    const query = Object.fromEntries(requestUrl.searchParams.entries());
+    const parsedUrl = {
+      href: requestUrl.href,
+      path: `${requestUrl.pathname}${requestUrl.search}`,
+      pathname: requestUrl.pathname,
+      query,
+      search: requestUrl.search,
+    };
     handle(req, res, parsedUrl);
   });
 

@@ -148,8 +148,8 @@ export default function CommissionTracker() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--foreground)]">Commission Tracking</h2>
-          <p className="text-sm text-[var(--foreground-muted)]">Monitor platform commission revenue and settlements</p>
+          <h2 className="text-2xl font-bold text-slate-900">Commission Tracking</h2>
+          <p className="text-sm text-slate-500">Monitor platform commission revenue and settlements</p>
         </div>
         <div className="flex gap-3">
           <Button variant="secondary" onClick={updateCommissions}>
@@ -202,7 +202,7 @@ export default function CommissionTracker() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card className="p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-semibold text-[var(--foreground)]">Commission Status Breakdown</h3>
+              <h3 className="font-semibold text-slate-900">Commission Status Breakdown</h3>
             </div>
             <div className="h-64">
               <BarChart 
@@ -218,8 +218,8 @@ export default function CommissionTracker() {
 
           <Card className="p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-semibold text-[var(--foreground)]">Commission Trends</h3>
-              <span className="text-xs text-[var(--foreground-muted)]">Last {trends.length} months</span>
+              <h3 className="font-semibold text-slate-900">Commission Trends</h3>
+              <span className="text-xs text-slate-500">Last {trends.length} months</span>
             </div>
             <div className="h-64">
               <LineChart 
@@ -234,7 +234,7 @@ export default function CommissionTracker() {
       {/* Commission List */}
       <Card className="p-6">
         <div className="mb-6 flex items-center justify-between">
-          <h3 className="font-semibold text-[var(--foreground)]">Recent Commissions</h3>
+          <h3 className="font-semibold text-slate-900">Recent Commissions</h3>
           <div className="flex gap-2">
             {['all', 'pending', 'processing', 'paid', 'disputed'].map((status) => (
               <button
@@ -255,31 +255,31 @@ export default function CommissionTracker() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[var(--surface-border)]">
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Event</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Revenue</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Commission</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Date</th>
-                <th className="text-right py-3 px-4 font-medium text-[var(--foreground-muted)]">Actions</th>
+              <tr className="border-b border-neutral-200">
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Event</th>
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Revenue</th>
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Commission</th>
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Status</th>
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Date</th>
+                <th className="text-right py-3 px-4 font-medium text-slate-500">Actions</th>
               </tr>
             </thead>
             <tbody>
               {commissions.slice(0, 10).map((commission) => (
-                <tr key={commission.id} className="border-b border-[var(--surface-border)] hover:bg-[var(--surface-hover)]">
+                <tr key={commission.id} className="border-b border-neutral-200 hover:bg-neutral-100">
                   <td className="py-3 px-4">
                     <div>
-                      <p className="font-medium text-[var(--foreground)]">{commission.eventTitle}</p>
-                      <p className="text-xs text-[var(--foreground-muted)]">{commission.eventId}</p>
+                      <p className="font-medium text-slate-900">{commission.eventTitle}</p>
+                      <p className="text-xs text-slate-500">{commission.eventId}</p>
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-[var(--foreground)]">
+                  <td className="py-3 px-4 text-slate-900">
                     {formatCurrency(commission.totalRevenue)}
                   </td>
                   <td className="py-3 px-4">
                     <div>
-                      <p className="font-medium text-[var(--foreground)]">{formatCurrency(commission.commissionAmount)}</p>
-                      <p className="text-xs text-[var(--foreground-muted)]">{commission.commissionRate}%</p>
+                      <p className="font-medium text-slate-900">{formatCurrency(commission.commissionAmount)}</p>
+                      <p className="text-xs text-slate-500">{commission.commissionRate}%</p>
                     </div>
                   </td>
                   <td className="py-3 px-4">
@@ -287,7 +287,7 @@ export default function CommissionTracker() {
                       {commission.status}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-[var(--foreground-muted)]">
+                  <td className="py-3 px-4 text-slate-500">
                     {new Date(commission.createdAt).toLocaleDateString()}
                   </td>
                   <td className="py-3 px-4 text-right">
@@ -304,7 +304,7 @@ export default function CommissionTracker() {
         {commissions.length === 0 && (
           <div className="text-center py-12">
             <Icon name="file-text" size={48} className="mx-auto text-neutral-400 mb-4" />
-            <p className="text-[var(--foreground-muted)]">No commissions found</p>
+            <p className="text-slate-500">No commissions found</p>
           </div>
         )}
       </Card>
@@ -335,8 +335,8 @@ function CommissionCard({ title, value, change, icon, variant }: {
         <span className="text-[10px] font-bold text-navy-400 uppercase tracking-wider">Live</span>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-[var(--foreground-muted)]">{title}</h3>
-        <p className="text-2xl font-bold text-[var(--foreground)] mt-1">{value}</p>
+        <h3 className="text-sm font-medium text-slate-500">{title}</h3>
+        <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
         <p className="text-xs font-medium text-success-600 mt-2 flex items-center gap-1">
           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />

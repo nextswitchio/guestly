@@ -10,8 +10,9 @@ export async function POST(
     // Check admin authentication
     const role = request.cookies.get('role')?.value;
     const adminUserId = request.cookies.get('user_id')?.value;
+    const adminName = request.cookies.get('admin_name')?.value || 'Admin User';
     
-    if (role !== 'admin') {
+    if (role !== 'admin' || !adminUserId) {
       return NextResponse.json(
         { success: false, error: { code: 'UNAUTHORIZED', message: 'Admin access required' } },
         { status: 401 }
@@ -59,8 +60,8 @@ export async function POST(
     const dispute = getDispute(id);
     if (dispute) {
       logAdminAction(
-        adminUserId!,
-        'Admin User', // TODO: Get actual admin name
+        adminUserId,
+        adminName,
         'dispute_resolved',
         'dispute',
         id,

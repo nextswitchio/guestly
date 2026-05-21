@@ -17,31 +17,32 @@ interface UserStatsCardsProps {
 }
 
 export function UserStatsCards({ stats }: UserStatsCardsProps) {
+  const total = stats?.totalUsers || 1; // avoid division by zero
   const statCards = [
     {
       title: "Total Users",
-      value: stats.totalUsers.toLocaleString(),
-      change: `+${stats.newUsersThisMonth} this month`,
+      value: (stats?.totalUsers ?? 0).toLocaleString(),
+      change: `+${stats?.newUsersThisMonth ?? 0} this month`,
       icon: "users",
       variant: "blue" as const,
     },
     {
       title: "Active Users",
-      value: stats.activeUsers.toLocaleString(),
-      change: `${Math.round((stats.activeUsers / stats.totalUsers) * 100)}% of total`,
+      value: (stats?.activeUsers ?? 0).toLocaleString(),
+      change: `${Math.round(((stats?.activeUsers ?? 0) / total) * 100)}% of total`,
       icon: "user-check",
       variant: "green" as const,
     },
     {
       title: "Organizers",
-      value: (stats.usersByRole.organizer || 0).toLocaleString(),
-      change: `${Math.round(((stats.usersByRole.organizer || 0) / stats.totalUsers) * 100)}% of users`,
+      value: (stats?.usersByRole?.organizer || 0).toLocaleString(),
+      change: `${Math.round(((stats?.usersByRole?.organizer || 0) / total) * 100)}% of users`,
       icon: "calendar",
       variant: "purple" as const,
     },
     {
       title: "Profile Completion",
-      value: `${stats.averageProfileCompleteness}%`,
+      value: `${stats?.averageProfileCompleteness ?? 0}%`,
       change: "Average across all users",
       icon: "user",
       variant: "orange" as const,
@@ -88,13 +89,13 @@ function StatCard({
         </span>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-[var(--foreground-muted)]">
+        <h3 className="text-sm font-medium text-slate-500">
           {title}
         </h3>
-        <p className="text-2xl font-bold text-[var(--foreground)] mt-1">
+        <p className="text-2xl font-bold text-slate-900 mt-1">
           {value}
         </p>
-        <p className="text-xs font-medium text-[var(--foreground-muted)] mt-2">
+        <p className="text-xs font-medium text-slate-500 mt-2">
           {change}
         </p>
       </div>

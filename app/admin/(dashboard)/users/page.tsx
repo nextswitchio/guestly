@@ -13,18 +13,52 @@ export default function AdminUsersPage() {
   const [stats, setStats] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = React.useState("");
   const [roleFilter, setRoleFilter] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
   const [totalPages, setTotalPages] = React.useState(1);
 
+  async function loadStatsData() {
+    const response = await fetch('/api/admin/users?stats=true');
+    const data = await response.json();
+    return data.success ? data.data : null;
+  }
+
+  async function loadUsersData({
+    page,
+    search,
+    role,
+    status,
+  }: {
+    page: number;
+    search: string;
+    role: string;
+    status: string;
+  }) {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: '20'
+    });
+
+    if (search) params.append('search', search);
+    if (role) params.append('role', role);
+    if (status) params.append('status', status);
+
+    const response = await fetch(`/api/admin/users?${params}`);
+    const data = await response.json();
+    return data.success
+      ? {
+          users: data.data.users ?? [],
+          totalPages: data.data.pagination?.totalPages ?? 1,
+        }
+      : null;
+  }
+
   const fetchStats = React.useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/users?stats=true');
-      const data = await response.json();
-      if (data.success) {
-        setStats(data.data);
-      }
+      const data = await loadStatsData();
+      if (data) setStats(data);
     } catch (error) {
       console.error('Error fetching user stats:', error);
     }
@@ -33,38 +67,60 @@ export default function AdminUsersPage() {
   const fetchUsers = React.useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: '20'
+      const data = await loadUsersData({
+        page: currentPage,
+        search: debouncedSearchQuery,
+        role: roleFilter,
+        status: statusFilter,
       });
-      
-      if (searchQuery) params.append('search', searchQuery);
-      if (roleFilter) params.append('role', roleFilter);
-      if (statusFilter) params.append('status', statusFilter);
-
-      const response = await fetch(`/api/admin/users?${params}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setUsers(data.data.users);
-        setTotalPages(data.data.pagination.totalPages);
+      if (data) {
+        setUsers(data.users);
+        setTotalPages(data.totalPages);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, searchQuery, roleFilter, statusFilter]);
+  }, [currentPage, debouncedSearchQuery, roleFilter, statusFilter]);
 
   React.useEffect(() => {
-    fetchStats();
-    fetchUsers();
-  }, [fetchStats, fetchUsers]);
+    let active = true;
+
+    async function loadPageData() {
+      const [statsData, usersData] = await Promise.all([
+        loadStatsData(),
+        loadUsersData({
+          page: currentPage,
+          search: debouncedSearchQuery,
+          role: roleFilter,
+          status: statusFilter,
+        }),
+      ]);
+
+      if (!active) return;
+      if (statsData) setStats(statsData);
+      if (usersData) {
+        setUsers(usersData.users);
+        setTotalPages(usersData.totalPages);
+      }
+      setLoading(false);
+    }
+
+    loadPageData().catch((error) => {
+      console.error('Error fetching user data:', error);
+      if (active) setLoading(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [currentPage, debouncedSearchQuery, roleFilter, statusFilter]);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setCurrentPage(1);
-      fetchUsers();
+      setDebouncedSearchQuery(searchQuery);
     }, 300);
 
     return () => clearTimeout(timer);
@@ -154,8 +210,8 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">User Management</h1>
-        <p className="text-sm text-[var(--foreground-muted)]">
+        <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
+        <p className="text-sm text-slate-500">
           Manage platform users, roles, and permissions
         </p>
       </div>
@@ -171,7 +227,7 @@ export default function AdminUsersPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--foreground-muted)]">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
                 <Icon name="search" size={16} />
               </div>
             </div>
@@ -196,8 +252,8 @@ export default function AdminUsersPage() {
         />
         
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-[var(--surface-border)] px-6 py-4">
-            <div className="text-sm text-[var(--foreground-muted)]">
+          <div className="flex items-center justify-between border-t border-neutral-200 px-6 py-4">
+            <div className="text-sm text-slate-500">
               Page {currentPage} of {totalPages}
             </div>
             <div className="flex gap-2">

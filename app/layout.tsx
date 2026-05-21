@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
@@ -17,10 +16,16 @@ const aeonikPro = localFont({
   display: "swap",
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const plusJakartaSans = localFont({
+  src: [
+    { path: "../public/fonts/AeonikPro-Light.woff2", weight: "300" },
+    { path: "../public/fonts/AeonikPro-Regular.woff2", weight: "400" },
+    { path: "../public/fonts/AeonikPro-Medium.woff2", weight: "500" },
+    { path: "../public/fonts/AeonikPro-Bold.woff2", weight: "600" },
+    { path: "../public/fonts/AeonikPro-Bold.woff2", weight: "700" },
+    { path: "../public/fonts/AeonikPro-Bold.woff2", weight: "800" },
+  ],
   variable: "--font-plus-jakarta",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 

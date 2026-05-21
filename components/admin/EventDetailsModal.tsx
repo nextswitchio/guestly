@@ -124,13 +124,13 @@ export default function EventDetailsModal({ eventId, isOpen, onClose }: EventDet
         <div className="p-6 space-y-6">
           {/* Event Header */}
           <div>
-            <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
               {event.title}
             </h2>
-            <p className="text-[var(--foreground-muted)] mb-4">
+            <p className="text-slate-500 mb-4">
               {baseEvent?.description || event.description || 'No description available'}
             </p>
-            <div className="flex items-center gap-4 text-sm text-[var(--foreground-muted)]">
+            <div className="flex items-center gap-4 text-sm text-slate-500">
               <span className="flex items-center gap-1">
                 <Icon name="calendar" size={16} />
                 {formatDate(event.date)}
@@ -158,12 +158,12 @@ export default function EventDetailsModal({ eventId, isOpen, onClose }: EventDet
                   <Icon name="ticket" size={20} />
                 </div>
                 <div>
-                  <p className="text-sm text-[var(--foreground-muted)]">Tickets Sold</p>
-                  <p className="text-xl font-bold text-[var(--foreground)]">
-                    {event.ticketsSold.toLocaleString()}
+                  <p className="text-sm text-slate-500">Tickets Sold</p>
+                  <p className="text-xl font-bold text-slate-900">
+                    {(event.ticketsSold ?? 0).toLocaleString()}
                   </p>
-                  <p className="text-xs text-[var(--foreground-muted)]">
-                    of {event.totalTickets.toLocaleString()} available
+                  <p className="text-xs text-slate-500">
+                    of {(event.totalTickets ?? 0).toLocaleString()} available
                   </p>
                 </div>
               </div>
@@ -175,11 +175,11 @@ export default function EventDetailsModal({ eventId, isOpen, onClose }: EventDet
                   <Icon name="dollar-sign" size={20} />
                 </div>
                 <div>
-                  <p className="text-sm text-[var(--foreground-muted)]">Revenue</p>
-                  <p className="text-xl font-bold text-[var(--foreground)]">
+                  <p className="text-sm text-slate-500">Revenue</p>
+                  <p className="text-xl font-bold text-slate-900">
                     {formatCurrency(event.revenue)}
                   </p>
-                  <p className="text-xs text-[var(--foreground-muted)]">
+                  <p className="text-xs text-slate-500">
                     {event.orders} orders
                   </p>
                 </div>
@@ -192,11 +192,11 @@ export default function EventDetailsModal({ eventId, isOpen, onClose }: EventDet
                   <Icon name="trending-up" size={20} />
                 </div>
                 <div>
-                  <p className="text-sm text-[var(--foreground-muted)]">Conversion Rate</p>
-                  <p className="text-xl font-bold text-[var(--foreground)]">
+                  <p className="text-sm text-slate-500">Conversion Rate</p>
+                  <p className="text-xl font-bold text-slate-900">
                     {event.conversionRate.toFixed(2)}%
                   </p>
-                  <p className="text-xs text-[var(--foreground-muted)]">
+                  <p className="text-xs text-slate-500">
                     {formatCurrency(event.averageOrderValue)} avg order
                   </p>
                 </div>
@@ -207,62 +207,62 @@ export default function EventDetailsModal({ eventId, isOpen, onClose }: EventDet
           {/* Additional Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="p-4">
-              <h3 className="font-semibold text-[var(--foreground)] mb-3">Event Information</h3>
+              <h3 className="font-semibold text-slate-900 mb-3">Event Information</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[var(--foreground-muted)]">Type:</span>
-                  <span className="text-[var(--foreground)]">{event.eventType}</span>
+                  <span className="text-slate-500">Type:</span>
+                  <span className="text-slate-900">{event.eventType}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--foreground-muted)]">Status:</span>
-                  <span className="text-[var(--foreground)] capitalize">{event.status}</span>
+                  <span className="text-slate-500">Status:</span>
+                  <span className="text-slate-900 capitalize">{event.status}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--foreground-muted)]">Category:</span>
-                  <span className="text-[var(--foreground)]">{event.category}</span>
+                  <span className="text-slate-500">Category:</span>
+                  <span className="text-slate-900">{event.category}</span>
                 </div>
                 {baseEvent?.community && (
                   <div className="flex justify-between">
-                    <span className="text-[var(--foreground-muted)]">Community:</span>
-                    <span className="text-[var(--foreground)]">{baseEvent.community}</span>
+                    <span className="text-slate-500">Community:</span>
+                    <span className="text-slate-900">{baseEvent.community}</span>
                   </div>
                 )}
                 {event.attendanceRate !== undefined && (
                   <div className="flex justify-between">
-                    <span className="text-[var(--foreground-muted)]">Attendance Rate:</span>
-                    <span className="text-[var(--foreground)]">{event.attendanceRate.toFixed(1)}%</span>
+                    <span className="text-slate-500">Attendance Rate:</span>
+                    <span className="text-slate-900">{event.attendanceRate.toFixed(1)}%</span>
                   </div>
                 )}
               </div>
             </Card>
 
             <Card className="p-4">
-              <h3 className="font-semibold text-[var(--foreground)] mb-3">Performance Summary</h3>
+              <h3 className="font-semibold text-slate-900 mb-3">Performance Summary</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[var(--foreground-muted)]">Total Orders:</span>
-                  <span className="text-[var(--foreground)]">{event.orders}</span>
+                  <span className="text-slate-500">Total Orders:</span>
+                  <span className="text-slate-900">{event.orders}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--foreground-muted)]">Average Order Value:</span>
-                  <span className="text-[var(--foreground)]">{formatCurrency(event.averageOrderValue)}</span>
+                  <span className="text-slate-500">Average Order Value:</span>
+                  <span className="text-slate-900">{formatCurrency(event.averageOrderValue)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--foreground-muted)]">Revenue per Ticket:</span>
-                  <span className="text-[var(--foreground)]">
+                  <span className="text-slate-500">Revenue per Ticket:</span>
+                  <span className="text-slate-900">
                     {event.ticketsSold > 0 ? formatCurrency(event.revenue / event.ticketsSold) : 'N/A'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--foreground-muted)]">Sell-through Rate:</span>
-                  <span className="text-[var(--foreground)]">
+                  <span className="text-slate-500">Sell-through Rate:</span>
+                  <span className="text-slate-900">
                     {event.totalTickets > 0 ? ((event.ticketsSold / event.totalTickets) * 100).toFixed(1) : 0}%
                   </span>
                 </div>
                 {baseEvent?.streamingConfig && (
                   <div className="flex justify-between">
-                    <span className="text-[var(--foreground-muted)]">Streaming:</span>
-                    <span className="text-[var(--foreground)]">{baseEvent.streamingConfig.provider}</span>
+                    <span className="text-slate-500">Streaming:</span>
+                    <span className="text-slate-900">{baseEvent.streamingConfig.provider}</span>
                   </div>
                 )}
               </div>
@@ -270,7 +270,7 @@ export default function EventDetailsModal({ eventId, isOpen, onClose }: EventDet
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--surface-border)]">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-200">
             <Button variant="secondary" onClick={onClose}>
               Close
             </Button>

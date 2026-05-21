@@ -59,13 +59,13 @@ export function UserRoleSelector({ currentRole, userId, onRoleChange }: UserRole
       </Button>
 
       {showDropdown && (
-        <div className="absolute top-full left-0 mt-1 w-32 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg shadow-lg z-10">
+        <div className="absolute top-full left-0 mt-1 w-32 bg-white border border-neutral-200 rounded-lg shadow-lg z-10">
           {roles.map((role) => (
             <button
               key={role.value}
               onClick={() => handleRoleChange(role.value)}
-              className={`w-full px-3 py-2 text-left text-sm hover:bg-[var(--surface-hover)] first:rounded-t-lg last:rounded-b-lg transition-colors ${
-                currentRole === role.value ? 'bg-primary-50 text-primary-600' : 'text-[var(--foreground)]'
+              className={`w-full px-3 py-2 text-left text-sm hover:bg-neutral-100 first:rounded-t-lg last:rounded-b-lg transition-colors ${
+                currentRole === role.value ? 'bg-primary-50 text-primary-600' : 'text-slate-900'
               }`}
             >
               {role.label}

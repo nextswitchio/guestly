@@ -310,7 +310,7 @@ export default function FeaturedPlacementManager() {
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto mb-4"></div>
-          <p className="text-[var(--foreground-muted)]">Loading featured placements...</p>
+          <p className="text-slate-500">Loading featured placements...</p>
         </div>
       </div>
     );
@@ -324,8 +324,8 @@ export default function FeaturedPlacementManager() {
           <Card className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-[var(--foreground-muted)]">Total Placements</p>
-                <p className="text-2xl font-bold text-[var(--foreground)]">{stats.totalPlacements}</p>
+                <p className="text-sm font-medium text-slate-500">Total Placements</p>
+                <p className="text-2xl font-bold text-slate-900">{stats.totalPlacements}</p>
               </div>
               <Icon name="star" className="h-8 w-8 text-primary-500" />
             </div>
@@ -334,7 +334,7 @@ export default function FeaturedPlacementManager() {
           <Card className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-[var(--foreground-muted)]">Active</p>
+                <p className="text-sm font-medium text-slate-500">Active</p>
                 <p className="text-2xl font-bold text-success-500">{stats.activePlacements}</p>
               </div>
               <Icon name="check-circle" className="h-8 w-8 text-success-500" />
@@ -344,8 +344,8 @@ export default function FeaturedPlacementManager() {
           <Card className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-[var(--foreground-muted)]">Total Revenue</p>
-                <p className="text-2xl font-bold text-[var(--foreground)]">{formatCurrency(stats.totalRevenue)}</p>
+                <p className="text-sm font-medium text-slate-500">Total Revenue</p>
+                <p className="text-2xl font-bold text-slate-900">{formatCurrency(stats.totalRevenue)}</p>
               </div>
               <Icon name="trending-up" className="h-8 w-8 text-primary-500" />
             </div>
@@ -354,8 +354,8 @@ export default function FeaturedPlacementManager() {
           <Card className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-[var(--foreground-muted)]">Avg Revenue</p>
-                <p className="text-2xl font-bold text-[var(--foreground)]">{formatCurrency(stats.averageRevenue)}</p>
+                <p className="text-sm font-medium text-slate-500">Avg Revenue</p>
+                <p className="text-2xl font-bold text-slate-900">{formatCurrency(stats.averageRevenue)}</p>
               </div>
               <Icon name="calculator" className="h-8 w-8 text-primary-500" />
             </div>
@@ -366,10 +366,10 @@ export default function FeaturedPlacementManager() {
       {/* Currently Featured Events */}
       {featuredEvents.length > 0 && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Currently Featured Events</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Currently Featured Events</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {featuredEvents.map(({ placement, event, position }) => (
-              <div key={placement.id} className="border border-[var(--surface-border)] rounded-lg p-4">
+              <div key={placement.id} className="border border-neutral-200 rounded-lg p-4">
                 <div className="flex items-start justify-between mb-2">
                   <Badge variant="primary">Position {position}</Badge>
                   {placement.sponsorshipFee && (
@@ -378,9 +378,9 @@ export default function FeaturedPlacementManager() {
                     </span>
                   )}
                 </div>
-                <h4 className="font-medium text-[var(--foreground)] mb-1">{event.title}</h4>
-                <p className="text-sm text-[var(--foreground-muted)] mb-2">{event.category}</p>
-                <p className="text-xs text-[var(--foreground-muted)]">
+                <h4 className="font-medium text-slate-900 mb-1">{event.title}</h4>
+                <p className="text-sm text-slate-500 mb-2">{event.category}</p>
+                <p className="text-xs text-slate-500">
                   Ends: {formatDate(placement.endDate)}
                 </p>
               </div>
@@ -392,7 +392,7 @@ export default function FeaturedPlacementManager() {
       {/* Placements Management */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">Featured Placements</h3>
+          <h3 className="text-lg font-semibold text-slate-900">Featured Placements</h3>
           <Button onClick={() => setShowCreateModal(true)}>
             <Icon name="plus" size={16} />
             Create Placement
@@ -408,7 +408,7 @@ export default function FeaturedPlacementManager() {
               className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                 filter === status
                   ? 'bg-primary-500 text-white'
-                  : 'text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface-hover)]'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-neutral-100'
               }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -420,37 +420,37 @@ export default function FeaturedPlacementManager() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[var(--surface-border)]">
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Position</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Event</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Duration</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Revenue</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-[var(--foreground-muted)]">Actions</th>
+              <tr className="border-b border-neutral-200">
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Position</th>
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Event</th>
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Duration</th>
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Revenue</th>
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Status</th>
+                <th className="text-left py-3 px-4 font-medium text-slate-500">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredPlacements.map((placement) => {
                 const event = events.find(e => e.id === placement.eventId);
                 return (
-                  <tr key={placement.id} className="border-b border-[var(--surface-border)]">
+                  <tr key={placement.id} className="border-b border-neutral-200">
                     <td className="py-3 px-4">
                       <Badge variant="primary">#{placement.position}</Badge>
                     </td>
                     <td className="py-3 px-4">
                       <div>
-                        <p className="font-medium text-[var(--foreground)]">
+                        <p className="font-medium text-slate-900">
                           {event?.title || 'Unknown Event'}
                         </p>
-                        <p className="text-sm text-[var(--foreground-muted)]">
+                        <p className="text-sm text-slate-500">
                           {event?.category || 'N/A'}
                         </p>
                       </div>
                     </td>
                     <td className="py-3 px-4">
                       <div className="text-sm">
-                        <p className="text-[var(--foreground)]">{formatDate(placement.startDate)}</p>
-                        <p className="text-[var(--foreground-muted)]">to {formatDate(placement.endDate)}</p>
+                        <p className="text-slate-900">{formatDate(placement.startDate)}</p>
+                        <p className="text-slate-500">to {formatDate(placement.endDate)}</p>
                       </div>
                     </td>
                     <td className="py-3 px-4">
@@ -459,7 +459,7 @@ export default function FeaturedPlacementManager() {
                           {formatCurrency(placement.sponsorshipFee)}
                         </span>
                       ) : (
-                        <span className="text-[var(--foreground-muted)]">Free</span>
+                        <span className="text-slate-500">Free</span>
                       )}
                     </td>
                     <td className="py-3 px-4">
@@ -500,7 +500,7 @@ export default function FeaturedPlacementManager() {
           
           {filteredPlacements.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-[var(--foreground-muted)]">No placements found</p>
+              <p className="text-slate-500">No placements found</p>
             </div>
           )}
         </div>
@@ -515,13 +515,13 @@ export default function FeaturedPlacementManager() {
       >
         <form onSubmit={handleCreatePlacement} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+            <label className="block text-sm font-medium text-slate-900 mb-1">
               Event
             </label>
             <select
               value={formData.eventId}
               onChange={(e) => setFormData({ ...formData, eventId: e.target.value })}
-              className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-md bg-[var(--surface-bg)] text-[var(--foreground)]"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-md bg-white text-slate-900"
               required
             >
               <option value="">Select an event</option>
@@ -535,7 +535,7 @@ export default function FeaturedPlacementManager() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+              <label className="block text-sm font-medium text-slate-900 mb-1">
                 Start Date
               </label>
               <Input
@@ -546,7 +546,7 @@ export default function FeaturedPlacementManager() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+              <label className="block text-sm font-medium text-slate-900 mb-1">
                 End Date
               </label>
               <Input
@@ -559,13 +559,13 @@ export default function FeaturedPlacementManager() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+            <label className="block text-sm font-medium text-slate-900 mb-1">
               Position
             </label>
             <select
               value={formData.position}
               onChange={(e) => setFormData({ ...formData, position: parseInt(e.target.value) })}
-              className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-md bg-[var(--surface-bg)] text-[var(--foreground)]"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-md bg-white text-slate-900"
               required
             >
               {availablePositions.length > 0 ? (
@@ -586,7 +586,7 @@ export default function FeaturedPlacementManager() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+            <label className="block text-sm font-medium text-slate-900 mb-1">
               Sponsorship Fee (optional)
             </label>
             <Input
@@ -600,7 +600,7 @@ export default function FeaturedPlacementManager() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+            <label className="block text-sm font-medium text-slate-900 mb-1">
               Notes (optional)
             </label>
             <Textarea
@@ -634,7 +634,7 @@ export default function FeaturedPlacementManager() {
         <form onSubmit={handleEditPlacement} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+              <label className="block text-sm font-medium text-slate-900 mb-1">
                 Start Date
               </label>
               <Input
@@ -645,7 +645,7 @@ export default function FeaturedPlacementManager() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+              <label className="block text-sm font-medium text-slate-900 mb-1">
                 End Date
               </label>
               <Input
@@ -658,13 +658,13 @@ export default function FeaturedPlacementManager() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+            <label className="block text-sm font-medium text-slate-900 mb-1">
               Position
             </label>
             <select
               value={formData.position}
               onChange={(e) => setFormData({ ...formData, position: parseInt(e.target.value) })}
-              className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-md bg-[var(--surface-bg)] text-[var(--foreground)]"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-md bg-white text-slate-900"
               required
             >
               {availablePositions.length > 0 ? (
@@ -680,7 +680,7 @@ export default function FeaturedPlacementManager() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+            <label className="block text-sm font-medium text-slate-900 mb-1">
               Sponsorship Fee (optional)
             </label>
             <Input
@@ -694,7 +694,7 @@ export default function FeaturedPlacementManager() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">
+            <label className="block text-sm font-medium text-slate-900 mb-1">
               Notes (optional)
             </label>
             <Textarea

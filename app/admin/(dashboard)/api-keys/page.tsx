@@ -35,8 +35,8 @@ export default function AdminApiKeysPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">API Key Management</h1>
-          <p className="text-sm text-[var(--foreground-muted)]">Generate and manage API keys for external integrations</p>
+          <h1 className="text-2xl font-bold text-slate-900">API Key Management</h1>
+          <p className="text-sm text-slate-500">Generate and manage API keys for external integrations</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
           <Icon name="plus" size={16} />
@@ -56,17 +56,17 @@ export default function AdminApiKeysPage() {
       <Card className="p-6">
         {keys.length === 0 ? (
           <div className="text-center py-12">
-            <Icon name="key" size={48} className="mx-auto text-[var(--foreground-muted)] mb-4" />
-            <p className="text-[var(--foreground-muted)]">No API keys generated</p>
+            <Icon name="key" size={48} className="mx-auto text-slate-500 mb-4" />
+            <p className="text-slate-500">No API keys generated</p>
           </div>
         ) : (
           <div className="space-y-4">
             {keys.map((k) => (
-              <div key={k.id} className="flex items-center justify-between p-4 border border-[var(--surface-border)] rounded-lg">
+              <div key={k.id} className="flex items-center justify-between p-4 border border-neutral-200 rounded-lg">
                 <div>
-                  <p className="font-medium text-[var(--foreground)]">{k.name}</p>
-                  <p className="text-sm font-mono text-[var(--foreground-muted)]">{k.key.substring(0, 20)}...</p>
-                  <p className="text-xs text-[var(--foreground-muted)]">Created {new Date(k.createdAt).toLocaleDateString()}</p>
+                  <p className="font-medium text-slate-900">{k.name}</p>
+                  <p className="text-sm font-mono text-slate-500">{k.key.substring(0, 20)}...</p>
+                  <p className="text-xs text-slate-500">Created {new Date(k.createdAt).toLocaleDateString()}</p>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => revokeKey(k.id)}><Icon name="trash-2" size={16} /></Button>
               </div>

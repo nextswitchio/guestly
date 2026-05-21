@@ -89,11 +89,11 @@ export default function EventPerformanceSummary() {
           </span>
         </div>
         <div>
-          <h3 className="text-sm font-medium text-[var(--foreground-muted)]">Total Events</h3>
-          <p className="text-2xl font-bold text-[var(--foreground)] mt-1">
-            {summary.totalEvents.toLocaleString()}
+          <h3 className="text-sm font-medium text-slate-500">Total Events</h3>
+          <p className="text-2xl font-bold text-slate-900 mt-1">
+            {(summary.totalEvents ?? 0).toLocaleString()}
           </p>
-          <p className="text-xs text-[var(--foreground-muted)] mt-2">
+          <p className="text-xs text-slate-500 mt-2">
             Across all categories
           </p>
         </div>
@@ -110,11 +110,11 @@ export default function EventPerformanceSummary() {
           </span>
         </div>
         <div>
-          <h3 className="text-sm font-medium text-[var(--foreground-muted)]">Total Revenue</h3>
-          <p className="text-2xl font-bold text-[var(--foreground)] mt-1">
+          <h3 className="text-sm font-medium text-slate-500">Total Revenue</h3>
+          <p className="text-2xl font-bold text-slate-900 mt-1">
             {formatCurrency(summary.totalRevenue)}
           </p>
-          <p className="text-xs text-[var(--foreground-muted)] mt-2">
+          <p className="text-xs text-slate-500 mt-2">
             {formatCurrency(summary.averageRevenuePerEvent)} avg per event
           </p>
         </div>
@@ -131,11 +131,11 @@ export default function EventPerformanceSummary() {
           </span>
         </div>
         <div>
-          <h3 className="text-sm font-medium text-[var(--foreground-muted)]">Tickets Sold</h3>
-          <p className="text-2xl font-bold text-[var(--foreground)] mt-1">
-            {summary.totalTicketsSold.toLocaleString()}
+          <h3 className="text-sm font-medium text-slate-500">Tickets Sold</h3>
+          <p className="text-2xl font-bold text-slate-900 mt-1">
+            {(summary.totalTicketsSold ?? 0).toLocaleString()}
           </p>
-          <p className="text-xs text-[var(--foreground-muted)] mt-2">
+          <p className="text-xs text-slate-500 mt-2">
             {Math.round(summary.averageTicketsPerEvent)} avg per event
           </p>
         </div>
@@ -152,11 +152,11 @@ export default function EventPerformanceSummary() {
           </span>
         </div>
         <div>
-          <h3 className="text-sm font-medium text-[var(--foreground-muted)]">Top Category</h3>
-          <p className="text-2xl font-bold text-[var(--foreground)] mt-1">
+          <h3 className="text-sm font-medium text-slate-500">Top Category</h3>
+          <p className="text-2xl font-bold text-slate-900 mt-1">
             {summary.topPerformingCategory}
           </p>
-          <p className="text-xs text-[var(--foreground-muted)] mt-2">
+          <p className="text-xs text-slate-500 mt-2">
             Best performing by revenue
           </p>
         </div>
@@ -170,23 +170,23 @@ export default function EventPerformanceSummary() {
               <Icon name="map-pin" size={32} />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-[var(--foreground)]">
+              <h3 className="text-lg font-semibold text-slate-900">
                 Top Performing City
               </h3>
-              <p className="text-3xl font-bold text-[var(--foreground)] mt-1">
+              <p className="text-3xl font-bold text-slate-900 mt-1">
                 {summary.topPerformingCity}
               </p>
-              <p className="text-sm text-[var(--foreground-muted)] mt-1">
+              <p className="text-sm text-slate-500 mt-1">
                 Highest total revenue across all events
               </p>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-sm text-[var(--foreground-muted)]">Performance Metrics</div>
-            <div className="text-lg font-semibold text-[var(--foreground)] mt-1">
+            <div className="text-sm text-slate-500">Performance Metrics</div>
+            <div className="text-lg font-semibold text-slate-900 mt-1">
               {formatCurrency(summary.averageRevenuePerEvent)}
             </div>
-            <div className="text-xs text-[var(--foreground-muted)]">
+            <div className="text-xs text-slate-500">
               Average revenue per event
             </div>
           </div>

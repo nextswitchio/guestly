@@ -17,28 +17,28 @@ interface AnnouncementStatsCardsProps {
 }
 
 export function AnnouncementStatsCards({ stats }: AnnouncementStatsCardsProps) {
-  const dismissalRate = stats.totalViews > 0 ? (stats.totalDismissals / stats.totalViews * 100) : 0;
-  const engagementRate = stats.totalViews > 0 ? ((stats.totalViews - stats.totalDismissals) / stats.totalViews * 100) : 0;
+  const dismissalRate = (stats?.totalViews ?? 0) > 0 ? ((stats.totalDismissals ?? 0) / stats.totalViews * 100) : 0;
+  const engagementRate = (stats?.totalViews ?? 0) > 0 ? (((stats.totalViews ?? 0) - (stats.totalDismissals ?? 0)) / stats.totalViews * 100) : 0;
 
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="Total Announcements"
-        value={stats.totalAnnouncements.toLocaleString()}
-        change={`${stats.activeAnnouncements} active`}
+        value={(stats?.totalAnnouncements ?? 0).toLocaleString()}
+        change={`${stats?.activeAnnouncements ?? 0} active`}
         icon="megaphone"
         variant="blue"
       />
       <StatCard
         title="Active Announcements"
-        value={stats.activeAnnouncements.toLocaleString()}
-        change={`${stats.scheduledAnnouncements} scheduled`}
+        value={(stats?.activeAnnouncements ?? 0).toLocaleString()}
+        change={`${stats?.scheduledAnnouncements ?? 0} scheduled`}
         icon="calendar"
         variant="green"
       />
       <StatCard
         title="Total Views"
-        value={stats.totalViews.toLocaleString()}
+        value={(stats?.totalViews ?? 0).toLocaleString()}
         change={`${engagementRate.toFixed(1)}% engagement`}
         icon="eye"
         variant="purple"
@@ -46,7 +46,7 @@ export function AnnouncementStatsCards({ stats }: AnnouncementStatsCardsProps) {
       <StatCard
         title="Dismissal Rate"
         value={`${dismissalRate.toFixed(1)}%`}
-        change={`${stats.totalDismissals} dismissed`}
+        change={`${stats?.totalDismissals ?? 0} dismissed`}
         icon="x-circle"
         variant="orange"
       />
@@ -83,9 +83,9 @@ function StatCard({
         <span className="text-[10px] font-bold text-navy-400 uppercase tracking-wider">Live</span>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-[var(--foreground-muted)]">{title}</h3>
-        <p className="text-2xl font-bold text-[var(--foreground)] mt-1">{value}</p>
-        <p className="text-xs font-medium text-[var(--foreground-muted)] mt-2">
+        <h3 className="text-sm font-medium text-slate-500">{title}</h3>
+        <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
+        <p className="text-xs font-medium text-slate-500 mt-2">
           {change}
         </p>
       </div>

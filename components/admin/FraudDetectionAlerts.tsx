@@ -193,8 +193,8 @@ export default function FraudDetectionAlerts() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-[var(--foreground)]">Fraud Detection</h2>
-          <p className="text-sm text-[var(--foreground-muted)]">Monitor and manage suspicious activity</p>
+          <h2 className="text-xl font-bold text-slate-900">Fraud Detection</h2>
+          <p className="text-sm text-slate-500">Monitor and manage suspicious activity</p>
         </div>
         <Button 
           onClick={runFraudDetection}
@@ -244,11 +244,11 @@ export default function FraudDetectionAlerts() {
       <Card className="p-4">
         <div className="flex flex-wrap gap-4 items-center">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-[var(--foreground)]">Status:</label>
+            <label className="text-sm font-medium text-slate-900">Status:</label>
             <select
               value={filter.status || ''}
               onChange={(e) => setFilter(prev => ({ ...prev, status: e.target.value || undefined }))}
-              className="px-3 py-1 text-sm border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+              className="px-3 py-1 text-sm border border-neutral-200 rounded-lg bg-white text-slate-900"
             >
               <option value="">All</option>
               <option value="active">Active</option>
@@ -258,11 +258,11 @@ export default function FraudDetectionAlerts() {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-[var(--foreground)]">Severity:</label>
+            <label className="text-sm font-medium text-slate-900">Severity:</label>
             <select
               value={filter.severity || ''}
               onChange={(e) => setFilter(prev => ({ ...prev, severity: e.target.value as FraudAlertSeverity || undefined }))}
-              className="px-3 py-1 text-sm border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+              className="px-3 py-1 text-sm border border-neutral-200 rounded-lg bg-white text-slate-900"
             >
               <option value="">All</option>
               <option value="critical">Critical</option>
@@ -277,8 +277,8 @@ export default function FraudDetectionAlerts() {
       {/* Alerts List */}
       <Card className="p-6">
         <div className="mb-4">
-          <h3 className="font-semibold text-[var(--foreground)]">Recent Alerts</h3>
-          <p className="text-sm text-[var(--foreground-muted)]">
+          <h3 className="font-semibold text-slate-900">Recent Alerts</h3>
+          <p className="text-sm text-slate-500">
             {alerts.length} alert{alerts.length !== 1 ? 's' : ''} found
           </p>
         </div>
@@ -286,8 +286,8 @@ export default function FraudDetectionAlerts() {
         {alerts.length === 0 ? (
           <div className="text-center py-8">
             <Icon name="shield" size={48} className="mx-auto text-success-500 mb-4" />
-            <h4 className="text-lg font-medium text-[var(--foreground)] mb-2">No Alerts Found</h4>
-            <p className="text-[var(--foreground-muted)]">
+            <h4 className="text-lg font-medium text-slate-900 mb-2">No Alerts Found</h4>
+            <p className="text-slate-500">
               No fraud alerts match your current filters. The platform is secure.
             </p>
           </div>
@@ -296,7 +296,7 @@ export default function FraudDetectionAlerts() {
             {alerts.map((alert) => (
               <div
                 key={alert.id}
-                className="flex items-start gap-4 p-4 rounded-xl border border-[var(--surface-border)] hover:bg-[var(--surface-hover)] cursor-pointer transition-colors"
+                className="flex items-start gap-4 p-4 rounded-xl border border-neutral-200 hover:bg-neutral-100 cursor-pointer transition-colors"
                 onClick={() => setSelectedAlert(alert)}
               >
                 <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${getSeverityColor(alert.severity)}`}>
@@ -305,7 +305,7 @@ export default function FraudDetectionAlerts() {
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-medium text-[var(--foreground)] truncate">{alert.title}</h4>
+                    <h4 className="font-medium text-slate-900 truncate">{alert.title}</h4>
                     <div className="flex items-center gap-2 ml-4">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${getSeverityColor(alert.severity)}`}>
                         {alert.severity.toUpperCase()}
@@ -316,11 +316,11 @@ export default function FraudDetectionAlerts() {
                     </div>
                   </div>
                   
-                  <p className="text-sm text-[var(--foreground-muted)] mb-2 line-clamp-2">
+                  <p className="text-sm text-slate-500 mb-2 line-clamp-2">
                     {alert.description}
                   </p>
                   
-                  <div className="flex items-center gap-4 text-xs text-[var(--foreground-muted)]">
+                  <div className="flex items-center gap-4 text-xs text-slate-500">
                     <span>{formatAlertType(alert.type)}</span>
                     <span>•</span>
                     <span>{alert.affectedUsers.length} user{alert.affectedUsers.length !== 1 ? 's' : ''} affected</span>
@@ -329,7 +329,7 @@ export default function FraudDetectionAlerts() {
                   </div>
                 </div>
                 
-                <Icon name="chevron-right" size={16} className="text-[var(--foreground-muted)]" />
+                <Icon name="chevron-right" size={16} className="text-slate-500" />
               </div>
             ))}
           </div>
@@ -351,7 +351,7 @@ export default function FraudDetectionAlerts() {
                 <Icon name={getTypeIcon(selectedAlert.type) as any} size={24} />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
                   {selectedAlert.title}
                 </h3>
                 <div className="flex items-center gap-2 mb-3">
@@ -362,7 +362,7 @@ export default function FraudDetectionAlerts() {
                     {selectedAlert.status.replace('_', ' ').toUpperCase()}
                   </span>
                 </div>
-                <p className="text-[var(--foreground-muted)]">
+                <p className="text-slate-500">
                   {selectedAlert.description}
                 </p>
               </div>
@@ -371,46 +371,46 @@ export default function FraudDetectionAlerts() {
             {/* Alert Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium text-[var(--foreground)] mb-3">Alert Information</h4>
+                <h4 className="font-medium text-slate-900 mb-3">Alert Information</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[var(--foreground-muted)]">Type:</span>
-                    <span className="text-[var(--foreground)]">{formatAlertType(selectedAlert.type)}</span>
+                    <span className="text-slate-500">Type:</span>
+                    <span className="text-slate-900">{formatAlertType(selectedAlert.type)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[var(--foreground-muted)]">Created:</span>
-                    <span className="text-[var(--foreground)]">{new Date(selectedAlert.createdAt).toLocaleString()}</span>
+                    <span className="text-slate-500">Created:</span>
+                    <span className="text-slate-900">{new Date(selectedAlert.createdAt).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[var(--foreground-muted)]">Updated:</span>
-                    <span className="text-[var(--foreground)]">{new Date(selectedAlert.updatedAt).toLocaleString()}</span>
+                    <span className="text-slate-500">Updated:</span>
+                    <span className="text-slate-900">{new Date(selectedAlert.updatedAt).toLocaleString()}</span>
                   </div>
                   {selectedAlert.assignedTo && (
                     <div className="flex justify-between">
-                      <span className="text-[var(--foreground-muted)]">Assigned to:</span>
-                      <span className="text-[var(--foreground)]">{selectedAlert.assignedTo}</span>
+                      <span className="text-slate-500">Assigned to:</span>
+                      <span className="text-slate-900">{selectedAlert.assignedTo}</span>
                     </div>
                   )}
                 </div>
               </div>
 
               <div>
-                <h4 className="font-medium text-[var(--foreground)] mb-3">Affected Entities</h4>
+                <h4 className="font-medium text-slate-900 mb-3">Affected Entities</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[var(--foreground-muted)]">Users:</span>
-                    <span className="text-[var(--foreground)]">{selectedAlert.affectedUsers.length}</span>
+                    <span className="text-slate-500">Users:</span>
+                    <span className="text-slate-900">{selectedAlert.affectedUsers.length}</span>
                   </div>
                   {selectedAlert.affectedEvents && (
                     <div className="flex justify-between">
-                      <span className="text-[var(--foreground-muted)]">Events:</span>
-                      <span className="text-[var(--foreground)]">{selectedAlert.affectedEvents.length}</span>
+                      <span className="text-slate-500">Events:</span>
+                      <span className="text-slate-900">{selectedAlert.affectedEvents.length}</span>
                     </div>
                   )}
                   {selectedAlert.affectedOrders && (
                     <div className="flex justify-between">
-                      <span className="text-[var(--foreground-muted)]">Orders:</span>
-                      <span className="text-[var(--foreground)]">{selectedAlert.affectedOrders.length}</span>
+                      <span className="text-slate-500">Orders:</span>
+                      <span className="text-slate-900">{selectedAlert.affectedOrders.length}</span>
                     </div>
                   )}
                 </div>
@@ -420,9 +420,9 @@ export default function FraudDetectionAlerts() {
             {/* Metadata */}
             {Object.keys(selectedAlert.metadata).length > 0 && (
               <div>
-                <h4 className="font-medium text-[var(--foreground)] mb-3">Additional Details</h4>
-                <div className="bg-[var(--surface-bg)] rounded-lg p-4">
-                  <pre className="text-xs text-[var(--foreground-muted)] whitespace-pre-wrap">
+                <h4 className="font-medium text-slate-900 mb-3">Additional Details</h4>
+                <div className="bg-white rounded-lg p-4">
+                  <pre className="text-xs text-slate-500 whitespace-pre-wrap">
                     {JSON.stringify(selectedAlert.metadata, null, 2)}
                   </pre>
                 </div>
@@ -432,8 +432,8 @@ export default function FraudDetectionAlerts() {
             {/* Resolution */}
             {selectedAlert.resolution && (
               <div>
-                <h4 className="font-medium text-[var(--foreground)] mb-3">Resolution</h4>
-                <p className="text-sm text-[var(--foreground-muted)] bg-[var(--surface-bg)] rounded-lg p-4">
+                <h4 className="font-medium text-slate-900 mb-3">Resolution</h4>
+                <p className="text-sm text-slate-500 bg-white rounded-lg p-4">
                   {selectedAlert.resolution}
                 </p>
               </div>
@@ -441,7 +441,7 @@ export default function FraudDetectionAlerts() {
 
             {/* Actions */}
             {selectedAlert.status === 'active' && (
-              <div className="flex gap-3 pt-4 border-t border-[var(--surface-border)]">
+              <div className="flex gap-3 pt-4 border-t border-neutral-200">
                 <Button
                   variant="primary"
                   onClick={() => updateAlertStatus(selectedAlert.id, 'investigating')}
@@ -502,10 +502,10 @@ function StatCard({
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-[var(--foreground-muted)]">{title}</h3>
-        <p className="text-2xl font-bold text-[var(--foreground)] mt-1">{value.toLocaleString()}</p>
+        <h3 className="text-sm font-medium text-slate-500">{title}</h3>
+        <p className="text-2xl font-bold text-slate-900 mt-1">{(value ?? 0).toLocaleString()}</p>
         {subtitle && (
-          <p className="text-xs text-[var(--foreground-muted)] mt-2">{subtitle}</p>
+          <p className="text-xs text-slate-500 mt-2">{subtitle}</p>
         )}
       </div>
     </Card>

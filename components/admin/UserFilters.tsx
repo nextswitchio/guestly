@@ -65,13 +65,13 @@ export function UserFilters({ roleFilter, statusFilter, onFilterChange }: UserFi
         </Button>
         
         {showRoleDropdown && (
-          <div className="absolute top-full right-0 mt-1 w-48 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg shadow-lg z-10">
+          <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-neutral-200 rounded-lg shadow-lg z-10">
             {roles.map((role) => (
               <button
                 key={role.value}
                 onClick={() => handleRoleSelect(role.value)}
-                className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--surface-hover)] first:rounded-t-lg last:rounded-b-lg ${
-                  roleFilter === role.value ? 'bg-primary-50 text-primary-600' : 'text-[var(--foreground)]'
+                className={`w-full px-4 py-2 text-left text-sm hover:bg-neutral-100 first:rounded-t-lg last:rounded-b-lg ${
+                  roleFilter === role.value ? 'bg-primary-50 text-primary-600' : 'text-slate-900'
                 }`}
               >
                 {role.label}
@@ -95,13 +95,13 @@ export function UserFilters({ roleFilter, statusFilter, onFilterChange }: UserFi
         </Button>
         
         {showStatusDropdown && (
-          <div className="absolute top-full right-0 mt-1 w-48 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg shadow-lg z-10">
+          <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-neutral-200 rounded-lg shadow-lg z-10">
             {statuses.map((status) => (
               <button
                 key={status.value}
                 onClick={() => handleStatusSelect(status.value)}
-                className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--surface-hover)] first:rounded-t-lg last:rounded-b-lg ${
-                  statusFilter === status.value ? 'bg-primary-50 text-primary-600' : 'text-[var(--foreground)]'
+                className={`w-full px-4 py-2 text-left text-sm hover:bg-neutral-100 first:rounded-t-lg last:rounded-b-lg ${
+                  statusFilter === status.value ? 'bg-primary-50 text-primary-600' : 'text-slate-900'
                 }`}
               >
                 {status.label}

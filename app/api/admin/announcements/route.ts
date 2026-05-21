@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
     // Check if user is admin
     const role = request.cookies.get('role')?.value;
     const userId = request.cookies.get('user_id')?.value;
+    const adminName = request.cookies.get('admin_name')?.value || 'Admin User';
     
     if (role !== 'admin' || !userId) {
       return NextResponse.json(
@@ -154,7 +155,7 @@ export async function POST(request: NextRequest) {
     // Log the announcement creation
     logAdminAction(
       userId,
-      'Admin User', // TODO: Get actual admin name
+      adminName,
       'announcement_created',
       'announcement',
       announcement.id,

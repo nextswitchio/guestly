@@ -111,7 +111,7 @@ export function AnnouncementTable({
       <Card className="p-6">
         <div className="animate-pulse space-y-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 bg-[var(--surface-bg)] rounded-lg"></div>
+            <div key={i} className="h-16 bg-white rounded-lg"></div>
           ))}
         </div>
       </Card>
@@ -121,11 +121,11 @@ export function AnnouncementTable({
   if (announcements.length === 0) {
     return (
       <Card className="p-12 text-center">
-        <Icon name="megaphone" size={48} className="mx-auto text-[var(--foreground-muted)] mb-4" />
-        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
+        <Icon name="megaphone" size={48} className="mx-auto text-slate-500 mb-4" />
+        <h3 className="text-lg font-semibold text-slate-900 mb-2">
           No announcements found
         </h3>
-        <p className="text-[var(--foreground-muted)]">
+        <p className="text-slate-500">
           Create your first platform announcement to communicate with users.
         </p>
       </Card>
@@ -136,41 +136,41 @@ export function AnnouncementTable({
     <Card className="overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-[var(--surface-bg)] border-b border-[var(--surface-border)]">
+          <thead className="bg-white border-b border-neutral-200">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Announcement
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Target & Priority
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Engagement
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Dates
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--surface-border)]">
+          <tbody className="divide-y divide-neutral-200">
             {announcements.map((announcement) => {
               const stats = viewStats[announcement.id];
               const isExpired = announcement.expiresAt && announcement.expiresAt < Date.now();
               
               return (
-                <tr key={announcement.id} className="hover:bg-[var(--surface-bg)]">
+                <tr key={announcement.id} className="hover:bg-white">
                   <td className="px-6 py-4">
                     <div>
-                      <h4 className="text-sm font-semibold text-[var(--foreground)] truncate max-w-xs">
+                      <h4 className="text-sm font-semibold text-slate-900 truncate max-w-xs">
                         {announcement.title}
                       </h4>
-                      <p className="text-xs text-[var(--foreground-muted)] truncate max-w-xs">
+                      <p className="text-xs text-slate-500 truncate max-w-xs">
                         {announcement.content}
                       </p>
                     </div>
@@ -204,19 +204,19 @@ export function AnnouncementTable({
                   
                   <td className="px-6 py-4">
                     {stats ? (
-                      <div className="text-xs text-[var(--foreground-muted)]">
+                      <div className="text-xs text-slate-500">
                         <div>{stats.views} views</div>
                         <div>{stats.dismissals} dismissed</div>
                       </div>
                     ) : (
-                      <div className="text-xs text-[var(--foreground-muted)]">
+                      <div className="text-xs text-slate-500">
                         Loading...
                       </div>
                     )}
                   </td>
                   
                   <td className="px-6 py-4">
-                    <div className="text-xs text-[var(--foreground-muted)]">
+                    <div className="text-xs text-slate-500">
                       <div>Created: {new Date(announcement.createdAt).toLocaleDateString()}</div>
                       {announcement.scheduledAt && (
                         <div>Scheduled: {new Date(announcement.scheduledAt).toLocaleDateString()}</div>

@@ -142,10 +142,10 @@ export default function DisputesPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">
+          <h1 className="text-2xl font-bold text-slate-900">
             Dispute Management
           </h1>
-          <p className="text-[var(--foreground-muted)] mt-1">
+          <p className="text-slate-500 mt-1">
             Handle customer disputes and process refunds
           </p>
         </div>
@@ -162,38 +162,38 @@ export default function DisputesPage() {
 
       {/* Disputes Table */}
       <Card className="overflow-hidden">
-        <div className="p-6 border-b border-[var(--surface-border)]">
-          <h2 className="text-lg font-semibold text-[var(--foreground)]">
+        <div className="p-6 border-b border-neutral-200">
+          <h2 className="text-lg font-semibold text-slate-900">
             All Disputes ({disputes.length})
           </h2>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-[var(--surface-hover)]">
+            <thead className="bg-neutral-50">
               <tr>
-                <th className="text-left p-4 font-medium text-[var(--foreground-muted)]">
+                <th className="text-left p-4 font-medium text-slate-500">
                   Dispute ID
                 </th>
-                <th className="text-left p-4 font-medium text-[var(--foreground-muted)]">
+                <th className="text-left p-4 font-medium text-slate-500">
                   Event
                 </th>
-                <th className="text-left p-4 font-medium text-[var(--foreground-muted)]">
+                <th className="text-left p-4 font-medium text-slate-500">
                   Customer
                 </th>
-                <th className="text-left p-4 font-medium text-[var(--foreground-muted)]">
+                <th className="text-left p-4 font-medium text-slate-500">
                   Reason
                 </th>
-                <th className="text-left p-4 font-medium text-[var(--foreground-muted)]">
+                <th className="text-left p-4 font-medium text-slate-500">
                   Amount
                 </th>
-                <th className="text-left p-4 font-medium text-[var(--foreground-muted)]">
+                <th className="text-left p-4 font-medium text-slate-500">
                   Status
                 </th>
-                <th className="text-left p-4 font-medium text-[var(--foreground-muted)]">
+                <th className="text-left p-4 font-medium text-slate-500">
                   Created
                 </th>
-                <th className="text-left p-4 font-medium text-[var(--foreground-muted)]">
+                <th className="text-left p-4 font-medium text-slate-500">
                   Actions
                 </th>
               </tr>
@@ -202,36 +202,36 @@ export default function DisputesPage() {
               {disputes.map((dispute) => (
                 <tr
                   key={dispute.id}
-                  className="border-b border-[var(--surface-border)] hover:bg-[var(--surface-hover)] cursor-pointer"
+                  className="border-b border-neutral-200 hover:bg-neutral-50 cursor-pointer"
                   onClick={() => handleDisputeClick(dispute)}
                 >
                   <td className="p-4">
-                    <span className="font-mono text-sm text-[var(--foreground)]">
+                    <span className="font-mono text-sm text-slate-900">
                       {dispute.id.slice(-8)}
                     </span>
                   </td>
                   <td className="p-4">
                     <div>
-                      <div className="font-medium text-[var(--foreground)]">
+                      <div className="font-medium text-slate-900">
                         {dispute.eventTitle}
                       </div>
-                      <div className="text-sm text-[var(--foreground-muted)]">
+                      <div className="text-sm text-slate-500">
                         Order: {dispute.orderId.slice(-8)}
                       </div>
                     </div>
                   </td>
                   <td className="p-4">
-                    <div className="text-[var(--foreground)]">
+                    <div className="text-slate-900">
                       {dispute.userName}
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className="text-[var(--foreground)]">
+                    <span className="text-slate-900">
                       {getReasonLabel(dispute.reason)}
                     </span>
                   </td>
                   <td className="p-4">
-                    <span className="font-medium text-[var(--foreground)]">
+                    <span className="font-medium text-slate-900">
                       {formatCurrency(dispute.orderAmount)}
                     </span>
                   </td>
@@ -241,7 +241,7 @@ export default function DisputesPage() {
                     </Badge>
                   </td>
                   <td className="p-4">
-                    <span className="text-[var(--foreground-muted)]">
+                    <span className="text-slate-500">
                       {formatDate(dispute.createdAt)}
                     </span>
                   </td>
@@ -264,7 +264,7 @@ export default function DisputesPage() {
 
           {disputes.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-[var(--foreground-muted)]">
+              <div className="text-slate-500">
                 No disputes found matching your criteria
               </div>
             </div>

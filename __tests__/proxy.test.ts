@@ -19,7 +19,7 @@ describe('Proxy middleware', () => {
   it('allows access to public routes', () => {
     const req = createMockRequest('/');
     const response = proxy(req);
-    expect(response.status).toBeUndefined();
+    expect(response.status).toBe(200);
   });
 
   it('redirects unauthenticated users from protected routes', () => {
@@ -40,7 +40,7 @@ describe('Proxy middleware', () => {
       access_token: 'valid-token',
     });
     const response = proxy(req);
-    expect(response.status).toBeUndefined();
+    expect(response.status).toBe(200);
   });
 
   it('redirects non-admin users from admin routes', () => {
@@ -58,7 +58,7 @@ describe('Proxy middleware', () => {
       access_token: 'valid-token',
     });
     const response = proxy(req);
-    expect(response.status).toBeUndefined();
+    expect(response.status).toBe(200);
   });
 
   it('redirects authenticated users from auth routes', () => {
@@ -81,6 +81,6 @@ describe('Proxy middleware', () => {
       access_token: 'valid-token',
     });
     const response = proxy(req);
-    expect(response.status).toBeUndefined();
+    expect(response.status).toBe(200);
   });
 });

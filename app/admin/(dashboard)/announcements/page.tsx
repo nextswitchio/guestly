@@ -144,8 +144,8 @@ export default function AnnouncementsPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">Platform Announcements</h1>
-          <p className="text-sm text-[var(--foreground-muted)]">
+          <h1 className="text-2xl font-bold text-slate-900">Platform Announcements</h1>
+          <p className="text-sm text-slate-500">
             Create and manage platform-wide announcements for users
           </p>
         </div>
@@ -165,13 +165,13 @@ export default function AnnouncementsPage() {
       <Card className="p-6">
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               Status
             </label>
             <select
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
             >
               <option value="">All Statuses</option>
               <option value="draft">Draft</option>
@@ -182,13 +182,13 @@ export default function AnnouncementsPage() {
           </div>
 
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               Target Type
             </label>
             <select
               value={filters.targetType}
               onChange={(e) => setFilters({ ...filters, targetType: e.target.value })}
-              className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
             >
               <option value="">All Users</option>
               <option value="all">All Users</option>
@@ -199,13 +199,13 @@ export default function AnnouncementsPage() {
           </div>
 
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               Priority
             </label>
             <select
               value={filters.priority}
               onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-              className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
             >
               <option value="">All Priorities</option>
               <option value="low">Low</option>
@@ -249,7 +249,7 @@ export default function AnnouncementsPage() {
         >
           <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-semibold text-[var(--foreground)]">
+              <h3 className="text-lg font-semibold text-slate-900">
                 {selectedAnnouncement.title}
               </h3>
               <div className="flex items-center gap-2 mt-2">
@@ -278,9 +278,9 @@ export default function AnnouncementsPage() {
             </div>
             
             <div>
-              <h4 className="text-sm font-medium text-[var(--foreground)] mb-2">Content</h4>
-              <div className="p-4 bg-[var(--surface-bg)] rounded-lg border border-[var(--surface-border)]">
-                <p className="text-sm text-[var(--foreground)] whitespace-pre-wrap">
+              <h4 className="text-sm font-medium text-slate-900 mb-2">Content</h4>
+              <div className="p-4 bg-white rounded-lg border border-neutral-200">
+                <p className="text-sm text-slate-900 whitespace-pre-wrap">
                   {selectedAnnouncement.content}
                 </p>
               </div>
@@ -288,31 +288,31 @@ export default function AnnouncementsPage() {
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="font-medium text-[var(--foreground)]">Created:</span>
-                <p className="text-[var(--foreground-muted)]">
+                <span className="font-medium text-slate-900">Created:</span>
+                <p className="text-slate-500">
                   {new Date(selectedAnnouncement.createdAt).toLocaleString()}
                 </p>
               </div>
               {selectedAnnouncement.scheduledAt && (
                 <div>
-                  <span className="font-medium text-[var(--foreground)]">Scheduled:</span>
-                  <p className="text-[var(--foreground-muted)]">
+                  <span className="font-medium text-slate-900">Scheduled:</span>
+                  <p className="text-slate-500">
                     {new Date(selectedAnnouncement.scheduledAt).toLocaleString()}
                   </p>
                 </div>
               )}
               {selectedAnnouncement.publishedAt && (
                 <div>
-                  <span className="font-medium text-[var(--foreground)]">Published:</span>
-                  <p className="text-[var(--foreground-muted)]">
+                  <span className="font-medium text-slate-900">Published:</span>
+                  <p className="text-slate-500">
                     {new Date(selectedAnnouncement.publishedAt).toLocaleString()}
                   </p>
                 </div>
               )}
               {selectedAnnouncement.expiresAt && (
                 <div>
-                  <span className="font-medium text-[var(--foreground)]">Expires:</span>
-                  <p className="text-[var(--foreground-muted)]">
+                  <span className="font-medium text-slate-900">Expires:</span>
+                  <p className="text-slate-500">
                     {new Date(selectedAnnouncement.expiresAt).toLocaleString()}
                   </p>
                 </div>

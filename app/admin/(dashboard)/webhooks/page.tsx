@@ -37,8 +37,8 @@ export default function AdminWebhooksPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">Webhook Management</h1>
-          <p className="text-sm text-[var(--foreground-muted)]">Configure webhook endpoints for external integrations</p>
+          <h1 className="text-2xl font-bold text-slate-900">Webhook Management</h1>
+          <p className="text-sm text-slate-500">Configure webhook endpoints for external integrations</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
           <Icon name="plus" size={16} />
@@ -58,19 +58,19 @@ export default function AdminWebhooksPage() {
       <Card className="p-6">
         {webhooks.length === 0 ? (
           <div className="text-center py-12">
-            <Icon name="webhook" size={48} className="mx-auto text-[var(--foreground-muted)] mb-4" />
-            <p className="text-[var(--foreground-muted)]">No webhooks configured</p>
+            <Icon name="webhook" size={48} className="mx-auto text-slate-500 mb-4" />
+            <p className="text-slate-500">No webhooks configured</p>
           </div>
         ) : (
           <div className="space-y-4">
             {webhooks.map((w) => (
-              <div key={w.id} className="flex items-center justify-between p-4 border border-[var(--surface-border)] rounded-lg">
+              <div key={w.id} className="flex items-center justify-between p-4 border border-neutral-200 rounded-lg">
                 <div>
-                  <p className="font-medium text-[var(--foreground)]">{w.url}</p>
-                  <p className="text-sm text-[var(--foreground-muted)]">{w.events.join(", ")}</p>
+                  <p className="font-medium text-slate-900">{w.url}</p>
+                  <p className="text-sm text-slate-500">{w.events.join(", ")}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`px-2 py-1 text-xs rounded-full ${w.active ? "bg-[var(--color-success-100)] text-[var(--color-success-800)]" : "bg-[var(--surface-secondary)] text-[var(--foreground-muted)]"}`}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${w.active ? "bg-green-100 text-green-800" : "bg-neutral-100 text-slate-500"}`}>
                     {w.active ? "Active" : "Inactive"}
                   </span>
                   <Button variant="ghost" size="sm" onClick={() => toggleWebhook(w.id)}><Icon name="power" size={16} /></Button>

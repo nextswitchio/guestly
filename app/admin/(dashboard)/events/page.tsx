@@ -21,8 +21,8 @@ export default function AdminEventsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">Event Performance</h1>
-        <p className="text-sm text-[var(--foreground-muted)]">
+        <h1 className="text-2xl font-bold text-slate-900">Event Performance</h1>
+        <p className="text-sm text-slate-500">
           Comprehensive breakdown of all events with key performance metrics
         </p>
       </div>

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { BarChart } from '@/components/charts/BarChart';
 import { LineChart } from '@/components/charts/LineChart';
 import { PieChart } from '@/components/charts/PieChart';
 
@@ -28,6 +27,15 @@ interface FraudAlert {
   description: string;
   created_at: string;
 }
+
+const ADMIN_CHART_COLORS = [
+  'var(--color-primary-500)',
+  'var(--color-primary-400)',
+  'var(--color-primary-300)',
+  'var(--color-navy-500)',
+  'var(--color-navy-300)',
+  'var(--color-navy-700)',
+];
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -69,12 +77,12 @@ export default function AdminDashboardPage() {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-8 bg-neutral-200 rounded w-1/3 mb-2"></div>
+          <div className="h-4 bg-neutral-200 rounded w-1/2"></div>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-32 bg-gray-200 rounded animate-pulse"></div>
+            <div key={i} className="h-32 bg-neutral-200 rounded-xl animate-pulse"></div>
           ))}
         </div>
       </div>
@@ -85,8 +93,8 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-4xl">Global Overview</h1>
-        <p className="text-[var(--foreground-muted)]">Real-time platform performance and management</p>
+        <h1 className="text-3xl font-bold text-slate-900 md:text-4xl">Global Overview</h1>
+        <p className="text-slate-500 mt-1">Real-time platform performance and management</p>
       </div>
 
       {/* Key Metrics */}
@@ -95,11 +103,11 @@ export default function AdminDashboardPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-[var(--foreground-muted)]">Total Events</p>
-                <p className="text-2xl font-bold text-[var(--foreground)]">
+                <p className="text-sm font-medium text-slate-500">Total Events</p>
+                <p className="text-2xl font-bold text-slate-900">
                   {metrics.total_events.toLocaleString()}
                 </p>
-                <p className="text-xs text-[var(--foreground-muted)]">
+                <p className="text-xs text-slate-500">
                   {metrics.published_events} published
                 </p>
               </div>
@@ -112,11 +120,11 @@ export default function AdminDashboardPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-[var(--foreground-muted)]">Total Users</p>
-                <p className="text-2xl font-bold text-[var(--foreground)]">
+                <p className="text-sm font-medium text-slate-500">Total Users</p>
+                <p className="text-2xl font-bold text-slate-900">
                   {metrics.total_users.toLocaleString()}
                 </p>
-                <p className="text-xs text-[var(--foreground-muted)]">
+                <p className="text-xs text-slate-500">
                   {metrics.active_users} active
                 </p>
               </div>
@@ -129,11 +137,11 @@ export default function AdminDashboardPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-[var(--foreground-muted)]">Total Revenue</p>
-                <p className="text-2xl font-bold text-[var(--foreground)]">
+                <p className="text-sm font-medium text-slate-500">Total Revenue</p>
+                <p className="text-2xl font-bold text-slate-900">
                   ₦{metrics.total_revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
-                <p className="text-xs text-[var(--foreground-muted)]">
+                <p className="text-xs text-slate-500">
                   {metrics.total_orders} orders
                 </p>
               </div>
@@ -146,11 +154,11 @@ export default function AdminDashboardPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-[var(--foreground-muted)]">Pending Actions</p>
-                <p className="text-2xl font-bold text-[var(--foreground)]">
+                <p className="text-sm font-medium text-slate-500">Pending Actions</p>
+                <p className="text-2xl font-bold text-slate-900">
                   {metrics.pending_disputes + metrics.pending_withdrawals}
                 </p>
-                <p className="text-xs text-[var(--foreground-muted)]">
+                <p className="text-xs text-slate-500">
                   {metrics.pending_disputes} disputes, {metrics.pending_withdrawals} withdrawals
                 </p>
               </div>
@@ -166,25 +174,25 @@ export default function AdminDashboardPage() {
       {fraudAlerts.length > 0 && (
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[var(--foreground)]">Recent Fraud Alerts</h2>
+            <h2 className="text-lg font-semibold text-slate-900">Recent Fraud Alerts</h2>
             <Button variant="outline" size="sm" onClick={() => router.push('/admin/fraud')}>
               View All
             </Button>
           </div>
           <div className="space-y-3">
             {fraudAlerts.map(alert => (
-              <div key={alert.id} className="flex items-center justify-between p-3 bg-[var(--surface-elevated)] rounded-lg">
+              <div key={alert.id} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-100">
                 <div className="flex items-center gap-3">
                   <div className={`h-2 w-2 rounded-full ${
                     alert.status === 'confirmed' ? 'bg-danger-500' :
                     alert.status === 'under_review' ? 'bg-warning-500' : 'bg-success-500'
                   }`} />
                   <div>
-                    <p className="text-sm font-medium text-[var(--foreground)]">{alert.type}</p>
-                    <p className="text-xs text-[var(--foreground-muted)]">{alert.description}</p>
+                    <p className="text-sm font-medium text-slate-900">{alert.type}</p>
+                    <p className="text-xs text-slate-500">{alert.description}</p>
                   </div>
                 </div>
-                <p className="text-xs text-[var(--foreground-muted)]">
+                <p className="text-xs text-slate-500">
                   {new Date(alert.created_at).toLocaleDateString()}
                 </p>
               </div>
@@ -196,7 +204,7 @@ export default function AdminDashboardPage() {
       {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Revenue Trends</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Revenue Trends</h3>
           <div className="h-64">
             <LineChart
               data={metrics?.growth_data && metrics.growth_data.length > 0
@@ -210,21 +218,21 @@ export default function AdminDashboardPage() {
                     { label: "Jun", value: 30000 },
                   ]
               }
-              color="var(--primary-500)"
+              color={ADMIN_CHART_COLORS[0]}
             />
           </div>
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Event Categories</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Event Categories</h3>
           <div className="h-64">
             <PieChart
               data={[
-                { label: 'Technology', value: 35, color: 'var(--primary-500)' },
-                { label: 'Business', value: 25, color: 'var(--success-500)' },
-                { label: 'Entertainment', value: 20, color: 'var(--warning-500)' },
-                { label: 'Education', value: 15, color: 'var(--danger-500)' },
-                { label: 'Other', value: 5, color: 'var(--neutral-500)' },
+                { label: 'Technology', value: 35, color: ADMIN_CHART_COLORS[0] },
+                { label: 'Business', value: 25, color: ADMIN_CHART_COLORS[1] },
+                { label: 'Entertainment', value: 20, color: ADMIN_CHART_COLORS[3] },
+                { label: 'Education', value: 15, color: ADMIN_CHART_COLORS[2] },
+                { label: 'Other', value: 5, color: ADMIN_CHART_COLORS[4] },
               ]}
             />
           </div>
@@ -233,21 +241,21 @@ export default function AdminDashboardPage() {
 
       {/* Quick Actions */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Quick Actions</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Button variant="outline" className="justify-start" onClick={() => router.push('/admin?sub=users')}>
+          <Button variant="outline" className="justify-start" onClick={() => router.push('/admin/users')}>
             <Icon name="users" className="h-4 w-4 mr-2" />
             Manage Users
           </Button>
-          <Button variant="outline" className="justify-start" onClick={() => router.push('/admin?sub=events')}>
+          <Button variant="outline" className="justify-start" onClick={() => router.push('/admin/events')}>
             <Icon name="calendar" className="h-4 w-4 mr-2" />
             Review Events
           </Button>
-          <Button variant="outline" className="justify-start" onClick={() => router.push('/admin?sub=disputes')}>
+          <Button variant="outline" className="justify-start" onClick={() => router.push('/admin/disputes')}>
             <Icon name="alert-triangle" className="h-4 w-4 mr-2" />
             Handle Disputes
           </Button>
-          <Button variant="outline" className="justify-start" onClick={() => router.push('/admin?sub=settings')}>
+          <Button variant="outline" className="justify-start" onClick={() => router.push('/admin/settings')}>
             <Icon name="settings" className="h-4 w-4 mr-2" />
             Platform Settings
           </Button>

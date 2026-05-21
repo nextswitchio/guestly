@@ -80,13 +80,13 @@ export function UserStatusBadge({ status, userId, onStatusChange }: UserStatusBa
       </Button>
 
       {showDropdown && (
-        <div className="absolute top-full left-0 mt-1 w-36 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg shadow-lg z-10">
+        <div className="absolute top-full left-0 mt-1 w-36 bg-white border border-neutral-200 rounded-lg shadow-lg z-10">
           {statuses.map((statusOption) => (
             <button
               key={statusOption.value}
               onClick={() => handleStatusChange(statusOption.value)}
-              className={`w-full px-3 py-2 text-left text-sm hover:bg-[var(--surface-hover)] first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center gap-2 ${
-                status === statusOption.value ? 'bg-primary-50 text-primary-600' : 'text-[var(--foreground)]'
+              className={`w-full px-3 py-2 text-left text-sm hover:bg-neutral-100 first:rounded-t-lg last:rounded-b-lg transition-colors flex items-center gap-2 ${
+                status === statusOption.value ? 'bg-primary-50 text-primary-600' : 'text-slate-900'
               }`}
             >
               <Icon name={statusOption.icon as any} size={14} />

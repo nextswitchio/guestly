@@ -193,8 +193,8 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
       {/* Header with filters toggle */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-[var(--foreground)]">Event Performance</h2>
-          <p className="text-sm text-[var(--foreground-muted)]">
+          <h2 className="text-xl font-semibold text-slate-900">Event Performance</h2>
+          <p className="text-sm text-slate-500">
             {total} events • Page {page} of {totalPages}
           </p>
         </div>
@@ -221,13 +221,13 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
         <Card className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+              <label className="block text-sm font-medium text-slate-900 mb-2">
                 Status
               </label>
               <select
                 value={filters.status || ''}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+                className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
               >
                 <option value="">All Statuses</option>
                 <option value="upcoming">Upcoming</option>
@@ -238,13 +238,13 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+              <label className="block text-sm font-medium text-slate-900 mb-2">
                 Category
               </label>
               <select
                 value={filters.category || ''}
                 onChange={(e) => handleFilterChange('category', e.target.value)}
-                className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+                className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
               >
                 <option value="">All Categories</option>
                 <option value="Music">Music</option>
@@ -259,7 +259,7 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+              <label className="block text-sm font-medium text-slate-900 mb-2">
                 City
               </label>
               <Input
@@ -270,13 +270,13 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+              <label className="block text-sm font-medium text-slate-900 mb-2">
                 Event Type
               </label>
               <select
                 value={filters.eventType || ''}
                 onChange={(e) => handleFilterChange('eventType', e.target.value)}
-                className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+                className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
               >
                 <option value="">All Types</option>
                 <option value="Physical">Physical</option>
@@ -286,10 +286,10 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
             </div>
           </div>
           
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-[var(--surface-border)]">
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-neutral-200">
             <div className="flex items-center gap-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                <label className="block text-sm font-medium text-slate-900 mb-2">
                   Date From
                 </label>
                 <Input
@@ -299,7 +299,7 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                <label className="block text-sm font-medium text-slate-900 mb-2">
                   Date To
                 </label>
                 <Input
@@ -321,10 +321,10 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-[var(--surface-bg)] border-b border-[var(--surface-border)]">
+            <thead className="bg-white border-b border-neutral-200">
               <tr>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider cursor-pointer hover:bg-[var(--surface-hover)]"
+                  className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100"
                   onClick={() => handleSort('title')}
                 >
                   <div className="flex items-center gap-2">
@@ -333,7 +333,7 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider cursor-pointer hover:bg-[var(--surface-hover)]"
+                  className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100"
                   onClick={() => handleSort('date')}
                 >
                   <div className="flex items-center gap-2">
@@ -341,11 +341,11 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
                     {getSortIcon('date')}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Status
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider cursor-pointer hover:bg-[var(--surface-hover)]"
+                  className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100"
                   onClick={() => handleSort('ticketsSold')}
                 >
                   <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider cursor-pointer hover:bg-[var(--surface-hover)]"
+                  className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100"
                   onClick={() => handleSort('revenue')}
                 >
                   <div className="flex items-center gap-2">
@@ -363,7 +363,7 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider cursor-pointer hover:bg-[var(--surface-hover)]"
+                  className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100"
                   onClick={() => handleSort('conversionRate')}
                 >
                   <div className="flex items-center gap-2">
@@ -371,43 +371,43 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
                     {getSortIcon('conversionRate')}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-[var(--surface-border)]">
+            <tbody className="bg-white divide-y divide-neutral-200">
               {events.map((event) => (
                 <tr 
                   key={event.id} 
-                  className="hover:bg-[var(--surface-hover)] cursor-pointer"
+                  className="hover:bg-neutral-100 cursor-pointer"
                   onClick={() => onEventClick?.(event.id)}
                 >
                   <td className="px-6 py-4">
                     <div>
-                      <div className="text-sm font-medium text-[var(--foreground)]">
+                      <div className="text-sm font-medium text-slate-900">
                         {event.title}
                       </div>
-                      <div className="text-sm text-[var(--foreground-muted)]">
+                      <div className="text-sm text-slate-500">
                         {event.category} • {event.city}, {event.country}
                       </div>
-                      <div className="text-xs text-[var(--foreground-muted)]">
+                      <div className="text-xs text-slate-500">
                         {event.eventType}
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-[var(--foreground)]">
+                  <td className="px-6 py-4 text-sm text-slate-900">
                     {formatDate(event.date)}
                   </td>
                   <td className="px-6 py-4">
                     {getStatusBadge(event.status)}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-[var(--foreground)]">
-                      {event.ticketsSold.toLocaleString()}
+                    <div className="text-sm font-medium text-slate-900">
+                      {(event.ticketsSold ?? 0).toLocaleString()}
                     </div>
-                    <div className="text-xs text-[var(--foreground-muted)]">
-                      of {event.totalTickets.toLocaleString()}
+                    <div className="text-xs text-slate-500">
+                      of {(event.totalTickets ?? 0).toLocaleString()}
                     </div>
                     {event.attendanceRate !== undefined && (
                       <div className="text-xs text-success-600">
@@ -416,18 +416,18 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-[var(--foreground)]">
+                    <div className="text-sm font-medium text-slate-900">
                       {formatCurrency(event.revenue)}
                     </div>
-                    <div className="text-xs text-[var(--foreground-muted)]">
+                    <div className="text-xs text-slate-500">
                       {event.orders} orders
                     </div>
-                    <div className="text-xs text-[var(--foreground-muted)]">
+                    <div className="text-xs text-slate-500">
                       {formatCurrency(event.averageOrderValue)} avg
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-[var(--foreground)]">
+                    <div className="text-sm font-medium text-slate-900">
                       {event.conversionRate.toFixed(2)}%
                     </div>
                   </td>
@@ -451,8 +451,8 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-[var(--surface-border)] flex items-center justify-between">
-            <div className="text-sm text-[var(--foreground-muted)]">
+          <div className="px-6 py-4 border-t border-neutral-200 flex items-center justify-between">
+            <div className="text-sm text-slate-500">
               Showing {((page - 1) * 20) + 1} to {Math.min(page * 20, total)} of {total} events
             </div>
             <div className="flex items-center gap-2">
@@ -465,7 +465,7 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
               >
                 Previous
               </Button>
-              <span className="px-3 py-1 text-sm text-[var(--foreground)]">
+              <span className="px-3 py-1 text-sm text-slate-900">
                 {page} of {totalPages}
               </span>
               <Button
@@ -485,8 +485,8 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
       {events.length === 0 && !loading && (
         <Card className="p-12 text-center">
           <Icon name="calendar" size={48} className="mx-auto mb-4 text-neutral-400" />
-          <h3 className="text-lg font-medium text-[var(--foreground)] mb-2">No events found</h3>
-          <p className="text-[var(--foreground-muted)]">
+          <h3 className="text-lg font-medium text-slate-900 mb-2">No events found</h3>
+          <p className="text-slate-500">
             {Object.keys(filters).length > 0 
               ? 'Try adjusting your filters to see more events.'
               : 'No events have been created yet.'

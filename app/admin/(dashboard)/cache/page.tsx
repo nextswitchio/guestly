@@ -48,8 +48,8 @@ export default function AdminCachePage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">Cache Management</h1>
-          <p className="text-sm text-[var(--foreground-muted)]">Monitor and manage application cache</p>
+          <h1 className="text-2xl font-bold text-slate-900">Cache Management</h1>
+          <p className="text-sm text-slate-500">Monitor and manage application cache</p>
         </div>
         <Button onClick={clearCache}>
           <Icon name="trash-2" size={16} />
@@ -60,20 +60,20 @@ export default function AdminCachePage() {
       {stats && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="p-6">
-            <h3 className="text-sm text-[var(--foreground-muted)]">Total Keys</h3>
-            <p className="text-2xl font-bold text-[var(--foreground)]">{stats.keys}</p>
+            <h3 className="text-sm text-slate-500">Total Keys</h3>
+            <p className="text-2xl font-bold text-slate-900">{stats.keys}</p>
           </Card>
           <Card className="p-6">
-            <h3 className="text-sm text-[var(--foreground-muted)]">Memory Usage</h3>
-            <p className="text-2xl font-bold text-[var(--foreground)]">{stats.memory}</p>
+            <h3 className="text-sm text-slate-500">Memory Usage</h3>
+            <p className="text-2xl font-bold text-slate-900">{stats.memory}</p>
           </Card>
           <Card className="p-6">
-            <h3 className="text-sm text-[var(--foreground-muted)]">Hit Rate</h3>
-            <p className="text-2xl font-bold text-[var(--foreground)]">{stats.hitRate}%</p>
+            <h3 className="text-sm text-slate-500">Hit Rate</h3>
+            <p className="text-2xl font-bold text-slate-900">{stats.hitRate}%</p>
           </Card>
           <Card className="p-6">
-            <h3 className="text-sm text-[var(--foreground-muted)]">Uptime</h3>
-            <p className="text-2xl font-bold text-[var(--foreground)]">{stats.uptime}</p>
+            <h3 className="text-sm text-slate-500">Uptime</h3>
+            <p className="text-2xl font-bold text-slate-900">{stats.uptime}</p>
           </Card>
         </div>
       )}

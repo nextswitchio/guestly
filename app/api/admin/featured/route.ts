@@ -106,6 +106,7 @@ export async function POST(request: NextRequest) {
     // Check admin authentication
     const userRole = request.cookies.get("role")?.value;
     const userId = request.cookies.get("user_id")?.value;
+    const adminName = request.cookies.get("admin_name")?.value || "Admin User";
     
     if (userRole !== "admin" || !userId) {
       return NextResponse.json(
@@ -186,7 +187,7 @@ export async function POST(request: NextRequest) {
     // Log the featured placement creation
     logAdminAction(
       userId,
-      'Admin User', // TODO: Get actual admin name
+      adminName,
       'event_featured',
       'event',
       eventId,

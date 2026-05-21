@@ -55,8 +55,8 @@ export default function AdminNotificationsPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">Notification Management</h1>
-          <p className="text-sm text-[var(--foreground-muted)]">Send platform notifications and manage notification history</p>
+          <h1 className="text-2xl font-bold text-slate-900">Notification Management</h1>
+          <p className="text-sm text-slate-500">Send platform notifications and manage notification history</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
           <Icon name="bell" size={16} />
@@ -72,7 +72,7 @@ export default function AdminNotificationsPage() {
               placeholder="Message"
               value={newNotification.message}
               onChange={(e) => setNewNotification({ ...newNotification, message: e.target.value })}
-              className="w-full p-3 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-primary)] text-[var(--foreground)] resize-none"
+              className="w-full p-3 border border-neutral-200 rounded-lg bg-white text-slate-900 resize-none"
               rows={4}
             />
             <Button onClick={sendNotification}>Send</Button>
@@ -83,20 +83,20 @@ export default function AdminNotificationsPage() {
       <Card className="p-6">
         {notifications.length === 0 ? (
           <div className="text-center py-12">
-            <Icon name="bell" size={48} className="mx-auto text-[var(--foreground-muted)] mb-4" />
-            <p className="text-[var(--foreground-muted)]">No notifications sent</p>
+            <Icon name="bell" size={48} className="mx-auto text-slate-500 mb-4" />
+            <p className="text-slate-500">No notifications sent</p>
           </div>
         ) : (
           <div className="space-y-4">
             {notifications.map((n) => (
-              <div key={n.id} className="p-4 border border-[var(--surface-border)] rounded-lg">
+              <div key={n.id} className="p-4 border border-neutral-200 rounded-lg">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-medium text-[var(--foreground)]">{n.title}</p>
-                    <p className="text-sm text-[var(--foreground-muted)] mt-1">{n.message}</p>
-                    <p className="text-xs text-[var(--foreground-muted)] mt-2">{new Date(n.sentAt).toLocaleString()}</p>
+                    <p className="font-medium text-slate-900">{n.title}</p>
+                    <p className="text-sm text-slate-500 mt-1">{n.message}</p>
+                    <p className="text-xs text-slate-500 mt-2">{new Date(n.sentAt).toLocaleString()}</p>
                   </div>
-                  <span className="px-2 py-1 text-xs rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-800)]">{n.recipients} recipients</span>
+                  <span className="px-2 py-1 text-xs rounded-full bg-lime-100 text-lime-800">{n.recipients} recipients</span>
                 </div>
               </div>
             ))}

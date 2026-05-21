@@ -13,6 +13,8 @@ const PROTECTED_ROUTES = [
 ];
 
 const AUTH_ROUTES = ["/login", "/register", "/signup"];
+// Admin public routes — must NOT be treated as protected
+const ADMIN_PUBLIC_ROUTES = ["/admin/login", "/admin/forgot-password"];
 const ADMIN_ROUTES = ["/admin"];
 const VENDOR_ROUTES = ["/vendor"];
 const AFFILIATE_ROUTES = ["/affiliate"];
@@ -53,6 +55,10 @@ const ROLE_REDIRECT_MAP: Record<string, Record<string, string>> = {
 };
 
 function isProtectedRoute(pathname: string): boolean {
+  // Never treat admin public routes as protected
+  if (ADMIN_PUBLIC_ROUTES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+    return false;
+  }
   return PROTECTED_ROUTES.some((route) => {
     const nextChar = pathname[route.length];
     return pathname.startsWith(route) && (nextChar === "/" || nextChar === undefined);
@@ -85,6 +91,16 @@ export function proxy(request: NextRequest) {
 
   // API routes: check for auth token on protected API endpoints
   if (pathname.startsWith("/api/")) {
+    // These API routes are public — never require a token
+    const publicApiRoutes = [
+      "/api/admin/login",
+      "/api/auth/",
+      "/api/newsletter/",
+    ];
+    if (publicApiRoutes.some((p) => pathname.startsWith(p))) {
+      return NextResponse.next();
+    }
+
     const protectedApiPrefixes = ["/api/admin/", "/api/orders/", "/api/wallet/", "/api/profile/"];
     const isProtectedApi = protectedApiPrefixes.some((prefix) => pathname.startsWith(prefix));
 
@@ -145,7 +161,13 @@ export function proxy(request: NextRequest) {
 
   // Admin route protection
   const adminNext = pathname["/admin".length];
-  if (pathname.startsWith("/admin") && (adminNext === "/" || adminNext === undefined) && isAuthenticated && role !== "admin") {
+  if (
+    pathname.startsWith("/admin") &&
+    (adminNext === "/" || adminNext === undefined) &&
+    !ADMIN_PUBLIC_ROUTES.some((p) => pathname === p || pathname.startsWith(p + "/")) &&
+    isAuthenticated &&
+    role !== "admin"
+  ) {
     return NextResponse.redirect(new URL("/attendee", request.url));
   }
 

@@ -80,7 +80,7 @@ export default function FraudAlertWidget() {
   return (
     <Card className="p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h3 className="font-semibold text-[var(--foreground)]">Fraud Detection</h3>
+        <h3 className="font-semibold text-slate-900">Fraud Detection</h3>
         <Link href="/admin/fraud" className="text-sm font-medium text-primary-600 hover:text-primary-700">
           View All
         </Link>
@@ -99,16 +99,16 @@ export default function FraudAlertWidget() {
       )}
 
       {/* Stats Summary */}
-      <div className="mb-4 flex items-center justify-between p-3 rounded-lg bg-[var(--surface-bg)] border border-[var(--surface-border)]">
+      <div className="mb-4 flex items-center justify-between p-3 rounded-lg bg-white border border-neutral-200">
         <div className="flex items-center gap-3">
           <div className={`flex h-8 w-8 items-center justify-center rounded-full ${stats.activeAlerts > 0 ? 'bg-danger-50 text-danger-600' : 'bg-success-50 text-success-600'}`}>
             <Icon name={stats.activeAlerts > 0 ? 'alert-triangle' : 'shield'} size={16} />
           </div>
           <div>
-            <p className="text-sm font-medium text-[var(--foreground)]">
+            <p className="text-sm font-medium text-slate-900">
               {stats.activeAlerts > 0 ? `${stats.activeAlerts} Active Alerts` : 'All Clear'}
             </p>
-            <p className="text-xs text-[var(--foreground-muted)]">
+            <p className="text-xs text-slate-500">
               {stats.criticalAlerts > 0 ? `${stats.criticalAlerts} critical` : 'No threats detected'}
             </p>
           </div>
@@ -124,8 +124,8 @@ export default function FraudAlertWidget() {
                 <Icon name="alert-triangle" size={14} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-[var(--foreground)] truncate">{alert.title}</p>
-                <p className="text-xs text-[var(--foreground-muted)] truncate">{alert.description}</p>
+                <p className="text-sm font-medium text-slate-900 truncate">{alert.title}</p>
+                <p className="text-xs text-slate-500 truncate">{alert.description}</p>
                 <p className="mt-1 text-[10px] text-navy-400 uppercase font-bold tracking-wider">
                   {new Date(alert.createdAt).toLocaleDateString()}
                 </p>
@@ -135,13 +135,13 @@ export default function FraudAlertWidget() {
         ) : (
           <div className="text-center py-4">
             <Icon name="shield" size={32} className="mx-auto text-success-500 mb-2" />
-            <p className="text-sm text-[var(--foreground-muted)]">No recent alerts</p>
+            <p className="text-sm text-slate-500">No recent alerts</p>
           </div>
         )}
       </div>
 
       {/* Quick Actions */}
-      <div className="mt-4 pt-4 border-t border-[var(--surface-border)]">
+      <div className="mt-4 pt-4 border-t border-neutral-200">
         <Link href="/admin/fraud">
           <Button variant="primary" size="sm" fullWidth>
             <Icon name="shield" size={16} className="mr-2" />

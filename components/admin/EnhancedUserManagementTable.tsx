@@ -97,14 +97,14 @@ export function EnhancedUserManagementTable({
             </span>
           </div>
           <div>
-            <div className="font-medium text-[var(--foreground)]">
+            <div className="font-medium text-slate-900">
               {row.displayName || 'No name'}
             </div>
-            <div className="text-sm text-[var(--foreground-muted)]">
+            <div className="text-sm text-slate-500">
               {row.email}
             </div>
             {row.location && (
-              <div className="text-xs text-[var(--foreground-muted)]">
+              <div className="text-xs text-slate-500">
                 {row.location.city}, {row.location.country}
               </div>
             )}
@@ -145,7 +145,7 @@ export function EnhancedUserManagementTable({
       sortable: true,
       render: (value) => (
         <div className="text-sm">
-          <div className="text-[var(--foreground)]">
+          <div className="text-slate-900">
             {value && typeof value !== 'object' ? DataTableFormatters.date(value) : '-'}
           </div>
         </div>
@@ -157,7 +157,7 @@ export function EnhancedUserManagementTable({
       header: 'Last Activity',
       sortable: true,
       render: (value) => (
-        <div className="text-sm text-[var(--foreground-muted)]">
+        <div className="text-sm text-slate-500">
           {value && typeof value !== 'object' ? DataTableFormatters.date(value) : 'Never'}
         </div>
       ),
@@ -171,17 +171,17 @@ export function EnhancedUserManagementTable({
       render: (value, row) => (
         <div className="text-sm text-center">
           {row.role === 'organizer' && (
-            <div className="text-[var(--foreground)]">
+            <div className="text-slate-900">
               {row.eventsCreated || 0} created
             </div>
           )}
           {row.role === 'attendee' && (
-            <div className="text-[var(--foreground)]">
+            <div className="text-slate-900">
               {row.eventsAttended || 0} attended
             </div>
           )}
           {(row.role === 'vendor' || row.role === 'admin') && (
-            <div className="text-[var(--foreground-muted)]">—</div>
+            <div className="text-slate-500">—</div>
           )}
         </div>
       ),
@@ -199,11 +199,11 @@ export function EnhancedUserManagementTable({
       render: (value) => (
         <div className="text-sm text-right">
           {value && typeof value === 'number' && value > 0 ? (
-            <span className="text-[var(--foreground)]">
+            <span className="text-slate-900">
               {DataTableFormatters.currency(value)}
             </span>
           ) : (
-            <span className="text-[var(--foreground-muted)]">₦0</span>
+            <span className="text-slate-500">₦0</span>
           )}
         </div>
       ),
@@ -224,12 +224,12 @@ export function EnhancedUserManagementTable({
                   style={{ width: `${value}%` }}
                 />
               </div>
-              <span className="text-xs text-[var(--foreground-muted)]">
+              <span className="text-xs text-slate-500">
                 {value}%
               </span>
             </div>
           ) : (
-            <span className="text-[var(--foreground-muted)]">—</span>
+            <span className="text-slate-500">—</span>
           )}
         </div>
       ),
@@ -394,18 +394,18 @@ export function EnhancedUserManagementTable({
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-sm text-[var(--foreground-muted)]">
+          <p className="text-sm text-slate-500">
             Change the role for {selectedData.length} selected user(s).
           </p>
           
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               New Role
             </label>
             <select
               value={bulkRole}
               onChange={(e) => setBulkRole(e.target.value)}
-              className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
             >
               <option value="">Select a role...</option>
               <option value="attendee">Attendee</option>
@@ -445,18 +445,18 @@ export function EnhancedUserManagementTable({
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-sm text-[var(--foreground-muted)]">
+          <p className="text-sm text-slate-500">
             Change the status for {selectedData.length} selected user(s).
           </p>
           
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               New Status
             </label>
             <select
               value={bulkStatus}
               onChange={(e) => setBulkStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
             >
               <option value="">Select a status...</option>
               <option value="active">Active</option>
@@ -542,35 +542,35 @@ function UserDetailsModal({
       <div className="space-y-6">
         {/* Basic Info */}
         <div>
-          <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">
             Basic Information
           </h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-[var(--foreground-muted)]">
+              <label className="text-sm font-medium text-slate-500">
                 Display Name
               </label>
-              <p className="text-[var(--foreground)]">
+              <p className="text-slate-900">
                 {user.displayName || 'Not set'}
               </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-[var(--foreground-muted)]">
+              <label className="text-sm font-medium text-slate-500">
                 Email
               </label>
-              <p className="text-[var(--foreground)]">{user.email}</p>
+              <p className="text-slate-900">{user.email}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-[var(--foreground-muted)]">
+              <label className="text-sm font-medium text-slate-500">
                 Role
               </label>
-              <p className="text-[var(--foreground)] capitalize">{user.role}</p>
+              <p className="text-slate-900 capitalize">{user.role}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-[var(--foreground-muted)]">
+              <label className="text-sm font-medium text-slate-500">
                 Status
               </label>
-              <p className="text-[var(--foreground)] capitalize">{user.status}</p>
+              <p className="text-slate-900 capitalize">{user.status}</p>
             </div>
           </div>
         </div>
@@ -578,60 +578,60 @@ function UserDetailsModal({
         {/* Activity Stats */}
         {loading ? (
           <div className="animate-pulse">
-            <div className="h-4 bg-[var(--surface-bg)] rounded mb-2" />
-            <div className="h-20 bg-[var(--surface-bg)] rounded" />
+            <div className="h-4 bg-white rounded mb-2" />
+            <div className="h-20 bg-white rounded" />
           </div>
         ) : activityStats ? (
           <div>
-            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
               Activity Statistics
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-[var(--foreground-muted)]">
+                <label className="text-sm font-medium text-slate-500">
                   Total Orders
                 </label>
-                <p className="text-[var(--foreground)]">
+                <p className="text-slate-900">
                   {activityStats.totalOrders}
                 </p>
               </div>
               <div>
-                <label className="text-sm font-medium text-[var(--foreground-muted)]">
+                <label className="text-sm font-medium text-slate-500">
                   Total Spent
                 </label>
-                <p className="text-[var(--foreground)]">
+                <p className="text-slate-900">
                   {formatCurrency(activityStats.totalSpent)}
                 </p>
               </div>
               <div>
-                <label className="text-sm font-medium text-[var(--foreground-muted)]">
+                <label className="text-sm font-medium text-slate-500">
                   Events Created
                 </label>
-                <p className="text-[var(--foreground)]">
+                <p className="text-slate-900">
                   {activityStats.eventsCreated}
                 </p>
               </div>
               <div>
-                <label className="text-sm font-medium text-[var(--foreground-muted)]">
+                <label className="text-sm font-medium text-slate-500">
                   Events Attended
                 </label>
-                <p className="text-[var(--foreground)]">
+                <p className="text-slate-900">
                   {activityStats.eventsAttended}
                 </p>
               </div>
               <div>
-                <label className="text-sm font-medium text-[var(--foreground-muted)]">
+                <label className="text-sm font-medium text-slate-500">
                   Wallet Transactions
                 </label>
-                <p className="text-[var(--foreground)]">
+                <p className="text-slate-900">
                   {activityStats.walletTransactions}
                 </p>
               </div>
               <div>
-                <label className="text-sm font-medium text-[var(--foreground-muted)]">
+                <label className="text-sm font-medium text-slate-500">
                   Last Activity
                 </label>
-                <p className="text-[var(--foreground)]">
+                <p className="text-slate-900">
                   {activityStats.lastActivity 
                     ? DataTableFormatters.date(activityStats.lastActivity)
                     : 'Never'

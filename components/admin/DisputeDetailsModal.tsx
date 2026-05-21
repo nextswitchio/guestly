@@ -181,16 +181,16 @@ export function DisputeDetailsModal({
         <Card className="p-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h3 className="font-semibold text-[var(--foreground)] mb-4">
+              <h3 className="font-semibold text-slate-900 mb-4">
                 Dispute Information
               </h3>
               <div className="space-y-3">
                 <div>
-                  <span className="text-sm text-[var(--foreground-muted)]">Dispute ID:</span>
+                  <span className="text-sm text-slate-500">Dispute ID:</span>
                   <div className="font-mono text-sm">{dispute.id}</div>
                 </div>
                 <div>
-                  <span className="text-sm text-[var(--foreground-muted)]">Status:</span>
+                  <span className="text-sm text-slate-500">Status:</span>
                   <div>
                     <Badge variant={getStatusBadgeVariant(dispute.status)}>
                       {dispute.status.charAt(0).toUpperCase() + dispute.status.slice(1)}
@@ -198,40 +198,40 @@ export function DisputeDetailsModal({
                   </div>
                 </div>
                 <div>
-                  <span className="text-sm text-[var(--foreground-muted)]">Reason:</span>
+                  <span className="text-sm text-slate-500">Reason:</span>
                   <div>{getReasonLabel(dispute.reason)}</div>
                 </div>
                 <div>
-                  <span className="text-sm text-[var(--foreground-muted)]">Order Amount:</span>
+                  <span className="text-sm text-slate-500">Order Amount:</span>
                   <div className="font-semibold">{formatCurrency(dispute.orderAmount)}</div>
                 </div>
                 <div>
-                  <span className="text-sm text-[var(--foreground-muted)]">Created:</span>
+                  <span className="text-sm text-slate-500">Created:</span>
                   <div>{formatDate(dispute.createdAt)}</div>
                 </div>
               </div>
             </div>
 
             <div>
-              <h3 className="font-semibold text-[var(--foreground)] mb-4">
+              <h3 className="font-semibold text-slate-900 mb-4">
                 Event & Customer
               </h3>
               <div className="space-y-3">
                 <div>
-                  <span className="text-sm text-[var(--foreground-muted)]">Event:</span>
+                  <span className="text-sm text-slate-500">Event:</span>
                   <div className="font-medium">{dispute.eventTitle}</div>
                 </div>
                 <div>
-                  <span className="text-sm text-[var(--foreground-muted)]">Customer:</span>
+                  <span className="text-sm text-slate-500">Customer:</span>
                   <div>{dispute.userName}</div>
                 </div>
                 <div>
-                  <span className="text-sm text-[var(--foreground-muted)]">Order ID:</span>
+                  <span className="text-sm text-slate-500">Order ID:</span>
                   <div className="font-mono text-sm">{dispute.orderId}</div>
                 </div>
                 {dispute.assignedTo && (
                   <div>
-                    <span className="text-sm text-[var(--foreground-muted)]">Assigned To:</span>
+                    <span className="text-sm text-slate-500">Assigned To:</span>
                     <div>{dispute.assignedTo}</div>
                   </div>
                 )}
@@ -242,11 +242,11 @@ export function DisputeDetailsModal({
 
         {/* Customer Description */}
         <Card className="p-6">
-          <h3 className="font-semibold text-[var(--foreground)] mb-4">
+          <h3 className="font-semibold text-slate-900 mb-4">
             Customer Description
           </h3>
-          <div className="bg-[var(--surface-hover)] p-4 rounded-lg">
-            <p className="text-[var(--foreground)] whitespace-pre-wrap">
+          <div className="bg-neutral-100 p-4 rounded-lg">
+            <p className="text-slate-900 whitespace-pre-wrap">
               {dispute.description}
             </p>
           </div>
@@ -254,7 +254,7 @@ export function DisputeDetailsModal({
 
         {/* Admin Notes */}
         <Card className="p-6">
-          <h3 className="font-semibold text-[var(--foreground)] mb-4">
+          <h3 className="font-semibold text-slate-900 mb-4">
             Admin Notes
           </h3>
           <div className="space-y-4">
@@ -277,7 +277,7 @@ export function DisputeDetailsModal({
         {/* Assignment */}
         {dispute.status === 'open' && (
           <Card className="p-6">
-            <h3 className="font-semibold text-[var(--foreground)] mb-4">
+            <h3 className="font-semibold text-slate-900 mb-4">
               Assign Dispute
             </h3>
             <div className="flex gap-4">
@@ -301,12 +301,12 @@ export function DisputeDetailsModal({
         {/* Resolution */}
         {canResolve && (
           <Card className="p-6">
-            <h3 className="font-semibold text-[var(--foreground)] mb-4">
+            <h3 className="font-semibold text-slate-900 mb-4">
               Resolve Dispute
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                <label className="block text-sm font-medium text-slate-900 mb-2">
                   Resolution Action
                 </label>
                 <Select
@@ -318,7 +318,7 @@ export function DisputeDetailsModal({
 
               {resolutionAction === 'partial_refund' && (
                 <div>
-                  <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                  <label className="block text-sm font-medium text-slate-900 mb-2">
                     Refund Amount
                   </label>
                   <Input
@@ -332,7 +332,7 @@ export function DisputeDetailsModal({
               )}
 
               <div>
-                <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                <label className="block text-sm font-medium text-slate-900 mb-2">
                   Resolution Details
                 </label>
                 <Textarea
@@ -368,35 +368,35 @@ export function DisputeDetailsModal({
         {/* Resolution Details (if resolved) */}
         {dispute.status === 'resolved' && dispute.resolution && (
           <Card className="p-6">
-            <h3 className="font-semibold text-[var(--foreground)] mb-4">
+            <h3 className="font-semibold text-slate-900 mb-4">
               Resolution
             </h3>
             <div className="space-y-3">
               <div>
-                <span className="text-sm text-[var(--foreground-muted)]">Action Taken:</span>
+                <span className="text-sm text-slate-500">Action Taken:</span>
                 <div className="font-medium">
                   {dispute.resolutionAction?.replace('_', ' ').toUpperCase()}
                 </div>
               </div>
               {dispute.refundAmount && (
                 <div>
-                  <span className="text-sm text-[var(--foreground-muted)]">Refund Amount:</span>
+                  <span className="text-sm text-slate-500">Refund Amount:</span>
                   <div className="font-semibold text-success-600">
                     {formatCurrency(dispute.refundAmount)}
                   </div>
                 </div>
               )}
               <div>
-                <span className="text-sm text-[var(--foreground-muted)]">Resolution Details:</span>
-                <div className="bg-[var(--surface-hover)] p-4 rounded-lg mt-2">
-                  <p className="text-[var(--foreground)] whitespace-pre-wrap">
+                <span className="text-sm text-slate-500">Resolution Details:</span>
+                <div className="bg-neutral-100 p-4 rounded-lg mt-2">
+                  <p className="text-slate-900 whitespace-pre-wrap">
                     {dispute.resolution}
                   </p>
                 </div>
               </div>
               {dispute.resolvedAt && (
                 <div>
-                  <span className="text-sm text-[var(--foreground-muted)]">Resolved:</span>
+                  <span className="text-sm text-slate-500">Resolved:</span>
                   <div>{formatDate(dispute.resolvedAt)}</div>
                 </div>
               )}

@@ -39,8 +39,8 @@ export default function AdminSeoPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">SEO Management</h1>
-          <p className="text-sm text-[var(--foreground-muted)]">Manage site-wide SEO settings and metadata</p>
+          <h1 className="text-2xl font-bold text-slate-900">SEO Management</h1>
+          <p className="text-sm text-slate-500">Manage site-wide SEO settings and metadata</p>
         </div>
         <Button onClick={saveSettings}>
           <Icon name="save" size={16} />
@@ -52,7 +52,7 @@ export default function AdminSeoPage() {
         <div className="space-y-6">
           {settings.map((s) => (
             <div key={s.key}>
-              <label className="block text-sm font-medium text-[var(--foreground)] mb-2 capitalize">{s.key.replace(/_/g, " ")}</label>
+              <label className="block text-sm font-medium text-slate-900 mb-2 capitalize">{s.key.replace(/_/g, " ")}</label>
               <Input value={s.value} onChange={(e) => updateSetting(s.key, e.target.value)} />
             </div>
           ))}

@@ -6,7 +6,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-
   try {
     const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`);
     const data = await res.json();
@@ -23,7 +22,6 @@ export async function PUT(
   const { id } = await params;
   const token = req.cookies.get("access_token")?.value;
   const body = await req.json().catch(() => ({}));
-
   try {
     const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, {
       method: "PUT",
@@ -33,7 +31,6 @@ export async function PUT(
       },
       body: JSON.stringify(body),
     });
-
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
   } catch {
@@ -47,15 +44,11 @@ export async function DELETE(
 ) {
   const { id } = await params;
   const token = req.cookies.get("access_token")?.value;
-
   try {
     const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, {
       method: "DELETE",
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     });
-
     return new NextResponse(null, { status: res.status });
   } catch {
     return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });

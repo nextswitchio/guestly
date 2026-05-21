@@ -16,22 +16,8 @@ export default function AdminLoginPage() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
-  React.useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/auth/me", { method: "GET" });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.user?.role === "admin") {
-            router.replace("/admin");
-          }
-        }
-      } catch {
-        // Backend not available, skip auth check
-      }
-    }
-    checkAuth();
-  }, [router]);
+  // Don't check auth on mount - let users see the login page
+  // If they're already logged in, they'll be redirected after login attempt
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

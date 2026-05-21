@@ -167,38 +167,38 @@ export function CacheMonitor() {
           {/* Cache Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="p-4">
-              <div className="text-sm text-gray-600">Hit Rate</div>
+              <div className="text-sm text-slate-600">Hit Rate</div>
               <div className="text-2xl font-bold text-green-600">
                 {(stats.stats.hitRate * 100).toFixed(1)}%
               </div>
             </Card>
             
             <Card className="p-4">
-              <div className="text-sm text-gray-600">Cache Size</div>
+              <div className="text-sm text-slate-600">Cache Size</div>
               <div className="text-2xl font-bold">
                 {stats.stats.size}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-slate-500">
                 {stats.totalKeys} total keys
               </div>
             </Card>
             
             <Card className="p-4">
-              <div className="text-sm text-gray-600">Cache Hits</div>
+              <div className="text-sm text-slate-600">Cache Hits</div>
               <div className="text-2xl font-bold text-blue-600">
                 {stats.stats.hits}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-slate-500">
                 {stats.stats.staleHits} stale hits
               </div>
             </Card>
             
             <Card className="p-4">
-              <div className="text-sm text-gray-600">Cache Misses</div>
+              <div className="text-sm text-slate-600">Cache Misses</div>
               <div className="text-2xl font-bold text-orange-600">
                 {stats.stats.misses}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-slate-500">
                 {stats.stats.evictions} evictions
               </div>
             </Card>
@@ -290,13 +290,13 @@ export function CacheMonitor() {
                           {entry.tags.slice(0, 2).map((tag, tagIndex) => (
                             <span
                               key={tagIndex}
-                              className="px-1 py-0.5 bg-gray-100 text-gray-600 rounded text-xs"
+                              className="px-1 py-0.5 bg-neutral-100 text-slate-600 rounded text-xs"
                             >
                               {tag}
                             </span>
                           ))}
                           {entry.tags.length > 2 && (
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-slate-500">
                               +{entry.tags.length - 2}
                             </span>
                           )}
@@ -320,7 +320,7 @@ export function CacheMonitor() {
           </Card>
 
           {/* Last Updated */}
-          <div className="text-sm text-gray-500 text-center">
+          <div className="text-sm text-slate-500 text-center">
             Last updated: {formatTimestamp(stats.timestamp)}
           </div>
         </>

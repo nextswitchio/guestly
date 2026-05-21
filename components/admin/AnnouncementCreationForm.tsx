@@ -59,7 +59,7 @@ export function AnnouncementCreationForm({ onSubmit, onCancel }: AnnouncementCre
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+        <label className="block text-sm font-medium text-slate-900 mb-2">
           Content
         </label>
         <Textarea
@@ -73,13 +73,13 @@ export function AnnouncementCreationForm({ onSubmit, onCancel }: AnnouncementCre
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+          <label className="block text-sm font-medium text-slate-900 mb-2">
             Target Audience
           </label>
           <select
             value={formData.targetType}
             onChange={(e) => updateField('targetType', e.target.value)}
-            className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+            className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
             required
           >
             <option value="all">All Users</option>
@@ -90,13 +90,13 @@ export function AnnouncementCreationForm({ onSubmit, onCancel }: AnnouncementCre
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+          <label className="block text-sm font-medium text-slate-900 mb-2">
             Priority Level
           </label>
           <select
             value={formData.priority}
             onChange={(e) => updateField('priority', e.target.value)}
-            className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+            className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
             required
           >
             <option value="low">Low Priority</option>
@@ -109,7 +109,7 @@ export function AnnouncementCreationForm({ onSubmit, onCancel }: AnnouncementCre
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+          <label className="block text-sm font-medium text-slate-900 mb-2">
             Schedule For Later (Optional)
           </label>
           <input
@@ -117,15 +117,15 @@ export function AnnouncementCreationForm({ onSubmit, onCancel }: AnnouncementCre
             value={formData.scheduledAt}
             onChange={(e) => updateField('scheduledAt', e.target.value)}
             min={minScheduleTime}
-            className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+            className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
           />
-          <p className="text-xs text-[var(--foreground-muted)] mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Leave empty to publish immediately
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+          <label className="block text-sm font-medium text-slate-900 mb-2">
             Expires At (Optional)
           </label>
           <input
@@ -133,9 +133,9 @@ export function AnnouncementCreationForm({ onSubmit, onCancel }: AnnouncementCre
             value={formData.expiresAt}
             onChange={(e) => updateField('expiresAt', e.target.value)}
             min={minScheduleTime}
-            className="w-full px-3 py-2 border border-[var(--surface-border)] rounded-lg bg-[var(--surface-bg)] text-[var(--foreground)]"
+            className="w-full px-3 py-2 border border-neutral-200 rounded-lg bg-white text-slate-900"
           />
-          <p className="text-xs text-[var(--foreground-muted)] mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Leave empty for no expiration
           </p>
         </div>
@@ -143,14 +143,14 @@ export function AnnouncementCreationForm({ onSubmit, onCancel }: AnnouncementCre
 
       {/* Preview Section */}
       {(formData.title || formData.content) && (
-        <div className="border border-[var(--surface-border)] rounded-lg p-4 bg-[var(--surface-bg)]">
-          <h4 className="text-sm font-medium text-[var(--foreground)] mb-2">Preview</h4>
+        <div className="border border-neutral-200 rounded-lg p-4 bg-white">
+          <h4 className="text-sm font-medium text-slate-900 mb-2">Preview</h4>
           <div className="space-y-2">
             {formData.title && (
-              <h5 className="font-semibold text-[var(--foreground)]">{formData.title}</h5>
+              <h5 className="font-semibold text-slate-900">{formData.title}</h5>
             )}
             {formData.content && (
-              <p className="text-sm text-[var(--foreground-muted)] whitespace-pre-wrap">
+              <p className="text-sm text-slate-500 whitespace-pre-wrap">
                 {formData.content}
               </p>
             )}
@@ -172,7 +172,7 @@ export function AnnouncementCreationForm({ onSubmit, onCancel }: AnnouncementCre
         </div>
       )}
 
-      <div className="flex justify-end gap-3 pt-4 border-t border-[var(--surface-border)]">
+      <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200">
         <Button
           type="button"
           variant="secondary"

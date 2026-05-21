@@ -57,7 +57,7 @@ export function DisputeFilters({ filters, onFiltersChange }: DisputeFiltersProps
       <div className="flex flex-col lg:flex-row gap-4 items-end">
         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               Search
             </label>
             <Input
@@ -68,7 +68,7 @@ export function DisputeFilters({ filters, onFiltersChange }: DisputeFiltersProps
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               Status
             </label>
             <Select
@@ -79,7 +79,7 @@ export function DisputeFilters({ filters, onFiltersChange }: DisputeFiltersProps
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               Reason
             </label>
             <Select
