@@ -229,10 +229,11 @@ export default function AdminSidebar() {
   const sidebar = useSidebar();
   const collapsed = sidebar ? !sidebar.open : false;
   const mobileOpen = sidebar?.openMobile ?? false;
+  const setOpenMobile = sidebar?.setOpenMobile;
 
   React.useEffect(() => {
-    sidebar?.setOpenMobile(false);
-  }, [pathname]);
+    setOpenMobile?.(false);
+  }, [pathname, setOpenMobile]);
 
   function isActive(href: string, exact?: boolean) {
     const currentPath = pathname !== "/" ? pathname.replace(/\/+$/, "") : pathname;

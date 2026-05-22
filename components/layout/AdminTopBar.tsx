@@ -44,7 +44,7 @@ function getPageTitle(pathname: string): string {
 export default function AdminTopBar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [notifOpen, setNotifOpen] = React.useState(false);
+  const [, setNotifOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
   const [adminName, setAdminName] = React.useState("Administrator");
   const profileRef = React.useRef<HTMLDivElement>(null);

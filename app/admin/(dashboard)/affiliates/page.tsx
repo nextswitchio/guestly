@@ -177,6 +177,14 @@ export default function AdminAffiliatesPage() {
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const selectedAffiliateIdRef = React.useRef<string | null>(null);
+
+  const applySelectedAffiliate = React.useCallback((affiliate: AffiliateUser | null) => {
+    selectedAffiliateIdRef.current = affiliate?.id ?? null;
+    setSelectedAffiliate(affiliate);
+    setSelectedStatus(affiliate?.status ?? "pending");
+    setSettingsForm(affiliate ? toSettingsForm(affiliate.commissionSettings) : null);
+  }, []);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -205,12 +213,9 @@ export default function AdminAffiliatesPage() {
       if (affiliateData) {
         setAffiliates(affiliateData.affiliates);
         setTotalPages(affiliateData.pagination.totalPages);
-        setSelectedAffiliate((current) => {
-          if (current && affiliateData.affiliates.some((affiliate) => affiliate.id === current.id)) {
-            return current;
-          }
-          return affiliateData.affiliates[0] ?? null;
-        });
+        const currentId = selectedAffiliateIdRef.current;
+        const nextAffiliate = affiliateData.affiliates.find((affiliate) => affiliate.id === currentId) ?? affiliateData.affiliates[0] ?? null;
+        applySelectedAffiliate(nextAffiliate);
       }
       setLoading(false);
     }
@@ -226,16 +231,7 @@ export default function AdminAffiliatesPage() {
     return () => {
       active = false;
     };
-  }, [currentPage, debouncedSearchQuery, statusFilter]);
-
-  React.useEffect(() => {
-    if (!selectedAffiliate) {
-      setSettingsForm(null);
-      return;
-    }
-    setSelectedStatus(selectedAffiliate.status);
-    setSettingsForm(toSettingsForm(selectedAffiliate.commissionSettings));
-  }, [selectedAffiliate]);
+  }, [applySelectedAffiliate, currentPage, debouncedSearchQuery, statusFilter]);
 
   async function refreshData() {
     const [statsData, affiliateData] = await Promise.all([
@@ -251,10 +247,9 @@ export default function AdminAffiliatesPage() {
     if (affiliateData) {
       setAffiliates(affiliateData.affiliates);
       setTotalPages(affiliateData.pagination.totalPages);
-      setSelectedAffiliate((current) => {
-        if (!current) return affiliateData.affiliates[0] ?? null;
-        return affiliateData.affiliates.find((affiliate) => affiliate.id === current.id) ?? current;
-      });
+      const currentId = selectedAffiliateIdRef.current;
+      const nextAffiliate = affiliateData.affiliates.find((affiliate) => affiliate.id === currentId) ?? affiliateData.affiliates[0] ?? null;
+      applySelectedAffiliate(nextAffiliate);
     }
   }
 
@@ -277,7 +272,7 @@ export default function AdminAffiliatesPage() {
       if (!data.success) {
         throw new Error(data.error?.detail || data.error?.message || "Failed to save affiliate");
       }
-      setSelectedAffiliate(data.data);
+      applySelectedAffiliate(data.data);
       await refreshData();
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "Failed to save affiliate settings.");
@@ -365,7 +360,7 @@ export default function AdminAffiliatesPage() {
                     className={`cursor-pointer transition-colors hover:bg-neutral-50 ${
                       selectedAffiliate?.id === affiliate.id ? "bg-primary-50/50" : ""
                     }`}
-                    onClick={() => setSelectedAffiliate(affiliate)}
+                    onClick={() => applySelectedAffiliate(affiliate)}
                   >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
