@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { MapPin, Star, Mail, Phone, Calendar, Shield, CheckCircle, ArrowLeft, RefreshCw } from 'lucide-react';
+import { MapPin, Star, Mail, Phone, Calendar, Shield, CheckCircle, ArrowLeft, RefreshCw, FileText, ExternalLink, Link as LinkIcon, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -20,10 +20,27 @@ interface VendorDetail {
   completedEvents: number;
   services: string[];
   portfolio: string[];
+  serviceProfiles?: ServiceProfileDetail[];
   subscription?: {
     plan: string;
     expiresAt: number;
   };
+}
+
+interface ServiceProfileDetail {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  subcategory?: string;
+  pricing: string;
+  pricingModel: string;
+  bannerImage?: string;
+  rateCardUrl?: string;
+  portfolioUrl?: string;
+  socialUrl?: string;
+  images?: string[];
+  tags?: string[];
 }
 
 export default function VendorDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -41,7 +58,7 @@ export default function VendorDetailPage({ params }: { params: Promise<{ id: str
       const response = await fetch(`/api/vendors/${id}`);
       if (response.ok) {
         const data = await response.json();
-        setVendor(data.vendor || data);
+        setVendor(data.vendor || data.data?.vendor || data);
       }
     } catch (error) {
       console.error('Failed to fetch vendor:', error);
@@ -145,6 +162,69 @@ export default function VendorDetailPage({ params }: { params: Promise<{ id: str
                       {service}
                     </span>
                   ))}
+                </div>
+              </Card>
+            )}
+
+            {vendor.serviceProfiles && vendor.serviceProfiles.length > 0 && (
+              <Card className="p-4 sm:p-6 rounded-2xl border border-slate-100 shadow-sm">
+                <h2 className="text-lg font-bold text-slate-900 mb-4">Service Profiles</h2>
+                <div className="grid grid-cols-1 gap-4">
+                  {vendor.serviceProfiles.map((service) => {
+                    const image = service.bannerImage || service.images?.[0];
+                    return (
+                      <div key={service.id} className="overflow-hidden rounded-xl border border-slate-100 bg-white">
+                        {image && (
+                          <img src={image} alt="" className="h-44 w-full object-cover bg-slate-100" />
+                        )}
+                        <div className="p-4">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                              <h3 className="font-bold text-slate-900">{service.name}</h3>
+                              <p className="text-sm text-slate-500">{service.subcategory || service.category}</p>
+                            </div>
+                            <div className="text-left sm:text-right">
+                              <p className="font-bold text-slate-900">{service.pricing}</p>
+                              <p className="text-xs capitalize text-slate-400">{service.pricingModel}</p>
+                            </div>
+                          </div>
+                          <p className="mt-3 text-sm leading-6 text-slate-600">{service.description}</p>
+                          {service.tags && service.tags.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-1.5">
+                              {service.tags.map((tag) => (
+                                <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{tag}</span>
+                              ))}
+                            </div>
+                          )}
+                          {(service.rateCardUrl || service.portfolioUrl || service.socialUrl) && (
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              {service.rateCardUrl && (
+                                <a href={service.rateCardUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                  <FileText className="w-4 h-4" />
+                                  Rate card
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                              {service.portfolioUrl && (
+                                <a href={service.portfolioUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                  <LinkIcon className="w-4 h-4" />
+                                  Portfolio
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                              {service.socialUrl && (
+                                <a href={service.socialUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                                  <Share2 className="w-4 h-4" />
+                                  Social
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </Card>
             )}

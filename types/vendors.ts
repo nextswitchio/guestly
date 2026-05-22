@@ -53,6 +53,10 @@ export type ServiceProfile = {
   pricingModel: PricingModel;
   minBudget?: number;
   maxBudget?: number;
+  bannerImage?: string;
+  rateCardUrl?: string;
+  portfolioUrl?: string;
+  socialUrl?: string;
   images: string[];
   tags: string[];
   isActive: boolean;

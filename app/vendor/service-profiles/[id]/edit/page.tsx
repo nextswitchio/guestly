@@ -1,10 +1,11 @@
 'use client';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, ArrowLeft, AlertCircle, Plus, X, RefreshCw } from 'lucide-react';
+import { Save, ArrowLeft, AlertCircle, Plus, X, RefreshCw, Link as LinkIcon, Share2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 const CATEGORIES = [
   { value: 'Security', label: 'Security' }, { value: 'Sound', label: 'Sound & Audio' },
@@ -23,12 +24,42 @@ export default function EditServiceProfilePage({ params }: { params: Promise<{ i
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [tagInput, setTagInput] = useState('');
-  const [form, setForm] = useState({ name: '', description: '', category: '', subcategory: '', pricing: '', pricingModel: 'fixed', minBudget: '', maxBudget: '', tags: [] as string[], isActive: true });
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    category: '',
+    subcategory: '',
+    pricing: '',
+    pricingModel: 'fixed',
+    minBudget: '',
+    maxBudget: '',
+    bannerImage: '',
+    rateCardUrl: '',
+    portfolioUrl: '',
+    socialUrl: '',
+    tags: [] as string[],
+    isActive: true,
+  });
 
   useEffect(() => {
     fetch(`/api/vendor/service-profiles/${id}`).then(r => r.json()).then(d => {
       const p = d.profile || d;
-      setForm({ name: p.name || '', description: p.description || '', category: p.category || '', subcategory: p.subcategory || '', pricing: p.pricing || '', pricingModel: p.pricingModel || 'fixed', minBudget: p.minBudget?.toString() || '', maxBudget: p.maxBudget?.toString() || '', tags: p.tags || [], isActive: p.isActive ?? true });
+      setForm({
+        name: p.name || '',
+        description: p.description || '',
+        category: p.category || '',
+        subcategory: p.subcategory || '',
+        pricing: p.pricing || '',
+        pricingModel: p.pricingModel || 'fixed',
+        minBudget: p.minBudget?.toString() || '',
+        maxBudget: p.maxBudget?.toString() || '',
+        bannerImage: p.bannerImage || '',
+        rateCardUrl: p.rateCardUrl || '',
+        portfolioUrl: p.portfolioUrl || '',
+        socialUrl: p.socialUrl || '',
+        tags: p.tags || [],
+        isActive: p.isActive ?? true,
+      });
     }).catch(() => setError('Failed to load profile')).finally(() => setLoading(false));
   }, [id]);
 
@@ -103,6 +134,15 @@ export default function EditServiceProfilePage({ params }: { params: Promise<{ i
                 </select>
               </div>
             </div>
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-dark border-b border-gray-100 pb-2">Media & Links</h2>
+            <CloudinaryUploadField label="Banner Image" value={form.bannerImage} onChange={url => setForm({...form, bannerImage: url})} placeholder="https://example.com/service-banner.jpg" folder="guestly/service-profiles/banners" accept="image/*" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CloudinaryUploadField label="Rate Card" value={form.rateCardUrl} onChange={url => setForm({...form, rateCardUrl: url})} placeholder="https://example.com/rate-card.pdf" folder="guestly/service-profiles/rate-cards" accept=".pdf,image/*" preview="file" />
+              <Input label="Portfolio URL" type="url" value={form.portfolioUrl} onChange={e => setForm({...form, portfolioUrl: e.target.value})} placeholder="https://example.com/portfolio" leftIcon={<LinkIcon className="w-4 h-4" />} />
+            </div>
+            <Input label="Business Social Media URL" type="url" value={form.socialUrl} onChange={e => setForm({...form, socialUrl: e.target.value})} placeholder="https://instagram.com/yourbusiness" leftIcon={<Share2 className="w-4 h-4" />} />
           </div>
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-dark border-b border-gray-100 pb-2">Tags</h2>

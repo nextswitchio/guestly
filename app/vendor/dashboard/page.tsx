@@ -34,7 +34,7 @@ export default function VendorDashboardPage() {
         const invitesData = await invitesRes.json();
         if (invitesData.success) {
           const invites = invitesData.data || [];
-          const pending = invites.filter((i: any) => i.status === "invited");
+          const pending = invites.filter((i: any) => i.status === "pending");
           setPendingInvitations(pending);
           const accepted = invites.filter((i: any) => i.status === "accepted");
           const now = new Date();
@@ -50,9 +50,9 @@ export default function VendorDashboardPage() {
     finally { setLoading(false); }
   };
 
-  const respond = async (eventId: string, status: "accepted" | "declined") => {
+  const respond = async (invitationId: string, status: "accepted" | "declined") => {
     try {
-      await fetch(`/api/vendors/invitations/${eventId}/respond`, {
+      await fetch(`/api/vendors/invitations/${invitationId}/respond`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
@@ -135,7 +135,7 @@ export default function VendorDashboardPage() {
               </div>
               <div className="space-y-3">
                 {pendingInvitations.slice(0, 3).map((inv: any) => (
-                  <div key={inv.eventId} className="flex items-start gap-4 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
+                  <div key={inv.id} className="flex items-start gap-4 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
                     {inv.event?.image && <img src={inv.event.image} alt="" className="h-16 w-16 rounded-xl object-cover shrink-0" />}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
@@ -147,8 +147,8 @@ export default function VendorDashboardPage() {
                         <span className="shrink-0 rounded-full bg-warning-100 px-2.5 py-0.5 text-xs font-semibold text-warning-700">Pending</span>
                       </div>
                       <div className="mt-3 flex gap-2">
-                        <Button size="sm" onClick={() => respond(inv.eventId, "accepted")}>Accept</Button>
-                        <Button size="sm" variant="outline" onClick={() => respond(inv.eventId, "declined")}>Decline</Button>
+                        <Button size="sm" onClick={() => respond(inv.id, "accepted")}>Accept</Button>
+                        <Button size="sm" variant="outline" onClick={() => respond(inv.id, "declined")}>Decline</Button>
                       </div>
                     </div>
                   </div>

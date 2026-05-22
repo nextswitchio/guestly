@@ -227,9 +227,15 @@ export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const sidebar = useSidebar();
+  const [isHydrated, setIsHydrated] = React.useState(false);
   const collapsed = sidebar ? !sidebar.open : false;
   const mobileOpen = sidebar?.openMobile ?? false;
   const setOpenMobile = sidebar?.setOpenMobile;
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setIsHydrated(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   React.useEffect(() => {
     setOpenMobile?.(false);
@@ -316,6 +322,30 @@ export default function AdminSidebar() {
     </nav>
   );
 
+  const navPlaceholder = (
+    <nav className="flex flex-col gap-4" aria-hidden="true">
+      {Array.from({ length: 7 }).map((_, sectionIndex) => (
+        <div key={`nav-placeholder-${sectionIndex}`}>
+          {collapsed ? (
+            <div className="mb-1.5 flex justify-center">
+              <div className="h-5 w-5 rounded-md bg-white/5" />
+            </div>
+          ) : (
+            <div className="mb-2 ml-3 h-2 w-16 rounded bg-white/5" />
+          )}
+          <div className="flex flex-col gap-1">
+            {Array.from({ length: sectionIndex === 0 ? 2 : sectionIndex === 6 ? 1 : 3 }).map((_, itemIndex) => (
+              <div
+                key={`nav-placeholder-${sectionIndex}-${itemIndex}`}
+                className={`min-h-[44px] rounded-xl bg-white/[0.03] ${collapsed ? "mx-auto w-11" : "w-full"}`}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
+
   const sidebarContent = (
     <>
       {/* Header */}
@@ -333,7 +363,7 @@ export default function AdminSidebar() {
 
       {/* Nav */}
       <div className={`flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 ${collapsed ? "px-2" : "px-3"}`}>
-        {navContent}
+        {isHydrated ? navContent : navPlaceholder}
       </div>
 
       {/* Footer */}

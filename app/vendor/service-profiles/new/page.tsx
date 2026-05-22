@@ -1,10 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, ArrowLeft, AlertCircle, Plus, X } from 'lucide-react';
+import { Save, ArrowLeft, AlertCircle, Plus, X, Link as LinkIcon, Share2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 const CATEGORIES = [
   { value: 'Security', label: 'Security' }, { value: 'Sound', label: 'Sound & Audio' },
@@ -22,7 +23,22 @@ export default function NewServiceProfilePage() {
   const [error, setError] = useState('');
   const [atLimit, setAtLimit] = useState(false);
   const [tagInput, setTagInput] = useState('');
-  const [form, setForm] = useState({ name: '', description: '', category: '', subcategory: '', pricing: '', pricingModel: 'fixed', minBudget: '', maxBudget: '', tags: [] as string[], images: [] as string[] });
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    category: '',
+    subcategory: '',
+    pricing: '',
+    pricingModel: 'fixed',
+    minBudget: '',
+    maxBudget: '',
+    bannerImage: '',
+    rateCardUrl: '',
+    portfolioUrl: '',
+    socialUrl: '',
+    tags: [] as string[],
+    images: [] as string[],
+  });
 
   useEffect(() => {
     fetch('/api/vendor/subscription').then(r => r.json()).then(d => {
@@ -114,6 +130,15 @@ export default function NewServiceProfilePage() {
               <Input label="Min Budget (₦)" type="number" value={form.minBudget} onChange={e => setForm({...form, minBudget: e.target.value})} placeholder="50000" />
               <Input label="Max Budget (₦)" type="number" value={form.maxBudget} onChange={e => setForm({...form, maxBudget: e.target.value})} placeholder="200000" />
             </div>
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-dark border-b border-gray-100 pb-2">Media & Links</h2>
+            <CloudinaryUploadField label="Banner Image" value={form.bannerImage} onChange={url => setForm({...form, bannerImage: url})} placeholder="https://example.com/service-banner.jpg" folder="guestly/service-profiles/banners" accept="image/*" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CloudinaryUploadField label="Rate Card" value={form.rateCardUrl} onChange={url => setForm({...form, rateCardUrl: url})} placeholder="https://example.com/rate-card.pdf" folder="guestly/service-profiles/rate-cards" accept=".pdf,image/*" preview="file" />
+              <Input label="Portfolio URL" type="url" value={form.portfolioUrl} onChange={e => setForm({...form, portfolioUrl: e.target.value})} placeholder="https://example.com/portfolio" leftIcon={<LinkIcon className="w-4 h-4" />} />
+            </div>
+            <Input label="Business Social Media URL" type="url" value={form.socialUrl} onChange={e => setForm({...form, socialUrl: e.target.value})} placeholder="https://instagram.com/yourbusiness" leftIcon={<Share2 className="w-4 h-4" />} />
           </div>
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-dark border-b border-gray-100 pb-2">Tags</h2>

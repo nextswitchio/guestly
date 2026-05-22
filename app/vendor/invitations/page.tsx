@@ -16,6 +16,12 @@ function timeAgo(ts: number): string {
   return `${Math.floor(d / 30)}mo ago`;
 }
 
+function invitationTimestamp(invitation: any): number {
+  const raw = invitation.created_at ?? invitation.createdAt ?? invitation.invitedAt;
+  const timestamp = typeof raw === "number" ? raw : new Date(raw).getTime();
+  return Number.isFinite(timestamp) ? timestamp : Date.now();
+}
+
 export default function VendorInvitationsPage() {
   const [invitations, setInvitations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,10 +38,10 @@ export default function VendorInvitationsPage() {
     finally { setLoading(false); }
   };
 
-  const respond = async (eventId: string, status: "accepted" | "declined") => {
-    setResponding(eventId);
+  const respond = async (invitationId: string, status: "accepted" | "declined") => {
+    setResponding(invitationId);
     try {
-      await fetch(`/api/vendors/invitations/${eventId}/respond`, {
+      await fetch(`/api/vendors/invitations/${invitationId}/respond`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
@@ -44,8 +50,8 @@ export default function VendorInvitationsPage() {
     finally { setResponding(null); }
   };
 
-  const pending = invitations.filter((i: any) => i.status === "invited");
-  const responded = invitations.filter((i: any) => i.status !== "invited");
+  const pending = invitations.filter((i: any) => i.status === "pending");
+  const responded = invitations.filter((i: any) => i.status !== "pending");
 
   if (loading) {
     return (
@@ -78,7 +84,7 @@ export default function VendorInvitationsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {pending.map((inv: any) => (
-              <Card key={inv.eventId} className="p-0 overflow-hidden flex flex-col">
+              <Card key={inv.id} className="p-0 overflow-hidden flex flex-col">
                 {inv.event?.image && (
                   <div className="h-40 overflow-hidden">
                     <img src={inv.event.image} alt="" className="w-full h-full object-cover" />
@@ -101,12 +107,12 @@ export default function VendorInvitationsPage() {
                       </div>
                     </div>
                   )}
-                  <p className="text-xs text-gray-400 mb-4">Invited {timeAgo(inv.invitedAt)}</p>
+                  <p className="text-xs text-gray-400 mb-4">Invited {timeAgo(invitationTimestamp(inv))}</p>
                   <div className="mt-auto flex gap-2">
-                    <Button size="sm" className="flex-1" disabled={responding === inv.eventId} onClick={() => respond(inv.eventId, "accepted")}>
-                      {responding === inv.eventId ? "..." : "Accept"}
+                    <Button size="sm" className="flex-1" disabled={responding === inv.id} onClick={() => respond(inv.id, "accepted")}>
+                      {responding === inv.id ? "..." : "Accept"}
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1" disabled={responding === inv.eventId} onClick={() => respond(inv.eventId, "declined")}>
+                    <Button size="sm" variant="outline" className="flex-1" disabled={responding === inv.id} onClick={() => respond(inv.id, "declined")}>
                       Decline
                     </Button>
                   </div>
@@ -124,7 +130,7 @@ export default function VendorInvitationsPage() {
             {responded.map((inv: any) => {
               const ok = inv.status === "accepted";
               return (
-                <Card key={inv.eventId} className="p-5 opacity-75">
+                <Card key={inv.id} className="p-5 opacity-75">
                   <div className="flex items-center gap-2 mb-2">
                     <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full ${ok ? "bg-lime/10 text-dark" : "bg-red-50 text-red-600"}`}>
                       {ok ? "Accepted" : "Declined"}

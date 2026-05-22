@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BACKEND_URL } from "@/lib/api/client";
+import { fromBackendServiceProfile, toBackendServiceProfile } from "@/lib/api/serviceProfiles";
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,16 +9,21 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/me`, {
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/service-profiles`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
     if (!res.ok) {
-      return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
+      const error = await res.json().catch(() => ({ detail: "Failed to fetch service profiles" }));
+      return NextResponse.json({ error: error.detail }, { status: res.status });
     }
 
-    const vendor = await res.json();
-    return NextResponse.json({ ok: true, profiles: vendor.service_profiles || [] });
+    const data = await res.json();
+    const profiles = Array.isArray(data) ? data : data.profiles || [];
+    return NextResponse.json({
+      ok: true,
+      profiles: profiles.map(fromBackendServiceProfile),
+    });
   } catch {
     return NextResponse.json({ error: "Failed to fetch service profiles" }, { status: 500 });
   }
@@ -30,24 +36,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const vendorRes = await fetch(`${BACKEND_URL}/api/v1/vendors/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!vendorRes.ok) {
-      return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
-    }
-
-    const vendor = await vendorRes.json();
     const body = await req.json();
+    const payload = toBackendServiceProfile(body);
 
-    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/${vendor.id}/services`, {
+    const res = await fetch(`${BACKEND_URL}/api/v1/vendors/service-profiles`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
@@ -56,7 +54,7 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await res.json();
-    return NextResponse.json({ ok: true, profile: data }, { status: 201 });
+    return NextResponse.json({ ok: true, profile: fromBackendServiceProfile(data) }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Failed to create service profile" }, { status: 500 });
   }

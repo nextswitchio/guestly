@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, RefreshCw, Edit3, EyeOff, Eye, Trash2, Package } from 'lucide-react';
+import { Plus, RefreshCw, Edit3, EyeOff, Eye, Trash2, Package, FileText, ExternalLink, Link as LinkIcon, Share2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
@@ -79,6 +79,13 @@ export default function ServiceProfilesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {profiles.map((p: any) => (
             <Card key={p.id} className="p-5 relative overflow-hidden">
+              {(p.bannerImage || p.images?.[0]) && (
+                <img
+                  src={p.bannerImage || p.images[0]}
+                  alt=""
+                  className="mb-4 h-32 w-full rounded-xl object-cover bg-gray-100"
+                />
+              )}
               <div className="flex items-start justify-between mb-3">
                 <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${cats[p.category] || 'bg-gray-100 text-gray-600'}`}>{p.category}</span>
                 <button onClick={() => handleToggle(p.id, p.isActive)} className={`p-1.5 rounded-lg transition-colors ${p.isActive ? 'text-lime bg-lime/10 hover:bg-lime/20' : 'text-gray-300 bg-gray-50 hover:bg-gray-100'}`}>
@@ -93,6 +100,31 @@ export default function ServiceProfilesPage() {
               </div>
               {p.tags?.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-4">{p.tags.map((t: string, i: number) => <span key={i} className="px-2 py-0.5 bg-gray-50 text-gray-500 rounded-md text-xs">{t}</span>)}</div>
+              )}
+              {(p.rateCardUrl || p.portfolioUrl || p.socialUrl) && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {p.rateCardUrl && (
+                    <a href={p.rateCardUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-dark hover:bg-gray-50">
+                      <FileText className="w-3.5 h-3.5" />
+                      Rate card
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                  {p.portfolioUrl && (
+                    <a href={p.portfolioUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-dark hover:bg-gray-50">
+                      <LinkIcon className="w-3.5 h-3.5" />
+                      Portfolio
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                  {p.socialUrl && (
+                    <a href={p.socialUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-dark hover:bg-gray-50">
+                      <Share2 className="w-3.5 h-3.5" />
+                      Social
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
               )}
               <div className="mb-1">
                 <span className={`inline-flex items-center gap-1 text-xs font-medium ${p.isActive ? 'text-dark' : 'text-gray-400'}`}>

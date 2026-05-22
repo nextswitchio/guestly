@@ -26,12 +26,8 @@ export function BarChart({
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    if (animated) {
-      const timer = setTimeout(() => setMounted(true), 100);
-      return () => clearTimeout(timer);
-    } else {
-      setMounted(true);
-    }
+    const timer = setTimeout(() => setMounted(true), animated ? 100 : 0);
+    return () => clearTimeout(timer);
   }, [animated]);
 
   if (data.length === 0) {
@@ -67,7 +63,10 @@ export function BarChart({
 
   // Y-axis ticks
   const tickCount = 4;
-  const yTicks = Array.from({ length: tickCount + 1 }, (_, i) => Math.round((maxVal / tickCount) * i));
+  const yTicks = Array.from({ length: tickCount + 1 }, (_, index) => ({
+    id: `bar-y-tick-${index}`,
+    value: Math.round((maxVal / tickCount) * index),
+  }));
 
   function y(v: number) {
     return padding.top + chartH - (v / (maxVal || 1)) * chartH;
@@ -101,12 +100,12 @@ export function BarChart({
 
         {/* Grid lines */}
         {yTicks.map((tick) => (
-          <g key={tick}>
+          <g key={tick.id}>
             <line
               x1={padding.left}
-              y1={y(tick)}
+              y1={y(tick.value)}
               x2={width - padding.right}
-              y2={y(tick)}
+              y2={y(tick.value)}
               stroke="var(--surface-border)"
               strokeWidth={1}
               strokeDasharray="2 4"
@@ -114,13 +113,13 @@ export function BarChart({
             />
             <text 
               x={padding.left - 8} 
-              y={y(tick) + 4} 
+              y={y(tick.value) + 4} 
               textAnchor="end" 
               className="fill-[var(--foreground-muted)]" 
               fontSize={10}
               fontWeight={500}
             >
-              {tick >= 1000 ? `${(tick / 1000).toFixed(1)}k` : tick}
+              {tick.value >= 1000 ? `${(tick.value / 1000).toFixed(1)}k` : tick.value}
             </text>
           </g>
         ))}

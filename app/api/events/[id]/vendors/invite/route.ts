@@ -13,7 +13,7 @@ export async function POST(
 
     const { id: eventId } = await params;
     const body = await req.json();
-    const { vendor_user_id } = body;
+    const vendor_user_id = body.vendor_user_id || body.vendorUserId;
 
     if (!vendor_user_id) {
       return NextResponse.json({ error: "vendor_user_id is required" }, { status: 400 });

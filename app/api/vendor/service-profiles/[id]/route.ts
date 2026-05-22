@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BACKEND_URL } from "@/lib/api/client";
+import { fromBackendServiceProfile, toBackendServiceProfile } from "@/lib/api/serviceProfiles";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     const data = await res.json();
-    return NextResponse.json({ ok: true, profile: data });
+    return NextResponse.json({ ok: true, profile: fromBackendServiceProfile(data) });
   } catch {
     return NextResponse.json({ error: "Failed to fetch service profile" }, { status: 500 });
   }
@@ -29,6 +30,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params;
     const body = await req.json();
+    const payload = toBackendServiceProfile(body);
 
     const res = await fetch(`${BACKEND_URL}/api/v1/vendors/service-profiles/${id}`, {
       method: "PUT",
@@ -36,7 +38,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
@@ -45,7 +47,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     const data = await res.json();
-    return NextResponse.json({ ok: true, profile: data });
+    return NextResponse.json({ ok: true, profile: fromBackendServiceProfile(data) });
   } catch {
     return NextResponse.json({ error: "Failed to update service profile" }, { status: 500 });
   }
@@ -79,6 +81,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const { id } = await params;
     const body = await req.json();
+    const payload = toBackendServiceProfile(body);
 
     const res = await fetch(`${BACKEND_URL}/api/v1/vendors/service-profiles/${id}`, {
       method: "PATCH",
@@ -86,7 +89,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
@@ -95,7 +98,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     const data = await res.json();
-    return NextResponse.json({ ok: true, profile: data });
+    return NextResponse.json({ ok: true, profile: fromBackendServiceProfile(data) });
   } catch {
     return NextResponse.json({ error: "Failed to update service profile" }, { status: 500 });
   }

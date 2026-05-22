@@ -29,12 +29,8 @@ export function LineChart({
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    if (animated) {
-      const timer = setTimeout(() => setMounted(true), 200);
-      return () => clearTimeout(timer);
-    } else {
-      setMounted(true);
-    }
+    const timer = setTimeout(() => setMounted(true), animated ? 200 : 0);
+    return () => clearTimeout(timer);
   }, [animated]);
 
   if (data.length === 0) {
@@ -67,20 +63,15 @@ export function LineChart({
 
   // Y-axis ticks
   const tickCount = 4;
-  const yTicks = Array.from({ length: tickCount + 1 }, (_, i) => minVal + (range / tickCount) * i);
+  const yTicks = Array.from({ length: tickCount + 1 }, (_, index) => ({
+    id: `line-y-tick-${index}`,
+    value: minVal + (range / tickCount) * index,
+  }));
 
   // X-axis labels (show ~5)
   const xStep = Math.max(1, Math.floor(data.length / 5));
 
-  // Animation path for line drawing
-  const pathLength = React.useMemo(() => {
-    if (typeof document !== 'undefined') {
-      const tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      tempPath.setAttribute('d', linePath);
-      return tempPath.getTotalLength();
-    }
-    return 1000; // fallback
-  }, [linePath]);
+  const pathLength = 1000;
 
   return (
     <div className="relative">
@@ -114,12 +105,12 @@ export function LineChart({
 
         {/* Grid lines */}
         {yTicks.map((tick) => (
-          <g key={tick}>
+          <g key={tick.id}>
             <line
               x1={padding.left}
-              y1={y(tick)}
+              y1={y(tick.value)}
               x2={width - padding.right}
-              y2={y(tick)}
+              y2={y(tick.value)}
               stroke="var(--surface-border)"
               strokeWidth={1}
               strokeDasharray="2 4"
@@ -127,13 +118,13 @@ export function LineChart({
             />
             <text 
               x={padding.left - 8} 
-              y={y(tick) + 4} 
+              y={y(tick.value) + 4} 
               textAnchor="end" 
               className="fill-[var(--foreground-muted)]" 
               fontSize={10}
               fontWeight={500}
             >
-              {tick >= 1000 ? `${(tick / 1000).toFixed(1)}k` : Math.round(tick)}
+              {tick.value >= 1000 ? `${(tick.value / 1000).toFixed(1)}k` : Math.round(tick.value)}
             </text>
           </g>
         ))}

@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  getPlatformMetrics, 
-  getPlatformGrowthData, 
-  getTopPerformingEvents,
-  getRevenueByCategory,
-  getActiveUsersCount 
-} from '@/lib/store';
+import { BACKEND_URL } from '@/lib/api/client';
 
 export async function GET(request: NextRequest) {
   try {
-    // Check if user is admin (simplified check)
     const role = request.cookies.get('role')?.value;
-    if (role !== 'admin') {
+    const token = request.cookies.get('access_token')?.value;
+    if (role !== 'admin' || !token) {
       return NextResponse.json(
         { success: false, error: { code: 'UNAUTHORIZED', message: 'Admin access required' } },
         { status: 403 }
@@ -21,31 +15,39 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const period = (searchParams.get('period') as 'day' | 'week' | 'month' | 'year') || 'month';
 
-    // Get platform metrics
-    const metrics = getPlatformMetrics(period);
-    
-    // Get growth data for charts
-    const growthData = getPlatformGrowthData(period);
-    
-    // Get top performing events
-    const topEvents = getTopPerformingEvents(5);
-    
-    // Get revenue by category
-    const categoryRevenue = getRevenueByCategory();
-    
-    // Get active users count
-    const activeUsers = getActiveUsersCount();
+    const response = await fetch(`${BACKEND_URL}/api/v1/admin/analytics?period=${period}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const analytics = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      return NextResponse.json(analytics, { status: response.status });
+    }
 
     return NextResponse.json({
       success: true,
       data: {
         metrics: {
-          ...metrics,
-          activeUsers,
+          totalEvents: analytics.overview?.totalEvents ?? 0,
+          totalUsers: analytics.overview?.totalUsers ?? 0,
+          totalRevenue: analytics.overview?.totalRevenue ?? 0,
+          totalCommission: analytics.overview?.totalCommission ?? 0,
+          activeUsers: analytics.overview?.activeUsers ?? 0,
+          activeOrganizers: analytics.overview?.organizers ?? 0,
+          activeVendors: analytics.overview?.vendors ?? 0,
+          growthTrends: analytics.growth ?? {},
         },
-        growthData,
-        topEvents,
-        categoryRevenue,
+        growthData: (analytics.trends?.revenue ?? []).map((point: { label: string; value: number }, index: number) => ({
+          label: point.label,
+          revenue: point.value,
+          users: analytics.trends?.users?.[index]?.value ?? 0,
+          events: analytics.trends?.events?.[index]?.value ?? 0,
+        })),
+        topEvents: analytics.reports?.topEvents ?? [],
+        categoryRevenue: (analytics.reports?.categoryPerformance ?? []).map((item: { category: string; revenue: number }) => ({
+          category: item.category,
+          revenue: item.revenue,
+        })),
       }
     });
   } catch (error) {
