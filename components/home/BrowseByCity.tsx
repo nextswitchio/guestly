@@ -7,6 +7,7 @@ import {
   useTransform,
   type Variants,
 } from "framer-motion";
+import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import Heading from "@/components/Heading";
 import { getImageSrc } from "@/utils/imageUtils";
@@ -31,7 +32,14 @@ const cardVariants: Variants = {
   },
 };
 
-function CityCard({ city }: { city: (typeof cities)[0] }) {
+type CityCardData = {
+  name: string;
+  tagline: string;
+  image: string;
+  slug?: string;
+};
+
+function CityCard({ city }: { city: CityCardData }) {
   const ref = useRef<HTMLDivElement>(null);
 
   const x = useMotionValue(0);
@@ -71,7 +79,7 @@ function CityCard({ city }: { city: (typeof cities)[0] }) {
       }}
       className="group relative cursor-pointer"
     >
-      <div className="relative h-47 sm:h-85.5 rounded-xl overflow-hidden">
+      <div className="relative h-56 sm:h-80 rounded-xl overflow-hidden">
         {/* Background Image with parallax */}
         <motion.div
           className="absolute inset-0"
@@ -131,7 +139,9 @@ export function BrowseByCity() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  const [featuredCities, setFeaturedCities] = useState(cities);
+  const [featuredCities, setFeaturedCities] = useState<CityCardData[]>(
+    cities.map(c => ({ ...c, slug: c.name.toLowerCase() })),
+  );
 
   const updateScrollState = () => {
     if (!scrollRef.current) return;
@@ -158,11 +168,13 @@ export function BrowseByCity() {
           .filter(city => city.isActive && city.isFeatured)
           .map(city => ({
             name: city.name,
+            slug: city.slug,
             tagline: fallbackTaglines.get(city.name) || `${city.countryName} events and experiences`,
             image: city.image || `${city.slug}.jpg`,
           }));
         setFeaturedCities(items.length ? items : DEFAULT_PLATFORM_CATALOG.cities.filter(city => city.isFeatured).map(city => ({
           name: city.name,
+          slug: city.slug,
           tagline: fallbackTaglines.get(city.name) || `${city.countryName} events and experiences`,
           image: city.image || `${city.slug}.jpg`,
         })));
@@ -236,7 +248,9 @@ export function BrowseByCity() {
                 key={city.name}
                 className="snap-start shrink-0 w-[70vw] sm:w-[45vw] md:w-[30vw] lg:w-[23.5%]"
               >
-                <CityCard city={city} />
+                <Link href={`/cities/${city.slug || city.name.toLowerCase()}`}>
+                  <CityCard city={city} />
+                </Link>
               </div>
             ))}
           </motion.div>

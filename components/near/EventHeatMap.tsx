@@ -3,7 +3,8 @@ import { Flame } from 'lucide-react';
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Event } from "@/lib/events";
-import { CITY_COORDS, NEIGHBORHOODS, type City, type Neighborhood } from "@/features/geo/cities";
+import { CITY_COORDS, NEIGHBORHOODS, type City } from "@/features/geo/cities";
+
 
 // Dynamically import map components to avoid SSR issues
 const MapContainer = dynamic(
@@ -30,20 +31,18 @@ type HeatPoint = {
 
 export default function EventHeatMap({ events, city, onNeighborhoodClick }: EventHeatMapProps) {
   const [isClient, setIsClient] = useState(false);
-  const [L, setL] = useState<any>(null);
+  const [heatReady, setHeatReady] = useState(false);
   const [heatLayer, setHeatLayer] = useState<any>(null);
   const [mapInstance, setMapInstance] = useState<any>(null);
 
   useEffect(() => {
     setIsClient(true);
-    // Import Leaflet library and heat map plugin
-    Promise.all([
-      import("leaflet"),
-      import("leaflet/dist/leaflet.css" as any),
-      import("leaflet.heat" as any),
-    ]).then(([leaflet]) => {
-      setL(leaflet.default);
-    });
+    import("leaflet").then((leaflet) => {
+      const L = leaflet.default;
+      // leaflet.heat expects L as a global — make it available before import
+      (window as any).L = L;
+      return import("leaflet.heat" as any);
+    }).then(() => setHeatReady(true));
   }, []);
 
   // Calculate event density by neighborhood
@@ -87,7 +86,7 @@ export default function EventHeatMap({ events, city, onNeighborhoodClick }: Even
 
   // Update heat layer when data changes
   useEffect(() => {
-    if (!L || !mapInstance || !isClient) return;
+    if (!heatReady || !mapInstance || !isClient) return;
 
     // Remove existing heat layer
     if (heatLayer) {
@@ -101,7 +100,7 @@ export default function EventHeatMap({ events, city, onNeighborhoodClick }: Even
 
     if (heatMapData.length > 0) {
       // @ts-ignore - leaflet.heat types
-      const newHeatLayer = L.heatLayer(heatMapData, {
+      const newHeatLayer = (window as any).L.heatLayer(heatMapData, {
         radius: 35,
         blur: 25,
         maxZoom: 13,
@@ -117,11 +116,11 @@ export default function EventHeatMap({ events, city, onNeighborhoodClick }: Even
 
       setHeatLayer(newHeatLayer);
     }
-  }, [L, mapInstance, heatData, isClient]);
+  }, [heatReady, mapInstance, heatData, isClient]);
 
   const mapCenter = CITY_COORDS[city];
 
-  if (!isClient || !L) {
+  if (!isClient || !heatReady) {
     return (
       <div className="h-[500px] w-full rounded-xl bg-[var(--surface-card)] border border-[var(--surface-border)] flex items-center justify-center">
         <div className="text-center">

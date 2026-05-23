@@ -97,8 +97,9 @@ export default function FraudDetectionAlerts() {
         // Refresh data after running detection
         await Promise.all([fetchStats(), fetchAlerts()]);
         
-        if (result.data.newAlerts.length > 0) {
-          alert(`Fraud detection complete. Found ${result.data.newAlerts.length} new alerts.`);
+        const newAlerts = result.data?.newAlerts ?? [];
+        if (newAlerts.length > 0) {
+          alert(`Fraud detection complete. Found ${newAlerts.length} new alerts.`);
         } else {
           alert('Fraud detection complete. No new alerts found.');
         }

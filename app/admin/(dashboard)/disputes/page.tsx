@@ -50,7 +50,7 @@ export default function DisputesPage() {
       const response = await fetch(`/api/admin/disputes?${params}`);
       if (response.ok) {
         const data = await response.json();
-        setDisputes(data.data);
+        setDisputes(data.data ?? []);
       }
     } catch (error) {
       console.error('Failed to fetch disputes:', error);

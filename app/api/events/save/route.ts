@@ -3,7 +3,7 @@ import { fetchBackendJson } from "@/lib/api/proxy";
 
 export async function GET(req: NextRequest) {
   const { data, status, ok } = await fetchBackendJson(req, "/api/v1/events/bookmarks");
-  if (!ok) return NextResponse.json(data, { status });
+  if (!ok) return NextResponse.json({ ok: false, data: [] });
   return NextResponse.json({ ok: true, data });
 }
 

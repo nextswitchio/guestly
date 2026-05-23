@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Icon from "@/components/ui/Icon";
+import { slugify } from "@/lib/utils";
 
 export type EventCardProps = {
   id: string;
@@ -25,7 +26,9 @@ export type EventCardProps = {
 };
 
 export default function EventCard(props: EventCardProps) {
-  const formattedDate = new Date(props.date).toLocaleDateString("en-GB", {
+  const eventDate = new Date(props.date);
+  const isPast = eventDate < new Date();
+  const formattedDate = eventDate.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -36,7 +39,7 @@ export default function EventCard(props: EventCardProps) {
 
   return (
     <Link
-      href={`/events/${props.id}`}
+      href={`/events/${slugify(props.title)}`}
       className="group relative flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-100 transition-all hover:-translate-y-1 hover:shadow-lg"
     >
       {/* Image */}
@@ -113,8 +116,12 @@ export default function EventCard(props: EventCardProps) {
 
         {/* Pseudo-Button */}
         <div className="mt-6 mt-auto pt-4 border-t border-slate-100">
-          <div className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white transition-all group-hover:bg-slate-800">
-            Get Tickets
+          <div className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all ${
+            isPast
+              ? "bg-slate-400 cursor-default"
+              : "bg-slate-900 group-hover:bg-slate-800"
+          }`}>
+            {isPast ? "View Event" : "Get Tickets"}
           </div>
         </div>
       </div>

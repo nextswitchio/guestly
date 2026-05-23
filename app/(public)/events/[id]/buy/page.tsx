@@ -4,10 +4,28 @@ import Link from "next/link";
 import TicketSelector from "@/components/tickets/TicketSelector";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useRouter } from "next/navigation";
+import { getEventById, getEventBySlug } from "@/lib/events";
 
 export default function BuyTickets({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
   const router = useRouter();
+  const event = getEventById(id) ?? getEventBySlug(id);
+  const isPast = event ? new Date(event.date) < new Date() : false;
+
+  React.useEffect(() => {
+    if (isPast) {
+      router.replace(`/events/${id}`);
+    }
+  }, [isPast, id, router]);
+
+  if (isPast) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p className="text-slate-500">This event has ended. Redirecting...</p>
+      </div>
+    );
+  }
+
   function onContinue(orderId: string) {
     router.replace(`/checkout?orderId=${orderId}`);
   }

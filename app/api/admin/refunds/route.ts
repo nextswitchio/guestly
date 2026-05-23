@@ -1,33 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BACKEND_URL } from "@/lib/api/client";
 
-function getAuthHeaders(req: NextRequest): Record<string, string> {
+function authHeaders(req: NextRequest): Record<string, string> {
   const token = req.cookies.get("access_token")?.value;
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+function requireAdmin(request: NextRequest) {
+  return request.cookies.get("role")?.value === "admin" && request.cookies.get("access_token")?.value;
 }
 
 export async function GET(req: NextRequest) {
+  if (!requireAdmin(req)) {
+    return NextResponse.json(
+      { success: false, error: { code: "UNAUTHORIZED", message: "Admin access required" } },
+      { status: 401 },
+    );
+  }
+
   const { searchParams } = req.nextUrl;
   const status = searchParams.get("status") || "";
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/withdrawals${status ? `?status_filter=${status}` : ""}`, {
-      headers: getAuthHeaders(req),
+      headers: authHeaders(req),
+      cache: "no-store",
     });
     const data = await res.json();
-    return NextResponse.json({ success: true, refunds: data }, { status: res.status });
+    return NextResponse.json(data, { status: res.status });
   } catch {
-    return NextResponse.json({ success: true, refunds: [] });
+    return NextResponse.json(
+      { success: false, error: { code: "BACKEND_ERROR", message: "Withdrawals backend unavailable" } },
+      { status: 502 },
+    );
   }
 }
 
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get("access_token")?.value;
+  if (!requireAdmin(req)) {
+    return NextResponse.json(
+      { success: false, error: { code: "UNAUTHORIZED", message: "Admin access required" } },
+      { status: 401 },
+    );
+  }
+
   const body = await req.json().catch(() => ({}));
   const { withdrawalId, approved } = body;
 
   if (!withdrawalId) {
-    return NextResponse.json({ error: "Withdrawal ID required" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: { code: "VALIDATION_ERROR", message: "Withdrawal ID required" } },
+      { status: 400 },
+    );
   }
 
   try {
@@ -35,12 +62,15 @@ export async function POST(req: NextRequest) {
       `${BACKEND_URL}/api/v1/admin/withdrawals/${withdrawalId}/process?approved=${approved}`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        headers: authHeaders(req),
       }
     );
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
   } catch {
-    return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
+    return NextResponse.json(
+      { success: false, error: { code: "BACKEND_ERROR", message: "Backend unavailable" } },
+      { status: 502 },
+    );
   }
 }

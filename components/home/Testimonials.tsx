@@ -26,6 +26,7 @@ export function Testimonials() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const active = testimonials[activeIndex];
 
@@ -48,6 +49,11 @@ export function Testimonials() {
   };
 
   const handleVideoEnd = () => {
+    setIsPlaying(false);
+  };
+
+  const handleVideoError = () => {
+    setVideoError(true);
     setIsPlaying(false);
   };
 
@@ -96,71 +102,81 @@ export function Testimonials() {
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="relative w-full h-88.5 md:h-125 max-w-md mx-auto lg:mx-0 rounded-2xl overflow-hidden bg-[#0B1D2E] shadow-2xl"
               >
-                {/* Video Element */}
-                <video
-                  ref={videoRef}
-                  src={active.video}
-                  poster={active.image}
-                  muted={isMuted}
-                  playsInline
-                  onEnded={handleVideoEnd}
-                  className="w-full h-full object-cover"
-                />
-
-                {/* Gradient overlay for text readability */}
-                <div className="absolute inset-0 bg-linear-to-t from-[#0B1D2E]/60 via-transparent to-transparent pointer-events-none" />
-
-                {/* Play/Pause Button Overlay */}
-                <motion.div
-                  className="absolute inset-0 flex items-center justify-center"
-                  initial={{ opacity: 1 }}
-                  animate={{ opacity: isPlaying ? 0 : 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={togglePlay}
-                    className="w-20 h-20 rounded-full bg-transparent backdrop-blur-sm flex items-center justify-center transition-colors cursor-pointer"
-                  >
-                    <PlayIcon />
-                  </motion.button>
-                </motion.div>
-
-                {/* Video Controls */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="absolute bottom-4 left-4 right-4 flex items-center justify-end"
-                >
-                  {/* Mute Toggle */}
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={toggleMute}
-                    className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors cursor-pointer"
-                  >
-                    {isMuted ? (
-                      <VolumeX size={18} className="text-white" />
-                    ) : (
-                      <Volume2 size={18} className="text-white" />
-                    )}
-                  </motion.button>
-                </motion.div>
-
-                {/* Loading State */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full opacity-0"
+                {videoError ? (
+                  <img
+                    src={active.image}
+                    alt={active.name}
+                    className="w-full h-full object-cover"
                   />
-                </div>
+                ) : (
+                  <>
+                    <video
+                      ref={videoRef}
+                      src={active.video}
+                      poster={active.image}
+                      muted={isMuted}
+                      playsInline
+                      onEnded={handleVideoEnd}
+                      onError={handleVideoError}
+                      className="w-full h-full object-cover"
+                    />
+
+                    {/* Gradient overlay for text readability */}
+                    <div className="absolute inset-0 bg-linear-to-t from-[#0B1D2E]/60 via-transparent to-transparent pointer-events-none" />
+
+                    {/* Play/Pause Button Overlay */}
+                    <motion.div
+                      className="absolute inset-0 flex items-center justify-center"
+                      initial={{ opacity: 1 }}
+                      animate={{ opacity: isPlaying ? 0 : 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={togglePlay}
+                        className="w-20 h-20 rounded-full bg-transparent backdrop-blur-sm flex items-center justify-center transition-colors cursor-pointer"
+                      >
+                        <PlayIcon />
+                      </motion.button>
+                    </motion.div>
+
+                    {/* Video Controls */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="absolute bottom-4 left-4 right-4 flex items-center justify-end"
+                    >
+                      {/* Mute Toggle */}
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={toggleMute}
+                        className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors cursor-pointer"
+                      >
+                        {isMuted ? (
+                          <VolumeX size={18} className="text-white" />
+                        ) : (
+                          <Volume2 size={18} className="text-white" />
+                        )}
+                      </motion.button>
+                    </motion.div>
+
+                    {/* Loading State */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full opacity-0"
+                      />
+                    </div>
+                  </>
+                )}
               </motion.div>
             </AnimatePresence>
           </motion.div>
@@ -214,6 +230,7 @@ export function Testimonials() {
                     onClick={() => {
                       setActiveIndex(i);
                       setIsPlaying(false);
+                      setVideoError(false);
                     }}
                     className={`relative rounded-full overflow-hidden transition-all duration-500 cursor-pointer
                     ${i === activeIndex ? "" : "opacity-50 hover:opacity-80"}`}

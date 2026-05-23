@@ -1,3 +1,5 @@
+import { slugify } from "./utils";
+
 export type EventType = "Physical" | "Virtual" | "Hybrid";
 
 export type StreamingProvider = "Zoom" | "Google Meet" | "YouTube Live" | "Vimeo" | "RTMP";
@@ -310,6 +312,14 @@ export function filterEvents(params: {
 
 export function getEventById(id: string) {
   return events.find((e) => e.id === id) || null;
+}
+
+export function getEventBySlug(slug: string) {
+  return events.find((e) => slugify(e.title) === slug) || null;
+}
+
+export function getEventSlug(event: { title: string; id: string }) {
+  return slugify(event.title);
 }
 
 function newId() {

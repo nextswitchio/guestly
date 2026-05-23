@@ -10,6 +10,16 @@ export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const eventId = searchParams.get("eventId");
   const ids = searchParams.get("ids");
+  const stats = searchParams.get("stats");
+
+  if (stats) {
+    return NextResponse.json({
+      totalProducts: 0,
+      unitsSold: 0,
+      revenue: 0,
+      bestSellers: [],
+    });
+  }
 
   if (ids) {
     return NextResponse.json({ success: true, products: [] });
@@ -20,8 +30,11 @@ export async function GET(req: NextRequest) {
       const res = await fetch(
         `${BACKEND_URL}/api/v1/merchandise/events/${eventId}/products?page=${searchParams.get("page") || 1}&page_size=${searchParams.get("page_size") || 20}`
       );
+      if (!res.ok) {
+        return NextResponse.json({ products: [], total: 0, page: 1, page_count: 1 });
+      }
       const data = await res.json();
-      return NextResponse.json(data, { status: res.status });
+      return NextResponse.json(data);
     } catch {
       return NextResponse.json({ products: [], total: 0, page: 1, page_count: 1 });
     }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Download, Calendar, Share2, Clock, Eye, Tag, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { slugify } from '@/lib/utils';
 
 interface BlogPost {
   id: string;
@@ -296,7 +297,7 @@ export function BlogPostContent({ slug }: { slug: string }) {
                   {featuredEvents.map(event => (
                     <Link
                       key={event.id}
-                      href={`/events/${event.id}`}
+                      href={`/events/${slugify(event.title)}`}
                       className="block group"
                     >
                       <div className="rounded-xl border border-slate-200 overflow-hidden hover:border-lime hover:shadow-md transition-all">
@@ -321,7 +322,7 @@ export function BlogPostContent({ slug }: { slug: string }) {
                             )}
                           </div>
                           <Button size="sm" className="w-full mt-3">
-                            Get Tickets
+                            {new Date(event.start_date) < new Date() ? "View Event" : "Get Tickets"}
                           </Button>
                         </div>
                       </div>

@@ -21,10 +21,10 @@ interface MerchandiseWidgetProps {
 }
 
 export function MerchandiseWidget({
-  totalProducts,
-  unitsSold,
-  revenue,
-  bestSellers,
+  totalProducts = 0,
+  unitsSold = 0,
+  revenue = 0,
+  bestSellers = [],
 }: MerchandiseWidgetProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-NG", {

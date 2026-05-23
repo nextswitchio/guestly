@@ -11,8 +11,10 @@ import EmptyState from "@/components/ui/EmptyState";
 import Button from "@/components/ui/Button";
 import { useScrollAnimation, useStaggeredAnimation } from "@/lib/hooks/useScrollAnimation";
 import type { CityStats } from "@/lib/store";
-import EventHeatMap from "@/components/near/EventHeatMap";
+import dynamic from "next/dynamic";
 import type { City } from "@/features/geo/cities";
+
+const EventHeatMap = dynamic(() => import("@/components/near/EventHeatMap"), { ssr: false });
 
 interface CityPageProps {
   params: Promise<{ city: string }>;
@@ -43,13 +45,21 @@ export default function CityHubPage({ params }: CityPageProps) {
       try {
         const resolvedParams = await params;
         const decodedCity = decodeURIComponent(resolvedParams.city);
-        setCityName(decodedCity);
+        setCityName(decodedCity.charAt(0).toUpperCase() + decodedCity.slice(1));
 
         // Fetch city statistics
-        const statsResponse = await fetch(`/api/cities/${encodeURIComponent(decodedCity)}/stats`);
+        const statsResponse = await fetch(`/api/cities/${encodeURIComponent(decodedCity.toLowerCase())}/stats`);
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
-          setStats(statsData.data);
+          const raw = statsData.data || {};
+          setStats({
+            city: raw.city ?? raw.name ?? decodedCity,
+            totalEvents: raw.totalEvents ?? raw.total_events ?? 0,
+            upcomingEvents: raw.upcomingEvents ?? raw.upcoming_events ?? 0,
+            totalAttendees: raw.totalAttendees ?? raw.total_attendees ?? 0,
+            popularCategories: raw.popularCategories ?? raw.popular_categories ?? [],
+            trendingEvents: raw.trendingEvents ?? raw.trending_events ?? [],
+          });
         }
 
         // Fetch city events
@@ -86,10 +96,18 @@ export default function CityHubPage({ params }: CityPageProps) {
     const interval = setInterval(async () => {
       try {
         setIsRefreshing(true);
-        const statsResponse = await fetch(`/api/cities/${encodeURIComponent(cityName)}/stats`);
+        const statsResponse = await fetch(`/api/cities/${encodeURIComponent(cityName.toLowerCase())}/stats`);
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
-          setStats(statsData.data);
+          const raw = statsData.data || {};
+          setStats({
+            city: raw.city ?? raw.name ?? cityName,
+            totalEvents: raw.totalEvents ?? raw.total_events ?? 0,
+            upcomingEvents: raw.upcomingEvents ?? raw.upcoming_events ?? 0,
+            totalAttendees: raw.totalAttendees ?? raw.total_attendees ?? 0,
+            popularCategories: raw.popularCategories ?? raw.popular_categories ?? [],
+            trendingEvents: raw.trendingEvents ?? raw.trending_events ?? [],
+          });
         }
       } catch (error) {
         console.error("Error refreshing city stats:", error);
@@ -104,24 +122,24 @@ export default function CityHubPage({ params }: CityPageProps) {
   // City-specific branding colors
   const cityColors: Record<string, { primary: string; gradient: string; accent: string }> = {
     Lagos: {
-      primary: "from-lime to-lime",
-      gradient: "bg-gradient-to-br from-lime to-lime",
+      primary: "from-navy-700 via-navy-700/95 to-lime",
+      gradient: "bg-gradient-to-br from-navy-700 via-navy-700/95 to-lime",
       accent: "text-lime",
     },
     Abuja: {
-      primary: "from-green-500 to-green-600",
-      gradient: "bg-gradient-to-br from-green-50 to-green-100",
-      accent: "text-green-600",
+      primary: "from-navy-700 via-navy-700/95 to-green-600",
+      gradient: "bg-gradient-to-br from-navy-700 via-navy-700/95 to-green-600",
+      accent: "text-green-500",
     },
     Accra: {
-      primary: "from-amber-500 to-amber-600",
-      gradient: "bg-gradient-to-br from-amber-50 to-amber-100",
-      accent: "text-amber-600",
+      primary: "from-navy-700 via-navy-700/95 to-amber-600",
+      gradient: "bg-gradient-to-br from-navy-700 via-navy-700/95 to-amber-600",
+      accent: "text-amber-500",
     },
     Nairobi: {
-      primary: "from-rose-500 to-rose-600",
-      gradient: "bg-gradient-to-br from-rose-50 to-rose-100",
-      accent: "text-rose-600",
+      primary: "from-navy-700 via-navy-700/95 to-rose-600",
+      gradient: "bg-gradient-to-br from-navy-700 via-navy-700/95 to-rose-600",
+      accent: "text-rose-500",
     },
   };
 
@@ -137,7 +155,7 @@ export default function CityHubPage({ params }: CityPageProps) {
             <div className="h-24 rounded-2xl bg-slate-200"></div>
             <div className="h-24 rounded-2xl bg-slate-200"></div>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="h-64 rounded-2xl bg-slate-200"></div>
             ))}
@@ -165,28 +183,32 @@ export default function CityHubPage({ params }: CityPageProps) {
       {/* City Hero Section */}
       <div
         ref={headerRef}
-        className={`mb-8 overflow-hidden rounded-2xl bg-gradient-to-br ${cityBranding.primary} p-4 sm:p-8 text-white shadow-lg transition-all duration-700 ${
+        className={`mb-8 overflow-hidden rounded-2xl bg-dark relative transition-all duration-700 ${
           headerVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
         }`}
       >
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 h-72 w-72 bg-lime/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 h-64 w-64 bg-lime/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
+        </div>
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between p-4 sm:p-8">
           <div>
-            <h1 className="mb-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="mb-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Events in {cityName}
             </h1>
-            <p className="text-lg text-white/90">
+            <p className="text-lg text-white/70">
               Discover amazing events happening in your city
             </p>
           </div>
           {stats && (
             <div className="flex gap-4">
               <div className="rounded-lg bg-white/10 px-4 py-2 backdrop-blur-sm">
-                <div className="text-2xl font-bold">{stats.upcomingEvents}</div>
-                <div className="text-sm text-white/80">Upcoming</div>
+                <div className="text-2xl font-bold text-white">{stats.upcomingEvents}</div>
+                <div className="text-sm text-white/60">Upcoming</div>
               </div>
               <div className="rounded-lg bg-white/10 px-4 py-2 backdrop-blur-sm">
-                <div className="text-2xl font-bold">{stats.totalEvents}</div>
-                <div className="text-sm text-white/80">Total Events</div>
+                <div className="text-2xl font-bold text-white">{stats.totalEvents}</div>
+                <div className="text-sm text-white/60">Total Events</div>
               </div>
             </div>
           )}
@@ -194,7 +216,7 @@ export default function CityHubPage({ params }: CityPageProps) {
       </div>
 
       {/* City Statistics */}
-      {stats && (
+      {stats && typeof stats.totalAttendees === "number" && (
         <div
           ref={statsRef}
           className={`mb-8 transition-all duration-700 delay-100 ${
@@ -202,7 +224,6 @@ export default function CityHubPage({ params }: CityPageProps) {
           }`}
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {/* Total Attendees */}
             <div className="rounded-2xl border border-slate-100 bg-white p-4 sm:p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
               <div className="mb-2 flex items-center gap-2">
                 <div className={`text-2xl ${cityBranding.accent}`}><Users className="h-4 w-4 inline-block" /></div>
@@ -213,28 +234,26 @@ export default function CityHubPage({ params }: CityPageProps) {
               </div>
             </div>
 
-            {/* Popular Categories */}
             <div className="rounded-2xl border border-slate-100 bg-white p-4 sm:p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
               <div className="mb-2 flex items-center gap-2">
                 <div className={`text-2xl ${cityBranding.accent}`}><Target className="h-4 w-4 inline-block" /></div>
                 <h3 className="text-sm font-medium text-slate-500">Top Category</h3>
               </div>
               <div className="text-2xl font-bold text-slate-900">
-                {stats.popularCategories[0]?.category || "N/A"}
+                {(stats.popularCategories ?? [])[0]?.category || "N/A"}
               </div>
               <div className="mt-1 text-sm text-slate-500">
-                {stats.popularCategories[0]?.count || 0} events
+                {(stats.popularCategories ?? [])[0]?.count || 0} events
               </div>
             </div>
 
-            {/* Trending */}
             <div className="rounded-2xl border border-slate-100 bg-white p-4 sm:p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
               <div className="mb-2 flex items-center gap-2">
                 <div className={`text-2xl ${cityBranding.accent}`}><Flame className="h-4 w-4 inline-block" /></div>
                 <h3 className="text-sm font-medium text-slate-500">Trending Events</h3>
               </div>
               <div className="text-3xl font-bold text-slate-900">
-                {stats.trendingEvents.length}
+                {(stats.trendingEvents ?? []).length}
               </div>
               <div className="mt-1 text-sm text-slate-500">Hot right now</div>
             </div>
@@ -243,7 +262,7 @@ export default function CityHubPage({ params }: CityPageProps) {
       )}
 
       {/* Category Distribution */}
-      {stats && stats.popularCategories.length > 0 && (
+      {stats && (stats.popularCategories ?? []).length > 0 && (
         <CategoryDistribution
           categories={stats.popularCategories}
           selectedCategory={selectedCategory}
@@ -299,7 +318,7 @@ export default function CityHubPage({ params }: CityPageProps) {
           {showHeatMap && (
             <EventHeatMap
               events={events}
-              city={cityName as City}
+                city={(cityName.charAt(0).toUpperCase() + cityName.slice(1)) as City}
               onNeighborhoodClick={(neighborhood) => {
                 setSelectedNeighborhood(neighborhood);
                 // Scroll to events section
@@ -327,7 +346,7 @@ export default function CityHubPage({ params }: CityPageProps) {
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {stats.trendingEvents.slice(0, 3).map((eventId) => {
               const event = events.find((e) => e.id === eventId);
               if (!event) return null;
@@ -390,7 +409,7 @@ export default function CityHubPage({ params }: CityPageProps) {
             </div>
           </div>
         ) : (
-          <div ref={eventsGridRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div ref={eventsGridRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {events.map((event, index) => (
               <div
                 key={event.id}
@@ -414,18 +433,29 @@ export default function CityHubPage({ params }: CityPageProps) {
         )}
       </div>
 
-      {/* City-specific branding footer */}
-      <div className={`mt-8 sm:mt-12 rounded-xl ${cityBranding.gradient} p-4 sm:p-6 text-center`}>
-        <h3 className={`mb-2 text-xl font-bold ${cityBranding.accent}`}>
-          Love events in {cityName}?
-        </h3>
-        <p className="mb-4 text-slate-600">
-          Get notified when new events are added to your city
-        </p>
-        <Button variant="primary" href="/register">
-          Create Account
-        </Button>
-      </div>
+      {/* City-specific CTA */}
+      <section className="mt-8 sm:mt-12 rounded-2xl bg-dark relative overflow-hidden py-14 px-6 sm:py-20 sm:px-12 text-center">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 h-72 w-72 bg-lime/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 h-64 w-64 bg-lime/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
+        </div>
+        <div className="relative max-w-2xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
+            Love events in {cityName}?
+          </h2>
+          <p className="mt-4 text-lg text-white/60">
+            Get notified when new events drop, grab early-bird tickets, and never miss what matters in your city.
+          </p>
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <Button variant="primary" href="/register">
+              Create Free Account
+            </Button>
+            <Button variant="white" href="/explore">
+              Browse Events
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

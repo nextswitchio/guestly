@@ -30,6 +30,16 @@ function toBackendPayload(body: Record<string, unknown>) {
   };
 }
 
+async function proxyToBackend(request: NextRequest, path: string, init?: RequestInit) {
+  const res = await fetch(`${BACKEND_URL}${path}`, {
+    headers: authHeaders(request),
+    cache: "no-store",
+    ...init,
+  });
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.status });
+}
+
 export async function GET(request: NextRequest) {
   if (!requireAdmin(request)) {
     return NextResponse.json(
@@ -43,49 +53,30 @@ export async function GET(request: NextRequest) {
 
   try {
     if (action === "settings") {
-      const response = await fetch(`${BACKEND_URL}/api/v1/admin/featured/settings`, {
-        headers: authHeaders(request),
-        cache: "no-store",
-      });
-      const data = await response.json();
-      return NextResponse.json({ success: response.ok, data }, { status: response.status });
+      return await proxyToBackend(request, "/api/v1/admin/featured/settings");
     }
 
     if (action === "stats") {
-      const response = await fetch(`${BACKEND_URL}/api/v1/admin/featured/stats`, {
-        headers: authHeaders(request),
-        cache: "no-store",
-      });
-      const data = await response.json();
-      return NextResponse.json({ success: response.ok, data }, { status: response.status });
+      return await proxyToBackend(request, "/api/v1/admin/featured/stats");
     }
 
     if (action === "featured-events") {
-      const response = await fetch(`${BACKEND_URL}/api/v1/events/featured/?page_size=12`, {
-        headers: authHeaders(request),
-        cache: "no-store",
-      });
-      const data = await response.json();
-      return NextResponse.json({ success: response.ok, data }, { status: response.status });
+      return await proxyToBackend(request, "/api/v1/events/featured/?page_size=12");
     }
 
     if (action === "available-positions") {
-      return NextResponse.json({ success: true, data: Array.from({ length: 10 }, (_, index) => index + 1) });
+      return await proxyToBackend(request, "/api/v1/admin/featured/available-positions");
     }
 
     const params = new URLSearchParams();
     const status = searchParams.get("status");
     if (status && status !== "all") params.set("status_filter", status);
 
-    const response = await fetch(`${BACKEND_URL}/api/v1/admin/featured${params.size ? `?${params}` : ""}`, {
-      headers: authHeaders(request),
-      cache: "no-store",
-    });
-    const data = await response.json();
-    return NextResponse.json({ success: response.ok, data }, { status: response.status });
+    const qs = params.size ? `?${params}` : "";
+    return await proxyToBackend(request, `/api/v1/admin/featured${qs}`);
   } catch {
     return NextResponse.json(
-      { success: false, error: { code: "BACKEND_ERROR", message: "Failed to load featured placements" } },
+      { success: false, error: { code: "BACKEND_ERROR", message: "Featured backend unavailable" } },
       { status: 502 },
     );
   }

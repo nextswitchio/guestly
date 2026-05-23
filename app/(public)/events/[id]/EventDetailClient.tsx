@@ -61,7 +61,10 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
     verified: true,
   };
 
-  const mockAttendeeCount = Math.floor(Math.random() * 500) + 50;
+  const [mockAttendeeCount, setMockAttendeeCount] = React.useState(0);
+  React.useEffect(() => {
+    setMockAttendeeCount(Math.floor(Math.random() * 500) + 50);
+  }, []);
   const mockEventType = event.category === "Tech" ? "Hybrid" : event.category === "Music" ? "Physical" : "Virtual";
 
   return (
@@ -373,8 +376,12 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
                 }`}
               >
                 <Button
-                  href={`/events/${event.id}/buy`}
-                  className="w-full bg-lime hover:bg-lime-hover text-dark font-bold rounded-xl shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0"
+                  {...(isEventPast ? {} : { href: `/events/${event.id}/buy` })}
+                  className={`w-full font-bold rounded-xl shadow-sm transition-all ${
+                    isEventPast
+                      ? "bg-slate-300 text-slate-500 cursor-default opacity-70"
+                      : "bg-lime hover:bg-lime-hover text-dark hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
+                  }`}
                   size="lg"
                   leftIcon={
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -382,7 +389,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
                     </svg>
                   }
                 >
-                  Buy Tickets
+                  {isEventPast ? "Event Ended" : "Buy Tickets"}
                 </Button>
                 
                 <Button 

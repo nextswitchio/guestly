@@ -1,13 +1,60 @@
 import React from "react";
 import type { Metadata } from "next";
-import { getEventById } from "@/lib/events";
+import { getEventById, getEventBySlug, type Event } from "@/lib/events";
+import { BACKEND_URL } from "@/lib/api/client";
+import { slugify } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import EventDetailClient from "./EventDetailClient";
 import Icon from '@/components/ui/Icon';
 
+export const dynamic = 'force-dynamic';
+
+function isUUID(s: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+}
+
+function mapApiEvent(raw: any): Event | null {
+  if (!raw) return null;
+  return {
+    id: raw.id,
+    title: raw.title,
+    description: raw.description ?? "",
+    date: raw.date ?? raw.start_date ?? raw.startDate,
+    category: raw.category ?? raw.category_name ?? "",
+    country: raw.country ?? "",
+    state: raw.state,
+    city: raw.city ?? "",
+    image: raw.image ?? raw.images?.[0] ?? "/globe.svg",
+    eventType: raw.eventType ?? raw.event_type ?? "Physical",
+    venue: raw.venue,
+    latitude: raw.latitude,
+    longitude: raw.longitude,
+    community: raw.community,
+    communityType: raw.communityType ?? raw.community_type,
+    tickets: raw.tickets,
+    streamingConfig: raw.streamingConfig ?? raw.streaming_config,
+    postEventMerchSales: raw.postEventMerchSales ?? raw.post_event_merch_sales,
+    postEventCommunityAccess: raw.postEventCommunityAccess ?? raw.post_event_community_access,
+  };
+}
+
 export default async function EventDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const ev = getEventById(id);
+  let ev = getEventBySlug(id) ?? getEventById(id);
+
+  if (!ev && isUUID(id)) {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        ev = mapApiEvent(data.data ?? data);
+      }
+    } catch {}
+  }
+
+  if (!ev) {
+    ev = await fetchEventBySlug(id);
+  }
 
   if (!ev) {
     return (
@@ -30,9 +77,24 @@ export default async function EventDetail({ params }: { params: Promise<{ id: st
   return <EventDetailClient event={ev} />;
 }
 
+async function fetchEventBySlug(slug: string): Promise<Event | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/featured/?page_size=50`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const items = data.events ?? data.data ?? [];
+    const found = items.find((e: any) => slugify(e.title ?? "") === slug);
+    return found ? mapApiEvent(found) : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const ev = getEventById(id);
+  const ev = getEventBySlug(id) ?? getEventById(id)
+    ?? (isUUID(id) ? await fetch(`${BACKEND_URL}/api/v1/events/${id}`).then(r => r.ok ? r.json() : null).then(d => d ? mapApiEvent(d.data ?? d) : null).catch(() => null) : null)
+    ?? await fetchEventBySlug(id);
   const title = ev ? `${ev.title} — ${ev.city}` : "Event";
   const description = ev?.description || "Event details and tickets";
   return {

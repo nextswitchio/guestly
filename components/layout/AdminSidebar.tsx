@@ -156,17 +156,18 @@ const NAV: NavSection[] = [
       { href: "/admin/analytics", label: "Analytics", icon: "barChart" },
     ],
   },
-  {
-    title: "Users",
-    abbr: "U",
-    items: [
-      { href: "/admin/users", label: "Users", icon: "users" },
-      { href: "/admin/affiliates", label: "Affiliates", icon: "megaphone" },
-      { href: "/admin/organizers", label: "Organizers", icon: "building" },
-      { href: "/admin/vendors", label: "Vendors", icon: "package" },
-      { href: "/admin/vendor-categories", label: "Vendor Categories", icon: "package" },
-    ],
-  },
+    {
+      title: "Users",
+      abbr: "U",
+      items: [
+        { href: "/admin/users", label: "Users", icon: "users" },
+        { href: "/admin/affiliates", label: "Affiliates", icon: "megaphone" },
+        { href: "/admin/organizers", label: "Organizers", icon: "building" },
+        { href: "/admin/vendors", label: "Vendors", icon: "package" },
+        { href: "/admin/vendor-categories", label: "Vendor Categories", icon: "package" },
+        { href: "/admin/vendor-subscriptions", label: "Vendor Subscriptions", icon: "creditCard" },
+      ],
+    },
   {
     title: "Events",
     abbr: "E",

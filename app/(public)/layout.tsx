@@ -4,6 +4,7 @@ import TopNav from "@/components/layout/TopNav";
 import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
 import SkipLinks from "@/components/ui/SkipLinks";
+import "leaflet/dist/leaflet.css";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -28,7 +28,8 @@ export default function AdminNotificationsPage() {
       const res = await fetch("/api/admin/announcements");
       if (res.ok) {
         const data = await res.json();
-        setNotifications(data.map((a: any) => ({ id: a.id, title: a.title, message: a.content, type: "info", sentAt: a.created_at, recipients: 0 })));
+        const items = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
+        setNotifications(items.map((a: any) => ({ id: a.id, title: a.title, message: a.content, type: "info", sentAt: a.created_at, recipients: 0 })));
       }
     } catch (e) {
       console.error(e);

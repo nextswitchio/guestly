@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { BACKEND_URL } from "@/lib/api/client";
-import { DEFAULT_PLATFORM_CATALOG, normalizeCatalog } from "@/lib/platformCatalog";
+import { normalizeCatalog } from "@/lib/platformCatalog";
 
 export async function GET() {
   try {
@@ -9,6 +9,9 @@ export async function GET() {
     const data = await res.json();
     return NextResponse.json(normalizeCatalog(data));
   } catch {
-    return NextResponse.json(DEFAULT_PLATFORM_CATALOG);
+    return NextResponse.json(
+      { success: false, error: { code: "BACKEND_ERROR", message: "Catalog backend unavailable" } },
+      { status: 502 },
+    );
   }
 }

@@ -516,7 +516,7 @@ function UserDetailsModal({
         const response = await fetch(`/api/admin/users/${user.id}`);
         const data = await response.json();
         if (data.success) {
-          setActivityStats(data.data.activityStats);
+          setActivityStats(data.data.activityStats || data.data);
         }
       } catch (error) {
         console.error('Error fetching user details:', error);
@@ -532,6 +532,26 @@ function UserDetailsModal({
     return DataTableFormatters.currency(amount);
   };
 
+  const formatDate = (ts?: number) =>
+    ts ? new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A";
+
+  const s = activityStats || {};
+  const roleLabels: Record<string, string> = {
+    attendee: "Attendee",
+    organizer: "Organizer",
+    organiser: "Organizer",
+    vendor: "Vendor",
+    affiliate: "Affiliate",
+    admin: "Administrator",
+  };
+
+  const statusColors: Record<string, string> = {
+    active: "bg-green-100 text-green-700",
+    suspended: "bg-yellow-100 text-yellow-700",
+    pending: "bg-blue-100 text-blue-700",
+    banned: "bg-red-100 text-red-700",
+  };
+
   return (
     <Modal
       open={true}
@@ -540,107 +560,164 @@ function UserDetailsModal({
       size="lg"
     >
       <div className="space-y-6">
+        {/* User Avatar & Summary */}
+        <div className="flex items-center gap-4 pb-4 border-b border-neutral-200">
+          <div className="w-14 h-14 rounded-full bg-lime/10 flex items-center justify-center text-xl font-bold text-dark">
+            {(user.displayName || user.email).charAt(0).toUpperCase()}
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-slate-900">
+              {user.displayName || "No name"}
+            </h3>
+            <p className="text-sm text-slate-500">{user.email}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs font-medium text-slate-400">{roleLabels[user.role] || user.role}</span>
+              <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${statusColors[user.status] || "bg-slate-100 text-slate-600"}`}>
+                {user.status?.charAt(0).toUpperCase() + user.status?.slice(1)}
+              </span>
+            </div>
+          </div>
+          {user.location && (
+            <div className="text-right text-xs text-slate-400">
+              <Icon name="map-pin" size={14} className="inline mr-1" />
+              {user.location.city}, {user.location.country}
+            </div>
+          )}
+        </div>
+
         {/* Basic Info */}
         <div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">
+          <h3 className="text-sm font-semibold text-slate-900 mb-3 uppercase tracking-wider">
             Basic Information
           </h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-slate-500">
-                Display Name
-              </label>
-              <p className="text-slate-900">
-                {user.displayName || 'Not set'}
-              </p>
+              <label className="text-xs font-medium text-slate-400 uppercase">User ID</label>
+              <p className="text-sm text-slate-900 mt-1 font-mono">{user.id}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-500">
-                Email
-              </label>
-              <p className="text-slate-900">{user.email}</p>
+              <label className="text-xs font-medium text-slate-400 uppercase">Display Name</label>
+              <p className="text-sm text-slate-900 mt-1">{user.displayName || 'Not set'}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-500">
-                Role
-              </label>
-              <p className="text-slate-900 capitalize">{user.role}</p>
+              <label className="text-xs font-medium text-slate-400 uppercase">Email</label>
+              <p className="text-sm text-slate-900 mt-1">{user.email}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-500">
-                Status
-              </label>
-              <p className="text-slate-900 capitalize">{user.status}</p>
+              <label className="text-xs font-medium text-slate-400 uppercase">Role</label>
+              <p className="text-sm text-slate-900 mt-1 capitalize">{roleLabels[user.role] || user.role}</p>
             </div>
+            <div>
+              <label className="text-xs font-medium text-slate-400 uppercase">Status</label>
+              <p className="text-sm text-slate-900 mt-1 capitalize">{user.status}</p>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-400 uppercase">Joined</label>
+              <p className="text-sm text-slate-900 mt-1">{formatDate(user.createdAt)}</p>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-400 uppercase">Last Activity</label>
+              <p className="text-sm text-slate-900 mt-1">{formatDate(user.lastActivityAt)}</p>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-400 uppercase">Wallet Balance</label>
+              <p className="text-sm text-slate-900 mt-1">{formatCurrency(user.walletBalance || 0)}</p>
+            </div>
+            {user.totalSpent !== undefined && (
+              <div>
+                <label className="text-xs font-medium text-slate-400 uppercase">Total Spent</label>
+                <p className="text-sm text-slate-900 mt-1">{formatCurrency(user.totalSpent)}</p>
+              </div>
+            )}
+            {user.profileCompleteness !== undefined && (
+              <div>
+                <label className="text-xs font-medium text-slate-400 uppercase">Profile Completeness</label>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="w-20 bg-neutral-200 rounded-full h-2">
+                    <div className="bg-lime h-2 rounded-full transition-all" style={{ width: `${user.profileCompleteness}%` }} />
+                  </div>
+                  <span className="text-xs text-slate-500">{user.profileCompleteness}%</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Activity Stats */}
+        {/* Activity Statistics */}
         {loading ? (
-          <div className="animate-pulse">
-            <div className="h-4 bg-white rounded mb-2" />
-            <div className="h-20 bg-white rounded" />
+          <div className="animate-pulse space-y-3">
+            <div className="h-4 bg-neutral-200 rounded w-1/3" />
+            <div className="grid grid-cols-3 gap-4">
+              {[1,2,3,4,5,6].map(i => <div key={i} className="h-16 bg-neutral-100 rounded" />)}
+            </div>
           </div>
         ) : activityStats ? (
           <div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+            <h3 className="text-sm font-semibold text-slate-900 mb-3 uppercase tracking-wider">
               Activity Statistics
             </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-slate-500">
-                  Total Orders
-                </label>
-                <p className="text-slate-900">
-                  {activityStats.totalOrders}
-                </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="bg-neutral-50 rounded-lg p-3">
+                <label className="text-xs font-medium text-slate-400 uppercase">Total Orders</label>
+                <p className="text-lg font-bold text-slate-900 mt-1">{s.totalOrders || 0}</p>
               </div>
-              <div>
-                <label className="text-sm font-medium text-slate-500">
-                  Total Spent
-                </label>
-                <p className="text-slate-900">
-                  {formatCurrency(activityStats.totalSpent)}
-                </p>
+              <div className="bg-neutral-50 rounded-lg p-3">
+                <label className="text-xs font-medium text-slate-400 uppercase">Total Spent</label>
+                <p className="text-lg font-bold text-slate-900 mt-1">{formatCurrency(s.totalSpent || 0)}</p>
               </div>
-              <div>
-                <label className="text-sm font-medium text-slate-500">
-                  Events Created
-                </label>
-                <p className="text-slate-900">
-                  {activityStats.eventsCreated}
-                </p>
+              <div className="bg-neutral-50 rounded-lg p-3">
+                <label className="text-xs font-medium text-slate-400 uppercase">Events Created</label>
+                <p className="text-lg font-bold text-slate-900 mt-1">{s.eventsCreated || 0}</p>
               </div>
-              <div>
-                <label className="text-sm font-medium text-slate-500">
-                  Events Attended
-                </label>
-                <p className="text-slate-900">
-                  {activityStats.eventsAttended}
-                </p>
+              <div className="bg-neutral-50 rounded-lg p-3">
+                <label className="text-xs font-medium text-slate-400 uppercase">Events Attended</label>
+                <p className="text-lg font-bold text-slate-900 mt-1">{s.eventsAttended || 0}</p>
               </div>
-              <div>
-                <label className="text-sm font-medium text-slate-500">
-                  Wallet Transactions
-                </label>
-                <p className="text-slate-900">
-                  {activityStats.walletTransactions}
-                </p>
+              <div className="bg-neutral-50 rounded-lg p-3">
+                <label className="text-xs font-medium text-slate-400 uppercase">Wallet Transactions</label>
+                <p className="text-lg font-bold text-slate-900 mt-1">{s.walletTransactions || 0}</p>
               </div>
-              <div>
-                <label className="text-sm font-medium text-slate-500">
-                  Last Activity
-                </label>
-                <p className="text-slate-900">
-                  {activityStats.lastActivity 
-                    ? DataTableFormatters.date(activityStats.lastActivity)
-                    : 'Never'
-                  }
-                </p>
+              <div className="bg-neutral-50 rounded-lg p-3">
+                <label className="text-xs font-medium text-slate-400 uppercase">Login Count</label>
+                <p className="text-lg font-bold text-slate-900 mt-1">{s.loginCount || 0}</p>
               </div>
+              {s.totalRevenue !== undefined && (
+                <div className="bg-neutral-50 rounded-lg p-3">
+                  <label className="text-xs font-medium text-slate-400 uppercase">Total Revenue</label>
+                  <p className="text-lg font-bold text-slate-900 mt-1">{formatCurrency(s.totalRevenue || 0)}</p>
+                </div>
+              )}
+              {s.referralCount !== undefined && (
+                <div className="bg-neutral-50 rounded-lg p-3">
+                  <label className="text-xs font-medium text-slate-400 uppercase">Referrals</label>
+                  <p className="text-lg font-bold text-slate-900 mt-1">{s.referralCount || 0}</p>
+                </div>
+              )}
+              {s.commissionEarned !== undefined && (
+                <div className="bg-neutral-50 rounded-lg p-3">
+                  <label className="text-xs font-medium text-slate-400 uppercase">Commission Earned</label>
+                  <p className="text-lg font-bold text-slate-900 mt-1">{formatCurrency(s.commissionEarned || 0)}</p>
+                </div>
+              )}
             </div>
           </div>
-        ) : null}
+        ) : (
+          <div className="text-center py-6 text-slate-400">
+            <Icon name="bar-chart" size={32} className="mx-auto mb-2" />
+            <p className="text-sm">No activity statistics available</p>
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div className="flex gap-3 pt-4 border-t border-neutral-200">
+          <Button variant="outline" size="sm" onClick={() => window.open(`mailto:${user.email}`, '_blank')}>
+            <Icon name="mail" size={14} className="mr-1.5" />
+            Send Email
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            Close
+          </Button>
+        </div>
       </div>
     </Modal>
   );

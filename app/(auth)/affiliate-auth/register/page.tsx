@@ -17,7 +17,7 @@ export default function AffiliateRegisterPage() {
         body: JSON.stringify({
           email: data.email,
           password: data.password,
-          role: "attendee",
+          role: "affiliate",
         }),
       });
       const result = await res.json();

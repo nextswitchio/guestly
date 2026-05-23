@@ -10,15 +10,16 @@ import {
 import Link from "next/link";
 import Button from "@/components/Button";
 import { ArrowRightIcon, CalendarIcon, LocationIcon } from "@/utils/icons";
-import { events } from "@/utils/constant";
 import Heading from "@/components/Heading";
 import { getImageSrc } from "@/utils/imageUtils";
+import { slugify } from "@/lib/utils";
 
 type HomeFeaturedEvent = {
   id: string | number;
   title: string;
   description: string;
   date: string;
+  rawDate: string;
   location: string;
   image: string;
 };
@@ -43,6 +44,7 @@ const cardVariants: Variants = {
 
 function EventCard({ event }: { event: HomeFeaturedEvent }) {
   const ref = useRef<HTMLDivElement>(null);
+  const isPast = new Date(event.rawDate) < new Date();
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -82,7 +84,7 @@ function EventCard({ event }: { event: HomeFeaturedEvent }) {
       className="group relative cursor-pointer"
     >
       {/* Image Container */}
-      <div className="relative h-47 sm:h-85.5 rounded-xl overflow-hidden">
+      <div className="relative h-56 sm:h-80 rounded-xl overflow-hidden">
         {/* Background Image with parallax */}
         <motion.div
           className="absolute inset-0"
@@ -107,10 +109,10 @@ function EventCard({ event }: { event: HomeFeaturedEvent }) {
 
       {/* Text Info Below */}
       <div className="mt-3 space-y-1.5 transform transition-transform duration-300 group-hover:translate-y-1">
-        <h3 className="text-lg sm:text-[22px] font-medium text-dark transition-colors duration-300">
+        <h3 className="text-lg sm:text-[22px] font-medium text-dark transition-colors duration-300 line-clamp-2">
           {event.title}
         </h3>
-        <p className="text-sm sm:text-base text-dark leading-[22px] sm:leading-[24px]">
+        <p className="text-sm sm:text-base text-dark leading-[22px] sm:leading-[24px] line-clamp-3">
           {event.description}
         </p>
 
@@ -128,7 +130,9 @@ function EventCard({ event }: { event: HomeFeaturedEvent }) {
 
         {/* Get Ticket Button */}
         <div className="pt-1">
-          <Link href="/explore"><Button variant="secondary">Get Ticket</Button></Link>
+          <Link href={`/events/${slugify(event.title)}`}>
+            <Button variant={isPast ? "outline" : "secondary"}>{isPast ? "View Event" : "Get Ticket"}</Button>
+          </Link>
         </div>
       </div>
     </motion.div>
@@ -136,7 +140,8 @@ function EventCard({ event }: { event: HomeFeaturedEvent }) {
 }
 
 export function FeaturedEvents() {
-  const [featuredEvents, setFeaturedEvents] = useState<HomeFeaturedEvent[]>(events);
+  const [featuredEvents, setFeaturedEvents] = useState<HomeFeaturedEvent[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const params = new URLSearchParams({ pageSize: "8" });
@@ -161,13 +166,17 @@ export function FeaturedEvents() {
           title: event.title,
           description: event.description,
           date: new Date(event.date).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }),
+          rawDate: event.date,
           location: [event.city, event.country].filter(Boolean).join(", "),
           image: event.image || "/globe.svg",
         }));
-        if (apiEvents.length) setFeaturedEvents(apiEvents);
+        setFeaturedEvents(apiEvents);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
+
+  if (!loading && !featuredEvents.length) return null;
 
   return (
     <section className="py-20 bg-white font-dm">
