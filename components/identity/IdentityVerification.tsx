@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Shield, Upload, CheckCircle, AlertCircle, Clock, X, FileText, Camera, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Shield, Upload, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { DEFAULT_PLATFORM_CATALOG, PlatformCountry, normalizeCatalog } from '@/lib/platformCatalog';
 
 export type IdentityDocType = 'passport' | 'drivers_license' | 'national_id' | 'voters_card' | 'residence_permit';
 export type VerificationStatus = 'pending' | 'under_review' | 'verified' | 'rejected';
@@ -85,13 +87,7 @@ export default function IdentityVerification({ userId, role, existingData, onSub
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [frontPreview, setFrontPreview] = useState<string | null>(existingData?.documentFrontUrl || null);
-  const [backPreview, setBackPreview] = useState<string | null>(existingData?.documentBackUrl || null);
-  const [selfiePreview, setSelfiePreview] = useState<string | null>(existingData?.selfieUrl || null);
-
-  const frontInputRef = useRef<HTMLInputElement>(null);
-  const backInputRef = useRef<HTMLInputElement>(null);
-  const selfieInputRef = useRef<HTMLInputElement>(null);
+  const [countries, setCountries] = useState<PlatformCountry[]>(DEFAULT_PLATFORM_CATALOG.countries);
 
   const isVerified = existingData?.status === 'verified';
   const isPending = existingData?.status === 'pending' || existingData?.status === 'under_review';
@@ -99,24 +95,12 @@ export default function IdentityVerification({ userId, role, existingData, onSub
   const showForm = !isVerified && !isPending;
   const requiresBack = docTypes.find(d => d.value === formData.docType)?.requiresBack ?? true;
 
-  const handleFileChange = (file: File | undefined, field: 'documentFrontUrl' | 'documentBackUrl' | 'selfieUrl', setPreview: (v: string | null) => void) => {
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setError('File size must be less than 5MB');
-      return;
-    }
-    if (!file.type.startsWith('image/')) {
-      setError('Please upload an image file');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setFormData(prev => ({ ...prev, [field]: result }));
-      setPreview(result);
-    };
-    reader.readAsDataURL(file);
-  };
+  useEffect(() => {
+    fetch('/api/platform/catalog')
+      .then(res => res.json())
+      .then(data => setCountries(normalizeCatalog(data).countries))
+      .catch(() => setCountries(DEFAULT_PLATFORM_CATALOG.countries));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -312,121 +296,44 @@ export default function IdentityVerification({ userId, role, existingData, onSub
             onChange={(e) => setFormData(prev => ({ ...prev, nationality: e.target.value }))}
             className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
           >
-            <option value="Nigerian">Nigerian</option>
-            <option value="Ghanaian">Ghanaian</option>
-            <option value="Kenyan">Kenyan</option>
-            <option value="South African">South African</option>
+            {countries.map(country => (
+              <option key={country.name} value={country.nationality || country.name}>
+                {country.nationality || country.name}
+              </option>
+            ))}
             <option value="Other">Other</option>
           </select>
         </div>
 
-        {/* Document Upload */}
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">Document Photos</label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Front */}
-            <div>
-              <p className="text-xs text-neutral-500 mb-2">Front of Document *</p>
-              <input
-                ref={frontInputRef}
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFileChange(e.target.files?.[0], 'documentFrontUrl', setFrontPreview)}
-                className="hidden"
-              />
-              {frontPreview ? (
-                <div className="relative rounded-xl border border-neutral-200 overflow-hidden">
-                  <img src={frontPreview} alt="Document front" className="w-full h-40 object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => { setFrontPreview(null); setFormData(prev => ({ ...prev, documentFrontUrl: '' })); }}
-                    className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => frontInputRef.current?.click()}
-                  className="w-full h-40 rounded-xl border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center gap-2 hover:border-lime hover:bg-lime/5 transition-colors"
-                >
-                  <FileText className="h-8 w-8 text-neutral-400" />
-                  <span className="text-sm text-neutral-500">Upload Front</span>
-                </button>
-              )}
-            </div>
-
-            {/* Back */}
-            {requiresBack && (
-              <div>
-                <p className="text-xs text-neutral-500 mb-2">Back of Document *</p>
-                <input
-                  ref={backInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileChange(e.target.files?.[0], 'documentBackUrl', setBackPreview)}
-                  className="hidden"
-                />
-                {backPreview ? (
-                  <div className="relative rounded-xl border border-neutral-200 overflow-hidden">
-                    <img src={backPreview} alt="Document back" className="w-full h-40 object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => { setBackPreview(null); setFormData(prev => ({ ...prev, documentBackUrl: '' })); }}
-                      className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => backInputRef.current?.click()}
-                    className="w-full h-40 rounded-xl border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center gap-2 hover:border-lime hover:bg-lime/5 transition-colors"
-                  >
-                    <FileText className="h-8 w-8 text-neutral-400" />
-                    <span className="text-sm text-neutral-500">Upload Back</span>
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Selfie (optional) */}
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            Selfie with ID <span className="text-neutral-400 font-normal">(optional but recommended)</span>
-          </label>
-          <input
-            ref={selfieInputRef}
-            type="file"
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <CloudinaryUploadField
+            label="Front of Document *"
+            value={formData.documentFrontUrl}
+            onChange={(url) => setFormData(prev => ({ ...prev, documentFrontUrl: url }))}
+            folder={`guestly/identity/${role}/documents`}
             accept="image/*"
-            onChange={(e) => handleFileChange(e.target.files?.[0], 'selfieUrl', setSelfiePreview)}
-            className="hidden"
+            placeholder="Upload document front"
           />
-          {selfiePreview ? (
-            <div className="relative rounded-xl border border-neutral-200 overflow-hidden w-40">
-              <img src={selfiePreview} alt="Selfie" className="w-full h-40 object-cover" />
-              <button
-                type="button"
-                onClick={() => { setSelfiePreview(null); setFormData(prev => ({ ...prev, selfieUrl: '' })); }}
-                className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => selfieInputRef.current?.click()}
-              className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
-            >
-              <Camera className="h-4 w-4" /> Take Selfie
-            </button>
+          {requiresBack && (
+            <CloudinaryUploadField
+              label="Back of Document *"
+              value={formData.documentBackUrl || ''}
+              onChange={(url) => setFormData(prev => ({ ...prev, documentBackUrl: url }))}
+              folder={`guestly/identity/${role}/documents`}
+              accept="image/*"
+              placeholder="Upload document back"
+            />
           )}
         </div>
+
+        <CloudinaryUploadField
+          label="Selfie with ID"
+          value={formData.selfieUrl || ''}
+          onChange={(url) => setFormData(prev => ({ ...prev, selfieUrl: url }))}
+          folder={`guestly/identity/${role}/selfies`}
+          accept="image/*"
+          placeholder="Upload selfie"
+        />
 
         {/* Submit */}
         <div className="flex justify-end pt-2">

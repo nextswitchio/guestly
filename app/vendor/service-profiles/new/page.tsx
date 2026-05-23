@@ -1,17 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, ArrowLeft, AlertCircle, Plus, X, Link as LinkIcon, Share2 } from 'lucide-react';
+import { Save, ArrowLeft, AlertCircle, Plus, X, Link as LinkIcon, Share2, Shield } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from '@/lib/platformCatalog';
 
-const CATEGORIES = [
-  { value: 'Security', label: 'Security' }, { value: 'Sound', label: 'Sound & Audio' },
-  { value: 'Catering', label: 'Catering' }, { value: 'Decoration', label: 'Decoration' },
-  { value: 'Logistics', label: 'Logistics' }, { value: 'Photography', label: 'Photography & Video' },
-];
 const PRICING_MODELS = [
   { value: 'fixed', label: 'Fixed Price' }, { value: 'hourly', label: 'Hourly Rate' },
   { value: 'project', label: 'Per Project' }, { value: 'quote', label: 'Request Quote' },
@@ -22,7 +18,10 @@ export default function NewServiceProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [atLimit, setAtLimit] = useState(false);
+  const [identityStatus, setIdentityStatus] = useState<string | null>(null);
+  const [identityLoading, setIdentityLoading] = useState(true);
   const [tagInput, setTagInput] = useState('');
+  const [catalog, setCatalog] = useState<PlatformCatalog>(DEFAULT_PLATFORM_CATALOG);
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -45,6 +44,15 @@ export default function NewServiceProfilePage() {
       const max = d.maxServiceProfiles || 1;
       fetch('/api/vendor/service-profiles').then(r => r.json()).then(pd => { if (pd.profiles?.length >= max) setAtLimit(true); });
     }).catch(() => {});
+    fetch('/api/identity')
+      .then(r => r.json())
+      .then(d => setIdentityStatus(d.verification?.status || null))
+      .catch(() => setIdentityStatus(null))
+      .finally(() => setIdentityLoading(false));
+    fetch('/api/platform/catalog')
+      .then(r => r.json())
+      .then(d => setCatalog(normalizeCatalog(d)))
+      .catch(() => setCatalog(DEFAULT_PLATFORM_CATALOG));
   }, []);
 
   const addTag = () => { const t = tagInput.trim(); if (t && !form.tags.includes(t)) { setForm({ ...form, tags: [...form.tags, t] }); setTagInput(''); } };
@@ -94,6 +102,15 @@ export default function NewServiceProfilePage() {
     </Card></div>
   );
 
+  if (!identityLoading && identityStatus !== 'verified') return (
+    <div className="max-w-2xl mx-auto mt-12"><Card className="p-12 text-center">
+      <Shield className="w-12 h-12 text-warning-500 mx-auto mb-4" />
+      <h2 className="text-2xl font-bold text-dark mb-2">Verify Your Identity</h2>
+      <p className="text-gray-500 mb-6">Identity verification is required before creating service profiles.</p>
+      <Button href="/vendor/identity">Verify Identity</Button>
+    </Card></div>
+  );
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
@@ -108,7 +125,7 @@ export default function NewServiceProfilePage() {
             <div><label className="block text-sm font-medium text-dark mb-1.5">Category *</label>
               <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} required className={inputClass}>
                 <option value="">Select a category</option>
-                {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                {catalog.vendorCategories.filter(c => c.isActive).map(c => <option key={c.slug} value={c.name}>{c.name}</option>)}
               </select>
             </div>
             <Input label="Subcategory (optional)" value={form.subcategory} onChange={e => setForm({...form, subcategory: e.target.value})} placeholder="e.g., Wedding DJ, Club Sound System" />
@@ -133,9 +150,9 @@ export default function NewServiceProfilePage() {
           </div>
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-dark border-b border-gray-100 pb-2">Media & Links</h2>
-            <CloudinaryUploadField label="Banner Image" value={form.bannerImage} onChange={url => setForm({...form, bannerImage: url})} placeholder="https://example.com/service-banner.jpg" folder="guestly/service-profiles/banners" accept="image/*" />
+            <CloudinaryUploadField label="Banner Image" value={form.bannerImage} onChange={url => setForm({...form, bannerImage: url})} placeholder="Upload service banner" folder="guestly/service-profiles/banners" accept="image/*" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <CloudinaryUploadField label="Rate Card" value={form.rateCardUrl} onChange={url => setForm({...form, rateCardUrl: url})} placeholder="https://example.com/rate-card.pdf" folder="guestly/service-profiles/rate-cards" accept=".pdf,image/*" preview="file" />
+              <CloudinaryUploadField label="Rate Card" value={form.rateCardUrl} onChange={url => setForm({...form, rateCardUrl: url})} placeholder="Upload rate card" folder="guestly/service-profiles/rate-cards" accept=".pdf,image/*" preview="file" />
               <Input label="Portfolio URL" type="url" value={form.portfolioUrl} onChange={e => setForm({...form, portfolioUrl: e.target.value})} placeholder="https://example.com/portfolio" leftIcon={<LinkIcon className="w-4 h-4" />} />
             </div>
             <Input label="Business Social Media URL" type="url" value={form.socialUrl} onChange={e => setForm({...form, socialUrl: e.target.value})} placeholder="https://instagram.com/yourbusiness" leftIcon={<Share2 className="w-4 h-4" />} />

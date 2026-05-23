@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
+import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
+import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from "@/lib/platformCatalog";
 
 type UserProfile = {
   id: string;
@@ -43,6 +45,8 @@ function ProfileContent() {
   const [twitter, setTwitter] = useState("");
   const [instagram, setInstagram] = useState("");
   const [linkedin, setLinkedin] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [catalog, setCatalog] = useState<PlatformCatalog>(DEFAULT_PLATFORM_CATALOG);
 
   const isOwnProfile = !viewingUserId || viewingUserId === currentUserId;
 
@@ -61,6 +65,13 @@ function ProfileContent() {
       .catch(() => setLoading(false));
   }, [viewingUserId]);
 
+  useEffect(() => {
+    fetch("/api/platform/catalog")
+      .then((res) => res.json())
+      .then((data) => setCatalog(normalizeCatalog(data)))
+      .catch(() => setCatalog(DEFAULT_PLATFORM_CATALOG));
+  }, []);
+
   const fetchProfile = async (id: string) => {
     try {
       const res = await fetch(`/api/users/${id}/profile`);
@@ -73,9 +84,10 @@ function ProfileContent() {
         setInterests(data.interests || []);
         setCity(data.location_city || "");
         setCountry(data.location_country || "");
-        setTwitter(data.social_twitter || "");
-        setInstagram(data.social_instagram || "");
-        setLinkedin(data.social_linkedin || "");
+          setTwitter(data.social_twitter || "");
+          setInstagram(data.social_instagram || "");
+          setLinkedin(data.social_linkedin || "");
+          setAvatar(data.avatar || "");
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -94,6 +106,7 @@ function ProfileContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           display_name: displayName,
+          avatar: avatar || null,
           bio,
           interests,
           location_city: city || null,
@@ -192,6 +205,7 @@ function ProfileContent() {
                     setTwitter(profile.social_twitter || "");
                     setInstagram(profile.social_instagram || "");
                     setLinkedin(profile.social_linkedin || "");
+                    setAvatar(profile.avatar || "");
                   }
                 }}
               >
@@ -213,8 +227,8 @@ function ProfileContent() {
           ) : (
             <div className="h-20 w-20 rounded-full bg-lime/20 flex items-center justify-center text-dark text-2xl font-bold">
               {initials}
-            </div>
-          )}
+        </div>
+      )}
           <div>
             <h2 className="text-xl font-semibold text-neutral-900">{profile?.display_name || "User"}</h2>
             <p className="text-sm text-neutral-500">{profile?.email}</p>
@@ -235,6 +249,15 @@ function ProfileContent() {
               placeholder="Your name"
             />
 
+            <CloudinaryUploadField
+              label="Profile Image"
+              value={avatar}
+              onChange={setAvatar}
+              folder="guestly/profiles/attendees"
+              accept="image/*"
+              placeholder="Upload profile image"
+            />
+
             <Textarea
               label="Bio"
               value={bio}
@@ -244,18 +267,31 @@ function ProfileContent() {
             />
 
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="City"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder="Lagos"
-              />
-              <Input
-                label="Country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                placeholder="Nigeria"
-              />
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-neutral-700">Country</label>
+                <select
+                  value={country}
+                  onChange={(e) => {
+                    setCountry(e.target.value);
+                    setCity("");
+                  }}
+                  className="h-11 w-full rounded-xl border border-neutral-200 bg-neutral-50 px-3 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20"
+                >
+                  <option value="">Select country</option>
+                  {catalog.countries.filter(item => item.isActive).map(item => <option key={item.name} value={item.name}>{item.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-neutral-700">City</label>
+                <select
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="h-11 w-full rounded-xl border border-neutral-200 bg-neutral-50 px-3 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20"
+                >
+                  <option value="">Select city</option>
+                  {catalog.cities.filter(item => item.isActive && (!country || item.countryName === country)).map(item => <option key={item.slug} value={item.name}>{item.name}</option>)}
+                </select>
+              </div>
             </div>
 
             <div>

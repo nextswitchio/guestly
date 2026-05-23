@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { Input } from '@/components/ui/Input';
 import { Icon } from '@/components/ui/Icon';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 interface SocialPostComposerProps {
   eventId?: string;
@@ -181,11 +182,13 @@ export default function SocialPostComposer({
       {/* Media */}
       <Card className="p-4">
         <h3 className="font-semibold mb-3">Media</h3>
-        <Input
-          label="Image URL"
+        <CloudinaryUploadField
+          label="Post Image"
           value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="https://example.com/image.jpg"
+          onChange={setImageUrl}
+          folder="guestly/marketing/social"
+          accept="image/*"
+          placeholder="Upload post image"
         />
         {imageUrl && (
           <div className="mt-4">

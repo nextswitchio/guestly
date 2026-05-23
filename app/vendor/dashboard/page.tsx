@@ -219,6 +219,7 @@ export default function VendorDashboardPage() {
             <h3 className="font-semibold text-dark mb-4">Quick Actions</h3>
             <div className="space-y-2.5">
               <Link href="/vendor/service-profiles"><Button variant="outline" className="w-full justify-start"><ArrowUpRight className="w-4 h-4 mr-2 text-dark" />Service Profiles</Button></Link>
+              <Link href="/vendor/reviews"><Button variant="outline" className="w-full justify-start"><Star className="w-4 h-4 mr-2 text-dark" />Reviews</Button></Link>
               <Link href="/vendor/payments"><Button variant="outline" className="w-full justify-start"><Banknote className="w-4 h-4 mr-2 text-dark" />Manage Payments</Button></Link>
               <Link href="/vendor/profile"><Button variant="outline" className="w-full justify-start"><Users className="w-4 h-4 mr-2 text-dark" />Edit Profile</Button></Link>
               <Link href="/vendor/subscription"><Button variant="outline" className="w-full justify-start"><TrendingUp className="w-4 h-4 mr-2 text-dark" />Subscription</Button></Link>

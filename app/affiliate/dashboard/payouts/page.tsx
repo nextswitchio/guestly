@@ -29,6 +29,7 @@ export default function PayoutsPage() {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestAmount, setRequestAmount] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -40,6 +41,11 @@ export default function PayoutsPage() {
         fetch('/api/affiliates/dashboard'),
         fetch('/api/affiliates/payouts'),
       ]);
+      const identityRes = await fetch('/api/identity');
+      if (identityRes.ok) {
+        const data = await identityRes.json();
+        setIsVerified(Boolean(data.isVerified));
+      }
 
       if (summaryRes.ok) {
         const data = await summaryRes.json();
@@ -66,6 +72,10 @@ export default function PayoutsPage() {
 
   const handleRequestPayout = async () => {
     if (!summary) return;
+    if (!isVerified) {
+      alert('Verify your identity before requesting a payout.');
+      return;
+    }
     const amount = parseFloat(requestAmount);
     if (isNaN(amount) || amount < summary.minPayout) {
       alert(`Minimum payout amount is ₦${summary.minPayout}`);
@@ -78,7 +88,7 @@ export default function PayoutsPage() {
 
     setProcessing(true);
     try {
-      const res = await fetch('/api/affiliates/payout', {
+      const res = await fetch('/api/affiliates/payouts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount }),
@@ -170,12 +180,17 @@ export default function PayoutsPage() {
             <div className="rounded-2xl bg-lime p-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-dark">Ready for Payout</h3>
-                  <p className="text-sm text-dark/70">You have ₦{summary.pendingEarnings.toLocaleString()} available for withdrawal</p>
+                  <h3 className="text-lg font-semibold text-dark">{isVerified ? 'Ready for Payout' : 'Verification Required'}</h3>
+                  <p className="text-sm text-dark/70">
+                    {isVerified
+                      ? `You have ₦${summary.pendingEarnings.toLocaleString()} available for withdrawal`
+                      : 'Complete identity verification before requesting a payout'}
+                  </p>
                 </div>
                 <button
                   onClick={() => setShowRequestModal(true)}
-                  className="flex items-center gap-2 rounded-xl bg-dark px-5 py-2.5 text-sm font-semibold text-lime hover:bg-dark/90 transition-colors"
+                  disabled={!isVerified}
+                  className="flex items-center gap-2 rounded-xl bg-dark px-5 py-2.5 text-sm font-semibold text-lime hover:bg-dark/90 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Plus className="h-4 w-4" /> Request Payout
                 </button>

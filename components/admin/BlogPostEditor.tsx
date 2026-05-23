@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { RichTextEditor } from './RichTextEditor';
 import { X, Plus, Upload, Eye, Calendar, Download, Tag, Folder, Link as LinkIcon } from 'lucide-react';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 interface BlogPostEditorProps {
   postId?: string;
@@ -366,23 +367,14 @@ export function BlogPostEditor({ postId, onSave, onCancel }: BlogPostEditorProps
             </div>
 
             {/* Cover Image */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Cover Image URL</label>
-              <Input
-                value={coverImage}
-                onChange={(e) => setCoverImage(e.target.value)}
-                placeholder="https://example.com/image.jpg"
-              />
-              {coverImage && (
-                <div className="mt-3">
-                  <img
-                    src={coverImage}
-                    alt="Cover preview"
-                    className="max-w-sm rounded-xl border border-slate-200"
-                  />
-                </div>
-              )}
-            </div>
+            <CloudinaryUploadField
+              label="Cover Image"
+              value={coverImage}
+              onChange={setCoverImage}
+              folder="guestly/blog/covers"
+              accept="image/*"
+              placeholder="Upload cover image"
+            />
 
             {/* Category */}
             <div>

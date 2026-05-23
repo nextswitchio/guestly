@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCommunities, getCommunityTypes } from "@/lib/events";
-import type { Event } from "@/lib/events";
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,10 +8,7 @@ export async function GET(req: NextRequest) {
     const state = searchParams.get("state");
     const city = searchParams.get("city");
     
-    // Validate country parameter if provided
-    const validCountry = country && ["Nigeria", "Ghana", "Kenya"].includes(country) 
-      ? (country as Event["country"]) 
-      : undefined;
+    const validCountry = country || undefined;
     
     const communities = getCommunities(
       validCountry,

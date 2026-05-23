@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { ArrowLeft, User, CreditCard, Bell, Save, RefreshCw, Check, Shield } from 'lucide-react';
 import Switch from '@/components/ui/Switch';
 import IdentityVerification, { type IdentityData } from '@/components/identity/IdentityVerification';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 interface AffiliateSettings {
   businessName: string;
   email: string;
   phone: string;
   website: string;
+  avatar?: string;
   promotionalChannels: string[];
   paymentMethod: 'bank' | 'mobile-money' | 'paypal';
   paymentDetails: {
@@ -57,7 +59,9 @@ export default function AffiliateSettingsPage() {
       const res = await fetch('/api/affiliates/settings');
       if (res.ok) {
         const data = await res.json();
-        setSettings(data.settings);
+        const profileRes = await fetch('/api/profile');
+        const profileData = profileRes.ok ? await profileRes.json() : null;
+        setSettings({ ...data.settings, avatar: profileData?.profile?.avatar || data.settings.avatar || '' });
       }
     } catch (error) {
       console.error('Failed to fetch settings:', error);
@@ -76,6 +80,11 @@ export default function AffiliateSettingsPage() {
         body: JSON.stringify(settings),
       });
       if (res.ok) {
+        await fetch('/api/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ avatar: settings.avatar || null }),
+        }).catch(() => {});
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
       }
@@ -181,6 +190,14 @@ export default function AffiliateSettingsPage() {
         <div className="rounded-2xl border border-neutral-200 bg-white p-6">
           <h3 className="text-lg font-semibold text-neutral-900 mb-6">Profile Information</h3>
           <div className="space-y-5">
+            <CloudinaryUploadField
+              label="Profile Image"
+              value={settings.avatar || ''}
+              onChange={(avatar) => setSettings({ ...settings, avatar })}
+              folder="guestly/profiles/affiliates"
+              accept="image/*"
+              placeholder="Upload profile image"
+            />
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1.5">Business Name</label>
               <input

@@ -164,6 +164,7 @@ const NAV: NavSection[] = [
       { href: "/admin/affiliates", label: "Affiliates", icon: "megaphone" },
       { href: "/admin/organizers", label: "Organizers", icon: "building" },
       { href: "/admin/vendors", label: "Vendors", icon: "package" },
+      { href: "/admin/vendor-categories", label: "Vendor Categories", icon: "package" },
     ],
   },
   {
@@ -171,6 +172,8 @@ const NAV: NavSection[] = [
     abbr: "E",
     items: [
       { href: "/admin/events", label: "Events", icon: "calendar" },
+      { href: "/admin/event-categories", label: "Event Categories", icon: "star" },
+      { href: "/admin/geography", label: "Geography", icon: "flag" },
       { href: "/admin/featured", label: "Featured", icon: "star" },
       { href: "/admin/moderation", label: "Moderation", icon: "shield" },
     ],
@@ -199,6 +202,7 @@ const NAV: NavSection[] = [
     abbr: "S",
     items: [
       { href: "/admin/fraud", label: "Fraud Detection", icon: "shield" },
+      { href: "/admin/identity", label: "Identity Review", icon: "shield" },
       { href: "/admin/audit-logs", label: "Audit Logs", icon: "fileText" },
       { href: "/admin/support", label: "Support", icon: "lifeBuoy" },
     ],

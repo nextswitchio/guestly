@@ -22,7 +22,25 @@ export async function GET(
     }
 
     const data = await res.json();
-    return NextResponse.json({ success: true, data });
+    const invitations = Array.isArray(data) ? data : [];
+    const enriched = await Promise.all(invitations.map(async (invitation: Record<string, any>) => {
+      const vendorId = invitation.vendor_id || invitation.vendorId;
+      if (!vendorId) return invitation;
+
+      const vendorRes = await fetch(`${BACKEND_URL}/api/v1/vendors/${vendorId}`);
+      const vendor = vendorRes.ok ? await vendorRes.json() : null;
+
+      return {
+        ...invitation,
+        eventId: invitation.event_id || invitation.eventId,
+        vendorUserId: vendor?.user_id || invitation.vendor_user_id || vendorId,
+        profileId: vendor?.id || vendorId,
+        category: vendor?.category || invitation.category,
+        invitedAt: invitation.created_at ? Date.parse(invitation.created_at) : invitation.invitedAt,
+      };
+    }));
+
+    return NextResponse.json({ success: true, data: enriched });
   } catch {
     return NextResponse.json({ error: "Failed to fetch event vendors" }, { status: 500 });
   }

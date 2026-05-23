@@ -90,7 +90,9 @@ const mainLinks: NavLink[] = [
   { href: "/dashboard/events", label: "Events", icon: CalendarIcon },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChartIcon },
   { href: "/dashboard/marketing", label: "Marketing", icon: ShoppingBagIcon },
+  { href: "/dashboard/featured", label: "Featured", icon: StarIcon },
   { href: "/dashboard/community", label: "Community", icon: UsersIcon },
+  { href: "/dashboard/reviews", label: "Reviews", icon: StarIcon },
   { href: "/dashboard/ai-assistant", label: "AI Assistant", icon: StarIcon, badge: "New" },
 ];
 const paymentsLinks: NavLink[] = [

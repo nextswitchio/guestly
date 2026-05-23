@@ -20,8 +20,8 @@ export type Event = {
   title: string;
   description: string;
   date: string;
-  category: "Music" | "Tech" | "Art" | "Food" | "Cultural" | "Faith" | "Entertainment" | "Sports";
-  country: "Nigeria" | "Ghana" | "Kenya";
+  category: string;
+  country: string;
   state?: string; // State/Region within country
   city: string; // Now a free-form string instead of enum
   image: string;

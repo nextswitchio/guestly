@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAffiliate, createPayoutRequest } from '@/lib/marketing';
+import { hasVerifiedIdentity } from '@/lib/api/identityVerification';
 
 export async function POST(
   req: NextRequest,
@@ -29,6 +30,14 @@ export async function POST(
     if (affiliate.userId !== userId) {
       return NextResponse.json(
         { error: 'Forbidden. You do not own this affiliate account.' },
+        { status: 403 }
+      );
+    }
+
+    const isVerified = await hasVerifiedIdentity(req, 'affiliate');
+    if (!isVerified) {
+      return NextResponse.json(
+        { error: 'Identity verification is required before requesting payouts' },
         { status: 403 }
       );
     }

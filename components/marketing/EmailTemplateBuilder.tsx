@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 interface EmailBlock {
   id: string;
@@ -168,10 +169,13 @@ export function EmailTemplateBuilder({ organizerId, initialTemplate, onSave, onC
                     placeholder="Enter content..."
                   />
                 ) : selectedBlock.type === 'image' ? (
-                  <Input
+                  <CloudinaryUploadField
+                    label="Image"
                     value={selectedBlock.content}
-                    onChange={(e) => updateBlock(selectedBlock.id, e.target.value)}
-                    placeholder="Image URL"
+                    onChange={(url) => updateBlock(selectedBlock.id, url)}
+                    folder="guestly/marketing/email"
+                    accept="image/*"
+                    placeholder="Upload email image"
                   />
                 ) : selectedBlock.type === 'button' ? (
                   <Input

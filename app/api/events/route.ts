@@ -5,7 +5,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const params = new URLSearchParams();
 
-  const fields = ["q", "category", "country", "city", "event_type", "status", "page", "page_size", "pageSize"];
+  const fields = ["q", "category", "country", "city", "event_type", "status", "community", "communityType", "startDate", "endDate", "sort", "page", "page_size", "pageSize"];
   fields.forEach((f) => {
     const val = searchParams.get(f);
     if (val) {

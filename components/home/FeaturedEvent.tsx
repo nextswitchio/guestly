@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   motion,
   useMotionValue,
@@ -13,6 +13,15 @@ import { ArrowRightIcon, CalendarIcon, LocationIcon } from "@/utils/icons";
 import { events } from "@/utils/constant";
 import Heading from "@/components/Heading";
 import { getImageSrc } from "@/utils/imageUtils";
+
+type HomeFeaturedEvent = {
+  id: string | number;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  image: string;
+};
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -32,7 +41,7 @@ const cardVariants: Variants = {
   },
 };
 
-function EventCard({ event }: { event: (typeof events)[0] }) {
+function EventCard({ event }: { event: HomeFeaturedEvent }) {
   const ref = useRef<HTMLDivElement>(null);
 
   const x = useMotionValue(0);
@@ -127,6 +136,39 @@ function EventCard({ event }: { event: (typeof events)[0] }) {
 }
 
 export function FeaturedEvents() {
+  const [featuredEvents, setFeaturedEvents] = useState<HomeFeaturedEvent[]>(events);
+
+  useEffect(() => {
+    const params = new URLSearchParams({ pageSize: "8" });
+    try {
+      const savedCity = localStorage.getItem("near:city");
+      const savedLocation = localStorage.getItem("near:location");
+      if (savedCity) params.set("city", savedCity);
+      if (savedLocation) {
+        const location = JSON.parse(savedLocation);
+        if (typeof location.latitude === "number" && typeof location.longitude === "number") {
+          params.set("latitude", String(location.latitude));
+          params.set("longitude", String(location.longitude));
+        }
+      }
+    } catch {}
+
+    fetch(`/api/events/featured?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const apiEvents = (data.events || data.data || []).map((event: any) => ({
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          date: new Date(event.date).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }),
+          location: [event.city, event.country].filter(Boolean).join(", "),
+          image: event.image || "/globe.svg",
+        }));
+        if (apiEvents.length) setFeaturedEvents(apiEvents);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="py-20 bg-white font-dm">
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
@@ -159,7 +201,7 @@ export function FeaturedEvents() {
           className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-y-10"
           style={{ perspective: "1000px" }}
         >
-          {events.map((event) => (
+          {featuredEvents.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
         </motion.div>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 interface WhatsAppCampaignFormProps {
   eventId: string;
@@ -169,15 +170,21 @@ export function WhatsAppCampaignForm({ eventId, onSubmit, onCancel }: WhatsAppCa
                     <option value="document">Document</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm mb-1">Media URL</label>
-                  <Input
-                    type="url"
-                    value={formData.mediaUrl}
-                    onChange={(e) => setFormData({ ...formData, mediaUrl: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </div>
+                <CloudinaryUploadField
+                  label="Media File"
+                  value={formData.mediaUrl || ''}
+                  onChange={(mediaUrl) => setFormData({ ...formData, mediaUrl })}
+                  folder="guestly/marketing/whatsapp"
+                  accept={
+                    formData.mediaType === 'video'
+                      ? 'video/*'
+                      : formData.mediaType === 'document'
+                        ? '.pdf,.doc,.docx,.ppt,.pptx'
+                        : 'image/*'
+                  }
+                  preview={formData.mediaType === 'document' ? 'file' : 'image'}
+                  placeholder="Upload campaign media"
+                />
               </div>
             )}
           </div>

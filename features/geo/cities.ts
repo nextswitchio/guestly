@@ -1,13 +1,15 @@
 "use client";
-import type { Event } from "@/lib/events";
-
-export type City = Event["city"];
+export type City = "Lagos" | "Abuja" | "Accra" | "Nairobi" | "Kigali" | "Kampala" | "Dar es Salaam" | "Johannesburg";
 
 export const CITY_COORDS: Record<City, { lat: number; lon: number }> = {
   Lagos: { lat: 6.5244, lon: 3.3792 },
   Abuja: { lat: 9.0765, lon: 7.3986 },
   Accra: { lat: 5.6037, lon: -0.187 },
   Nairobi: { lat: -1.2921, lon: 36.8219 },
+  Kigali: { lat: -1.9441, lon: 30.0619 },
+  Kampala: { lat: 0.3476, lon: 32.5825 },
+  "Dar es Salaam": { lat: -6.7924, lon: 39.2083 },
+  Johannesburg: { lat: -26.2041, lon: 28.0473 },
 };
 
 function toRad(v: number) {
@@ -79,6 +81,26 @@ export const NEIGHBORHOODS: Record<City, Neighborhood[]> = {
     { name: "Lavington", lat: -1.2832, lon: 36.7670, city: "Nairobi" },
     { name: "Upperhill", lat: -1.2921, lon: 36.8219, city: "Nairobi" },
   ],
+  Kigali: [
+    { name: "Nyarutarama", lat: -1.9254, lon: 30.1044, city: "Kigali" },
+    { name: "Kacyiru", lat: -1.9441, lon: 30.0786, city: "Kigali" },
+    { name: "Kimisagara", lat: -1.9706, lon: 30.0498, city: "Kigali" },
+  ],
+  Kampala: [
+    { name: "Kololo", lat: 0.3326, lon: 32.5900, city: "Kampala" },
+    { name: "Nakasero", lat: 0.3207, lon: 32.5763, city: "Kampala" },
+    { name: "Ntinda", lat: 0.3546, lon: 32.6157, city: "Kampala" },
+  ],
+  "Dar es Salaam": [
+    { name: "Masaki", lat: -6.7473, lon: 39.2786, city: "Dar es Salaam" },
+    { name: "Mikocheni", lat: -6.7619, lon: 39.2406, city: "Dar es Salaam" },
+    { name: "Kariakoo", lat: -6.8227, lon: 39.2695, city: "Dar es Salaam" },
+  ],
+  Johannesburg: [
+    { name: "Sandton", lat: -26.1076, lon: 28.0567, city: "Johannesburg" },
+    { name: "Rosebank", lat: -26.1464, lon: 28.0416, city: "Johannesburg" },
+    { name: "Braamfontein", lat: -26.1929, lon: 28.0368, city: "Johannesburg" },
+  ],
 };
 
 // Assign a random neighborhood to an event based on its city
@@ -86,4 +108,3 @@ export function getRandomNeighborhood(city: City): Neighborhood {
   const neighborhoods = NEIGHBORHOODS[city];
   return neighborhoods[Math.floor(Math.random() * neighborhoods.length)];
 }
-

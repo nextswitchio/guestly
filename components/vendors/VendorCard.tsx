@@ -10,7 +10,7 @@ interface VendorCardProps {
 }
 
 export function VendorCard({ vendor }: VendorCardProps) {
-  const categoryIcons: Record<VendorProfile["category"], string> = {
+  const categoryIcons: Record<string, string> = {
     Sound: "music",
     Security: "shield",
     Decoration: "palette",
@@ -28,7 +28,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
       <div className="flex items-start gap-4">
         {/* Category Icon */}
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50">
-          <Icon name={categoryIcons[vendor.category] as any} size={24} className="text-primary-600" />
+          <Icon name={(categoryIcons[vendor.category] || "package") as any} size={24} className="text-primary-600" />
         </div>
 
         {/* Vendor Info */}

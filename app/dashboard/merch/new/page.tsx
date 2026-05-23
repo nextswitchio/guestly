@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 export default function NewMerchProductPage() {
   const router = useRouter();
@@ -119,16 +120,14 @@ export default function NewMerchProductPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Image URL</label>
-            <input
-              type="text"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              placeholder="https://example.com/image.jpg"
-              className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
-            />
-          </div>
+          <CloudinaryUploadField
+            label="Product Image"
+            value={formData.imageUrl}
+            onChange={(imageUrl) => setFormData({ ...formData, imageUrl })}
+            folder="guestly/merch/products"
+            accept="image/*"
+            placeholder="Upload product image"
+          />
 
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1.5">Event ID (Optional)</label>

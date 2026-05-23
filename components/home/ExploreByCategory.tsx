@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState, type FC } from "react";
 import { motion, type Variants } from "framer-motion";
 import Heading from "@/components/Heading";
 import {
@@ -9,15 +10,17 @@ import {
   MusicIcon,
   ViewIcon,
 } from "@/utils/icons";
+import { DEFAULT_PLATFORM_CATALOG, PlatformCategory, normalizeCatalog } from "@/lib/platformCatalog";
 
-const categories = [
-  { icon: MusicIcon, label: "Music & Concerts", slug: "music" },
-  { icon: FolderIcon, label: "Tech & Innovation", slug: "tech" },
-  { icon: BriefcaseIcon, label: "Business & Networking", slug: "business" },
-  { icon: ViewIcon, label: "Arts & Culture", slug: "arts" },
-  { icon: GlassIcon, label: "Food & Lifestyle", slug: "food" },
-  { icon: BallIcon, label: "Sports & Fitness", slug: "sports" },
-];
+const categoryIcons: Record<string, FC<{ className?: string }>> = {
+  music: MusicIcon,
+  tech: FolderIcon,
+  business: BriefcaseIcon,
+  art: ViewIcon,
+  arts: ViewIcon,
+  food: GlassIcon,
+  sports: BallIcon,
+};
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -38,6 +41,18 @@ const itemVariants: Variants = {
 };
 
 export function ExploreByCategory() {
+  const [categories, setCategories] = useState<PlatformCategory[]>(DEFAULT_PLATFORM_CATALOG.eventCategories.filter(category => category.isFeatured));
+
+  useEffect(() => {
+    fetch("/api/platform/catalog")
+      .then(res => res.json())
+      .then(data => {
+        const items = normalizeCatalog(data).eventCategories.filter(category => category.isActive && category.isFeatured);
+        setCategories(items.length ? items : DEFAULT_PLATFORM_CATALOG.eventCategories.filter(category => category.isFeatured));
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="py-20 bg-white font-dm">
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
@@ -63,10 +78,12 @@ export function ExploreByCategory() {
           viewport={{ once: true, margin: "-50px" }}
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6"
         >
-          {categories.map((category) => (
+          {categories.map((category) => {
+            const CategoryIcon = categoryIcons[category.slug] || BriefcaseIcon;
+            return (
             <a
-              key={category.label}
-              href={`/explore?category=${category.slug}`}
+              key={category.slug}
+              href={`/explore?category=${encodeURIComponent(category.name)}`}
               className="group flex flex-col items-center gap-4 transition-colors duration-300 no-underline"
             >
               <motion.div
@@ -76,13 +93,13 @@ export function ExploreByCategory() {
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className="w-16 h-16 sm:w-32 sm:h-32 rounded-full border border-dark group-hover:border-lime group-hover:bg-lime-hover/5 flex items-center justify-center transition-all duration-300"
               >
-                <category.icon className="text-dark group-hover:text-lime transition-colors duration-300 w-8 h-8 sm:w-16 sm:h-16" />
+                <CategoryIcon className="text-dark group-hover:text-lime transition-colors duration-300 w-8 h-8 sm:w-16 sm:h-16" />
               </motion.div>
               <span className="text-sm sm:text-base tracking-tight text-dark text-center leading-[25.2px]">
-                {category.label}
+                {category.name}
               </span>
             </a>
-          ))}
+          )})}
         </motion.div>
       </div>
     </section>

@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Icon from "@/components/ui/Icon";
 import EmptyState from "@/components/ui/EmptyState";
+import { DEFAULT_PLATFORM_CATALOG, PlatformCategory, normalizeCatalog } from "@/lib/platformCatalog";
 
 type Vendor = {
   id: string;
@@ -39,6 +40,9 @@ export default function VendorsTab({ eventId }: { eventId: string }) {
   const [q, setQ] = React.useState("");
   const [category, setCategory] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [vendorCategories, setVendorCategories] = React.useState<PlatformCategory[]>(DEFAULT_PLATFORM_CATALOG.vendorCategories);
+  const [reviewDrafts, setReviewDrafts] = React.useState<Record<string, { rating: number; comment: string }>>({});
+  const [reviewingVendor, setReviewingVendor] = React.useState<string | null>(null);
 
   async function loadVendors() {
     const params = new URLSearchParams();
@@ -74,6 +78,10 @@ export default function VendorsTab({ eventId }: { eventId: string }) {
   }
 
   React.useEffect(() => {
+    fetch("/api/platform/catalog")
+      .then((res) => res.json())
+      .then((data) => setVendorCategories(normalizeCatalog(data).vendorCategories))
+      .catch(() => setVendorCategories(DEFAULT_PLATFORM_CATALOG.vendorCategories));
     void loadVendors();
     void loadInvites();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,6 +114,43 @@ export default function VendorsTab({ eventId }: { eventId: string }) {
     }
   }
 
+  async function submitReview(vendor: LinkedVendor) {
+    const draft = reviewDrafts[vendor.id] || { rating: 5, comment: "" };
+    if (!draft.comment.trim()) {
+      alert("Add a short review before submitting.");
+      return;
+    }
+
+    setReviewingVendor(vendor.id);
+    try {
+      const res = await fetch(`/api/vendors/${vendor.id}/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventId,
+          rating: draft.rating,
+          comment: draft.comment.trim(),
+        }),
+      });
+
+      if (res.ok) {
+        setReviewDrafts((current) => ({
+          ...current,
+          [vendor.id]: { rating: 5, comment: "" },
+        }));
+        alert("Review submitted");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.detail || data.error || "Failed to submit review");
+      }
+    } catch (error) {
+      console.error("Error submitting vendor review:", error);
+      alert("Failed to submit review");
+    } finally {
+      setReviewingVendor(null);
+    }
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <div className="lg:col-span-2">
@@ -124,8 +169,8 @@ export default function VendorsTab({ eventId }: { eventId: string }) {
               className="h-10 w-full rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-900 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 sm:w-60"
             >
               <option value="">All categories</option>
-              {["Security", "Sound", "Catering", "Decoration", "Logistics", "Photography"].map((c) => (
-                <option key={c} value={c}>{c}</option>
+              {vendorCategories.filter((c) => c.isActive).map((c) => (
+                <option key={c.slug} value={c.name}>{c.name}</option>
               ))}
             </select>
           </div>
@@ -265,6 +310,47 @@ export default function VendorsTab({ eventId }: { eventId: string }) {
                       >
                         Call
                       </Button>
+                    </div>
+
+                    <div className="mt-3 space-y-2 border-t border-neutral-100 pt-3">
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={reviewDrafts[vendor.id]?.rating || 5}
+                          onChange={(event) => setReviewDrafts((current) => ({
+                            ...current,
+                            [vendor.id]: {
+                              rating: Number(event.target.value),
+                              comment: current[vendor.id]?.comment || "",
+                            },
+                          }))}
+                          className="h-9 rounded-lg border border-neutral-200 bg-white px-2 text-xs text-neutral-900 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+                        >
+                          {[5, 4, 3, 2, 1].map((rating) => (
+                            <option key={rating} value={rating}>{rating} star{rating === 1 ? "" : "s"}</option>
+                          ))}
+                        </select>
+                        <Button
+                          size="sm"
+                          onClick={() => submitReview(vendor)}
+                          disabled={reviewingVendor === vendor.id}
+                          className="text-xs"
+                        >
+                          {reviewingVendor === vendor.id ? "Saving..." : "Review"}
+                        </Button>
+                      </div>
+                      <textarea
+                        value={reviewDrafts[vendor.id]?.comment || ""}
+                        onChange={(event) => setReviewDrafts((current) => ({
+                          ...current,
+                          [vendor.id]: {
+                            rating: current[vendor.id]?.rating || 5,
+                            comment: event.target.value,
+                          },
+                        }))}
+                        rows={2}
+                        placeholder="Rate this vendor after the event"
+                        className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+                      />
                     </div>
                   </>
                 )}

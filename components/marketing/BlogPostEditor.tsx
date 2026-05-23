@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 interface BlogPostEditorProps {
   organizerId: string;
@@ -131,14 +132,14 @@ export function BlogPostEditor({ organizerId, eventId, initialData, onSave, onCa
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Featured Image URL</label>
-          <Input
-            value={featuredImage}
-            onChange={(e) => setFeaturedImage(e.target.value)}
-            placeholder="https://example.com/image.jpg"
-          />
-        </div>
+        <CloudinaryUploadField
+          label="Featured Image"
+          value={featuredImage}
+          onChange={setFeaturedImage}
+          folder="guestly/marketing/blog"
+          accept="image/*"
+          placeholder="Upload featured image"
+        />
 
         <div>
           <label className="block text-sm font-medium mb-2">Content</label>

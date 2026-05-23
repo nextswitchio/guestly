@@ -117,8 +117,8 @@ export default function NearMePage() {
       if (userLat !== undefined && userLon !== undefined) {
         // Calculate distance from user location to each event's city
         eventsWithDistance = events.map(event => {
-          const eventCityCoords = CITY_COORDS[event.city];
-          const distance = calculateDistance({ lat: userLat, lon: userLon }, eventCityCoords);
+          const eventCityCoords = CITY_COORDS[event.city as City] || CITY_COORDS[city];
+          const distance = eventCityCoords ? calculateDistance({ lat: userLat, lon: userLon }, eventCityCoords) : 0;
           return {
             ...event,
             distanceKm: distance

@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { User, Star, Phone, Mail, Globe, MapPin, Building2, Save, Edit3, RefreshCw } from "lucide-react";
+import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
+import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from "@/lib/platformCatalog";
 
 type VendorClientProfile = {
   businessName?: string;
@@ -26,6 +28,8 @@ export default function VendorProfilePage() {
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({ businessName: "", category: "", description: "", services: "", pricing: "", location: "", phone: "", email: "", website: "" });
+  const [avatar, setAvatar] = useState("");
+  const [catalog, setCatalog] = useState<PlatformCatalog>(DEFAULT_PLATFORM_CATALOG);
 
   const applyProfile = (nextProfile: VendorClientProfile) => {
     setProfile(nextProfile);
@@ -48,14 +52,28 @@ export default function VendorProfilePage() {
     try {
       const nextProfile = await fetchProfile();
       if (nextProfile) applyProfile(nextProfile);
+      const userRes = await fetch("/api/profile");
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        setAvatar(userData.profile?.avatar || "");
+      }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
 
   useEffect(() => {
     let cancelled = false;
-    fetchProfile()
-      .then(nextProfile => { if (!cancelled && nextProfile) applyProfile(nextProfile); })
+    Promise.all([
+      fetchProfile(),
+      fetch("/api/profile").then(r => r.ok ? r.json() : null),
+      fetch("/api/platform/catalog").then(r => r.json()).then(normalizeCatalog).catch(() => DEFAULT_PLATFORM_CATALOG),
+    ])
+      .then(([nextProfile, userData, nextCatalog]) => {
+        if (cancelled) return;
+        if (nextProfile) applyProfile(nextProfile);
+        setAvatar(userData?.profile?.avatar || "");
+        setCatalog(nextCatalog);
+      })
       .catch(e => console.error(e))
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
@@ -68,7 +86,15 @@ export default function VendorProfilePage() {
         method: profile ? "PUT" : "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, services: form.services.split(",").map(s => s.trim()).filter(Boolean), website: form.website || undefined }),
       });
-      if (res.ok) { await load(); setEditMode(false); }
+      if (res.ok) {
+        await fetch("/api/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ avatar }),
+        }).catch(() => {});
+        await load();
+        setEditMode(false);
+      }
       else {
         const d = await res.json();
         alert(typeof d.error === "string" ? d.error : d.error?.message || "Failed to save");
@@ -104,11 +130,19 @@ export default function VendorProfilePage() {
             <h2 className="text-lg font-semibold text-dark mb-4 flex items-center gap-2"><Building2 className="w-5 h-5 text-dark" />Business Information</h2>
             <div className="space-y-4">
               <Input label="Business Name" value={form.businessName} onChange={e => setForm({...form, businessName: e.target.value})} required />
+              <CloudinaryUploadField
+                label="Profile Image"
+                value={avatar}
+                onChange={setAvatar}
+                folder="guestly/profiles/vendors"
+                accept="image/*"
+                placeholder="Upload profile image"
+              />
               <div>
                 <label className="block text-sm font-medium text-dark mb-1.5">Category</label>
                 <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className={inputClass}>
                   <option value="">Select category</option>
-                  {["Sound & Lighting","Security","Decor","Catering","Photography","Videography","Entertainment","Transportation"].map(c => <option key={c} value={c}>{c}</option>)}
+                  {catalog.vendorCategories.filter(category => category.isActive).map(category => <option key={category.slug} value={category.name}>{category.name}</option>)}
                 </select>
               </div>
               <div>
@@ -137,9 +171,13 @@ export default function VendorProfilePage() {
         <div className="space-y-6">
           <Card className="p-6">
             <div className="flex items-start gap-5 mb-5">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-lime/10 text-3xl font-bold text-dark">
-                {profile?.businessName?.charAt(0).toUpperCase() || "V"}
-              </div>
+              {avatar ? (
+                <img src={avatar} alt="" className="h-20 w-20 shrink-0 rounded-full object-cover" />
+              ) : (
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-lime/10 text-3xl font-bold text-dark">
+                  {profile?.businessName?.charAt(0).toUpperCase() || "V"}
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <h2 className="text-2xl font-bold text-dark">{profile?.businessName}</h2>
                 <p className="text-sm text-gray-500">{profile?.category}</p>

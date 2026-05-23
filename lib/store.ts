@@ -322,12 +322,12 @@ export type VendorProfile = {
   userId: string;
   name: string;
   description: string;
-  category: "Security" | "Sound" | "Catering" | "Decoration" | "Logistics" | "Photography";
+  category: string;
   portfolio: string[]; // URLs
   rateCard: string; // URL
   contactEmail: string;
   contactPhone: string;
-  city?: "Lagos" | "Abuja" | "Accra" | "Nairobi"; // Location filter
+  city?: string; // Location filter
   rating?: number; // Average rating (0-5)
   reviewCount?: number; // Number of reviews
   completedEvents?: number; // Number of events completed (for popularity sorting)

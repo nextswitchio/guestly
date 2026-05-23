@@ -5,6 +5,8 @@ import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from '@/lib/platformCatalog';
 
 interface Event {
   id: string;
@@ -25,6 +27,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [catalog, setCatalog] = useState<PlatformCatalog>(DEFAULT_PLATFORM_CATALOG);
   const [form, setForm] = useState<Event>({
     id: '',
     title: '',
@@ -41,21 +44,29 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
     fetchEvent();
   }, [id]);
 
+  useEffect(() => {
+    fetch('/api/platform/catalog')
+      .then(res => res.json())
+      .then(data => setCatalog(normalizeCatalog(data)))
+      .catch(() => setCatalog(DEFAULT_PLATFORM_CATALOG));
+  }, []);
+
   const fetchEvent = async () => {
     try {
       const response = await fetch(`/api/events/${id}`);
       if (response.ok) {
         const data = await response.json();
-        const event = data.event;
+        const event = data.event || data;
+        const eventDate = event.date ? new Date(event.date) : null;
         setForm({
           id: event.id,
           title: event.title,
           description: event.description,
-          date: new Date(event.date).toISOString().split('T')[0],
-          time: event.time || '',
-          location: event.location,
+          date: eventDate ? eventDate.toISOString().split('T')[0] : '',
+          time: eventDate ? eventDate.toISOString().slice(11, 16) : '',
+          location: event.location || event.city || event.venue || '',
           category: event.category || '',
-          imageUrl: event.imageUrl || '',
+          imageUrl: event.imageUrl || event.image || '',
           capacity: event.capacity || 0,
         });
       }
@@ -75,7 +86,15 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
       const response = await fetch(`/api/events/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          title: form.title,
+          description: form.description,
+          date: form.date ? new Date(`${form.date}T${form.time || '00:00'}`).toISOString() : undefined,
+          category: form.category,
+          city: form.location,
+          image: form.imageUrl,
+          capacity: form.capacity,
+        }),
       });
 
       if (response.ok) {
@@ -156,11 +175,19 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
               required
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <Input
-                label="Category"
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-              />
+              <div>
+                <label className="mb-2 block text-sm font-medium text-neutral-700">Category</label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-900 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime/40"
+                >
+                  <option value="">Select category</option>
+                  {catalog.eventCategories.filter(category => category.isActive).map(category => (
+                    <option key={category.slug} value={category.name}>{category.name}</option>
+                  ))}
+                </select>
+              </div>
               <Input
                 label="Capacity"
                 type="number"
@@ -168,11 +195,13 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                 onChange={(e) => setForm({ ...form, capacity: parseInt(e.target.value) || 0 })}
               />
             </div>
-            <Input
-              label="Image URL"
+            <CloudinaryUploadField
+              label="Event Image"
               value={form.imageUrl}
-              onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-              placeholder="https://..."
+              onChange={(imageUrl) => setForm({ ...form, imageUrl })}
+              folder="guestly/events/covers"
+              accept="image/*"
+              placeholder="Upload event image"
             />
 
             {error && (

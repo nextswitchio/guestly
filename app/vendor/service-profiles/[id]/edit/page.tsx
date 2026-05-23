@@ -6,12 +6,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from '@/lib/platformCatalog';
 
-const CATEGORIES = [
-  { value: 'Security', label: 'Security' }, { value: 'Sound', label: 'Sound & Audio' },
-  { value: 'Catering', label: 'Catering' }, { value: 'Decoration', label: 'Decoration' },
-  { value: 'Logistics', label: 'Logistics' }, { value: 'Photography', label: 'Photography & Video' },
-];
 const PRICING_MODELS = [
   { value: 'fixed', label: 'Fixed Price' }, { value: 'hourly', label: 'Hourly Rate' },
   { value: 'project', label: 'Per Project' }, { value: 'quote', label: 'Request Quote' },
@@ -24,6 +20,7 @@ export default function EditServiceProfilePage({ params }: { params: Promise<{ i
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [tagInput, setTagInput] = useState('');
+  const [catalog, setCatalog] = useState<PlatformCatalog>(DEFAULT_PLATFORM_CATALOG);
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -42,6 +39,10 @@ export default function EditServiceProfilePage({ params }: { params: Promise<{ i
   });
 
   useEffect(() => {
+    fetch('/api/platform/catalog')
+      .then(r => r.json())
+      .then(d => setCatalog(normalizeCatalog(d)))
+      .catch(() => setCatalog(DEFAULT_PLATFORM_CATALOG));
     fetch(`/api/vendor/service-profiles/${id}`).then(r => r.json()).then(d => {
       const p = d.profile || d;
       setForm({
@@ -116,7 +117,7 @@ export default function EditServiceProfilePage({ params }: { params: Promise<{ i
             <div><label className="block text-sm font-medium text-dark mb-1.5">Category</label>
               <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className={inputClass}>
                 <option value="">Select a category</option>
-                {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                {catalog.vendorCategories.filter(c => c.isActive).map(c => <option key={c.slug} value={c.name}>{c.name}</option>)}
               </select>
             </div>
             <Input label="Subcategory" value={form.subcategory} onChange={e => setForm({...form, subcategory: e.target.value})} />
@@ -137,9 +138,9 @@ export default function EditServiceProfilePage({ params }: { params: Promise<{ i
           </div>
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-dark border-b border-gray-100 pb-2">Media & Links</h2>
-            <CloudinaryUploadField label="Banner Image" value={form.bannerImage} onChange={url => setForm({...form, bannerImage: url})} placeholder="https://example.com/service-banner.jpg" folder="guestly/service-profiles/banners" accept="image/*" />
+            <CloudinaryUploadField label="Banner Image" value={form.bannerImage} onChange={url => setForm({...form, bannerImage: url})} placeholder="Upload service banner" folder="guestly/service-profiles/banners" accept="image/*" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <CloudinaryUploadField label="Rate Card" value={form.rateCardUrl} onChange={url => setForm({...form, rateCardUrl: url})} placeholder="https://example.com/rate-card.pdf" folder="guestly/service-profiles/rate-cards" accept=".pdf,image/*" preview="file" />
+              <CloudinaryUploadField label="Rate Card" value={form.rateCardUrl} onChange={url => setForm({...form, rateCardUrl: url})} placeholder="Upload rate card" folder="guestly/service-profiles/rate-cards" accept=".pdf,image/*" preview="file" />
               <Input label="Portfolio URL" type="url" value={form.portfolioUrl} onChange={e => setForm({...form, portfolioUrl: e.target.value})} placeholder="https://example.com/portfolio" leftIcon={<LinkIcon className="w-4 h-4" />} />
             </div>
             <Input label="Business Social Media URL" type="url" value={form.socialUrl} onChange={e => setForm({...form, socialUrl: e.target.value})} placeholder="https://instagram.com/yourbusiness" leftIcon={<Share2 className="w-4 h-4" />} />

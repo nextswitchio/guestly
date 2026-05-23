@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
@@ -7,15 +7,8 @@ import Button from "@/components/Button";
 import { CheckIcon, InfoIcon, LockIcon, MailIcon, User1Icon } from "@/utils/icons";
 import { Eye, EyeOff } from "lucide-react";
 import { getImageSrc } from "@/utils/imageUtils";
-
-const CATEGORIES = [
-  { value: "Security", label: "Security" },
-  { value: "Sound", label: "Sound & Audio" },
-  { value: "Catering", label: "Catering" },
-  { value: "Decoration", label: "Decoration" },
-  { value: "Logistics", label: "Logistics" },
-  { value: "Photography", label: "Photography & Video" },
-];
+import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
+import { DEFAULT_PLATFORM_CATALOG, PlatformCategory, normalizeCatalog } from "@/lib/platformCatalog";
 
 export default function VendorOnboarding() {
   const router = useRouter();
@@ -23,6 +16,7 @@ export default function VendorOnboarding() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [vendorCategories, setVendorCategories] = useState<PlatformCategory[]>(DEFAULT_PLATFORM_CATALOG.vendorCategories);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -36,6 +30,13 @@ export default function VendorOnboarding() {
     rateCard: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetch("/api/platform/catalog")
+      .then(res => res.json())
+      .then(data => setVendorCategories(normalizeCatalog(data).vendorCategories))
+      .catch(() => setVendorCategories(DEFAULT_PLATFORM_CATALOG.vendorCategories));
+  }, []);
 
   const inputClasses = (field: string) =>
     `w-full p-3 rounded-lg border text-sm transition-all duration-200
@@ -65,7 +66,7 @@ export default function VendorOnboarding() {
     const e: Record<string, string> = {};
     const validPortfolio = formData.portfolio.filter(url => url.trim() !== "");
     if (validPortfolio.length === 0) e.portfolio = "Add at least one portfolio link";
-    if (!formData.rateCard.trim()) e.rateCard = "Rate card URL is required";
+    if (!formData.rateCard.trim()) e.rateCard = "Rate card file is required";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -300,8 +301,8 @@ export default function VendorOnboarding() {
                     value={formData.category}
                     onChange={e => setFormData({ ...formData, category: e.target.value })}>
                     <option value="">Select a category</option>
-                    {CATEGORIES.map(cat => (
-                      <option key={cat.value} value={cat.value}>{cat.label}</option>
+                    {vendorCategories.filter(cat => cat.isActive).map(cat => (
+                      <option key={cat.slug} value={cat.name}>{cat.name}</option>
                     ))}
                   </select>
                   {errors.category && <p className="text-xs text-red-500 mt-1">{errors.category}</p>}
@@ -353,12 +354,16 @@ export default function VendorOnboarding() {
                 </motion.div>
 
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                  <label className="block text-sm font-medium text-[#4B5563] mb-1.5">Rate Card / Pricing URL</label>
-                  <input type="url" placeholder="https://drive.google.com/..."
-                    className={inputClasses("rateCard")}
+                  <CloudinaryUploadField
+                    label="Rate Card / Pricing File"
                     value={formData.rateCard}
-                    onChange={e => setFormData({ ...formData, rateCard: e.target.value })} />
-                  <p className="text-xs text-[#9CA3AF] mt-1">Link to a PDF or document detailing your pricing packages.</p>
+                    onChange={(rateCard) => setFormData({ ...formData, rateCard })}
+                    folder="guestly/vendors/rate-cards"
+                    accept=".pdf,image/*"
+                    preview="file"
+                    placeholder="Upload PDF or image"
+                  />
+                  <p className="text-xs text-[#9CA3AF] mt-1">Upload a PDF or image detailing your pricing packages.</p>
                   {errors.rateCard && <p className="text-xs text-red-500 mt-1">{errors.rateCard}</p>}
                 </motion.div>
 

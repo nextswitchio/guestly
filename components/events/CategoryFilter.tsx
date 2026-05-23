@@ -1,17 +1,18 @@
 "use client";
 import { Briefcase, HeartPulse, Monitor, Music, Palette, Star, Trophy, UtensilsCrossed } from 'lucide-react';
 import React from "react";
+import { DEFAULT_PLATFORM_CATALOG, PlatformCategory, normalizeCatalog } from '@/lib/platformCatalog';
 
-const categories = [
-  { value: "", label: "All", icon: <Star className="h-4 w-4" /> },
-  { value: "Music", label: "Music", icon: <Music className="h-4 w-4" /> },
-  { value: "Tech", label: "Tech", icon: <Monitor className="h-4 w-4" /> },
-  { value: "Art", label: "Art", icon: <Palette className="h-4 w-4" /> },
-  { value: "Food", label: "Food", icon: <UtensilsCrossed className="h-4 w-4" /> },
-  { value: "Sports", label: "Sports", icon: <Trophy className="h-4 w-4" /> },
-  { value: "Business", label: "Business", icon: <Briefcase className="h-4 w-4" /> },
-  { value: "Health", label: "Health", icon: <HeartPulse className="h-4 w-4" /> },
-];
+const iconMap: Record<string, React.ReactNode> = {
+  music: <Music className="h-4 w-4" />,
+  tech: <Monitor className="h-4 w-4" />,
+  art: <Palette className="h-4 w-4" />,
+  arts: <Palette className="h-4 w-4" />,
+  food: <UtensilsCrossed className="h-4 w-4" />,
+  sports: <Trophy className="h-4 w-4" />,
+  business: <Briefcase className="h-4 w-4" />,
+  health: <HeartPulse className="h-4 w-4" />,
+};
 
 type Props = {
   value?: string;
@@ -20,6 +21,24 @@ type Props = {
 };
 
 export default function CategoryFilter({ value = "", onChange, isDark = false }: Props) {
+  const [platformCategories, setPlatformCategories] = React.useState<PlatformCategory[]>(DEFAULT_PLATFORM_CATALOG.eventCategories);
+
+  React.useEffect(() => {
+    fetch('/api/platform/catalog')
+      .then(res => res.json())
+      .then(data => setPlatformCategories(normalizeCatalog(data).eventCategories))
+      .catch(() => setPlatformCategories(DEFAULT_PLATFORM_CATALOG.eventCategories));
+  }, []);
+
+  const categories = [
+    { value: "", label: "All", icon: <Star className="h-4 w-4" /> },
+    ...platformCategories.filter(category => category.isActive).map(category => ({
+      value: category.name,
+      label: category.name,
+      icon: iconMap[category.slug] || <Briefcase className="h-4 w-4" />,
+    })),
+  ];
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       {categories.map((cat) => {
@@ -54,4 +73,3 @@ export default function CategoryFilter({ value = "", onChange, isDark = false }:
     </div>
   );
 }
-

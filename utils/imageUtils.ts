@@ -3,6 +3,10 @@
  * Handles both public and assets folder images
  */
 export const getImageSrc = (imageName: string): string => {
+  if (imageName.startsWith("http") || imageName.startsWith("/")) {
+    return imageName;
+  }
+
   // Check if it's an asset image (from src/assets originally)
   const assetImages = [
     'abuja.jpg',

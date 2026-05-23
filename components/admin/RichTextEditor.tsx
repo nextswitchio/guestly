@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 interface RichTextEditorProps {
   content: string;
@@ -324,22 +325,19 @@ export function RichTextEditor({
 
       {/* Image Input */}
       {showImageInput && (
-        <div className="border-b border-slate-200 bg-slate-50 p-3 flex gap-2">
-          <input
-            type="url"
+        <div className="border-b border-slate-200 bg-slate-50 p-3 space-y-3">
+          <CloudinaryUploadField
+            label="Inline Image"
             value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://example.com/image.jpg"
-            className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addImage();
-              }
-            }}
+            onChange={setImageUrl}
+            folder="guestly/blog/inline"
+            accept="image/*"
+            placeholder="Upload inline image"
           />
-          <Button onClick={addImage} size="sm">Add Image</Button>
-          <Button onClick={() => setShowImageInput(false)} variant="ghost" size="sm">Cancel</Button>
+          <div className="flex gap-2">
+            <Button onClick={addImage} size="sm">Add Image</Button>
+            <Button onClick={() => setShowImageInput(false)} variant="ghost" size="sm">Cancel</Button>
+          </div>
         </div>
       )}
 

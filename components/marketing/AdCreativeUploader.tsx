@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Icon } from '@/components/ui/Icon';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 interface Creative {
   headline: string;
@@ -104,11 +105,13 @@ export default function AdCreativeUploader({ creative, onChange }: AdCreativeUpl
           </h4>
 
           <div className="space-y-4">
-            <Input
-              label="Image URL"
+            <CloudinaryUploadField
+              label="Ad Image"
               value={creative.imageUrl}
-              onChange={(e) => onChange({ ...creative, imageUrl: e.target.value })}
-              placeholder="https://example.com/image.jpg"
+              onChange={(imageUrl) => onChange({ ...creative, imageUrl })}
+              folder="guestly/marketing/ads"
+              accept="image/*"
+              placeholder="Upload ad image"
             />
 
             <div className="bg-neutral-50 p-4 rounded-2xl">

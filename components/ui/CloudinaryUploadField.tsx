@@ -12,6 +12,7 @@ type CloudinaryUploadFieldProps = {
   folder?: string;
   placeholder?: string;
   preview?: "image" | "file";
+  allowManualUrl?: boolean;
 };
 
 export default function CloudinaryUploadField({
@@ -22,6 +23,7 @@ export default function CloudinaryUploadField({
   folder = "guestly/uploads",
   placeholder = "https://...",
   preview = "image",
+  allowManualUrl = false,
 }: CloudinaryUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -61,28 +63,46 @@ export default function CloudinaryUploadField({
         </a>
       )}
       <div className="flex flex-col gap-2 sm:flex-row">
-        <div className="relative flex-1">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            {preview === "image" ? <ImageIcon className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
-          </span>
-          <input
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            placeholder={placeholder}
-            type="url"
-            className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-10 text-dark placeholder:text-gray-400 focus:border-lime focus:outline-none focus:ring-2 focus:ring-lime/20"
-          />
-          {value && (
+        {allowManualUrl ? (
+          <div className="relative flex-1">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              {preview === "image" ? <ImageIcon className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+            </span>
+            <input
+              value={value}
+              onChange={(event) => onChange(event.target.value)}
+              placeholder={placeholder}
+              type="url"
+              className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-10 text-dark placeholder:text-gray-400 focus:border-lime focus:outline-none focus:ring-2 focus:ring-lime/20"
+            />
+            {value && (
+              <button
+                type="button"
+                onClick={() => onChange("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-dark"
+                aria-label={`Clear ${label}`}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        ) : value ? (
+          <div className="flex min-h-11 flex-1 items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-600">
+            <span className="truncate">{value.split("/").pop() || "Uploaded file"}</span>
             <button
               type="button"
               onClick={() => onChange("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-dark"
+              className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-dark"
               aria-label={`Clear ${label}`}
             >
               <X className="h-4 w-4" />
             </button>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="flex min-h-11 flex-1 items-center rounded-xl border border-dashed border-gray-200 bg-gray-50 px-3 text-sm text-gray-400">
+            {placeholder}
+          </div>
+        )}
         <button
           type="button"
           onClick={() => inputRef.current?.click()}

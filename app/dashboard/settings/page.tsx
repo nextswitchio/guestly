@@ -6,6 +6,7 @@ import { Icon } from "@/components/ui/Icon";
 import Switch from "@/components/ui/Switch";
 import Modal from "@/components/ui/Modal";
 import IdentityVerification, { type IdentityData } from "@/components/identity/IdentityVerification";
+import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
 
 type TabType = "profile" | "identity" | "notifications" | "security" | "billing" | "team";
 
@@ -16,11 +17,23 @@ export default function SettingsPage() {
   const [phone, setPhone] = useState("+234 800 000 0000");
   const [website, setWebsite] = useState("https://myorg.com");
   const [bio, setBio] = useState("We create amazing events");
+  const [avatar, setAvatar] = useState("");
   const [saving, setSaving] = useState(false);
   const [identityData, setIdentityData] = useState<IdentityData | null>(null);
   const [identityLoading, setIdentityLoading] = useState(true);
 
   useEffect(() => {
+    fetch('/api/profile')
+      .then(r => r.json())
+      .then(d => {
+        if (d.profile) {
+          setOrgName(d.profile.display_name || orgName);
+          setEmail(d.profile.email || email);
+          setBio(d.profile.bio || bio);
+          setAvatar(d.profile.avatar || "");
+        }
+      })
+      .catch(() => {});
     fetch('/api/identity')
       .then(r => r.json())
       .then(d => { if (d.verification) setIdentityData(d.verification); })
@@ -126,7 +139,15 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await fetch('/api/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        display_name: orgName,
+        bio,
+        avatar: avatar || null,
+      }),
+    }).catch(() => {});
     setSaving(false);
   };
 
@@ -177,22 +198,27 @@ export default function SettingsPage() {
 
                   {/* Profile Picture */}
                   <div className="flex items-center gap-6 mb-8 pb-8 border-b border-neutral-100">
-                    <div className="relative">
+                    {avatar ? (
+                      <img src={avatar} alt="" className="h-24 w-24 rounded-full object-cover" />
+                    ) : (
                       <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-lime to-lime-hover text-3xl font-bold text-dark">
                         {orgName.charAt(0)}
                       </div>
-                      <button className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-neutral-200 shadow-sm">
-                        <Icon name="camera" size={16} className="text-neutral-600" />
-                      </button>
-                    </div>
+                    )}
                     <div>
                       <h3 className="font-semibold text-neutral-900">{orgName}</h3>
                       <p className="text-sm text-neutral-500">{email}</p>
-                      <button className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors">
-                        <Icon name="upload" size={14} />
-                        Upload Photo
-                      </button>
                     </div>
+                  </div>
+                  <div className="mb-8 border-b border-neutral-100 pb-8">
+                    <CloudinaryUploadField
+                      label="Profile Image"
+                      value={avatar}
+                      onChange={setAvatar}
+                      folder="guestly/profiles/organizers"
+                      accept="image/*"
+                      placeholder="Upload profile image"
+                    />
                   </div>
 
                   {/* Form Fields */}

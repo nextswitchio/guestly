@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSidebar } from "@/components/ui/sidebar";
+import { Star } from "lucide-react";
 
 function LayoutDashboard({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -80,6 +81,7 @@ const mainLinks: NavLink[] = [
   { href: "/vendor/invitations", label: "Invitations", icon: MailIcon },
   { href: "/vendor/payments", label: "Payments", icon: WalletIcon },
   { href: "/vendor/service-profiles", label: "Service Profiles", icon: PackageIcon },
+  { href: "/vendor/reviews", label: "Reviews", icon: Star },
 ];
 
 const systemLinks: NavLink[] = [

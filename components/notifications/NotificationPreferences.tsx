@@ -6,6 +6,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { useNotifications } from "@/lib/hooks/useNotifications";
 import PushNotificationRegistration from "./PushNotificationRegistration";
+import { DEFAULT_PLATFORM_CATALOG, PlatformCategory, normalizeCatalog } from "@/lib/platformCatalog";
 
 interface NotificationPreferencesProps {
   userId: string;
@@ -22,17 +23,7 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
     minPrice: undefined as number | undefined,
     maxPrice: undefined as number | undefined,
   });
-
-  const availableCategories = [
-    "Music",
-    "Tech",
-    "Business",
-    "Sports",
-    "Arts",
-    "Food",
-    "Faith",
-    "Education",
-  ];
+  const [availableCategories, setAvailableCategories] = React.useState<PlatformCategory[]>(DEFAULT_PLATFORM_CATALOG.eventCategories);
 
   // Subscribe to real-time notifications
   useNotifications({
@@ -45,6 +36,10 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
 
   React.useEffect(() => {
     fetchPreferences();
+    fetch("/api/platform/catalog")
+      .then((res) => res.json())
+      .then((data) => setAvailableCategories(normalizeCatalog(data).eventCategories))
+      .catch(() => setAvailableCategories(DEFAULT_PLATFORM_CATALOG.eventCategories));
   }, []);
 
   async function fetchPreferences() {
@@ -196,17 +191,17 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
               Select categories to receive notifications for (leave empty for all)
             </p>
             <div className="flex flex-wrap gap-2">
-              {availableCategories.map((category) => (
+              {availableCategories.filter(category => category.isActive).map((category) => (
                 <button
-                  key={category}
-                  onClick={() => toggleCategory(category)}
+                  key={category.slug}
+                  onClick={() => toggleCategory(category.name)}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    preferences.categories.includes(category)
+                    preferences.categories.includes(category.name)
                       ? "bg-primary-600 text-white"
                       : "bg-[var(--surface-hover)] text-[var(--foreground-muted)] hover:bg-[var(--surface-border)]"
                   }`}
                 >
-                  {category}
+                  {category.name}
                 </button>
               ))}
             </div>

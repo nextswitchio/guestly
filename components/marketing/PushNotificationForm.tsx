@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 
 interface PushNotificationFormProps {
   eventId: string;
@@ -99,11 +100,13 @@ export function PushNotificationForm({ eventId, onSubmit, onCancel }: PushNotifi
           <p className="text-xs text-neutral-500 mt-1">{formData.message.length}/200 characters</p>
         </div>
 
-        <Input
-          label="Image URL (Optional)"
-          value={formData.imageUrl}
-          onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-          placeholder="https://example.com/image.jpg"
+        <CloudinaryUploadField
+          label="Notification Image"
+          value={formData.imageUrl || ''}
+          onChange={(imageUrl) => setFormData({ ...formData, imageUrl })}
+          folder="guestly/marketing/push"
+          accept="image/*"
+          placeholder="Upload notification image"
         />
 
         <Input

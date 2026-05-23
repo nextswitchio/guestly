@@ -11,6 +11,7 @@ import { ArrowUpRight } from "lucide-react";
 import Heading from "@/components/Heading";
 import { getImageSrc } from "@/utils/imageUtils";
 import { cities } from "@/utils/constant";
+import { DEFAULT_PLATFORM_CATALOG, normalizeCatalog } from "@/lib/platformCatalog";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -130,6 +131,7 @@ export function BrowseByCity() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const [featuredCities, setFeaturedCities] = useState(cities);
 
   const updateScrollState = () => {
     if (!scrollRef.current) return;
@@ -144,6 +146,28 @@ export function BrowseByCity() {
     updateScrollState();
     el.addEventListener("scroll", updateScrollState, { passive: true });
     return () => el.removeEventListener("scroll", updateScrollState);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/platform/catalog")
+      .then(res => res.json())
+      .then(data => {
+        const catalog = normalizeCatalog(data);
+        const fallbackTaglines = new Map(cities.map(city => [city.name, city.tagline]));
+        const items = catalog.cities
+          .filter(city => city.isActive && city.isFeatured)
+          .map(city => ({
+            name: city.name,
+            tagline: fallbackTaglines.get(city.name) || `${city.countryName} events and experiences`,
+            image: city.image || `${city.slug}.jpg`,
+          }));
+        setFeaturedCities(items.length ? items : DEFAULT_PLATFORM_CATALOG.cities.filter(city => city.isFeatured).map(city => ({
+          name: city.name,
+          tagline: fallbackTaglines.get(city.name) || `${city.countryName} events and experiences`,
+          image: city.image || `${city.slug}.jpg`,
+        })));
+      })
+      .catch(() => {});
   }, []);
 
   const scroll = (dir: "left" | "right") => {
@@ -207,7 +231,7 @@ export function BrowseByCity() {
             className="flex gap-5 overflow-x-auto snap-x snap-mandatory hidden-scroll pb-2 pl-4 md:pl-0 pr-4 md:pr-0"
             style={{ perspective: "1000px", scrollPaddingLeft: "1rem", scrollPaddingRight: "1rem" }}
           >
-            {cities.map((city) => (
+            {featuredCities.map((city) => (
               <div
                 key={city.name}
                 className="snap-start shrink-0 w-[70vw] sm:w-[45vw] md:w-[30vw] lg:w-[23.5%]"

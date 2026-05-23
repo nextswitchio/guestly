@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { hasVerifiedIdentity } from '@/lib/api/identityVerification';
 
 export async function GET(req: NextRequest) {
   try {
@@ -19,6 +20,14 @@ export async function POST(req: NextRequest) {
     const userId = req.cookies.get('user_id')?.value;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const isVerified = await hasVerifiedIdentity(req, 'affiliate');
+    if (!isVerified) {
+      return NextResponse.json(
+        { error: 'Identity verification is required before requesting payouts' },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();

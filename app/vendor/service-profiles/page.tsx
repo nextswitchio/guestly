@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, RefreshCw, Edit3, EyeOff, Eye, Trash2, Package, FileText, ExternalLink, Link as LinkIcon, Share2 } from 'lucide-react';
+import { Plus, RefreshCw, Edit3, EyeOff, Eye, Trash2, Package, FileText, ExternalLink, Link as LinkIcon, Share2, Shield } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
@@ -11,6 +11,7 @@ export default function ServiceProfilesPage() {
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<string | null>(null);
   const [maxProfiles, setMaxProfiles] = useState(1);
+  const [identityStatus, setIdentityStatus] = useState<string | null>(null);
 
   useEffect(() => { fetchData(); }, []);
 
@@ -20,6 +21,11 @@ export default function ServiceProfilesPage() {
         fetch('/api/vendor/subscription'),
         fetch('/api/vendor/service-profiles'),
       ]);
+      const identityRes = await fetch('/api/identity');
+      if (identityRes.ok) {
+        const d = await identityRes.json();
+        setIdentityStatus(d.verification?.status || null);
+      }
       if (subRes.ok) {
         const d = await subRes.json();
         setPlan(d.subscription?.plan || null);
@@ -43,6 +49,7 @@ export default function ServiceProfilesPage() {
 
   const cats: Record<string, string> = { Security: 'bg-amber-50 text-amber-700', Sound: 'bg-purple-50 text-purple-700', Catering: 'bg-orange-50 text-orange-700', Decoration: 'bg-pink-50 text-pink-700', Logistics: 'bg-cyan-50 text-cyan-700', Photography: 'bg-blue-50 text-blue-700' };
   const atLimit = profiles.length >= maxProfiles;
+  const needsVerification = identityStatus !== 'verified';
 
   if (loading) return <div className="flex items-center justify-center py-12"><RefreshCw className="w-8 h-8 animate-spin text-gray-300" /></div>;
 
@@ -55,9 +62,18 @@ export default function ServiceProfilesPage() {
         </div>
         <div className="flex items-center gap-3">
           {plan && <span className="text-xs text-gray-400">{profiles.length}/{maxProfiles === Infinity ? '∞' : maxProfiles} profiles used</span>}
-          <Button onClick={() => router.push('/vendor/service-profiles/new')} disabled={atLimit}><Plus className="w-4 h-4 mr-2" />New Profile</Button>
+          <Button onClick={() => router.push('/vendor/service-profiles/new')} disabled={atLimit || needsVerification}><Plus className="w-4 h-4 mr-2" />New Profile</Button>
         </div>
       </div>
+
+      {needsVerification && (
+        <div className="flex items-center gap-3 rounded-xl border border-warning-200 bg-warning-50 px-4 py-3 text-sm text-warning-800">
+          <Shield className="h-4 w-4 shrink-0" />
+          <span className="font-semibold">Verification required.</span>
+          <span>Verify your identity before creating service profiles.</span>
+          <Button variant="outline" size="sm" href="/vendor/identity" className="ml-auto shrink-0">Verify</Button>
+        </div>
+      )}
 
       {atLimit && profiles.length > 0 && (
         <div className="flex items-center gap-2 rounded-xl border border-warning-200 bg-warning-50 px-4 py-3 text-sm text-warning-800">
@@ -72,8 +88,9 @@ export default function ServiceProfilesPage() {
           <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-dark mb-2">No service profiles yet</h3>
           <p className="text-gray-500 mb-6 max-w-md mx-auto">Create service profiles to showcase your specific offerings. Organisers can discover and invite you based on your profiles.</p>
-          <Button onClick={() => router.push('/vendor/service-profiles/new')} disabled={atLimit}><Plus className="w-4 h-4 mr-2" />Create Your First Profile</Button>
+          <Button onClick={() => router.push('/vendor/service-profiles/new')} disabled={atLimit || needsVerification}><Plus className="w-4 h-4 mr-2" />Create Your First Profile</Button>
           {atLimit && <p className="text-xs text-warning-600 mt-3">Upgrade your subscription to create service profiles.</p>}
+          {needsVerification && <p className="text-xs text-warning-600 mt-3">Verify your identity to create service profiles.</p>}
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -138,7 +155,7 @@ export default function ServiceProfilesPage() {
               </div>
             </Card>
           ))}
-          {!atLimit && (
+          {!atLimit && !needsVerification && (
             <button onClick={() => router.push('/vendor/service-profiles/new')} className="p-6 rounded-2xl border-2 border-dashed border-gray-200 hover:border-lime hover:bg-lime/5 transition-all flex flex-col items-center justify-center gap-2 min-h-[280px] group cursor-pointer">
               <Plus className="w-8 h-8 text-gray-300 group-hover:text-lime transition-colors" />
               <span className="text-sm font-medium text-gray-400 group-hover:text-dark transition-colors">Add New Profile</span>

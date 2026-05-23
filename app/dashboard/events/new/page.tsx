@@ -1,22 +1,22 @@
 'use client';
-import { Backpack, Building2, Camera, Clapperboard, Globe, Map, Package, Pencil, ShoppingBag, Tag, Ticket } from 'lucide-react';
+import { Backpack, Building2, Camera, Clapperboard, Globe, Map, Package, Pencil, Shield, ShoppingBag, Tag, Ticket } from 'lucide-react';
 import React from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
-import FileUpload from "@/components/ui/FileUpload";
 import Icon from "@/components/ui/Icon";
+import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { detectUserCountry, getStates, getCities, type Country } from "@/lib/locations";
+import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from "@/lib/platformCatalog";
 
 type Draft = {
   type?: "Physical" | "Virtual" | "Hybrid";
   title?: string;
   description?: string;
   date?: string;
-  category?: "Music" | "Tech" | "Art" | "Food" | "Cultural" | "Faith" | "Entertainment" | "Sports";
-  country?: Country;
+  category?: string;
+  country?: string;
   state?: string;
   city?: string;
   image?: string;
@@ -81,13 +81,19 @@ export default function CreateEventPage() {
   const [saving, setSaving] = React.useState(false);
   const [lastSaved, setLastSaved] = React.useState<Date | null>(null);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
-  const [uploadingImage, setUploadingImage] = React.useState(false);
+  const [identityStatus, setIdentityStatus] = React.useState<string | null>(null);
+  const [identityLoading, setIdentityLoading] = React.useState(true);
+  const [catalog, setCatalog] = React.useState<PlatformCatalog>(DEFAULT_PLATFORM_CATALOG);
 
   React.useEffect(() => {
-    const userCountry = detectUserCountry();
-    if (!draft.country) {
-      setDraft(prev => ({ ...prev, country: userCountry }));
-    }
+    fetch("/api/platform/catalog")
+      .then((res) => res.json())
+      .then((data) => {
+        const nextCatalog = normalizeCatalog(data);
+        setCatalog(nextCatalog);
+        setDraft((prev) => prev.country ? prev : { ...prev, country: nextCatalog.countries[0]?.name });
+      })
+      .catch(() => setCatalog(DEFAULT_PLATFORM_CATALOG));
   }, []);
 
   React.useEffect(() => {
@@ -95,11 +101,19 @@ export default function CreateEventPage() {
       const res = await fetch("/api/drafts/event");
       const data = await res.json();
       if (res.ok) {
-        setDraft(data.draft as Draft);
+        setDraft((prev) => ({ ...(data.draft as Draft), country: (data.draft as Draft).country || prev.country || catalog.countries[0]?.name }));
         setLastSaved(new Date());
       }
     }
     load();
+  }, []);
+
+  React.useEffect(() => {
+    fetch("/api/identity")
+      .then((res) => res.json())
+      .then((data) => setIdentityStatus(data.verification?.status || null))
+      .catch(() => setIdentityStatus(null))
+      .finally(() => setIdentityLoading(false));
   }, []);
 
   function validateStep(currentStep: number): boolean {
@@ -197,20 +211,17 @@ export default function CreateEventPage() {
 
   async function publish() {
     if (!validateStep(step)) return;
+    if (identityStatus !== "verified") {
+      setErrors({ _publish: "Verify your identity before publishing an event." });
+      return;
+    }
     const res = await fetch("/api/drafts/event/publish", { method: "POST" });
-    if (res.ok) router.replace("/dashboard/events");
-  }
-
-  async function handleImageUpload(files: File[]) {
-    if (files.length === 0) return;
-    
-    setUploadingImage(true);
-    const file = files[0];
-    
-    const imageUrl = URL.createObjectURL(file);
-    await save({ image: imageUrl });
-    
-    setUploadingImage(false);
+    if (res.ok) {
+      router.replace("/dashboard/events");
+    } else {
+      const data = await res.json().catch(() => ({}));
+      setErrors({ _publish: data.error || "Unable to publish event" });
+    }
   }
 
   const next = () => {
@@ -230,6 +241,10 @@ export default function CreateEventPage() {
     true,
     true,
   ];
+  const isIdentityVerified = identityStatus === "verified";
+  const countryCities = catalog.cities.filter((city) => city.countryName === draft.country && city.isActive);
+  const stateOptions = Array.from(new Set(countryCities.map((city) => city.state).filter(Boolean))) as string[];
+  const cityOptions = countryCities.filter((city) => !draft.state || city.state === draft.state);
 
   return (
     <ProtectedRoute allowRoles={["organiser"]}>
@@ -261,6 +276,27 @@ export default function CreateEventPage() {
             </div>
           )}
         </div>
+
+        {!identityLoading && !isIdentityVerified && (
+          <div className="mb-8 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100">
+              <Shield className="h-4 w-4 text-amber-700" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-amber-900">Identity verification required</p>
+              <p className="text-xs text-amber-700">You can prepare your draft, but publishing is locked until your identity is verified.</p>
+            </div>
+            <Link href="/dashboard/settings" className="shrink-0 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-amber-800 ring-1 ring-amber-200 hover:bg-amber-100">
+              Verify now
+            </Link>
+          </div>
+        )}
+
+        {errors._publish && (
+          <div className="mb-8 rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm text-red-700">
+            {errors._publish}
+          </div>
+        )}
 
         {/* Stepper */}
         <div className="mb-8">
@@ -415,18 +451,11 @@ export default function CreateEventPage() {
                 <Select
                   label="Category"
                   value={draft.category || ""}
-                  onChange={(e) => save({ category: e.currentTarget.value as Draft["category"] })}
+                  onChange={(e) => save({ category: e.currentTarget.value })}
                   error={errors.category}
                   options={[
                     { value: "", label: "Select category" },
-                    { value: "Music", label: "Music" },
-                    { value: "Tech", label: "Tech" },
-                    { value: "Art", label: "Art" },
-                    { value: "Food", label: "Food" },
-                    { value: "Cultural", label: "Cultural" },
-                    { value: "Faith", label: "Faith" },
-                    { value: "Entertainment", label: "Entertainment" },
-                    { value: "Sports", label: "Sports" },
+                    ...catalog.eventCategories.filter((category) => category.isActive).map((category) => ({ value: category.name, label: category.name })),
                   ]}
                 />
 
@@ -434,19 +463,17 @@ export default function CreateEventPage() {
                   label="Country"
                   value={draft.country || ""}
                   onChange={(e) => {
-                    const newCountry = e.currentTarget.value as Country;
+                    const newCountry = e.currentTarget.value;
                     save({ country: newCountry, state: undefined, city: undefined });
                   }}
                   error={errors.country}
                   options={[
                     { value: "", label: "Select country" },
-                    { value: "Nigeria", label: "Nigeria" },
-                    { value: "Ghana", label: "Ghana" },
-                    { value: "Kenya", label: "Kenya" },
+                    ...catalog.countries.filter((country) => country.isActive).map((country) => ({ value: country.name, label: country.name })),
                   ]}
                 />
 
-                {draft.country && (
+                {draft.country && stateOptions.length > 0 && (
                   <Select
                     label="State / Region"
                     value={draft.state || ""}
@@ -455,14 +482,14 @@ export default function CreateEventPage() {
                     }}
                     options={[
                       { value: "", label: "Select state" },
-                      ...getStates(draft.country).map(state => ({ value: state, label: state }))
+                      ...stateOptions.map(state => ({ value: state, label: state }))
                     ]}
                   />
                 )}
 
-                {draft.country && draft.state && (
+                {draft.country && (stateOptions.length === 0 || draft.state) && (
                   <>
-                    {getCities(draft.country, draft.state).length > 0 ? (
+                    {cityOptions.length > 0 ? (
                       <Select
                         label="City"
                         value={draft.city || ""}
@@ -470,7 +497,7 @@ export default function CreateEventPage() {
                         error={errors.city}
                         options={[
                           { value: "", label: "Select city" },
-                          ...getCities(draft.country, draft.state).map(city => ({ value: city, label: city }))
+                          ...cityOptions.map(city => ({ value: city.name, label: city.name }))
                         ]}
                       />
                     ) : (
@@ -543,30 +570,14 @@ export default function CreateEventPage() {
                 )}
 
                 <div className="sm:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-neutral-700">Cover Image</label>
-                  {draft.image ? (
-                    <div className="space-y-3">
-                      <div className="overflow-hidden rounded-xl border border-neutral-200">
-                        <img src={draft.image} alt="Cover preview" className="h-48 w-full object-cover" />
-                      </div>
-                      <button
-                        onClick={() => save({ image: undefined })}
-                        className="flex items-center gap-2 text-sm text-red-600 transition hover:text-red-700"
-                      >
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Remove image
-                      </button>
-                    </div>
-                  ) : (
-                    <FileUpload
-                      accept="image/*"
-                      maxFiles={1}
-                      onUpload={handleImageUpload}
-                      disabled={uploadingImage}
-                    />
-                  )}
+                  <CloudinaryUploadField
+                    label="Cover Image"
+                    value={draft.image || ""}
+                    onChange={(url) => save({ image: url || undefined })}
+                    folder="guestly/events/covers"
+                    accept="image/*"
+                    placeholder="Upload event cover"
+                  />
                   {errors.image && <p className="mt-1 text-xs text-red-600">{errors.image}</p>}
                 </div>
 
@@ -1006,15 +1017,17 @@ export default function CreateEventPage() {
                               />
                             </div>
 
-                            <Input
-                              label="Image (emoji or URL)"
+                            <CloudinaryUploadField
+                              label="Product Image"
                               value={product.image}
-                              onChange={(e) => {
+                              onChange={(image) => {
                                 const products = [...(draft.merch?.products || [])];
-                                products[index] = { ...products[index], image: e.currentTarget.value };
+                                products[index] = { ...products[index], image };
                                 save({ merch: { ...draft.merch, products } });
                               }}
-                              placeholder="👕 or https://..."
+                              folder="guestly/events/merch"
+                              accept="image/*"
+                              placeholder="Upload product image"
                             />
 
                             <Input
@@ -1194,7 +1207,8 @@ export default function CreateEventPage() {
             ) : (
               <button
                 onClick={publish}
-                className="flex items-center gap-2 rounded-xl bg-lime px-8 py-2.5 font-semibold text-dark shadow-sm transition hover:bg-lime-hover"
+                disabled={identityLoading || !isIdentityVerified}
+                className="flex items-center gap-2 rounded-xl bg-lime px-8 py-2.5 font-semibold text-dark shadow-sm transition hover:bg-lime-hover disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Icon name="rocket" size={20} />
                 Publish Event
