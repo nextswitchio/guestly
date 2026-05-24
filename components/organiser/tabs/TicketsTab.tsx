@@ -2,15 +2,23 @@ import { AlertTriangle, Banknote, Building2, Monitor, Package, Star, Ticket } fr
 import React from "react";
 import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
-import { getEventById } from "@/lib/events";
 
 export default function TicketsTab({ eventId }: { eventId: string }) {
-  const event = getEventById(eventId);
+  const [eventType, setEventType] = React.useState<string>("Physical");
   const [availability, setAvailability] = React.useState<{
     tickets: Array<{ type: string; price: number; available: number; attendanceType?: "physical" | "virtual" }>;
   } | null>(null);
 
   React.useEffect(() => {
+    // Fetch event type for capacity calculations
+    fetch(`/api/events/${eventId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const ev = d?.event ?? d?.data ?? d;
+        if (ev?.event_type || ev?.eventType) setEventType(ev.event_type ?? ev.eventType);
+      })
+      .catch(() => {});
+
     async function load() {
       const res = await fetch(`/api/tickets?eventId=${eventId}`);
       const data = await res.json();
@@ -36,13 +44,13 @@ export default function TicketsTab({ eventId }: { eventId: string }) {
 
   // Calculate totals
   const totalSold = availability.tickets.reduce((sum, t) => {
-    const initialCapacity = event?.eventType === "Virtual" ? 500 : 200;
+    const initialCapacity = eventType === "Virtual" ? 500 : 200;
     const sold = initialCapacity - t.available;
     return sum + sold;
   }, 0);
 
   const totalRevenue = availability.tickets.reduce((sum, t) => {
-    const initialCapacity = event?.eventType === "Virtual" ? 500 : 200;
+    const initialCapacity = eventType === "Virtual" ? 500 : 200;
     const sold = initialCapacity - t.available;
     return sum + (sold * t.price);
   }, 0);
@@ -50,7 +58,7 @@ export default function TicketsTab({ eventId }: { eventId: string }) {
   const totalRemaining = availability.tickets.reduce((sum, t) => sum + t.available, 0);
   
   const totalCapacity = availability.tickets.reduce((sum, t) => {
-    const initialCapacity = event?.eventType === "Virtual" ? 500 : 200;
+    const initialCapacity = eventType === "Virtual" ? 500 : 200;
     return sum + initialCapacity;
   }, 0);
 
@@ -129,7 +137,7 @@ export default function TicketsTab({ eventId }: { eventId: string }) {
         </div>
 
         {availability.tickets.map((t, idx) => {
-          const initialCapacity = event?.eventType === "Virtual" ? 500 : 200;
+          const initialCapacity = eventType === "Virtual" ? 500 : 200;
           const sold = initialCapacity - t.available;
           const total = initialCapacity;
           const pct = Math.round((sold / total) * 100);

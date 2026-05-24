@@ -1,5 +1,5 @@
 import type { Event, StreamingConfig, StreamingProvider } from "./events";
-import { addEvent, getEventById, events } from "./events";
+import { addEvent, getEventById, getAllEvents, events } from "./events";
 import type { Product, MerchOrder, MerchOrderItem, ProductCategory, ProductBundle } from "@/types/merchandise";
 import { CacheInvalidationHooks } from "./cache-invalidation";
 
@@ -960,15 +960,7 @@ export function markOrderPaid(orderId: string) {
   // Add event to user's attendance history
   addEventToAttendanceHistory(order.userId, order.eventId);
   
-  // Calculate commission for this event
-  const { getEventById } = require('./events');
-  const event = getEventById(order.eventId);
-  if (event) {
-    const organizerId = event.organizerId || event.userId;
-    if (organizerId) {
-      calculateEventCommission(order.eventId, organizerId);
-    }
-  }
+  // Commission calculation is handled server-side when the order is paid via the backend API
   
   // Invalidate order and event caches
   CacheInvalidationHooks.onOrderMutation(order.userId, order.eventId);
@@ -2464,25 +2456,11 @@ export function publishEventFromDraft(userId: string) {
     };
   }
   
-  const created = addEvent({
-    title: draft.title,
-    description: draft.description,
-    date: draft.date,
-    category: draft.category,
-    country: draft.country,
-    state: draft.state,
-    city: draft.city,
-    image: draft.image,
-    eventType: draft.type,
-    venue: draft.venue,
-    latitude: draft.latitude,
-    longitude: draft.longitude,
-    community: draft.community,
-    communityType: draft.communityType,
-    streamingConfig,
-    postEventMerchSales: draft.merch?.postEventSales || false,
-    postEventCommunityAccess: draft.postEventCommunityAccess ?? true,
-  }, userId); // Pass organizerId to notify followers
+  // Event creation is handled server-side via the backend API.
+  // The draft publish API route (/api/drafts/event/publish) submits to the backend
+  // and returns the created event ID. We use a stub here so downstream
+  // in-memory tracking (merch, organizer history) still works during the transition.
+  const created = { id: draft.id || `draft-${Date.now()}` };
   
   // Track event organizer
   eventOrganizers[created.id] = userId;

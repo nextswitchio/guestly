@@ -12,14 +12,22 @@ type InfluencerTab = 'discover' | 'collaborations' | 'media-kit';
 
 export default function InfluencersPage() {
   const [organizerId, setOrganizerId] = useState<string>('');
+  const [selectedEventId, setSelectedEventId] = useState<string>('');
   const [activeTab, setActiveTab] = useState<InfluencerTab>('discover');
 
   useEffect(() => {
-    const cookies = document.cookie.split(";");
-    const userIdCookie = cookies.find((c) => c.trim().startsWith("user_id="));
-    if (userIdCookie) {
-      setOrganizerId(userIdCookie.split("=")[1]);
-    }
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then((d) => { if (d.ok && d.user?.id) setOrganizerId(d.user.id); })
+      .catch(() => {});
+
+    fetch('/api/events/my?page_size=50')
+      .then((r) => r.json())
+      .then((d) => {
+        const list = Array.isArray(d.events) ? d.events : [];
+        if (list.length > 0) setSelectedEventId(list[0].id);
+      })
+      .catch(() => {});
   }, []);
 
   if (!organizerId) {
@@ -72,13 +80,13 @@ export default function InfluencersPage() {
 
       {activeTab === 'collaborations' && (
         <div className="space-y-6">
-          <InfluencerInviteForm organizerId={organizerId} eventId="event_123" />
+          <InfluencerInviteForm organizerId={organizerId} eventId={selectedEventId} />
           <InfluencerCollaboration organizerId={organizerId} />
         </div>
       )}
 
       {activeTab === 'media-kit' && (
-        <MediaKitGenerator eventId="event_123" organizerId={organizerId} />
+        <MediaKitGenerator eventId={selectedEventId} organizerId={organizerId} />
       )}
     </div>
   );

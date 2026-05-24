@@ -43,18 +43,26 @@ type MarketingTab =
 
 export default function MarketingPage() {
   const [activeTab, setActiveTab] = useState<MarketingTab>('overview');
-  const [organizerId] = useState('org_123');
-  const [selectedEventId, setSelectedEventId] = useState('event_123');
+  const [organizerId, setOrganizerId] = useState('');
+  const [myEvents, setMyEvents] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedEventId, setSelectedEventId] = useState('');
 
   const [customTemplates, setCustomTemplates] = useState<EmailTemplate[]>([]);
   const [showEmailBuilder, setShowEmailBuilder] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
 
-  const mockEvents = [
-    { id: 'event_123', name: 'Summer Music Festival 2024' },
-    { id: 'event_456', name: 'Tech Conference Lagos' },
-    { id: 'event_789', name: 'Food & Wine Expo' },
-  ];
+  React.useEffect(() => {
+    // Get authenticated user ID
+    fetch("/api/auth/me").then(r => r.json()).then(d => {
+      if (d.ok && d.user?.id) setOrganizerId(d.user.id);
+    }).catch(() => {});
+    // Get organiser's events for selectors
+    fetch("/api/events/my?page_size=50").then(r => r.json()).then(d => {
+      const events = Array.isArray(d.events) ? d.events.map((e: any) => ({ id: e.id, name: e.title })) : [];
+      setMyEvents(events);
+      if (events.length > 0) setSelectedEventId(events[0].id);
+    }).catch(() => {});
+  }, []);
 
   const tabs = [
     { id: 'overview' as const, label: 'Overview', icon: 'chart' as const },
@@ -189,14 +197,15 @@ export default function MarketingPage() {
                     onChange={(e) => setSelectedEventId(e.target.value)}
                     className="w-full h-10 rounded-xl border border-neutral-200 bg-neutral-50 px-3 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
                   >
-                    {mockEvents.map((event) => (
+                    {myEvents.length === 0 && <option value="">No events yet</option>}
+                    {myEvents.map((event) => (
                       <option key={event.id} value={event.id}>{event.name}</option>
                     ))}
                   </select>
                 </div>
               </div>
             </div>
-            <SEOChecklist eventId={selectedEventId} eventName={mockEvents.find(e => e.id === selectedEventId)?.name} />
+            <SEOChecklist eventId={selectedEventId} eventName={myEvents.find(e => e.id === selectedEventId)?.name} />
           </div>
         );
       case 'calendar':
@@ -206,8 +215,8 @@ export default function MarketingPage() {
       case 'viral-loops':
         return (
           <div className="space-y-6">
-            <ViralLoopProgress userId={organizerId} eventId="event_123" />
-            <ReferralLeaderboard eventId="event_123" />
+            <ViralLoopProgress userId={organizerId} eventId={selectedEventId} />
+            <ReferralLeaderboard eventId={selectedEventId} />
           </div>
         );
       default:
@@ -251,30 +260,45 @@ export default function MarketingPage() {
 
 // Marketing Overview Component
 function MarketingOverview({ organizerId }: { organizerId: string }) {
+  const [stats, setStats] = useState({ campaigns: 0, promoCodes: 0, referrals: 0 });
+
+  React.useEffect(() => {
+    Promise.all([
+      fetch(`/api/campaigns?organizerId=${organizerId}`).then(r => r.json()).catch(() => null),
+      fetch(`/api/promo-codes?organizerId=${organizerId}`).then(r => r.json()).catch(() => null),
+      fetch(`/api/referrals/stats`).then(r => r.json()).catch(() => null),
+    ]).then(([campaigns, promos, referrals]) => {
+      setStats({
+        campaigns: campaigns?.total ?? campaigns?.campaigns?.length ?? 0,
+        promoCodes: promos?.total ?? promos?.promoCodes?.length ?? 0,
+        referrals: referrals?.totalReferrals ?? 0,
+      });
+    });
+  }, [organizerId]);
+
   const features = [
-    { title: 'Multi-Channel Campaigns', description: 'Coordinate marketing across email, SMS, WhatsApp, push, and social media', icon: 'megaphone' as const, color: 'bg-lime/10 text-lime', stats: { active: 5, total: 12 } },
-    { title: 'Promo Codes', description: 'Create discount codes and track redemptions', icon: 'ticket' as const, color: 'bg-green-100 text-green-600', stats: { active: 8, redeemed: 234 } },
-    { title: 'Referral Program', description: 'Viral growth through attendee referrals', icon: 'users' as const, color: 'bg-blue-100 text-blue-600', stats: { referrals: 156, conversions: 89 } },
-    { title: 'Attribution & ROI', description: 'Track conversions and measure campaign performance', icon: 'trending-up' as const, color: 'bg-purple-100 text-purple-600', stats: { roi: '245%', cac: '$12.50' } },
-    { title: 'Social Media', description: 'Auto-post to Facebook, Instagram, Twitter, LinkedIn, TikTok', icon: 'sparkles' as const, color: 'bg-pink-100 text-pink-600', stats: { connected: 3, posts: 45 } },
-    { title: 'Email Marketing', description: 'Templates, campaigns, and drip sequences', icon: 'bell' as const, color: 'bg-orange-100 text-orange-600', stats: { sent: '12.5K', openRate: '32%' } },
-    { title: 'Paid Advertising', description: 'Facebook, Google, and TikTok ad campaigns', icon: 'target' as const, color: 'bg-red-100 text-red-600', stats: { spend: '$2,450', roas: '3.2x' } },
-    { title: 'Influencer Collaboration', description: 'Partner with influencers and track performance', icon: 'star' as const, color: 'bg-yellow-100 text-yellow-600', stats: { active: 4, reach: '125K' } },
-    { title: 'Content Marketing', description: 'Blog posts and content distribution', icon: 'document' as const, color: 'bg-indigo-100 text-indigo-600', stats: { posts: 23, views: '8.9K' } },
-    { title: 'A/B Testing', description: 'Test and optimize marketing variations', icon: 'lightbulb' as const, color: 'bg-teal-100 text-teal-600', stats: { tests: 7, winners: 5 } },
-    { title: 'SEO Optimization', description: 'Automatic SEO metadata and sitemaps', icon: 'search' as const, color: 'bg-green-100 text-green-600', stats: { score: 92, indexed: 156 } },
-    { title: 'Retargeting', description: 'Re-engage visitors with targeted ads', icon: 'target' as const, color: 'bg-cyan-100 text-cyan-600', stats: { audiences: 5, size: '12K' } },
+    { title: 'Multi-Channel Campaigns', description: 'Coordinate marketing across email, SMS, WhatsApp, push, and social media', icon: 'megaphone' as const, color: 'bg-lime/10 text-lime', stat: `${stats.campaigns} active` },
+    { title: 'Promo Codes', description: 'Create discount codes and track redemptions', icon: 'ticket' as const, color: 'bg-green-100 text-green-600', stat: `${stats.promoCodes} codes` },
+    { title: 'Referral Program', description: 'Viral growth through attendee referrals', icon: 'users' as const, color: 'bg-blue-100 text-blue-600', stat: `${stats.referrals} referrals` },
+    { title: 'Attribution & ROI', description: 'Track conversions and measure campaign performance', icon: 'trending-up' as const, color: 'bg-purple-100 text-purple-600', stat: 'View analytics' },
+    { title: 'Social Media', description: 'Auto-post to Facebook, Instagram, Twitter, LinkedIn, TikTok', icon: 'sparkles' as const, color: 'bg-pink-100 text-pink-600', stat: 'Connect accounts' },
+    { title: 'Email Marketing', description: 'Templates, campaigns, and drip sequences', icon: 'bell' as const, color: 'bg-orange-100 text-orange-600', stat: 'Create template' },
+    { title: 'Paid Advertising', description: 'Facebook, Google, and TikTok ad campaigns', icon: 'target' as const, color: 'bg-red-100 text-red-600', stat: 'Create ad' },
+    { title: 'Influencer Collaboration', description: 'Partner with influencers and track performance', icon: 'star' as const, color: 'bg-yellow-100 text-yellow-600', stat: 'Find influencers' },
+    { title: 'Content Marketing', description: 'Blog posts and content distribution', icon: 'document' as const, color: 'bg-indigo-100 text-indigo-600', stat: 'Write post' },
+    { title: 'A/B Testing', description: 'Test and optimize marketing variations', icon: 'lightbulb' as const, color: 'bg-teal-100 text-teal-600', stat: 'Create test' },
+    { title: 'SEO Optimization', description: 'Automatic SEO metadata and sitemaps', icon: 'search' as const, color: 'bg-green-100 text-green-600', stat: 'Check score' },
+    { title: 'Retargeting', description: 'Re-engage visitors with targeted ads', icon: 'target' as const, color: 'bg-cyan-100 text-cyan-600', stat: 'Build audience' },
   ];
 
   return (
     <div className="space-y-8">
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: 'Total Campaigns', value: '24', change: '↑ 12%', icon: 'megaphone', bg: 'bg-lime/10', color: 'text-lime' },
-          { label: 'Total Reach', value: '156K', change: '↑ 28%', icon: 'users', bg: 'bg-blue-100', color: 'text-blue-600' },
-          { label: 'Conversions', value: '1,234', change: '↑ 18%', icon: 'trending-up', bg: 'bg-green-100', color: 'text-green-600' },
-          { label: 'Average ROI', value: '245%', change: '↑ 34%', icon: 'rocket', bg: 'bg-purple-100', color: 'text-purple-600' },
+          { label: 'Total Campaigns', value: stats.campaigns.toString(), icon: 'megaphone', bg: 'bg-lime/10', color: 'text-lime' },
+          { label: 'Promo Codes', value: stats.promoCodes.toString(), icon: 'ticket', bg: 'bg-blue-100', color: 'text-blue-600' },
+          { label: 'Referrals', value: stats.referrals.toString(), icon: 'users', bg: 'bg-green-100', color: 'text-green-600' },
         ].map((stat, i) => (
           <div key={i} className="rounded-2xl border border-neutral-200 bg-white p-6">
             <div className="flex items-center justify-between">
@@ -286,41 +310,24 @@ function MarketingOverview({ organizerId }: { organizerId: string }) {
                 <Icon name={stat.icon as any} size={24} className={stat.color} />
               </div>
             </div>
-            <p className="text-xs text-green-600 mt-2 font-medium">{stat.change} from last month</p>
           </div>
         ))}
       </div>
 
       {/* Feature Grid */}
       <div>
-        <h2 className="text-lg font-semibold text-neutral-900 mb-4">
-          Marketing Features
-        </h2>
+        <h2 className="text-lg font-semibold text-neutral-900 mb-4">Marketing Features</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((feature, index) => (
-            <div
-              key={index}
-              className="rounded-2xl border border-neutral-200 bg-white p-6 hover:shadow-md transition-shadow cursor-pointer"
-            >
+            <div key={index} className="rounded-2xl border border-neutral-200 bg-white p-6 hover:shadow-md transition-shadow cursor-pointer">
               <div className="flex items-start gap-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${feature.color}`}>
                   <Icon name={feature.icon} size={24} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-neutral-900 mb-1">
-                    {feature.title}
-                  </h3>
-                  <p className="text-xs text-neutral-500 mb-3">
-                    {feature.description}
-                  </p>
-                  <div className="flex items-center gap-4 text-xs text-neutral-500">
-                    {Object.entries(feature.stats).map(([key, value]) => (
-                      <span key={key}>
-                        <span className="font-medium text-neutral-900">{value}</span>{' '}
-                        {key}
-                      </span>
-                    ))}
-                  </div>
+                  <h3 className="text-sm font-semibold text-neutral-900 mb-1">{feature.title}</h3>
+                  <p className="text-xs text-neutral-500 mb-3">{feature.description}</p>
+                  <span className="text-xs font-medium text-neutral-400">{feature.stat}</span>
                 </div>
               </div>
             </div>

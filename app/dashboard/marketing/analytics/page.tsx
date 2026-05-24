@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AttributionDashboard from '@/components/marketing/analytics/AttributionDashboard';
 import ChannelPerformanceChart from '@/components/marketing/analytics/ChannelPerformanceChart';
 import ROICalculator from '@/components/marketing/analytics/ROICalculator';
@@ -9,71 +9,76 @@ import CohortAnalysis from '@/components/marketing/analytics/CohortAnalysis';
 import DateRangeSelector from '@/components/marketing/analytics/DateRangeSelector';
 
 export default function AnalyticsPage() {
-  const organizerId = 'org_123';
+  const [organizerId, setOrganizerId] = useState('');
   const [dateRange, setDateRange] = useState({
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    end: new Date().toISOString().split('T')[0]
+    end: new Date().toISOString().split('T')[0],
   });
+  const [channels, setChannels] = useState<any[]>([]);
+  const [stages, setStages] = useState<any[]>([]);
+  const [cohorts, setCohorts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const mockChannels = [
-    { channel: 'Email', revenue: 15000, cost: 3000, conversions: 450, roi: 400, cac: 6.67 },
-    { channel: 'Social Media', revenue: 12000, cost: 2500, conversions: 380, roi: 380, cac: 6.58 },
-    { channel: 'Paid Ads', revenue: 20000, cost: 8000, conversions: 600, roi: 150, cac: 13.33 },
-    { channel: 'Organic Search', revenue: 18000, cost: 1000, conversions: 520, roi: 1700, cac: 1.92 },
-  ];
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then((d) => { if (d.ok && d.user?.id) setOrganizerId(d.user.id); })
+      .catch(() => {});
+  }, []);
 
-  const mockStages = [
-    { stage: 'Visited Site', users: 10000, dropoffRate: 0 },
-    { stage: 'Viewed Event', users: 6000, dropoffRate: 40 },
-    { stage: 'Started Checkout', users: 2400, dropoffRate: 60 },
-    { stage: 'Completed Purchase', users: 1200, dropoffRate: 50 },
-  ];
+  useEffect(() => {
+    if (!dateRange.start || !dateRange.end) return;
+    setLoading(true);
 
-  const mockCohorts = [
-    {
-      cohortName: 'Jan 2024',
-      cohortDate: '2024-01-01',
-      initialSize: 1000,
-      periods: [
-        { period: 0, activeUsers: 1000, retentionRate: 100, revenue: 50000, ltv: 50 },
-        { period: 1, activeUsers: 650, retentionRate: 65, revenue: 32500, ltv: 50 },
-        { period: 2, activeUsers: 520, retentionRate: 52, revenue: 26000, ltv: 50 },
-        { period: 3, activeUsers: 450, retentionRate: 45, revenue: 22500, ltv: 50 },
-      ],
-    },
-    {
-      cohortName: 'Feb 2024',
-      cohortDate: '2024-02-01',
-      initialSize: 1200,
-      periods: [
-        { period: 0, activeUsers: 1200, retentionRate: 100, revenue: 60000, ltv: 50 },
-        { period: 1, activeUsers: 780, retentionRate: 65, revenue: 39000, ltv: 50 },
-        { period: 2, activeUsers: 600, retentionRate: 50, revenue: 30000, ltv: 50 },
-      ],
-    },
-  ];
+    const params = `startDate=${dateRange.start}&endDate=${dateRange.end}`;
+
+    Promise.all([
+      fetch(`/api/analytics/channels?${params}`).then((r) => r.ok ? r.json() : []).catch(() => []),
+      fetch(`/api/analytics/funnel?${params}`).then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch(`/api/analytics/cohorts?cohortDate=${dateRange.start}`).then((r) => r.ok ? r.json() : []).catch(() => []),
+    ]).then(([ch, funnel, coh]) => {
+      setChannels(Array.isArray(ch) ? ch : []);
+      setStages(funnel?.stages ?? []);
+      setCohorts(Array.isArray(coh) ? coh : []);
+    }).finally(() => setLoading(false));
+  }, [dateRange]);
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">Marketing Analytics</h1>
-          <p className="text-neutral-500 mt-1">
-            Track attribution, ROI, and campaign performance
-          </p>
+          <p className="text-neutral-500 mt-1">Track attribution, ROI, and campaign performance</p>
         </div>
         <DateRangeSelector value={dateRange} onChange={setDateRange} />
       </div>
 
-      <AttributionDashboard organizerId={organizerId} />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChannelPerformanceChart channels={mockChannels} />
-        <ROICalculator channels={mockChannels} />
-      </div>
+      {organizerId && <AttributionDashboard organizerId={organizerId} />}
 
-      <FunnelVisualization stages={mockStages} />
-      <CohortAnalysis cohorts={mockCohorts} />
+      {loading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-64 bg-neutral-100 rounded-2xl animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <>
+          {channels.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ChannelPerformanceChart channels={channels} />
+              <ROICalculator channels={channels} />
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-10 text-center">
+              <p className="text-sm text-neutral-400">No channel performance data yet. Run campaigns to see results here.</p>
+            </div>
+          )}
+
+          {stages.length > 0 && <FunnelVisualization stages={stages} />}
+
+          {cohorts.length > 0 && <CohortAnalysis cohorts={cohorts} />}
+        </>
+      )}
     </div>
   );
 }

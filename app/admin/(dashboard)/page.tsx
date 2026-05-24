@@ -206,35 +206,31 @@ export default function AdminDashboardPage() {
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Revenue Trends</h3>
           <div className="h-64">
-            <LineChart
-              data={metrics?.growth_data && metrics.growth_data.length > 0
-                ? metrics.growth_data
-                : [
-                    { label: "Jan", value: 12000 },
-                    { label: "Feb", value: 19000 },
-                    { label: "Mar", value: 15000 },
-                    { label: "Apr", value: 25000 },
-                    { label: "May", value: 22000 },
-                    { label: "Jun", value: 30000 },
-                  ]
-              }
-              color={ADMIN_CHART_COLORS[0]}
-            />
+            {metrics?.growth_data && metrics.growth_data.length > 0 ? (
+              <LineChart data={metrics.growth_data} color={ADMIN_CHART_COLORS[0]} />
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-slate-400">
+                No revenue data yet
+              </div>
+            )}
           </div>
         </Card>
 
         <Card className="p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Event Categories</h3>
           <div className="h-64">
-            <PieChart
-              data={[
-                { label: 'Technology', value: 35, color: ADMIN_CHART_COLORS[0] },
-                { label: 'Business', value: 25, color: ADMIN_CHART_COLORS[1] },
-                { label: 'Entertainment', value: 20, color: ADMIN_CHART_COLORS[3] },
-                { label: 'Education', value: 15, color: ADMIN_CHART_COLORS[2] },
-                { label: 'Other', value: 5, color: ADMIN_CHART_COLORS[4] },
-              ]}
-            />
+            {metrics && metrics.total_events > 0 ? (
+              <PieChart
+                data={[
+                  { label: 'Published', value: metrics.published_events, color: ADMIN_CHART_COLORS[0] },
+                  { label: 'Draft', value: Math.max(0, metrics.total_events - metrics.published_events), color: ADMIN_CHART_COLORS[3] },
+                ].filter((d) => d.value > 0)}
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-slate-400">
+                No events yet
+              </div>
+            )}
           </div>
         </Card>
       </div>

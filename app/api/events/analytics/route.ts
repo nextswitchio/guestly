@@ -1,41 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
-  const userId = req.cookies.get("user_id")?.value;
+  const token = req.cookies.get("access_token")?.value;
   const role = req.cookies.get("role")?.value;
-  
-  if (!userId || role !== "organiser") {
+
+  if (!token || role !== "organiser") {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    // Mock analytics data
-    const analytics = {
-      totalEvents: 5,
-      totalRevenue: 125000,
-      totalTicketsSold: 250,
-      averageTicketPrice: 500,
-      conversionRate: 0.15,
-      topPerformingEvent: {
-        id: 'evt-1',
-        title: 'Tech Conference Lagos',
-        revenue: 50000
-      },
-      recentActivity: [
-        { type: 'ticket_sale', amount: 5000, timestamp: Date.now() - 3600000 },
-        { type: 'event_view', count: 25, timestamp: Date.now() - 7200000 }
-      ]
-    };
-    
-    return NextResponse.json({
-      success: true,
-      data: analytics
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/my/analytics`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
     });
-  } catch (error) {
-    console.error('Error fetching analytics:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch analytics' },
-      { status: 500 }
-    );
+    const data = await res.json();
+    return NextResponse.json({ success: true, data }, { status: res.status });
+  } catch {
+    return NextResponse.json({ success: false, error: "Backend unavailable" }, { status: 502 });
   }
 }

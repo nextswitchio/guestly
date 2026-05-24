@@ -5,7 +5,6 @@ import EventCard from "@/components/events/EventCard";
 import EmptyState from "@/components/ui/EmptyState";
 import Card from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
-import { filterEvents, getEventById } from "@/lib/events";
 import { useRouter } from "next/navigation";
 
 const tabs = [
@@ -39,19 +38,39 @@ export default function AttendeePage() {
   const [wallet, setWallet] = React.useState<{ balance: number; promoBalance: number } | null>(null);
   const [orders, setOrders] = React.useState<any[]>([]);
   const [savedIds, setSavedIds] = React.useState<string[]>([]);
+  const [savedEvents, setSavedEvents] = React.useState<any[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = React.useState<any[]>([]);
+  const [pastEvents, setPastEvents] = React.useState<any[]>([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [referralStats, setReferralStats] = React.useState<{ totalReferrals: number; totalEarned: number } | null>(null);
   const [followedOrganizers, setFollowedOrganizers] = React.useState<any[]>([]);
   const [recommended, setRecommended] = React.useState<any[]>([]);
   const [recommendationsLoading, setRecommendationsLoading] = React.useState(false);
+  const [eventsLoading, setEventsLoading] = React.useState(true);
 
   React.useEffect(() => {
     fetch("/api/wallet").then(r => r.json()).then(d => { if (d.success) setWallet(d.data); }).catch(() => {});
     fetch("/api/orders/user").then(r => r.json()).then(d => { if (d.success) setOrders(d.orders); }).catch(() => {});
-    fetch("/api/events/save").then(r => r.json()).then(d => { if (d.ok) setSavedIds(d.data.map((e: any) => e.id)); }).catch(() => {});
+    fetch("/api/events/save").then(r => r.json()).then(d => {
+      if (d.ok) {
+        setSavedIds(d.data.map((e: any) => e.id));
+        setSavedEvents(d.data);
+      }
+    }).catch(() => {});
     fetch("/api/notifications?unreadOnly=true").then(r => r.json()).then(d => { if (d.success) setUnreadCount(d.data.length); }).catch(() => {});
     fetch("/api/referrals/stats").then(r => r.json()).then(d => { setReferralStats(d); }).catch(() => {});
     fetch("/api/follows").then(r => r.json()).then(d => { if (d.success) setFollowedOrganizers(d.data); }).catch(() => {});
+
+    // Fetch upcoming and past events from backend
+    setEventsLoading(true);
+    const now = new Date().toISOString().split("T")[0];
+    Promise.all([
+      fetch(`/api/events?status=published&date_from=${now}&page_size=20`).then(r => r.json()).catch(() => ({ events: [] })),
+      fetch(`/api/events?status=published&date_to=${now}&page_size=20`).then(r => r.json()).catch(() => ({ events: [] })),
+    ]).then(([upcoming, past]) => {
+      setUpcomingEvents(Array.isArray(upcoming?.events) ? upcoming.events : []);
+      setPastEvents(Array.isArray(past?.events) ? past.events : []);
+    }).finally(() => setEventsLoading(false));
 
     // Fetch personalized recommendations
     setRecommendationsLoading(true);
@@ -60,15 +79,9 @@ export default function AttendeePage() {
       .then(d => {
         if (d.success) {
           setRecommended(d.data.map((e: any) => ({
-            id: e.id,
-            title: e.title,
-            description: e.description,
-            date: e.date,
-            category: e.category,
-            city: e.city,
-            image: e.image,
-            eventType: e.event_type,
-            distanceKm: e.distance_km,
+            id: e.id, title: e.title, description: e.description,
+            date: e.date, category: e.category, city: e.city,
+            image: e.image, eventType: e.event_type, distanceKm: e.distance_km,
           })));
         }
       })
@@ -76,12 +89,7 @@ export default function AttendeePage() {
       .finally(() => setRecommendationsLoading(false));
   }, []);
 
-  const allEvents = filterEvents({}).data;
-  const upcoming = allEvents.filter((e) => new Date(e.date) > new Date());
-  const past = allEvents.filter((e) => new Date(e.date) <= new Date());
-  const saved = savedIds.map(id => getEventById(id)).filter(Boolean) as typeof allEvents;
-
-  const sectionMap: Record<TabKey, typeof allEvents> = { upcoming, saved, recommended, past };
+  const sectionMap: Record<TabKey, any[]> = { upcoming: upcomingEvents, saved: savedEvents, recommended, past: pastEvents };
   const events = sectionMap[tab];
   const walletBalance = wallet?.balance ?? 0;
   const recentOrders = orders.slice(0, 3);
@@ -137,8 +145,8 @@ export default function AttendeePage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <StatCard label="Upcoming" value={upcoming.length} icon="calendar" iconBg="bg-dark" />
-          <StatCard label="Saved" value={saved.length} icon="heart" iconBg="bg-rose-500" />
+          <StatCard label="Upcoming" value={upcomingEvents.length} icon="calendar" iconBg="bg-dark" />
+          <StatCard label="Saved" value={savedEvents.length} icon="heart" iconBg="bg-rose-500" />
           <StatCard label="Orders" value={orders.length} icon="ticket" iconBg="bg-emerald-500" />
           <StatCard label="Balance" value={`₦${walletBalance.toLocaleString()}`} icon="wallet" iconBg="bg-amber-500" />
         </div>
@@ -153,40 +161,36 @@ export default function AttendeePage() {
               </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {recentOrders.map((order: any) => {
-                const event = getEventById(order.eventId);
-                if (!event) return null;
-                return (
-                  <div key={order.id} className="group relative rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 border-l-4 border-l-lime transition-all duration-300 hover:shadow-md">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-neutral-900 truncate">{event.title}</p>
-                        <p className="text-[11px] text-neutral-500 mt-0.5">
-                          {new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                        </p>
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
-                            order.status === "paid" ? "bg-emerald-100 text-emerald-700" :
-                            order.status === "refunded" ? "bg-neutral-100 text-neutral-500" :
-                            "bg-warning-100 text-warning-700"
-                          }`}>
-                            {order.status}
-                          </span>
-                          {order.items?.map((item: any, i: number) => (
-                            <span key={i} className="text-[10px] font-medium text-neutral-400">{item.type} x{item.quantity}</span>
-                          ))}
-                        </div>
+              {recentOrders.map((order: any) => (
+                <div key={order.id} className="group relative rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 border-l-4 border-l-lime transition-all duration-300 hover:shadow-md">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm text-neutral-900 truncate">{order.event_title ?? order.eventTitle ?? "Event"}</p>
+                      <p className="text-[11px] text-neutral-500 mt-0.5">
+                        {order.created_at ? new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                          order.status === "paid" ? "bg-emerald-100 text-emerald-700" :
+                          order.status === "refunded" ? "bg-neutral-100 text-neutral-500" :
+                          "bg-warning-100 text-warning-700"
+                        }`}>
+                          {order.status}
+                        </span>
+                        {order.items?.map((item: any, i: number) => (
+                          <span key={i} className="text-[10px] font-medium text-neutral-400">{item.type} x{item.quantity}</span>
+                        ))}
                       </div>
-                      <button
-                        onClick={() => router.push("/attendee/orders")}
-                        className="shrink-0 h-7 w-7 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-400 hover:text-neutral-600 hover:bg-neutral-200 transition-all opacity-0 group-hover:opacity-100"
-                      >
-                        <Icon name="arrow-right" size={14} />
-                      </button>
                     </div>
+                    <button
+                      onClick={() => router.push("/attendee/orders")}
+                      className="shrink-0 h-7 w-7 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-400 hover:text-neutral-600 hover:bg-neutral-200 transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <Icon name="arrow-right" size={14} />
+                    </button>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </section>
         )}

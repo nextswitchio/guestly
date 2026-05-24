@@ -1,6 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
-import { getEventById, getEventBySlug, type Event } from "@/lib/events";
+import type { Event } from "@/lib/events";
 import { BACKEND_URL } from "@/lib/api/client";
 import { slugify } from "@/lib/utils";
 import Button from "@/components/ui/Button";
@@ -38,23 +38,38 @@ function mapApiEvent(raw: any): Event | null {
   };
 }
 
+async function fetchEventById(id: string): Promise<Event | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return mapApiEvent(data.data ?? data);
+  } catch {
+    return null;
+  }
+}
+
+async function fetchEventBySlug(slug: string): Promise<Event | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/events?page_size=100`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const items: any[] = data.events ?? data.data ?? [];
+    const found = items.find((e: any) => slugify(e.title ?? "") === slug);
+    return found ? mapApiEvent(found) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveEvent(id: string): Promise<Event | null> {
+  if (isUUID(id)) return fetchEventById(id);
+  return fetchEventBySlug(id);
+}
+
 export default async function EventDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  let ev = getEventBySlug(id) ?? getEventById(id);
-
-  if (!ev && isUUID(id)) {
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, { cache: "no-store" });
-      if (res.ok) {
-        const data = await res.json();
-        ev = mapApiEvent(data.data ?? data);
-      }
-    } catch {}
-  }
-
-  if (!ev) {
-    ev = await fetchEventBySlug(id);
-  }
+  const ev = await resolveEvent(id);
 
   if (!ev) {
     return (
@@ -77,38 +92,15 @@ export default async function EventDetail({ params }: { params: Promise<{ id: st
   return <EventDetailClient event={ev} />;
 }
 
-async function fetchEventBySlug(slug: string): Promise<Event | null> {
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/events/featured/?page_size=50`, { cache: "no-store" });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const items = data.events ?? data.data ?? [];
-    const found = items.find((e: any) => slugify(e.title ?? "") === slug);
-    return found ? mapApiEvent(found) : null;
-  } catch {
-    return null;
-  }
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const ev = getEventBySlug(id) ?? getEventById(id)
-    ?? (isUUID(id) ? await fetch(`${BACKEND_URL}/api/v1/events/${id}`).then(r => r.ok ? r.json() : null).then(d => d ? mapApiEvent(d.data ?? d) : null).catch(() => null) : null)
-    ?? await fetchEventBySlug(id);
+  const ev = await resolveEvent(id);
   const title = ev ? `${ev.title} — ${ev.city}` : "Event";
   const description = ev?.description || "Event details and tickets";
   return {
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
+    openGraph: { title, description, type: "website" },
+    twitter: { card: "summary_large_image", title, description },
   };
 }

@@ -9,13 +9,21 @@ interface PlanDetails {
   name: string; price: number; duration: string; features: string[]; popular?: boolean; profiles: number;
 }
 
-const PLANS: Record<Plan, PlanDetails> = {
-  free: { name: "Free", price: 0, duration: "Forever", profiles: 1, features: ["Basic vendor profile", "Receive event invitations", "Contact information display", "1 service profile"] },
-  "1m": { name: "Premium Monthly", price: 4999, duration: "1 Month", profiles: 3, features: ["All Free features", "Featured vendor placement", "Priority search ranking", "Advanced analytics dashboard", "3 service profiles", "Lead generation insights"] },
-  "3m": { name: "Premium Quarterly", price: 12999, duration: "3 Months", popular: true, profiles: 10, features: ["All Premium Monthly features", "Save 13% vs monthly", "Featured placement guarantee", "Priority customer support", "Quarterly performance reports", "10 service profiles"] },
-  "6m": { name: "Premium Semi-Annual", price: 23999, duration: "6 Months", profiles: Infinity, features: ["All Premium Quarterly features", "Save 20% vs monthly", "Extended featured placement", "Dedicated account manager", "Unlimited service profiles"] },
-  "12m": { name: "Premium Annual", price: 44999, duration: "12 Months", profiles: Infinity, features: ["All Premium Semi-Annual features", "Save 25% vs monthly", "Year-round featured placement", "Premium badge on profile", "Unlimited service profiles", "Priority event invitations"] },
+const BASE_PLANS: Record<Plan, Omit<PlanDetails, "price">> = {
+  free: { name: "Free", duration: "Forever", profiles: 1, features: ["Basic vendor profile", "Receive event invitations", "Contact information display", "1 service profile"] },
+  "1m": { name: "Premium Monthly", duration: "1 Month", profiles: 3, features: ["All Free features", "Featured vendor placement", "Priority search ranking", "Advanced analytics dashboard", "3 service profiles", "Lead generation insights"] },
+  "3m": { name: "Premium Quarterly", duration: "3 Months", popular: true, profiles: 10, features: ["All Premium Monthly features", "Save 13% vs monthly", "Featured placement guarantee", "Priority customer support", "Quarterly performance reports", "10 service profiles"] },
+  "6m": { name: "Premium Semi-Annual", duration: "6 Months", profiles: Infinity, features: ["All Premium Quarterly features", "Save 20% vs monthly", "Extended featured placement", "Dedicated account manager", "Unlimited service profiles"] },
+  "12m": { name: "Premium Annual", duration: "12 Months", profiles: Infinity, features: ["All Premium Semi-Annual features", "Save 25% vs monthly", "Year-round featured placement", "Premium badge on profile", "Unlimited service profiles", "Priority event invitations"] },
 };
+
+const DEFAULT_PRICES: Record<Plan, number> = { free: 0, "1m": 4999, "3m": 12999, "6m": 23999, "12m": 44999 };
+
+function buildPlans(prices: Record<Plan, number>): Record<Plan, PlanDetails> {
+  return Object.fromEntries(
+    (Object.keys(BASE_PLANS) as Plan[]).map((key) => [key, { ...BASE_PLANS[key], price: prices[key] }])
+  ) as Record<Plan, PlanDetails>;
+}
 
 export default function VendorSubscriptionPage() {
   const [currentPlan, setCurrentPlan] = useState<Plan>("free");
@@ -23,8 +31,30 @@ export default function VendorSubscriptionPage() {
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [plans, setPlans] = useState<Record<Plan, PlanDetails>>(buildPlans(DEFAULT_PRICES));
 
-  useEffect(() => { fetchSub(); }, []);
+  useEffect(() => {
+    fetchPrices();
+    fetchSub();
+  }, []);
+
+  const fetchPrices = async () => {
+    try {
+      const res = await fetch("/api/platform/subscription-plans");
+      if (res.ok) {
+        const data = await res.json();
+        setPlans(buildPlans({
+          free: 0,
+          "1m": Number(data["1m"]) || DEFAULT_PRICES["1m"],
+          "3m": Number(data["3m"]) || DEFAULT_PRICES["3m"],
+          "6m": Number(data["6m"]) || DEFAULT_PRICES["6m"],
+          "12m": Number(data["12m"]) || DEFAULT_PRICES["12m"],
+        }));
+      }
+    } catch (e) {
+      console.error("Failed to load subscription prices:", e);
+    }
+  };
   const fetchSub = async () => {
     try {
       const res = await fetch("/api/vendor/subscription");
@@ -84,7 +114,7 @@ export default function VendorSubscriptionPage() {
             <div>
               <div className="flex items-center gap-2 mb-0.5">
                 <Crown className="w-5 h-5 text-lime" />
-                <span className="text-lg font-semibold text-dark">Current Plan: {PLANS[currentPlan].name}</span>
+                <span className="text-lg font-semibold text-dark">Current Plan: {plans[currentPlan].name}</span>
                 <span className="px-2.5 py-0.5 bg-dark text-white text-xs font-medium rounded-full">Active</span>
               </div>
               <p className="text-sm text-gray-500 ml-7">
@@ -92,16 +122,16 @@ export default function VendorSubscriptionPage() {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-dark">₦{(PLANS[currentPlan].price / 100).toLocaleString()}</p>
-              <p className="text-sm text-gray-500">{PLANS[currentPlan].duration}</p>
+              <p className="text-2xl font-bold text-dark">₦{plans[currentPlan].price.toLocaleString()}</p>
+              <p className="text-sm text-gray-500">{plans[currentPlan].duration}</p>
             </div>
           </div>
         </Card>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {(Object.keys(PLANS) as Plan[]).map((key) => {
-          const plan = PLANS[key];
+        {(Object.keys(plans) as Plan[]).map((key) => {
+          const plan = plans[key];
           const isCurrent = key === currentPlan;
           return (
             <Card key={key} className={`relative p-6 ${plan.popular ? "ring-2 ring-lime shadow-lg border-0" : ""} ${isCurrent && !plan.popular ? "border-2 border-dark" : ""}`}>
@@ -119,7 +149,7 @@ export default function VendorSubscriptionPage() {
               <div className="mb-5">
                 <h3 className="text-xl font-bold text-dark mb-2">{plan.name}</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-dark">₦{(plan.price / 100).toLocaleString()}</span>
+                  <span className="text-3xl font-bold text-dark">₦{plan.price.toLocaleString()}</span>
                   {key !== "free" && <span className="text-sm text-gray-500">/ {plan.duration.toLowerCase()}</span>}
                 </div>
                 {key !== "free" && (

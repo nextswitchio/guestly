@@ -54,13 +54,21 @@ export default function SignupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, role }),
       });
-      await fetch("/api/auth/login", {
+      const loginRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password: "password", role }),
       });
-      if (role === "organiser") {
+      const loginData = await loginRes.json();
+      const actualRole = loginData.role || role;
+      if (actualRole === "organiser" || actualRole === "organizer") {
         router.replace("/dashboard");
+      } else if (actualRole === "vendor") {
+        router.replace("/vendor/dashboard");
+      } else if (actualRole === "affiliate") {
+        router.replace("/affiliate/dashboard");
+      } else if (actualRole === "admin") {
+        router.replace("/admin");
       } else {
         router.replace("/attendee");
       }

@@ -4,53 +4,54 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import Accordion from "@/components/ui/Accordion";
-import { getEventById } from "@/lib/events";
 import Image from "next/image";
 import AIInsightsPanel from "@/components/organiser/AIInsightsPanel";
 import Link from "next/link";
 
 export default function OverviewTab({ eventId }: { eventId: string }) {
-  const [stats, setStats] = React.useState({
-    ticketsSold: 0,
-    revenue: 0,
-    checkIns: 0,
-    savedBy: 0,
-  });
+  const [stats, setStats] = React.useState({ ticketsSold: 0, revenue: 0, checkIns: 0, savedBy: 0 });
+  const [event, setEvent] = React.useState<{ title: string; description: string; date: string; city: string; category: string; image: string | null; eventType?: string } | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [isMobile, setIsMobile] = React.useState(false);
 
-  const e = getEventById(eventId);
-
   React.useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // md breakpoint
-    };
-    
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   React.useEffect(() => {
-    async function loadStats() {
-      try {
-        const res = await fetch(`/api/events/${eventId}/metrics`);
-        if (res.ok) {
-          const data = await res.json();
-          setStats({
-            ticketsSold: data.data.ticketsSold || 0,
-            revenue: data.data.revenue || 0,
-            checkIns: data.data.checkIns || 0,
-            savedBy: data.data.saves || 0,
-          });
-        }
-      } catch (error) {
-        console.error("Failed to load stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadStats();
+    // Fetch event details
+    fetch(`/api/events/${eventId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        const ev = d?.event ?? d?.data ?? d;
+        if (ev) setEvent({
+          title: ev.title,
+          description: ev.description ?? "",
+          date: ev.date ?? ev.start_date,
+          city: ev.city ?? "",
+          category: ev.category ?? "",
+          image: ev.image ?? null,
+          eventType: ev.event_type ?? ev.eventType ?? "Physical",
+        });
+      })
+      .catch(() => {});
+
+    // Fetch metrics
+    fetch(`/api/events/${eventId}/metrics`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.data) setStats({
+          ticketsSold: d.data.ticketsSold || 0,
+          revenue: d.data.revenue || 0,
+          checkIns: d.data.checkIns || 0,
+          savedBy: d.data.saves || 0,
+        });
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [eventId]);
 
   if (!e) {

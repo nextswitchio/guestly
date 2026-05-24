@@ -1,5 +1,4 @@
 'use client';
-import { RefreshCw } from 'lucide-react';
 
 import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,70 +7,97 @@ import LineChart from '@/components/charts/LineChart';
 import BarChart from '@/components/charts/BarChart';
 import PieChart from '@/components/charts/PieChart';
 
-interface Event {
-  id: string;
-  title: string;
+interface EventInsights {
+  event: { id: string; title: string } | null;
+  ticketsSold: number;
+  totalRevenue: number;
+  conversionRate: number;
+  avgTicketPrice: number;
+  ticketTypeBreakdown: Array<{ label: string; value: number }>;
+  weeklyTickets: Array<{ label: string; value: number }>;
+  weeklyRevenue: Array<{ label: string; value: number }>;
 }
 
 export default function EventInsightsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const [event, setEvent] = useState<Event | null>(null);
+  const [insights, setInsights] = useState<EventInsights | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchEvent();
+    Promise.all([
+      fetch(`/api/events/${id}`).then((r) => r.json()).catch(() => null),
+      fetch(`/api/orders?eventId=${id}`).then((r) => r.json()).catch(() => null),
+    ]).then(([eventData, ordersData]) => {
+      const event = eventData?.event ?? null;
+      const orders: any[] = Array.isArray(ordersData?.orders) ? ordersData.orders : [];
+      const paidOrders = orders.filter((o: any) => o.status === "paid");
+
+      const totalRevenue = paidOrders.reduce((s: number, o: any) => s + (o.total ?? 0), 0);
+      const ticketsSold = paidOrders.reduce((s: number, o: any) =>
+        s + (o.items ?? []).reduce((si: number, i: any) => si + (i.quantity ?? 0), 0), 0);
+      const avgTicketPrice = ticketsSold > 0 ? totalRevenue / ticketsSold : 0;
+      const conversionRate = orders.length > 0 ? (paidOrders.length / orders.length) * 100 : 0;
+
+      // Ticket type breakdown from order items
+      const typeMap: Record<string, number> = {};
+      paidOrders.forEach((o: any) => {
+        (o.items ?? []).forEach((item: any) => {
+          const t = item.type ?? item.ticket_type ?? "General";
+          typeMap[t] = (typeMap[t] ?? 0) + (item.quantity ?? 0);
+        });
+      });
+      const ticketTypeBreakdown = Object.entries(typeMap).map(([label, value]) => ({ label, value }));
+
+      // Weekly buckets (last 4 weeks)
+      const now = Date.now();
+      const weeklyTickets = [1, 2, 3, 4].map((w) => {
+        const start = now - w * 7 * 86400000;
+        const end = now - (w - 1) * 7 * 86400000;
+        const count = paidOrders
+          .filter((o: any) => {
+            const t = new Date(o.created_at).getTime();
+            return t >= start && t < end;
+          })
+          .reduce((s: number, o: any) =>
+            s + (o.items ?? []).reduce((si: number, i: any) => si + (i.quantity ?? 0), 0), 0);
+        return { label: `Week ${5 - w}`, value: count };
+      });
+
+      const weeklyRevenue = [1, 2, 3, 4].map((w) => {
+        const start = now - w * 7 * 86400000;
+        const end = now - (w - 1) * 7 * 86400000;
+        const rev = paidOrders
+          .filter((o: any) => {
+            const t = new Date(o.created_at).getTime();
+            return t >= start && t < end;
+          })
+          .reduce((s: number, o: any) => s + (o.total ?? 0), 0);
+        return { label: `Week ${5 - w}`, value: rev };
+      });
+
+      setInsights({ event, ticketsSold, totalRevenue, conversionRate, avgTicketPrice, ticketTypeBreakdown, weeklyTickets, weeklyRevenue });
+    }).finally(() => setLoading(false));
   }, [id]);
 
-  const fetchEvent = async () => {
-    try {
-      const response = await fetch(`/api/events/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setEvent(data.event);
-      }
-    } catch (error) {
-      console.error('Failed to fetch event:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const ticketSalesData = [
-    { label: 'Week 1', value: 12 },
-    { label: 'Week 2', value: 35 },
-    { label: 'Week 3', value: 58 },
-    { label: 'Week 4', value: 89 },
-  ];
-
-  const revenueData = [
-    { label: 'Week 1', value: 120000 },
-    { label: 'Week 2', value: 350000 },
-    { label: 'Week 3', value: 580000 },
-    { label: 'Week 4', value: 890000 },
-  ];
-
-  const ticketTypeData = [
-    { label: 'General', value: 45 },
-    { label: 'VIP', value: 25 },
-    { label: 'Early Bird', value: 20 },
-    { label: 'Group', value: 10 },
-  ];
-
-  const stats = [
-    { label: 'Total Tickets Sold', value: '194', change: '+12%', icon: 'ticket' as const },
-    { label: 'Total Revenue', value: '₦1.94M', change: '+18%', icon: 'trending-up' as const },
-    { label: 'Conversion Rate', value: '24.5%', change: '+3.2%', icon: 'target' as const },
-    { label: 'Avg. Ticket Price', value: '₦10,000', change: '+5%', icon: 'chart' as const },
-  ];
+  const fmt = (n: number) => n >= 1_000_000 ? `₦${(n / 1_000_000).toFixed(2)}M` : `₦${n.toLocaleString()}`;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-transparent" />
       </div>
     );
   }
+
+  const stats = insights
+    ? [
+        { label: 'Total Tickets Sold', value: insights.ticketsSold.toLocaleString(), icon: 'ticket' as const },
+        { label: 'Total Revenue', value: fmt(insights.totalRevenue), icon: 'trending-up' as const },
+        { label: 'Conversion Rate', value: `${insights.conversionRate.toFixed(1)}%`, icon: 'target' as const },
+        { label: 'Avg. Ticket Price', value: fmt(insights.avgTicketPrice), icon: 'chart' as const },
+      ]
+    : [];
 
   return (
     <div className="space-y-8">
@@ -85,7 +111,9 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
           Back
         </button>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">{event?.title || 'Event'} Insights</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">
+            {insights?.event?.title ?? 'Event'} Insights
+          </h1>
           <p className="text-neutral-500 mt-1">Detailed analytics and performance metrics</p>
         </div>
       </div>
@@ -98,114 +126,47 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
               <span className="text-sm text-neutral-500">{stat.label}</span>
               <Icon name={stat.icon} size={20} className="text-lime" />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-neutral-900">{stat.value}</span>
-              <span className="text-sm text-green-600">{stat.change}</span>
-            </div>
+            <span className="text-2xl font-bold text-neutral-900">{stat.value}</span>
           </div>
         ))}
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Ticket Sales Over Time</h3>
-          <LineChart data={ticketSalesData} />
-        </div>
-
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Revenue by Week</h3>
-          <BarChart data={revenueData} />
-        </div>
-
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Ticket Type Distribution</h3>
-          <PieChart data={ticketTypeData} />
-        </div>
-
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Top Traffic Sources</h3>
-          <div className="space-y-3">
-            {[
-              { source: 'Direct', visitors: 1234, percentage: 45 },
-              { source: 'Social Media', visitors: 892, percentage: 32 },
-              { source: 'Email', visitors: 456, percentage: 16 },
-              { source: 'Referral', visitors: 189, percentage: 7 },
-            ].map((item, index) => (
-              <div key={index}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-neutral-900">{item.source}</span>
-                  <span className="text-sm text-neutral-500">
-                    {item.visitors} visitors
-                  </span>
-                </div>
-                <div className="w-full bg-neutral-100 rounded-full h-2">
-                  <div
-                    className="bg-lime h-2 rounded-full"
-                    style={{ width: `${item.percentage}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+      {insights && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Ticket Sales Over Time</h3>
+            {insights.weeklyTickets.some((w) => w.value > 0) ? (
+              <LineChart data={insights.weeklyTickets} />
+            ) : (
+              <p className="text-sm text-neutral-400 py-8 text-center">No ticket sales data yet</p>
+            )}
           </div>
-        </div>
-      </div>
 
-      {/* Attendee Demographics */}
-      <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-        <h3 className="text-lg font-semibold text-neutral-900 mb-4">Attendee Demographics</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <h4 className="text-sm font-medium text-neutral-500 mb-3">Age Groups</h4>
-            <div className="space-y-2">
-              {[
-                { range: '18-24', percentage: 25 },
-                { range: '25-34', percentage: 45 },
-                { range: '35-44', percentage: 20 },
-                { range: '45+', percentage: 10 },
-              ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm text-neutral-700">{item.range}</span>
-                  <span className="text-sm font-medium text-neutral-900">{item.percentage}%</span>
-                </div>
-              ))}
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Revenue by Week</h3>
+            {insights.weeklyRevenue.some((w) => w.value > 0) ? (
+              <BarChart data={insights.weeklyRevenue} />
+            ) : (
+              <p className="text-sm text-neutral-400 py-8 text-center">No revenue data yet</p>
+            )}
+          </div>
+
+          {insights.ticketTypeBreakdown.length > 0 && (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Ticket Type Distribution</h3>
+              <PieChart data={insights.ticketTypeBreakdown} />
             </div>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-medium text-neutral-500 mb-3">Gender</h4>
-            <div className="space-y-2">
-              {[
-                { gender: 'Male', percentage: 52 },
-                { gender: 'Female', percentage: 46 },
-                { gender: 'Other', percentage: 2 },
-              ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm text-neutral-700">{item.gender}</span>
-                  <span className="text-sm font-medium text-neutral-900">{item.percentage}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-medium text-neutral-500 mb-3">Top Cities</h4>
-            <div className="space-y-2">
-              {[
-                { city: 'Lagos', percentage: 45 },
-                { city: 'Abuja', percentage: 25 },
-                { city: 'Accra', percentage: 18 },
-                { city: 'Nairobi', percentage: 12 },
-              ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm text-neutral-700">{item.city}</span>
-                  <span className="text-sm font-medium text-neutral-900">{item.percentage}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
-      </div>
+      )}
+
+      {/* No data state */}
+      {insights && insights.ticketsSold === 0 && (
+        <div className="rounded-2xl border border-neutral-200 bg-white p-10 text-center">
+          <p className="text-neutral-500 text-sm">No ticket sales yet. Share your event to start selling.</p>
+        </div>
+      )}
     </div>
   );
 }

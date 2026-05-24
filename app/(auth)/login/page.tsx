@@ -4,6 +4,14 @@ import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SigninForm } from "@/components/auth/SignInForm";
 
+function redirectForRole(role: string | undefined, router: ReturnType<typeof useRouter>) {
+  if (role === "organiser" || role === "organizer") router.replace("/dashboard");
+  else if (role === "vendor") router.replace("/vendor/dashboard");
+  else if (role === "affiliate") router.replace("/affiliate/dashboard");
+  else if (role === "admin") router.replace("/admin");
+  else router.replace("/attendee");
+}
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,11 +34,7 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      if (role === "organiser") {
-        router.replace("/dashboard");
-      } else {
-        router.replace("/attendee");
-      }
+      redirectForRole(result.role, router);
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);

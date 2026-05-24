@@ -26,7 +26,7 @@ export default function AdminSeoPage() {
   const saveSettings = async () => {
     try {
       await fetch("/api/admin/settings", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "seo", settings }),
       });
