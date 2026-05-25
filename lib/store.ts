@@ -1,5 +1,5 @@
 import type { Event, StreamingConfig, StreamingProvider } from "./events";
-import { addEvent, getEventById, getAllEvents, events } from "./events";
+import { getEventById, getAllEvents, events } from "./events";
 import type { Product, MerchOrder, MerchOrderItem, ProductCategory, ProductBundle } from "@/types/merchandise";
 import { CacheInvalidationHooks } from "./cache-invalidation";
 

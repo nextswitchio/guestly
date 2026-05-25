@@ -1,58 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { filterEvents } from "@/lib/events";
-import type { Event } from "@/lib/events";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ city: string }> }
 ) {
+  const { city } = await params;
+  const decodedCity = decodeURIComponent(city);
+  const { searchParams } = req.nextUrl;
+
   try {
-    const { city } = await params;
-    const decodedCity = decodeURIComponent(city);
-    
-    // Get query parameters for filtering
-    const searchParams = req.nextUrl.searchParams;
-    const category = searchParams.get("category") as Event["category"] | null;
-    const community = searchParams.get("community") || undefined;
-    const communityType = searchParams.get("communityType") as Event["communityType"] | null;
-    const startDate = searchParams.get("startDate") || undefined;
-    const endDate = searchParams.get("endDate") || undefined;
-    const q = searchParams.get("q") || undefined;
-    const page = parseInt(searchParams.get("page") || "1");
-    const pageSize = parseInt(searchParams.get("pageSize") || "20");
-    
-    const result = filterEvents({
-      city: decodedCity as Event["city"],
-      category: category || undefined,
-      community,
-      communityType: communityType || undefined,
-      startDate,
-      endDate,
-      q,
-      page,
-      pageSize,
-    });
-    
+    const query = new URLSearchParams({ city: decodedCity, page_size: "50" });
+    if (searchParams.get("category")) query.set("category", searchParams.get("category")!);
+    if (searchParams.get("q")) query.set("q", searchParams.get("q")!);
+    if (searchParams.get("startDate")) query.set("startDate", searchParams.get("startDate")!);
+    if (searchParams.get("endDate")) query.set("endDate", searchParams.get("endDate")!);
+    if (searchParams.get("page")) query.set("page", searchParams.get("page")!);
+    if (searchParams.get("pageSize")) query.set("page_size", searchParams.get("pageSize")!);
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/events?${query}`, { cache: "no-store" });
+    if (!res.ok) {
+      return NextResponse.json({ success: true, data: [], pagination: { page: 1, pageCount: 1, total: 0 } });
+    }
+    const data = await res.json();
     return NextResponse.json({
       success: true,
-      data: result.data,
-      pagination: {
-        page: result.page,
-        pageCount: result.pageCount,
-        total: result.total,
-      },
+      data: data.events ?? [],
+      pagination: { page: data.page ?? 1, pageCount: data.page_count ?? 1, total: data.total ?? 0 },
     });
-  } catch (error) {
-    console.error("Error fetching city events:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "FETCH_ERROR",
-          message: "Failed to fetch city events",
-        },
-      },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ success: false, error: "Backend unavailable" }, { status: 502 });
   }
 }

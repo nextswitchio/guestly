@@ -89,11 +89,14 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
         body: JSON.stringify({
           title: form.title,
           description: form.description,
-          date: form.date ? new Date(`${form.date}T${form.time || '00:00'}`).toISOString() : undefined,
+          // Construct a UTC ISO string — backend requires timezone-aware datetime
+          date: form.date
+            ? new Date(`${form.date}T${form.time || '00:00'}:00Z`).toISOString()
+            : undefined,
           category: form.category,
           city: form.location,
           image: form.imageUrl,
-          capacity: form.capacity,
+          capacity: form.capacity || null,
         }),
       });
 

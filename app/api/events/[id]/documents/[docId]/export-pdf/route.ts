@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDocument } from "@/lib/store";
-import { getEventById } from "@/lib/events";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(
   _req: NextRequest,
@@ -9,30 +9,29 @@ export async function GET(
   const { id, docId } = await params;
 
   const doc = getDocument(id, docId);
-  const event = getEventById(id);
-
-  if (!doc || !event) {
-    return NextResponse.json(
-      { ok: false, error: "Document or event not found" },
-      { status: 404 }
-    );
+  if (!doc) {
+    return NextResponse.json({ ok: false, error: "Document not found" }, { status: 404 });
   }
 
-  // Generate HTML content for PDF
-  let htmlContent = "";
+  // Fetch event info from backend for the PDF
+  let event: any = { title: "Event", date: new Date().toISOString(), city: "", venue: "" };
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      event = data.data ?? data;
+    }
+  } catch {}
 
+  let htmlContent = "";
   if (doc.type === "charter") {
     htmlContent = generateCharterHTML(doc, event);
   } else if (doc.type === "rundown") {
     htmlContent = generateRundownHTML(doc, event);
   } else {
-    return NextResponse.json(
-      { ok: false, error: "PDF export not supported for this document type" },
-      { status: 400 }
-    );
+    return NextResponse.json({ ok: false, error: "PDF export not supported for this document type" }, { status: 400 });
   }
 
-  // Return HTML that can be printed to PDF by the browser
   return new NextResponse(htmlContent, {
     headers: {
       "Content-Type": "text/html",

@@ -1,39 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getEventById } from "@/lib/events";
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const userId = req.cookies.get("user_id")?.value;
+  const token = req.cookies.get("access_token")?.value;
   const role = req.cookies.get("role")?.value;
-  const eventId = id;
-  
-  if (!userId || role !== "organiser") {
+
+  if (!token || role !== "organiser") {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const event = getEventById(eventId);
-    if (!event) {
-      return NextResponse.json({ success: false, error: "Event not found" }, { status: 404 });
-    }
-
     const body = await req.json();
-    const streamingConfig = {
-      ...body,
-      eventId,
-      createdAt: Date.now()
-    };
-    
-    // Mock saving streaming config
-    return NextResponse.json({
-      success: true,
-      data: streamingConfig
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ streaming_config: body }),
     });
-  } catch (error) {
-    console.error('Error configuring streaming:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to configure streaming' },
-      { status: 500 }
-    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return NextResponse.json({ success: false, error: data.detail || "Failed to configure streaming" }, { status: res.status });
+    }
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ success: false, error: "Backend unavailable" }, { status: 502 });
   }
 }

@@ -1,86 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { recordEventCompletion, getEventOrganizer } from "@/lib/store";
-import { getEventById } from "@/lib/events";
+import { BACKEND_URL } from "@/lib/api/client";
 
-function userId(req: NextRequest) {
-  return req.cookies.get("user_id")?.value || "";
-}
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const token = req.cookies.get("access_token")?.value;
+  const role = req.cookies.get("role")?.value;
 
-/**
- * POST /api/events/[id]/complete
- * Mark an event as completed and record it in organizer history
- * This should be called when an event finishes
- */
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+  if (!token || role !== "organiser") {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    const { id: eventId } = await params;
-    const organizerId = userId(req);
-    
-    if (!organizerId) {
-      return NextResponse.json(
-        { success: false, error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
-        { status: 401 }
-      );
-    }
-    
-    // Verify event exists
-    const event = getEventById(eventId);
-    if (!event) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "Event not found" } },
-        { status: 404 }
-      );
-    }
-    
-    // Verify the user is the organizer of this event
-    const eventOrganizerId = getEventOrganizer(eventId);
-    if (eventOrganizerId !== organizerId) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: { 
-            code: "FORBIDDEN", 
-            message: "You are not the organizer of this event" 
-          } 
-        },
-        { status: 403 }
-      );
-    }
-    
-    // Record event completion
-    const historyRecord = recordEventCompletion(eventId);
-    
-    if (!historyRecord) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INTERNAL_ERROR",
-            message: "Failed to record event completion",
-          },
-        },
-        { status: 500 }
-      );
-    }
-    
-    return NextResponse.json({
-      success: true,
-      data: historyRecord,
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "completed" }),
     });
-  } catch (error) {
-    console.error("Error completing event:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Failed to complete event",
-        },
-      },
-      { status: 500 }
-    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return NextResponse.json({ success: false, error: data.detail || "Failed to complete event" }, { status: res.status });
+    }
+    return NextResponse.json({ success: true, data });
+  } catch {
+    return NextResponse.json({ success: false, error: "Backend unavailable" }, { status: 502 });
   }
 }

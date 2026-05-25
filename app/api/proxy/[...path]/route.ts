@@ -6,75 +6,107 @@ function getAuthHeaders(req: NextRequest): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export async function GET(req: NextRequest) {
+function buildBackendUrl(req: NextRequest, params: { path: string[] }): string {
+  const pathStr = params.path.join("/");
   const { searchParams } = req.nextUrl;
-  const path = searchParams.get("path") || "";
-  const query = searchParams.get("query") ? `?${searchParams.get("query")}` : "";
+  const qs = searchParams.toString();
+  return `${BACKEND_URL}/api/v1/${pathStr}${qs ? `?${qs}` : ""}`;
+}
 
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const resolvedParams = await params;
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/${path}${query}`, {
+    const res = await fetch(buildBackendUrl(req, resolvedParams), {
       headers: getAuthHeaders(req),
     });
-    const data = await res.json();
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
     return NextResponse.json(data, { status: res.status });
-  } catch {
+  } catch (err) {
+    console.error("[proxy GET]", err);
     return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
   }
 }
 
-export async function POST(req: NextRequest) {
-  const { searchParams } = req.nextUrl;
-  const path = searchParams.get("path") || "";
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const resolvedParams = await params;
   const body = await req.json().catch(() => ({}));
-
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/${path}`, {
+    const res = await fetch(buildBackendUrl(req, resolvedParams), {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders(req),
-      },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders(req) },
       body: JSON.stringify(body),
     });
-    const data = await res.json();
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
     return NextResponse.json(data, { status: res.status });
-  } catch {
+  } catch (err) {
+    console.error("[proxy POST]", err);
     return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
   }
 }
 
-export async function PUT(req: NextRequest) {
-  const { searchParams } = req.nextUrl;
-  const path = searchParams.get("path") || "";
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const resolvedParams = await params;
   const body = await req.json().catch(() => ({}));
-
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/${path}`, {
+    const res = await fetch(buildBackendUrl(req, resolvedParams), {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeaders(req),
-      },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders(req) },
       body: JSON.stringify(body),
     });
-    const data = await res.json();
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
     return NextResponse.json(data, { status: res.status });
-  } catch {
+  } catch (err) {
+    console.error("[proxy PUT]", err);
     return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
   }
 }
 
-export async function DELETE(req: NextRequest) {
-  const { searchParams } = req.nextUrl;
-  const path = searchParams.get("path") || "";
-
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const resolvedParams = await params;
+  const body = await req.json().catch(() => ({}));
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/${path}`, {
+    const res = await fetch(buildBackendUrl(req, resolvedParams), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", ...getAuthHeaders(req) },
+      body: JSON.stringify(body),
+    });
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+    return NextResponse.json(data, { status: res.status });
+  } catch (err) {
+    console.error("[proxy PATCH]", err);
+    return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const resolvedParams = await params;
+  try {
+    const res = await fetch(buildBackendUrl(req, resolvedParams), {
       method: "DELETE",
       headers: getAuthHeaders(req),
     });
     return new NextResponse(null, { status: res.status });
-  } catch {
+  } catch (err) {
+    console.error("[proxy DELETE]", err);
     return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });
   }
 }

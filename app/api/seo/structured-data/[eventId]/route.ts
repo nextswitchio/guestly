@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateStructuredData } from '@/lib/marketing';
-import { getEventById } from '@/lib/events';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
 export async function GET(
   req: NextRequest,
@@ -16,34 +17,41 @@ export async function GET(
       );
     }
 
-    const event = getEventById(eventId);
+    // Fetch event from backend
+    const response = await fetch(`${BACKEND_URL}/api/v1/events/${eventId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-    if (!event) {
+    if (!response.ok) {
       return NextResponse.json(
         { error: 'Event not found' },
         { status: 404 }
       );
     }
 
+    const event = await response.json();
+
     const structuredData = generateStructuredData(eventId, {
       title: event.title,
       description: event.description,
-      startDate: new Date(event.date).toISOString(),
-      endDate: undefined, // Event doesn't have endDate
+      startDate: new Date(event.start_date || event.date).toISOString(),
+      endDate: event.end_date ? new Date(event.end_date).toISOString() : undefined,
       venue: event.venue || event.city,
-      address: undefined, // Event doesn't have address
+      address: event.address,
       city: event.city,
       region: event.state,
       country: event.country,
-      images: [event.image],
-      offers: event.tickets ? Object.entries(event.tickets).map(([name, ticket]) => ({
-        name,
+      images: [event.image_url || event.image],
+      offers: event.tickets ? event.tickets.map((ticket: any) => ({
+        name: ticket.name || ticket.type,
         price: ticket.price,
         currency: 'NGN',
-        availability: ticket.available > 0 ? 'InStock' as const : 'SoldOut' as const,
-        validFrom: new Date(event.date).toISOString(),
+        availability: ticket.quantity_available > 0 ? 'InStock' as const : 'SoldOut' as const,
+        validFrom: new Date(event.start_date || event.date).toISOString(),
       })) : [],
-      organizerName: 'Guestly', // Event doesn't have organizer field
+      organizerName: event.organizer_name || 'Guestly',
       organizerUrl: undefined,
     });
 

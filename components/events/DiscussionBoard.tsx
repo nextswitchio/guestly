@@ -350,14 +350,14 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-[var(--foreground)]">
+              <span className="text-sm font-medium text-slate-900">
                 {reply.authorName}
               </span>
-              <span className="text-xs text-[var(--foreground-subtle)]">
+              <span className="text-xs text-slate-600">
                 {timeAgo(reply.createdAt)}
               </span>
             </div>
-            <p className="text-sm text-[var(--foreground-muted)] whitespace-pre-wrap mb-2">
+            <p className="text-sm text-slate-500 whitespace-pre-wrap mb-2">
               {reply.content}
             </p>
             {!isMaxDepth && (
@@ -403,7 +403,7 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-sm text-[var(--foreground-muted)]">Loading discussions...</div>
+        <div className="text-sm text-slate-500">Loading discussions...</div>
       </div>
     );
   }
@@ -429,13 +429,13 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-[var(--foreground)] mb-2 flex items-center gap-2">
+              <h3 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
                 <span>Event Memories & Reflections</span>
                 <span className="px-2 py-0.5 text-xs rounded-full bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400">
                   Post-Event
                 </span>
               </h3>
-              <p className="text-sm text-[var(--foreground-muted)] mb-3">
+              <p className="text-sm text-slate-500 mb-3">
                 {eventTitle ? `${eventTitle} has concluded` : "This event has concluded"}. The community is still active! Share your experiences, photos, and connect with fellow attendees.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -460,10 +460,10 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
       {/* Header with new thread button */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-[var(--foreground)]">
+          <h2 className="text-xl font-bold text-slate-900">
             {isEventPast ? "Event Memories & Discussions" : "Discussions"}
           </h2>
-          <p className="text-sm text-[var(--foreground-muted)] mt-1">
+          <p className="text-sm text-slate-500 mt-1">
             {threads.length} {threads.length === 1 ? "thread" : "threads"}
             {isEventPast && " • Community remains active"}
           </p>
@@ -484,10 +484,10 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
       {threads.length === 0 ? (
         <Card className="p-8 text-center">
           <div className="text-4xl mb-3">{isEventPast ? <Camera className="h-8 w-8" /> : <MessageCircle className="h-8 w-8" />}</div>
-          <h3 className="font-semibold text-[var(--foreground)] mb-2">
+          <h3 className="font-semibold text-slate-900 mb-2">
             {isEventPast ? "No memories shared yet" : "No discussions yet"}
           </h3>
-          <p className="text-sm text-[var(--foreground-muted)] mb-4">
+          <p className="text-sm text-slate-500 mb-4">
             {isEventPast 
               ? "Be the first to share your experience and photos from this event"
               : "Be the first to start a conversation about this event"
@@ -527,18 +527,18 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
                             <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L11 4.323V3a1 1 0 011-1zm-5 8.274l-.818 2.552c-.25.78.409 1.574 1.195 1.574H6.5a1 1 0 01.894.553l.448.894a1 1 0 001.788 0l.448-.894A1 1 0 0111 13.4h1.123c.786 0 1.445-.794 1.195-1.574L12.5 10.274 11 9.051V6a1 1 0 10-2 0v3.051l-1.5 1.223z" />
                           </svg>
                         )}
-                        <h3 className="font-semibold text-[var(--foreground)] truncate">
+                        <h3 className="font-semibold text-slate-900 truncate">
                           {thread.title}
                         </h3>
                       </div>
-                      <p className="text-sm text-[var(--foreground-muted)] line-clamp-2">
+                      <p className="text-sm text-slate-500 line-clamp-2">
                         {thread.content}
                       </p>
                     </div>
                   </div>
 
                   {/* Thread metadata */}
-                  <div className="flex items-center gap-4 mt-3 text-xs text-[var(--foreground-subtle)]">
+                  <div className="flex items-center gap-4 mt-3 text-xs text-slate-600">
                     <span className="flex items-center gap-1">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -672,12 +672,12 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
                     <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L11 4.323V3a1 1 0 011-1zm-5 8.274l-.818 2.552c-.25.78.409 1.574 1.195 1.574H6.5a1 1 0 01.894.553l.448.894a1 1 0 001.788 0l.448-.894A1 1 0 0111 13.4h1.123c.786 0 1.445-.794 1.195-1.574L12.5 10.274 11 9.051V6a1 1 0 10-2 0v3.051l-1.5 1.223z" />
                   </svg>
                 )}
-                <h2 className="text-xl font-bold text-[var(--foreground)]">
+                <h2 className="text-xl font-bold text-slate-900">
                   {selectedThread.title}
                 </h2>
               </div>
               
-              <div className="flex items-center gap-3 text-sm text-[var(--foreground-muted)] mb-4">
+              <div className="flex items-center gap-3 text-sm text-slate-500 mb-4">
                 <span className="flex items-center gap-1">
                   <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center">
                     <span className="text-xs font-bold text-primary-700">
@@ -690,12 +690,12 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
                 <span>{timeAgo(selectedThread.createdAt)}</span>
               </div>
               
-              <p className="text-[var(--foreground-muted)] whitespace-pre-wrap">
+              <p className="text-slate-500 whitespace-pre-wrap">
                 {selectedThread.content}
               </p>
 
               {/* Reactions for the thread */}
-              <div className="mt-4 pt-4 border-t border-[var(--surface-border)]">
+              <div className="mt-4 pt-4 border-t border-slate-200">
                 <ReactionBar 
                   eventId={`discussion-${selectedThread.id}`} 
                   userId={getUserInfo()?.userId}
@@ -706,8 +706,8 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
             </div>
 
             {/* Replies */}
-            <div className="border-t border-[var(--surface-border)] pt-6">
-              <h3 className="font-semibold text-[var(--foreground)] mb-4">
+            <div className="border-t border-slate-200 pt-6">
+              <h3 className="font-semibold text-slate-900 mb-4">
                 {threadReplies.length} {threadReplies.length === 1 ? "Reply" : "Replies"}
               </h3>
               
@@ -743,7 +743,7 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
                 
                 {/* Typing indicators */}
                 {typingUsers.size > 0 && (
-                  <div className="flex items-center gap-2 text-xs text-[var(--foreground-muted)] animate-pulse">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 animate-pulse">
                     <div className="flex gap-1">
                       <span className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
                       <span className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>

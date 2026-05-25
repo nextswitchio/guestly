@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generatePerformanceComparison } from "@/lib/store";
-import { getEventById } from "@/lib/events";
 
 /**
  * GET /api/events/[id]/performance-comparison
@@ -12,15 +11,6 @@ export async function GET(
 ) {
   try {
     const { id: eventId } = await params;
-    
-    // Verify event exists
-    const event = getEventById(eventId);
-    if (!event) {
-      return NextResponse.json(
-        { success: false, error: { code: "NOT_FOUND", message: "Event not found" } },
-        { status: 404 }
-      );
-    }
     
     // Generate performance comparison
     const comparison = generatePerformanceComparison(eventId);

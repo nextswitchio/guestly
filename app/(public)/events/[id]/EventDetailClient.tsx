@@ -94,7 +94,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
           <SocialShareButtons
             eventId={event.id}
             eventTitle={event.title}
-            eventUrl={typeof window !== "undefined" ? window.location.href : ""}
+            eventUrl={`${process.env.NEXT_PUBLIC_APP_URL || ""}/events/${event.id}`}
           />
         </div>
       </div>

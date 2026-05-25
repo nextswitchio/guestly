@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listDocuments, saveCharter } from "@/lib/store";
-import { getEventById } from "@/lib/events";
+import { BACKEND_URL } from "@/lib/api/client";
 
 function buildCharter(input: { title: string; eventTitle: string; eventDate: string; objectives?: string; scope?: string; stakeholders?: string; risks?: string }) {
   const lines: string[] = [];
@@ -24,14 +24,22 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const body = await req.json().catch(() => ({}));
-  const e = getEventById(id);
-  if (!e) return NextResponse.json({ ok: false, error: "Event not found" }, { status: 404 });
-  const title: string = body?.title || `${e.title} Project Charter`;
-  const objectives: string | undefined = body?.objectives;
-  const scope: string | undefined = body?.scope;
-  const stakeholders: string | undefined = body?.stakeholders;
-  const risks: string | undefined = body?.risks;
-  const content = buildCharter({ title, eventTitle: e.title, eventDate: e.date, objectives, scope, stakeholders, risks });
+
+  // Fetch event title/date from backend
+  let eventTitle = body?.eventTitle || "Event";
+  let eventDate = body?.eventDate || new Date().toISOString();
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/${id}`, { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      const ev = data.data ?? data;
+      eventTitle = ev.title || eventTitle;
+      eventDate = ev.date || eventDate;
+    }
+  } catch {}
+
+  const title: string = body?.title || `${eventTitle} Project Charter`;
+  const content = buildCharter({ title, eventTitle, eventDate, objectives: body?.objectives, scope: body?.scope, stakeholders: body?.stakeholders, risks: body?.risks });
   const doc = saveCharter(id, title, content);
   return NextResponse.json({ ok: true, data: doc });
 }

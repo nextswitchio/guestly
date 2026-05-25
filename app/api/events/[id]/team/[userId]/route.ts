@@ -4,7 +4,6 @@ import {
   removeTeamMember,
   hasEventPermission,
 } from "@/lib/store";
-import { getEventById } from "@/lib/events";
 
 export async function PATCH(
   req: NextRequest,
@@ -18,15 +17,6 @@ export async function PATCH(
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
-      );
-    }
-
-    // Check if event exists
-    const event = getEventById(eventId);
-    if (!event) {
-      return NextResponse.json(
-        { success: false, error: "Event not found" },
-        { status: 404 }
       );
     }
 
@@ -94,15 +84,6 @@ export async function DELETE(
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
-      );
-    }
-
-    // Check if event exists
-    const event = getEventById(eventId);
-    if (!event) {
-      return NextResponse.json(
-        { success: false, error: "Event not found" },
-        { status: 404 }
       );
     }
 

@@ -1,77 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { events } from "@/lib/events";
-
-// Server-side distance calculation (Haversine formula)
-function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // Earth's radius in kilometers
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
-}
+import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const lat = parseFloat(searchParams.get("lat") || "0");
-  const lng = parseFloat(searchParams.get("lng") || "0");
-  const radius = parseFloat(searchParams.get("radius") || "10");
-  
+  const lat = searchParams.get("lat");
+  const lng = searchParams.get("lng");
+  const radius = searchParams.get("radius") || "10";
+
   if (!lat || !lng) {
-    return NextResponse.json(
-      { success: false, error: "Latitude and longitude required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, error: "Latitude and longitude required" }, { status: 400 });
   }
-  
+
   try {
-    // Filter events by distance
-    const nearbyEvents = events
-      .filter(event => {
-        // For demo purposes, assume Lagos events are at 6.5244, 3.3792
-        const eventLat = event.city === 'Lagos' ? 6.5244 : 
-                         event.city === 'Abuja' ? 9.0765 :
-                         event.city === 'Accra' ? 5.6037 : 
-                         event.city === 'Nairobi' ? -1.2921 : 6.5244;
-        const eventLng = event.city === 'Lagos' ? 3.3792 : 
-                         event.city === 'Abuja' ? 7.3986 :
-                         event.city === 'Accra' ? -0.1870 : 
-                         event.city === 'Nairobi' ? 36.8219 : 3.3792;
-        
-        const distance = calculateDistance(lat, lng, eventLat, eventLng);
-        return distance <= radius;
-      })
-      .map(event => {
-        const eventLat = event.city === 'Lagos' ? 6.5244 : 
-                         event.city === 'Abuja' ? 9.0765 :
-                         event.city === 'Accra' ? 5.6037 : 
-                         event.city === 'Nairobi' ? -1.2921 : 6.5244;
-        const eventLng = event.city === 'Lagos' ? 3.3792 : 
-                         event.city === 'Abuja' ? 7.3986 :
-                         event.city === 'Accra' ? -0.1870 : 
-                         event.city === 'Nairobi' ? 36.8219 : 3.3792;
-        
-        const distance = calculateDistance(lat, lng, eventLat, eventLng);
-        
-        return {
-          ...event,
-          distance: Math.round(distance * 10) / 10 // Round to 1 decimal place
-        };
-      })
-      .sort((a, b) => a.distance - b.distance);
-    
-    return NextResponse.json({
-      success: true,
-      data: nearbyEvents
+    const params = new URLSearchParams({ lat, lng, radius });
+    const res = await fetch(`${BACKEND_URL}/api/v1/events/near-me?${params}`, {
+      cache: "no-store",
     });
-  } catch (error) {
-    console.error('Error fetching nearby events:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch nearby events' },
-      { status: 500 }
-    );
+
+    if (!res.ok) {
+      // Fall back to listing published events if near-me endpoint doesn't exist
+      const fallback = await fetch(`${BACKEND_URL}/api/v1/events?page_size=20`, { cache: "no-store" });
+      if (fallback.ok) {
+        const data = await fallback.json();
+        return NextResponse.json({ success: true, data: data.events ?? [] });
+      }
+      return NextResponse.json({ success: true, data: [] });
+    }
+
+    const data = await res.json();
+    return NextResponse.json({ success: true, data: data.events ?? data.data ?? data });
+  } catch {
+    return NextResponse.json({ success: false, error: "Backend unavailable" }, { status: 502 });
   }
 }

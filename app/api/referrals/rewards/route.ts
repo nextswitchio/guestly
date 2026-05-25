@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getReferralStats, getAllReferralLinks } from '@/lib/marketing';
-import { getEventById } from '@/lib/events';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
 export async function GET(req: NextRequest) {
   try {
@@ -17,21 +18,34 @@ export async function GET(req: NextRequest) {
     const allLinks = getAllReferralLinks();
     const userLinks = allLinks.filter(l => l.userId === userId);
 
-    const linksWithTitles = userLinks.map(l => {
-      const event = getEventById(l.eventId);
-      return {
-        id: l.id,
-        eventId: l.eventId,
-        eventTitle: event?.title || `Event #${l.eventId}`,
-        url: l.url,
-        code: l.code,
-        clicks: l.clicks,
-        conversions: l.conversions,
-        earnedRewards: l.earnedRewards,
-        pendingRewards: l.pendingRewards,
-        createdAt: l.createdAt,
-      };
-    });
+    // Fetch event titles from backend for each link
+    const linksWithTitles = await Promise.all(
+      userLinks.map(async (l) => {
+        let eventTitle = `Event #${l.eventId}`;
+        try {
+          const response = await fetch(`${BACKEND_URL}/api/v1/events/${l.eventId}`);
+          if (response.ok) {
+            const event = await response.json();
+            eventTitle = event.title;
+          }
+        } catch (err) {
+          console.error(`Failed to fetch event ${l.eventId}:`, err);
+        }
+        
+        return {
+          id: l.id,
+          eventId: l.eventId,
+          eventTitle,
+          url: l.url,
+          code: l.code,
+          clicks: l.clicks,
+          conversions: l.conversions,
+          earnedRewards: l.earnedRewards,
+          pendingRewards: l.pendingRewards,
+          createdAt: l.createdAt,
+        };
+      })
+    );
 
     return NextResponse.json({
       stats,

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActivityLogs, hasEventPermission } from "@/lib/store";
-import { getEventById } from "@/lib/events";
 
 export async function GET(
   req: NextRequest,
@@ -14,15 +13,6 @@ export async function GET(
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
-      );
-    }
-
-    // Check if event exists
-    const event = getEventById(eventId);
-    if (!event) {
-      return NextResponse.json(
-        { success: false, error: "Event not found" },
-        { status: 404 }
       );
     }
 
