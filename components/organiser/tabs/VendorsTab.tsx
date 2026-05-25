@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Icon from "@/components/ui/Icon";
 import EmptyState from "@/components/ui/EmptyState";
+import { useToast } from "@/components/ui/ToastProvider";
 import { DEFAULT_PLATFORM_CATALOG, PlatformCategory, normalizeCatalog } from "@/lib/platformCatalog";
 
 type Vendor = {
@@ -34,6 +35,7 @@ type LinkedVendor = Omit<Vendor, 'status'> & {
 };
 
 export default function VendorsTab({ eventId }: { eventId: string }) {
+  const { addToast } = useToast();
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
   const [invites, setInvites] = React.useState<Invite[]>([]);
   const [linkedVendors, setLinkedVendors] = React.useState<LinkedVendor[]>([]);
@@ -102,13 +104,14 @@ export default function VendorsTab({ eventId }: { eventId: string }) {
       });
       if (res.ok) {
         await loadInvites();
+        addToast("Vendor invited successfully", { type: "success" });
       } else {
         const data = await res.json();
-        alert(data.error?.message || "Failed to invite vendor");
+        addToast(data.error?.message || "Failed to invite vendor", { type: "error" });
       }
     } catch (error) {
       console.error("Error inviting vendor:", error);
-      alert("Failed to invite vendor");
+      addToast("Failed to invite vendor", { type: "error" });
     } finally {
       setLoading(false);
     }
@@ -117,7 +120,7 @@ export default function VendorsTab({ eventId }: { eventId: string }) {
   async function submitReview(vendor: LinkedVendor) {
     const draft = reviewDrafts[vendor.id] || { rating: 5, comment: "" };
     if (!draft.comment.trim()) {
-      alert("Add a short review before submitting.");
+      addToast("Add a short review before submitting.", { type: "warning" });
       return;
     }
 
@@ -138,14 +141,14 @@ export default function VendorsTab({ eventId }: { eventId: string }) {
           ...current,
           [vendor.id]: { rating: 5, comment: "" },
         }));
-        alert("Review submitted");
+        addToast("Review submitted", { type: "success" });
       } else {
         const data = await res.json().catch(() => ({}));
-        alert(data.detail || data.error || "Failed to submit review");
+        addToast(data.detail || data.error || "Failed to submit review", { type: "error" });
       }
     } catch (error) {
       console.error("Error submitting vendor review:", error);
-      alert("Failed to submit review");
+      addToast("Failed to submit review", { type: "error" });
     } finally {
       setReviewingVendor(null);
     }

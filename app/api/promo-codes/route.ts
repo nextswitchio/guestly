@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
     const promoCodes = listPromoCodes(organizerId, eventId);
 
-    return NextResponse.json(promoCodes);
+    return NextResponse.json({ promoCodes });
   } catch (error) {
     console.error('Error listing promo codes:', error);
     return NextResponse.json(

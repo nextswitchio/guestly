@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { getAuthHeaders } from "@/lib/api/client";
 
 export default function AdminVendorSubscriptionsPage() {
   const [vendors, setVendors] = useState<any[]>([]);
@@ -18,11 +19,17 @@ export default function AdminVendorSubscriptionsPage() {
   }, []);
 
   const fetchVendors = async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/admin/vendors");
       if (res.ok) {
         const data = await res.json();
-        setVendors(data.vendors || []);
+        const list = Array.isArray(data) ? data 
+          : data.data?.vendors ? data.data.vendors 
+          : data.vendors ? data.vendors 
+          : data.data ? (Array.isArray(data.data) ? data.data : [])
+          : [];
+        setVendors(list);
       }
     } catch (e) {
       console.error(e);
@@ -40,16 +47,15 @@ export default function AdminVendorSubscriptionsPage() {
   const handleSaveSubscription = async () => {
     if (!selectedVendor) return;
     try {
-      console.log(`Updating subscription for ${selectedVendor.name} to ${newPlan} plan`);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setVendors(prev =>
-        prev.map(v =>
-          v.id === selectedVendor.id
-            ? { ...v, subscription: { ...v.subscription, plan: newPlan, activatedAt: Date.now() } }
-            : v
-        )
-      );
-      setIsUpdateOpen(false);
+      const res = await fetch(`/api/admin/users/${selectedVendor.id}`, {
+        method: "PATCH",
+        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ subscription: { plan: newPlan } }),
+      });
+      if (res.ok) {
+        await fetchVendors();
+        setIsUpdateOpen(false);
+      }
     } catch (e) {
       console.error(e);
     }

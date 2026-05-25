@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Wallet, DollarSign, Clock, CheckCircle, XCircle, AlertCircle, Plus, RefreshCw } from 'lucide-react';
+import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface PayoutRequest {
   id: string;
@@ -23,6 +25,7 @@ interface EarningsSummary {
 }
 
 export default function PayoutsPage() {
+  const { addToast } = useToast();
   const [summary, setSummary] = useState<EarningsSummary | null>(null);
   const [payouts, setPayouts] = useState<PayoutRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,16 +76,16 @@ export default function PayoutsPage() {
   const handleRequestPayout = async () => {
     if (!summary) return;
     if (!isVerified) {
-      alert('Verify your identity before requesting a payout.');
+      addToast('Verify your identity before requesting a payout.', { type: 'warning' });
       return;
     }
     const amount = parseFloat(requestAmount);
     if (isNaN(amount) || amount < summary.minPayout) {
-      alert(`Minimum payout amount is ₦${summary.minPayout}`);
+      addToast(`Minimum payout amount is ₦${summary.minPayout}`, { type: 'warning' });
       return;
     }
     if (amount > summary.pendingEarnings) {
-      alert('Amount exceeds available balance');
+      addToast('Amount exceeds available balance', { type: 'warning' });
       return;
     }
 
@@ -97,12 +100,13 @@ export default function PayoutsPage() {
         setShowRequestModal(false);
         setRequestAmount('');
         fetchData();
+        addToast('Payout request submitted successfully', { type: 'success' });
       } else {
         const error = await res.json();
-        alert(error.error || 'Failed to request payout');
+        addToast(error.error || 'Failed to request payout', { type: 'error' });
       }
     } catch (error) {
-      alert('Failed to request payout');
+      addToast('Failed to request payout', { type: 'error' });
     } finally {
       setProcessing(false);
     }
@@ -187,13 +191,13 @@ export default function PayoutsPage() {
                       : 'Complete identity verification before requesting a payout'}
                   </p>
                 </div>
-                <button
+                <Button
                   onClick={() => setShowRequestModal(true)}
                   disabled={!isVerified}
-                  className="flex items-center gap-2 rounded-xl bg-dark px-5 py-2.5 text-sm font-semibold text-lime hover:bg-dark/90 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                  variant="primary"
                 >
                   <Plus className="h-4 w-4" /> Request Payout
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -270,19 +274,20 @@ export default function PayoutsPage() {
                 <p className="text-sm font-medium text-neutral-900 capitalize">{summary.paymentMethod}</p>
               </div>
               <div className="flex gap-3">
-                <button
+                <Button
                   onClick={handleRequestPayout}
+                  loading={processing}
                   disabled={processing}
-                  className="flex-1 rounded-xl bg-lime px-5 py-2.5 text-sm font-semibold text-dark hover:bg-lime-hover transition-colors disabled:opacity-50"
+                  className="flex-1"
                 >
                   {processing ? 'Processing...' : 'Submit Request'}
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => { setShowRequestModal(false); setRequestAmount(''); }}
-                  className="rounded-xl border border-neutral-200 bg-white px-5 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
+                  variant="outline"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           </div>

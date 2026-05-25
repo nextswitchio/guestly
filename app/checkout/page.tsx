@@ -10,11 +10,13 @@ import PaymentMethodSelector from "@/components/tickets/PaymentMethodSelector";
 import Button from "@/components/ui/Button";
 import Stepper from "@/components/ui/Stepper";
 import { useCart } from "@/features/merchandise/CartProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import ShippingAddressForm from "@/components/merchandise/ShippingAddressForm";
 import { PromoCodeInput } from "@/components/tickets/PromoCodeInput";
 import Icon from "@/components/ui/Icon";
 import QRDisplay from "@/components/tickets/QRDisplay";
 import type { ShippingAddress } from "@/types/merchandise";
+import { formatCurrency } from "@/lib/utils";
 
 type Order = {
   id: string;
@@ -71,7 +73,7 @@ function SummaryCard({ title, children, total }: { title: string; children: Reac
       </div>
       <div className="mt-6 flex justify-between border-t border-white/10 pt-4">
         <span className="text-sm font-bold text-navy-400">Total Amount</span>
-        <span className="text-lg font-black text-lime tabular-nums">${total.toFixed(2)}</span>
+        <span className="text-lg font-black text-lime tabular-nums">{formatCurrency(total)}</span>
       </div>
     </div>
   );
@@ -80,6 +82,7 @@ function SummaryCard({ title, children, total }: { title: string; children: Reac
 // ── Checkout content ────────────────────────────────────────────────────────
 
 function CheckoutContent() {
+  const { addToast } = useToast();
   const params = useSearchParams();
   const router = useRouter();
   const checkoutType = params.get("type") || "ticket";
@@ -173,7 +176,7 @@ function CheckoutContent() {
 
   function proceed() {
     if (method !== "wallet") {
-      alert("Only Wallet payments are supported in this demo for instant confirmation.");
+      addToast("Only Wallet payments are supported in this demo for instant confirmation.", { type: "warning" });
       return;
     }
 
@@ -229,7 +232,7 @@ function CheckoutContent() {
           
           if (!payData.ok) {
             setProcessing(false);
-            alert(payData.error || "Payment failed");
+            addToast(payData.error || "Payment failed", { type: "error" });
             return;
           }
 
@@ -250,7 +253,7 @@ function CheckoutContent() {
           }, 5000);
         } else {
           setProcessing(false);
-          alert("Checkout failed");
+          addToast("Checkout failed", { type: "error" });
         }
       });
       return;
@@ -281,7 +284,7 @@ function CheckoutContent() {
         }, 5000);
       } else {
         setProcessing(false);
-        alert(data.error || "Payment failed");
+        addToast(data.error || "Payment failed", { type: "error" });
       }
     });
   }
@@ -368,14 +371,14 @@ function CheckoutContent() {
                               {item.quantity} Unit{item.quantity > 1 ? 's' : ''}
                             </p>
                           </div>
-                          <span className="text-sm font-bold text-white">${(item.price * item.quantity).toFixed(2)}</span>
+                          <span className="text-sm font-bold text-white">{formatCurrency(item.price * item.quantity)}</span>
                         </div>
                       ))}
                     </div>
 
                     <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
                       <span className="text-sm font-black text-white">Total Paid</span>
-                      <span className="text-xl font-black text-lime">${completedOrder.total.toFixed(2)}</span>
+                      <span className="text-xl font-black text-lime">{formatCurrency(completedOrder.total)}</span>
                     </div>
                   </div>
 
@@ -547,7 +550,7 @@ function CheckoutContent() {
                           <div>
                             <p className="text-sm font-black text-white uppercase tracking-wider">Savings Applied!</p>
                             <p className="text-xs text-green-600 font-medium mt-1">
-                              We&apos;ve used ${savingsApplied.toFixed(2)} from your savings target for this event.
+                              We&apos;ve used {formatCurrency(savingsApplied)} from your savings target for this event.
                             </p>
                           </div>
                         </motion.div>
@@ -565,11 +568,11 @@ function CheckoutContent() {
                                       <p className="text-sm font-black text-white">{it.eventTitle}</p>
                                       <p className="text-[10px] font-black uppercase tracking-widest text-navy-400">{it.type} Ticket • ×{it.quantity}</p>
                                     </div>
-                                  </div>
-                                  <span className="text-sm font-bold text-white">${(it.price * it.quantity).toFixed(2)}</span>
                                 </div>
-                              ))}
-                              {cartItems.map((it, i) => (
+                                <span className="text-sm font-bold text-white">{formatCurrency(it.price * it.quantity)}</span>
+                              </div>
+                            ))}
+                            {cartItems.map((it, i) => (
                                 <div key={i} className="flex justify-between items-center">
                                   <div className="flex items-center gap-4">
                                     <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center text-xl">{it.image}</div>
@@ -578,7 +581,7 @@ function CheckoutContent() {
                                       <p className="text-[10px] font-black uppercase tracking-widest text-navy-400">{it.size || 'One Size'} • ×{it.quantity}</p>
                                     </div>
                                   </div>
-                                  <span className="text-sm font-bold text-white">${(it.price * it.quantity).toFixed(2)}</span>
+                                  <span className="text-sm font-bold text-white">{formatCurrency(it.price * it.quantity)}</span>
                                 </div>
                               ))}
                             </div>
@@ -592,7 +595,7 @@ function CheckoutContent() {
                                   <p className="text-[10px] font-black uppercase tracking-widest text-navy-400">{it.size || 'One Size'} • ×{it.quantity}</p>
                                 </div>
                               </div>
-                              <span className="text-sm font-bold text-white">${(it.price * it.quantity).toFixed(2)}</span>
+                              <span className="text-sm font-bold text-white">{formatCurrency(it.price * it.quantity)}</span>
                             </div>
                           ))}
                           {!isCombined && !isMerch && order?.items.map((it, i) => (
@@ -604,7 +607,7 @@ function CheckoutContent() {
                                   <p className="text-[10px] font-black uppercase tracking-widest text-navy-400">×{it.quantity}</p>
                                 </div>
                               </div>
-                              <span className="text-sm font-bold text-white">${(it.price * it.quantity).toFixed(2)}</span>
+                              <span className="text-sm font-bold text-white">{formatCurrency(it.price * it.quantity)}</span>
                             </div>
                           ))}
                         </AnimatePresence>
@@ -613,7 +616,7 @@ function CheckoutContent() {
                       {/* Mobile Sticky Button */}
                       <div className="lg:hidden sticky bottom-4 z-50">
                         <Button onClick={proceed} className="w-full h-16 text-lg font-black shadow-3xl shadow-primary-500/40" size="xl" disabled={processing}>
-                          {processing ? "Processing..." : `Pay $${(isCombined ? combinedTotal : isMerch ? cartTotal : (order?.total || 0)).toFixed(2)}`}
+                          {processing ? "Processing..." : `Pay ${formatCurrency(isCombined ? combinedTotal : isMerch ? cartTotal : (order?.total || 0))}`}
                         </Button>
                       </div>
                     </motion.div>

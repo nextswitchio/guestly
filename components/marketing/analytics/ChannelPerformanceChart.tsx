@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { Icon } from '@/components/ui/Icon';
+import { formatCurrency } from '@/lib/utils';
 
 interface ChannelPerformance {
   channel: string;
@@ -86,7 +87,7 @@ export default function ChannelPerformanceChart({ channels }: Props) {
               </div>
               <div className="flex items-center gap-4 text-sm">
                 <span className="text-gray-600">{channel.conversions} conversions</span>
-                <span className="font-semibold text-gray-900">${channel.revenue.toLocaleString()}</span>
+                <span className="font-semibold text-gray-900">{formatCurrency(channel.revenue)}</span>
               </div>
             </div>
             
@@ -106,8 +107,8 @@ export default function ChannelPerformanceChart({ channels }: Props) {
 
             {/* Metrics row */}
             <div className="flex items-center gap-4 text-xs text-gray-600 pl-7">
-              <span>Cost: ${channel.cost.toLocaleString()}</span>
-              <span>CAC: ${channel.cac.toFixed(2)}</span>
+              <span>Cost: {formatCurrency(channel.cost)}</span>
+              <span>CAC: {formatCurrency(channel.cac)}</span>
               <span className={channel.roi >= 0 ? 'text-success-600 font-medium' : 'text-danger-600 font-medium'}>
                 {channel.roi >= 0 ? '+' : ''}{channel.roi.toFixed(1)}% ROI
               </span>
@@ -139,9 +140,9 @@ export default function ChannelPerformanceChart({ channels }: Props) {
                   </div>
                 </td>
                 <td className="text-right py-3 px-2">{channel.conversions.toLocaleString()}</td>
-                <td className="text-right py-3 px-2 font-medium">${channel.revenue.toLocaleString()}</td>
-                <td className="text-right py-3 px-2">${channel.cost.toLocaleString()}</td>
-                <td className="text-right py-3 px-2">${channel.cac.toFixed(2)}</td>
+                <td className="text-right py-3 px-2 font-medium">{formatCurrency(channel.revenue)}</td>
+                <td className="text-right py-3 px-2">{formatCurrency(channel.cost)}</td>
+                <td className="text-right py-3 px-2">{formatCurrency(channel.cac)}</td>
                 <td className={`text-right py-3 px-2 font-semibold ${channel.roi >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
                   {channel.roi >= 0 ? '+' : ''}{channel.roi.toFixed(1)}%
                 </td>

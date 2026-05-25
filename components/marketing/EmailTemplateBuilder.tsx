@@ -6,6 +6,7 @@ import Input from '@/components/ui/Input';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface EmailBlock {
   id: string;
@@ -24,6 +25,7 @@ interface EmailTemplateBuilderProps {
 }
 
 export function EmailTemplateBuilder({ organizerId, initialTemplate, onSave, onCancel }: EmailTemplateBuilderProps) {
+  const { addToast } = useToast();
   const [templateName, setTemplateName] = useState(initialTemplate?.name || '');
   const [subject, setSubject] = useState(initialTemplate?.subject || '');
   const [blocks, setBlocks] = useState<EmailBlock[]>(initialTemplate?.blocks || []);
@@ -93,7 +95,7 @@ export function EmailTemplateBuilder({ organizerId, initialTemplate, onSave, onC
 
   const handleSave = () => {
     if (!templateName.trim() || !subject.trim()) {
-      alert('Please provide template name and subject');
+      addToast('Please provide template name and subject', { type: 'warning' });
       return;
     }
     onSave({

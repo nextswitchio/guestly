@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import Select from '@/components/ui/Select';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
+import { formatCurrency } from '@/lib/utils';
 import type { Dispute, DisputeStatus } from '@/lib/store';
 
 interface DisputeDetailsModalProps {
@@ -29,13 +30,6 @@ export function DisputeDetailsModal({
   const [refundAmount, setRefundAmount] = useState(dispute.orderAmount);
   const [adminNotes, setAdminNotes] = useState(dispute.adminNotes || '');
   const [assignedTo, setAssignedTo] = useState(dispute.assignedTo || '');
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-    }).format(amount);
-  };
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString('en-NG', {

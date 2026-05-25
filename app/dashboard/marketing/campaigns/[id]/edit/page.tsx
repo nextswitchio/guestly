@@ -4,6 +4,7 @@ import { RefreshCw, Save } from 'lucide-react';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
+import { Button } from '@/components/ui/Button';
 
 interface Campaign {
   id: string;
@@ -194,21 +195,21 @@ export default function EditCampaignPage({ params }: { params: Promise<{ id: str
             )}
 
             <div className="flex gap-3 pt-2">
-              <button
+              <Button
                 type="submit"
+                loading={saving}
                 disabled={saving}
-                className="flex items-center gap-2 rounded-xl bg-lime px-6 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover disabled:opacity-50 transition-colors"
               >
                 <Save className="w-4 h-4" />
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-              <button
+                Save Changes
+              </Button>
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => router.push(`/dashboard/marketing/campaigns/${id}`)}
-                className="rounded-xl border border-neutral-200 bg-white px-6 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         )}

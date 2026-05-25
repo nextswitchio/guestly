@@ -2,6 +2,7 @@
 import React from "react";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import { formatCurrency } from "@/lib/utils";
 
 type Availability = {
   eventId: string;
@@ -43,7 +44,7 @@ export default function TicketSelector({
   }
 
   const total =
-    avail?.tickets.reduce(
+    avail?.tickets?.reduce(
       (sum, t) => sum + (quantities[getTicketKey(t)] || 0) * t.price,
       0
     ) ?? 0;
@@ -51,8 +52,8 @@ export default function TicketSelector({
   const hasItems = Object.values(quantities).some((q) => q > 0);
 
   async function continueFlow() {
-    if (!avail) return;
-    const items = avail.tickets
+    if (!avail?.tickets?.length) return;
+    const items = (avail.tickets || [])
       .map((t) => ({ 
         type: t.type, 
         quantity: quantities[getTicketKey(t)] || 0,
@@ -119,7 +120,7 @@ export default function TicketSelector({
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-base font-bold text-neutral-900">
-                  ${t.price.toFixed(2)}
+                  {formatCurrency(t.price)}
                 </span>
                 <span className="text-xs text-neutral-400">
                   {t.available} left
@@ -155,7 +156,7 @@ export default function TicketSelector({
         <div>
           <div className="text-xs text-neutral-500">Total</div>
           <div className="text-lg font-bold text-neutral-900">
-            ${total.toFixed(2)}
+            {formatCurrency(total)}
           </div>
         </div>
         <Button onClick={continueFlow} disabled={loading || !hasItems} size="lg">

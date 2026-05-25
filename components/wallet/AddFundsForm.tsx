@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import CryptoPaymentUI from "@/components/wallet/CryptoPaymentUI";
+import { formatCurrency } from "@/lib/utils";
 
 type PaymentMethod = "card" | "bank_transfer" | "mobile_money" | "crypto";
 type MobileMoneyProvider = "mpesa" | "mtn" | "airtel";
@@ -26,7 +27,7 @@ export default function AddFundsForm() {
   React.useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
       .then((r) => r.json())
-      .then((d) => setRole(d?.role || null))
+      .then((d) => setRole(d?.user?.role || d?.role || null))
       .catch(() => setRole(null));
     fetch("/api/wallet/balance")
       .then((r) => r.json())
@@ -88,8 +89,8 @@ export default function AddFundsForm() {
         setLoading(false);
         return;
       }
-      const dest = role === "organiser" ? "/dashboard/wallet" : "/wallet";
-      router.replace(dest);
+      const txnId = data.transaction?.id;
+      router.replace(txnId ? `${backHref}/success?txn=${txnId}` : backHref);
     } catch {
       setError("Failed to add funds");
       setLoading(false);
@@ -163,7 +164,7 @@ export default function AddFundsForm() {
           <div className="rounded-2xl border border-neutral-200 bg-white p-6">
             <p className="text-sm text-neutral-500">Current Balance</p>
             <p className="mt-1 text-3xl font-bold tabular-nums text-neutral-900">
-              ${balance === null ? "—" : balance.toFixed(2)}
+              {balance === null ? "—" : formatCurrency(balance)}
             </p>
           </div>
 
@@ -221,7 +222,7 @@ export default function AddFundsForm() {
                         : "border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
                     }`}
                   >
-                    ${v}
+                    {formatCurrency(v)}
                   </button>
                 ))}
               </div>
@@ -363,7 +364,7 @@ export default function AddFundsForm() {
               disabled={loading || (!amount && paymentMethod !== "bank_transfer")}
               className="w-full h-14 rounded-xl bg-lime text-dark text-lg font-bold hover:bg-lime-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? "Processing…" : paymentMethod === "bank_transfer" ? "I've Sent the Funds" : `Add $${amount || "0"} to Wallet`}
+              {loading ? "Processing…" : paymentMethod === "bank_transfer" ? "I've Sent the Funds" : `Add ${formatCurrency(Number(amount) || 0)} to Wallet`}
             </button>
           )}
         </div>

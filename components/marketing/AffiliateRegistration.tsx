@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface AffiliateRegistrationProps {
   userId: string;
@@ -14,6 +15,7 @@ interface AffiliateRegistrationProps {
 }
 
 export default function AffiliateRegistration({ userId, onSuccess }: AffiliateRegistrationProps) {
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'info' | 'payment'>('info');
   const [formData, setFormData] = useState({
@@ -73,11 +75,11 @@ export default function AffiliateRegistration({ userId, onSuccess }: AffiliateRe
         onSuccess?.();
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to register as affiliate');
+        addToast(error.error || 'Failed to register as affiliate', { type: 'error' });
       }
     } catch (error) {
       console.error('Failed to register:', error);
-      alert('Failed to register as affiliate');
+      addToast('Failed to register as affiliate', { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -322,12 +324,8 @@ export default function AffiliateRegistration({ userId, onSuccess }: AffiliateRe
                 >
                   Back
                 </Button>
-                <Button type="submit" disabled={loading} className="flex-1">
-                    {loading ? (
-                      <span className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-lime border-t-lime" />
-                    ) : (
-                    'Submit Application'
-                  )}
+                <Button type="submit" loading={loading} disabled={loading} className="flex-1">
+                    Submit Application
                 </Button>
               </div>
             </>

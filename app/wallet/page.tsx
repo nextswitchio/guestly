@@ -79,9 +79,10 @@ export default function WalletOverview() {
   React.useEffect(() => {
     async function load() {
       try {
-        const [portfolioRes, savRes, txnRes] = await Promise.all([
+        const [portfolioRes, savRes, balRes, txnRes] = await Promise.all([
           fetch("/api/wallet/portfolio").then((r) => r.json()),
           fetch("/api/savings").then((r) => r.json()),
+          fetch("/api/wallet/balance").then((r) => r.json()).catch(() => ({})),
           fetch("/api/wallet/transactions").then((r) => r.json()),
         ]);
 
@@ -90,11 +91,27 @@ export default function WalletOverview() {
           setPromoBalance(portfolioRes.data.promoBalance || 0);
           setCryptoBalances(portfolioRes.data.cryptoBalances || []);
           setTotalPortfolioValue(portfolioRes.data.totalPortfolioValue);
+        } else if (balRes.ok) {
+          setBalance(balRes.balance || 0);
+          setPromoBalance(balRes.promoBalance || 0);
         }
 
-        setGoal(savRes.goal || 0);
-        setProgress(savRes.progress || 0);
-        setTxns((txnRes.transactions as Txn[]) || []);
+        if (savRes.success && Array.isArray(savRes.targets)) {
+          const totalGoal = savRes.targets.reduce((s: number, t: any) => s + (t.goal_amount || 0), 0);
+          const totalProgress = savRes.targets.reduce((s: number, t: any) => s + (t.current_amount || 0), 0);
+          setGoal(totalGoal);
+          setProgress(totalProgress);
+        }
+
+        if (txnRes.ok && Array.isArray(txnRes.transactions)) {
+          setTxns(txnRes.transactions.map((tx: any) => ({
+            id: tx.id,
+            amount: tx.amount,
+            type: tx.transaction_type === "credit" ? "credit" : "debit",
+            description: tx.description,
+            createdAt: tx.created_at ? new Date(tx.created_at).getTime() : Date.now(),
+          })));
+        }
       } catch {
         /* ignore */
       } finally {

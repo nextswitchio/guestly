@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { formatCurrency } from '@/lib/utils';
 
 interface SMSCampaignFormProps {
   eventId: string;
@@ -171,11 +172,11 @@ export function SMSCampaignForm({ eventId, onSubmit, onCancel }: SMSCampaignForm
               </div>
               <div className="flex justify-between">
                 <span>Cost per SMS:</span>
-                <span className="font-medium">${costPerSMS.toFixed(2)}</span>
+                <span className="font-medium">{formatCurrency(costPerSMS)}</span>
               </div>
               <div className="flex justify-between pt-2 border-t border-blue-300">
                 <span className="font-semibold">Estimated Total:</span>
-                <span className="font-bold text-lg">${estimatedCost.toFixed(2)}</span>
+                <span className="font-bold text-lg">{formatCurrency(estimatedCost)}</span>
               </div>
             </div>
           </div>

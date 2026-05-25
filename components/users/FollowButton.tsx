@@ -1,49 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 
 interface FollowButtonProps {
   userId: string;
-  initialIsFollowing: boolean;
+  initialIsFollowing?: boolean;
   type?: 'user' | 'organizer';
   onFollowChange?: (isFollowing: boolean) => void;
 }
 
 export default function FollowButton({
   userId,
-  initialIsFollowing,
-  type = 'user',
+  initialIsFollowing = false,
+  type = 'organizer',
   onFollowChange,
 }: FollowButtonProps) {
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    fetch(`/api/follows/check?organizerId=${userId}`)
+      .then(r => r.json())
+      .then(d => { if (d.following !== undefined) setIsFollowing(d.following); })
+      .catch(() => {});
+  }, [userId]);
+
   const handleToggleFollow = async () => {
     setLoading(true);
     try {
-      if (isFollowing) {
-        // Unfollow
-        const response = await fetch(`/api/users/${userId}/follow`, {
-          method: "DELETE",
-        });
+      const response = await fetch("/api/follows", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          followingId: userId,
+          action: isFollowing ? "unfollow" : "follow",
+          followType: type,
+        }),
+      });
 
-        if (response.ok) {
-          setIsFollowing(false);
-          onFollowChange?.(false);
-        }
-      } else {
-        // Follow
-        const response = await fetch(`/api/users/${userId}/follow`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type }),
-        });
-
-        if (response.ok) {
-          setIsFollowing(true);
-          onFollowChange?.(true);
-        }
+      const d = await response.json();
+      if (d.success) {
+        setIsFollowing(d.following ?? !isFollowing);
+        onFollowChange?.(d.following ?? !isFollowing);
       }
     } catch (error) {
       console.error("Error toggling follow:", error);

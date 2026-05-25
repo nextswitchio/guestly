@@ -3,6 +3,7 @@ import { ArrowRight, ShoppingBag } from 'lucide-react';
 import React from "react";
 import Card from "@/components/ui/Card";
 import Link from "next/link";
+import { formatCurrency } from "@/lib/utils";
 
 interface BestSellerItem {
   id: string;
@@ -26,14 +27,6 @@ export function MerchandiseWidget({
   revenue = 0,
   bestSellers = [],
 }: MerchandiseWidgetProps) {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency: "NGN",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
   return (
     <Card variant="elevated" padding="lg" hoverable className="lg:col-span-2">
       <div className="mb-4 flex items-center justify-between">

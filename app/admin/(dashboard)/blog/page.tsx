@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { BlogPostEditor } from '@/components/admin/BlogPostEditor';
+import { useToast } from '@/components/ui/ToastProvider';
 import {
   Plus, Search, Filter, Eye, Edit, Trash2, Calendar,
-  TrendingUp, FileText, Download, Share2, BarChart3
+  TrendingUp, FileText, Download, Share2, BarChart3, Folder
 } from 'lucide-react';
 
 interface BlogPost {
@@ -38,6 +39,7 @@ interface Analytics {
 }
 
 export default function AdminBlogPage() {
+  const { addToast } = useToast();
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
@@ -101,8 +103,6 @@ export default function AdminBlogPage() {
   };
 
   const handleDelete = async (postId: string) => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
-
     try {
       const response = await fetch(`/api/admin/blog/posts/${postId}`, {
         method: 'DELETE',
@@ -112,11 +112,12 @@ export default function AdminBlogPage() {
       if (response.ok) {
         loadPosts();
         loadAnalytics();
+        addToast('Post deleted successfully', { type: 'success' });
       } else {
-        alert('Failed to delete post');
+        addToast('Failed to delete post', { type: 'error' });
       }
     } catch (err) {
-      alert('Failed to delete post');
+      addToast('Failed to delete post', { type: 'error' });
     }
   };
 
@@ -160,15 +161,21 @@ export default function AdminBlogPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Blog Management</h1>
+          <h1 className="text-3xl font-bold mb-2 text-slate-900">Blog Management</h1>
           <p className="text-slate-600">
             Manage your blog posts, categories, and content
           </p>
         </div>
-        <Button onClick={() => setView('create')}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Post
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => window.location.href = '/admin/blog/categories'}>
+            <Folder className="w-4 h-4 mr-2" />
+            Categories
+          </Button>
+          <Button onClick={() => setView('create')}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Post
+          </Button>
+        </div>
       </div>
 
       {/* Analytics Cards */}

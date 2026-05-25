@@ -5,6 +5,7 @@ import { UserRoleSelector } from "./UserRoleSelector";
 import { UserStatusBadge } from "./UserStatusBadge";
 import { DataTableFormatters, DataTableExporter } from "@/lib/utils/dataTableUtils";
 import { useDataTable } from "@/lib/hooks/useDataTable";
+import { formatCurrency } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import Icon from "@/components/ui/Icon";
@@ -200,14 +201,14 @@ export function EnhancedUserManagementTable({
         <div className="text-sm text-right">
           {value && typeof value === 'number' && value > 0 ? (
             <span className="text-slate-900">
-              {DataTableFormatters.currency(value)}
+              {formatCurrency(value)}
             </span>
           ) : (
-            <span className="text-slate-500">₦0</span>
+            <span className="text-slate-500">{formatCurrency(0)}</span>
           )}
         </div>
       ),
-      exportRender: (value) => value && typeof value === 'number' ? DataTableFormatters.currency(value) : '₦0',
+      exportRender: (value) => value && typeof value === 'number' ? formatCurrency(value) : formatCurrency(0),
     },
     {
       key: 'profileCompleteness',
@@ -527,10 +528,6 @@ function UserDetailsModal({
 
     fetchUserDetails();
   }, [user.id]);
-
-  const formatCurrency = (amount: number) => {
-    return DataTableFormatters.currency(amount);
-  };
 
   const formatDate = (ts?: number) =>
     ts ? new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A";

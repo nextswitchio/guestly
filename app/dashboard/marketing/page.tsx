@@ -1,6 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import { Button } from "@/components/ui/Button";
 import CampaignDashboard from "@/components/marketing/CampaignDashboard";
 import PromoCodeManager from "@/components/marketing/PromoCodeManager";
 import ReferralDashboard from "@/components/marketing/ReferralDashboard";
@@ -9,6 +11,7 @@ import { SocialMediaConnector } from "@/components/marketing/SocialMediaConnecto
 import { EmailTemplateLibrary } from "@/components/marketing/EmailTemplateLibrary";
 import { EmailTemplateBuilder } from "@/components/marketing/EmailTemplateBuilder";
 import type { EmailTemplate } from "@/components/marketing/EmailTemplateLibrary";
+import type { Campaign } from "@/lib/marketing";
 import { InfluencerDiscovery } from "@/components/marketing/InfluencerDiscovery";
 import { InfluencerCollaboration } from "@/components/marketing/InfluencerCollaboration";
 import { BlogPostEditor } from "@/components/marketing/BlogPostEditor";
@@ -41,26 +44,42 @@ type MarketingTab =
   | 'retargeting'
   | 'viral-loops';
 
-export default function MarketingPage() {
+function MarketingPageInner() {
+  const searchParams = useSearchParams();
+  const urlEventId = searchParams.get("eventId") || "";
   const [activeTab, setActiveTab] = useState<MarketingTab>('overview');
   const [organizerId, setOrganizerId] = useState('');
   const [myEvents, setMyEvents] = useState<Array<{ id: string; name: string }>>([]);
-  const [selectedEventId, setSelectedEventId] = useState('');
+  const [selectedEventId, setSelectedEventId] = useState(urlEventId);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
 
   const [customTemplates, setCustomTemplates] = useState<EmailTemplate[]>([]);
   const [showEmailBuilder, setShowEmailBuilder] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
 
+  const urlEventIdRef = React.useRef(urlEventId);
+  urlEventIdRef.current = urlEventId;
+
   React.useEffect(() => {
-    // Get authenticated user ID
+    if (!organizerId) return;
+    fetch(`/api/campaigns?organizerId=${organizerId}`).then(r => r.json()).then(d => {
+      if (d.campaigns) setCampaigns(d.campaigns);
+    }).catch(() => {});
+  }, [organizerId]);
+
+  React.useEffect(() => {
     fetch("/api/auth/me").then(r => r.json()).then(d => {
       if (d.ok && d.user?.id) setOrganizerId(d.user.id);
     }).catch(() => {});
-    // Get organiser's events for selectors
     fetch("/api/events/my?page_size=50").then(r => r.json()).then(d => {
       const events = Array.isArray(d.events) ? d.events.map((e: any) => ({ id: e.id, name: e.title })) : [];
       setMyEvents(events);
-      if (events.length > 0) setSelectedEventId(events[0].id);
+      const urlId = urlEventIdRef.current;
+      if (urlId && events.some((e: { id: string }) => e.id === urlId)) {
+        setSelectedEventId(urlId);
+      } else if (events.length > 0 && !selectedEventId) {
+        setSelectedEventId(events[0].id);
+      }
     }).catch(() => {});
   }, []);
 
@@ -129,7 +148,7 @@ export default function MarketingPage() {
       case 'campaigns':
         return <CampaignDashboard organizerId={organizerId} />;
       case 'promo-codes':
-        return <PromoCodeManager organizerId={organizerId} />;
+        return <PromoCodeManager organizerId={organizerId} eventId={selectedEventId || undefined} />;
       case 'referrals':
         return <ReferralDashboard userId={organizerId} />;
       case 'analytics':
@@ -140,13 +159,13 @@ export default function MarketingPage() {
         if (showEmailBuilder) {
           return (
             <div className="space-y-4">
-              <button
+              <Button
                 onClick={handleCancelEmailBuilder}
-                className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                variant="outline"
               >
                 <Icon name="arrow-left" size={16} />
                 Back to Templates
-              </button>
+              </Button>
               <EmailTemplateBuilder
                 organizerId={organizerId}
                 initialTemplate={editingTemplate || undefined}
@@ -165,53 +184,82 @@ export default function MarketingPage() {
           />
         );
       case 'sms-whatsapp':
-        return <SMSCampaignForm eventId="" />;
+        return <SMSCampaignForm eventId={selectedEventId} onCancel={() => setActiveTab('overview')} />;
       case 'push':
-        return <PushNotificationForm eventId="" />;
+        return <PushNotificationForm eventId={selectedEventId} onCancel={() => setActiveTab('overview')} />;
       case 'ads':
-        return <AdCampaignBuilder organizerId={organizerId} />;
+        return <AdCampaignBuilder organizerId={organizerId} eventId={selectedEventId || undefined} />;
       case 'influencers':
         return (
           <div className="space-y-6">
-            <InfluencerDiscovery organizerId={organizerId} onInvite={() => {}} />
+            <InfluencerDiscovery
+              organizerId={organizerId}
+              onInvite={(influencerId) => {
+                fetch('/api/influencers/invite', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ organizerId, influencerId, eventId: selectedEventId }),
+                }).catch(() => {});
+              }}
+            />
             <InfluencerCollaboration organizerId={organizerId} />
           </div>
         );
       case 'content':
-        return <BlogPostEditor organizerId={organizerId} onSave={() => {}} onCancel={() => {}} />;
+        return <BlogPostEditor organizerId={organizerId} eventId={selectedEventId || undefined} onSave={() => setActiveTab('overview')} onCancel={() => setActiveTab('overview')} />;
       case 'ab-testing':
-        return <ABTestBuilder campaignId="" onCreateTest={async () => {}} />;
+        if (campaigns.length === 0) {
+          return (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-12 text-center">
+              <Icon name="lightbulb" className="w-16 h-16 mx-auto text-neutral-400 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No Campaigns Yet</h3>
+              <p className="text-neutral-500 mb-4">Create a campaign first to start A/B testing</p>
+              <Button href="/dashboard/marketing/campaigns/new">Create Campaign</Button>
+            </div>
+          );
+        }
+        return (
+          <ABTestBuilder
+            campaignId={campaigns[0].id}
+            onCreateTest={async (data) => {
+              const res = await fetch('/api/ab-tests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+              });
+              if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed to create test');
+              }
+            }}
+          />
+        );
       case 'seo':
         return (
           <div className="space-y-6">
-            {/* Event Selector */}
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/10">
-                  <Icon name="search" size={18} className="text-lime" />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-xs font-medium text-neutral-500 mb-1">Analyze Event</label>
-                  <select
-                    value={selectedEventId}
-                    onChange={(e) => setSelectedEventId(e.target.value)}
-                    className="w-full h-10 rounded-xl border border-neutral-200 bg-neutral-50 px-3 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
-                  >
-                    {myEvents.length === 0 && <option value="">No events yet</option>}
-                    {myEvents.map((event) => (
-                      <option key={event.id} value={event.id}>{event.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
             <SEOChecklist eventId={selectedEventId} eventName={myEvents.find(e => e.id === selectedEventId)?.name} />
           </div>
         );
       case 'calendar':
-        return <CampaignCalendar campaigns={[]} onUpdate={() => {}} />;
+        return <CampaignCalendar organizerId={organizerId} onUpdate={() => {}} />;
       case 'retargeting':
-        return <RetargetingAudienceBuilder onSave={() => {}} />;
+        return (
+          <RetargetingAudienceBuilder
+            onSave={(audience) => {
+              fetch('/api/campaigns', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  name: audience.name,
+                  type: 'retargeting',
+                  organizerId,
+                  status: 'active',
+                }),
+              }).catch(() => {});
+            }}
+            onCancel={() => setActiveTab('overview')}
+          />
+        );
       case 'viral-loops':
         return (
           <div className="space-y-6">
@@ -224,6 +272,8 @@ export default function MarketingPage() {
     }
   };
 
+  const currentEventName = myEvents.find(e => e.id === selectedEventId)?.name;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -234,27 +284,59 @@ export default function MarketingPage() {
         </p>
       </div>
 
+      {/* Event Selector */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/10">
+            <Icon name="calendar" size={18} className="text-lime" />
+          </div>
+          <div className="flex-1">
+            <label className="block text-xs font-medium text-neutral-500 mb-1">Event</label>
+            <select
+              value={selectedEventId}
+              onChange={(e) => setSelectedEventId(e.target.value)}
+              className="w-full h-10 rounded-xl border border-neutral-200 bg-neutral-50 px-3 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+            >
+              {myEvents.length === 0 && <option value="">No events yet</option>}
+              {myEvents.map((event) => (
+                <option key={event.id} value={event.id}>{event.name}</option>
+              ))}
+            </select>
+          </div>
+          {currentEventName && (
+            <div className="hidden sm:block text-right">
+              <p className="text-xs text-neutral-500">Selected Event</p>
+              <p className="text-sm font-semibold text-neutral-900">{currentEventName}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Navigation Tabs */}
       <div className="flex overflow-x-auto gap-1 pb-2">
         {tabs.map((tab) => (
-          <button
+          <Button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-              activeTab === tab.id
-                ? 'bg-lime text-dark'
-                : 'text-neutral-500 hover:bg-neutral-100'
-            }`}
+            variant={activeTab === tab.id ? 'primary' : 'outline'}
           >
             <Icon name={tab.icon} size={16} />
             {tab.label}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* Content */}
       <div>{renderContent()}</div>
     </div>
+  );
+}
+
+export default function MarketingPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-neutral-500">Loading marketing tools...</div>}>
+      <MarketingPageInner />
+    </Suspense>
   );
 }
 

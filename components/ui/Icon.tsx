@@ -1,6 +1,8 @@
 import React from "react";
 
 export type IconName =
+  | "building-2"
+  | "bar-chart-2"
   | "calendar"
   | "ticket"
   | "money"
@@ -124,10 +126,23 @@ export type IconName =
   | "save"
   | "store"
   | "webhook"
-  | "power";
+  | "power"
+  | "laptop"
+  | "utensils"
+  | "landmark"
+  | "speaker"
+  | "mic"
+  | "cursor-click"
+  | "youtube"
+  | "folder-transfer"
+  | "records"
+  | "mail-heart"
+  | "starburst"
+  | "justice"
+  | "world-2";
 
 interface IconProps {
-  name: IconName;
+  name: string | IconName;
   className?: string;
   size?: number;
 }
@@ -750,11 +765,98 @@ const icons: Record<IconName, (props: React.SVGProps<SVGSVGElement>) => React.JS
       <path strokeLinecap="round" strokeLinejoin="round" d="M5.636 5.636a9 9 0 1 0 12.728 0M9 12a3 3 0 1 1 6 0" />
     </svg>
   ),
+  "building-2": (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0A24.226 24.226 0 0 1 12 3c-6.928 0-13.077 2.792-17.36 7.257m0 0h7.25m-7.25 0v5.711m0 0h.008v.008h-.008v-.008Zm8.288 0h8.359m-8.359 0a24.226 24.226 0 0 1 5.36-7.257m-5.36 7.257v5.039" />
+    </svg>
+  ),
+  "bar-chart-2": (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+    </svg>
+  ),
+  laptop: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+    </svg>
+  ),
+  utensils: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.055 4.024.165C17.155 8.51 18 9.473 18 10.608v2.513m-3-4.87v-1.5m-6 1.5v-1.5m12 9.75-1.5.75a3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0L3 16.5m15-3.378a3 3 0 0 0-1.5.374 3 3 0 0 1-3 0 3 3 0 0 0-3 0 3 3 0 0 1-3 0 3 3 0 0 0-1.5-.374" />
+    </svg>
+  ),
+  landmark: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+    </svg>
+  ),
+  speaker: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+    </svg>
+  ),
+  mic: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
+    </svg>
+  ),
+  "cursor-click": (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
+    </svg>
+  ),
+  youtube: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" {...props}>
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+    </svg>
+  ),
+  "folder-transfer": (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" strokeWidth={1.5} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M26.6667 28L21.3333 34.6667L26.6667 41.3333M37.3333 28L42.6667 34.6667L37.3333 41.3333M53.3333 53.3333C54.7478 53.3333 56.1044 52.7714 57.1046 51.7712C58.1048 50.771 58.6667 49.4145 58.6667 48V21.3333C58.6667 19.9188 58.1048 18.5623 57.1046 17.5621C56.1044 16.5619 54.7478 16 53.3333 16H32.2667C31.3747 16.0087 30.4948 15.7936 29.7075 15.3743C28.9202 14.9551 28.2506 14.345 27.76 13.6L25.6 10.4C25.1144 9.66259 24.4533 9.05728 23.676 8.63839C22.8987 8.2195 22.0296 8.00015 21.1467 8H10.6667C9.25219 8 7.89563 8.5619 6.89544 9.5621C5.89525 10.5623 5.33334 11.9188 5.33334 13.3333V48C5.33334 49.4145 5.89525 50.771 6.89544 51.7712C7.89563 52.7714 9.25219 53.3333 10.6667 53.3333H53.3333Z" />
+    </svg>
+  ),
+  records: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" strokeWidth={1.5} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M16.7469 58.666C21.3419 58.666 25.0669 54.9409 25.0669 50.346C25.0669 45.7508 21.3419 42.026 16.7469 42.026C12.1519 42.026 8.42693 45.7508 8.42693 50.346C8.42693 54.9409 12.1519 58.666 16.7469 58.666Z" />
+      <path d="M55.5729 44.8008V12.2675C55.5729 5.33419 51.2262 4.37419 46.8262 5.57419L30.1862 10.1075C27.1462 10.9342 25.0662 13.3342 25.0662 16.8009V22.5875V26.4809V50.3208" />
+      <path d="M47.2534 53.1191C51.8484 53.1191 55.5734 49.3941 55.5734 44.7991C55.5734 40.2042 51.8484 36.4791 47.2534 36.4791C42.6582 36.4791 38.9334 40.2042 38.9334 44.7991C38.9334 49.3941 42.6582 53.1191 47.2534 53.1191Z" />
+      <path d="M25.0662 25.3877L55.5729 17.0677" />
+    </svg>
+  ),
+  "mail-heart": (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" strokeWidth={1.5} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M32 32H32.0266M42.6666 16V10.6667C42.6666 9.25222 42.1047 7.89567 41.1045 6.89547C40.1044 5.89528 38.7478 5.33337 37.3333 5.33337H26.6666C25.2522 5.33337 23.8956 5.89528 22.8954 6.89547C21.8952 7.89567 21.3333 9.25222 21.3333 10.6667V16M58.6666 34.6667C50.7541 39.8907 41.4814 42.6755 32 42.6755C22.5185 42.6755 13.2459 39.8907 5.33331 34.6667M10.6666 16H53.3333C56.2788 16 58.6666 18.3879 58.6666 21.3334V48C58.6666 50.9456 56.2788 53.3334 53.3333 53.3334H10.6666C7.72113 53.3334 5.33331 50.9456 5.33331 48V21.3334C5.33331 18.3879 7.72113 16 10.6666 16Z" />
+    </svg>
+  ),
+  starburst: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" strokeWidth={1.5} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M53.6533 35.4667L49.4667 25.7067C46.64 19.0934 41.44 18.8267 37.9467 25.1201L32.9067 34.2134C30.3467 38.8267 25.5733 39.2267 22.2666 35.0934L21.68 34.3467C18.24 30.0267 13.3866 30.5601 10.9066 35.4934L6.31996 44.6934C3.0933 51.0934 7.75997 58.6401 14.9066 58.6401H37.52" />
+      <path d="M18.5865 21.3334C23.0132 21.3334 26.5865 17.76 26.5865 13.3334C26.5865 8.90671 23.0132 5.33337 18.5865 5.33337C14.1599 5.33337 10.5865 8.90671 10.5865 13.3334C10.5865 17.76 14.1599 21.3334 18.5865 21.3334Z" />
+      <path d="M59.7067 51.307L56.72 52.0003C54.5867 52.4803 52.9067 54.1603 52.4267 56.2937L51.7333 59.2804C51.6533 59.6004 51.2 59.6004 51.12 59.2804L50.4267 56.2937C49.9467 54.1603 48.2667 52.4803 46.1333 52.0003L43.1467 51.307C42.8267 51.227 42.8267 50.7737 43.1467 50.6937L46.1333 50.0003C48.2667 49.5203 49.9467 47.8403 50.4267 45.707L51.12 42.7203C51.2 42.4003 51.6533 42.4003 51.7333 42.7203L52.4267 45.707C52.9067 47.8403 54.5867 49.5203 56.72 50.0003L59.7067 50.6937C60.0267 50.7737 60.0267 51.227 59.7067 51.307Z" />
+    </svg>
+  ),
+  justice: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" strokeWidth={1.5} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M21.3334 58.6667H42.6667M18.6667 26.6667H45.3334M18.6667 26.6667C18.6667 21.3334 20 16 24 5.33337H40C44 16 45.3334 21.3334 45.3334 26.6667M18.6667 26.6667C18.6667 30.2029 20.0714 33.5943 22.5719 36.0948C25.0724 38.5953 28.4638 40 32 40M45.3334 26.6667C45.3334 30.2029 43.9286 33.5943 41.4281 36.0948C38.9276 38.5953 35.5362 40 32 40M32 40V58.6667" />
+    </svg>
+  ),
+  "world-2": (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" strokeWidth={1.5} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M29.6 18.9334C40.2591 18.8621 50.5839 22.651 58.6667 29.6M32 32C29.2525 35.6931 25.7755 38.7822 21.7846 41.0758C17.7937 43.3694 13.3742 44.8186 8.80004 45.3334M32 32C36.5658 32.5452 40.9744 34.0073 44.9611 36.2985C48.9478 38.5897 52.4304 41.6628 55.2 45.3334M32 32C28.5311 23.4496 28.5311 13.8838 32 5.33337M44.8 36.2667C39.5061 45.6366 30.971 52.7492 20.8 56.2667M32 5.33337C17.2724 5.33337 5.33337 17.2724 5.33337 32C5.33337 46.7276 17.2724 58.6667 32 58.6667C46.7276 58.6667 58.6667 46.7276 58.6667 32C58.6667 17.2724 46.7276 5.33337 32 5.33337ZM16.8 10.1334C14.7143 20.6318 16.5149 31.5304 21.8667 40.8" />
+    </svg>
+  ),
 };
 
 function Icon({ name, className = "", size = 20 }: IconProps) {
-  const IconComponent = icons[name];
-  
+  // Map legacy or external icon keys to our internal registry
+  const aliasMap: Record<string, string> = {
+    "building-2": "store",
+    "bar-chart-2": "bar-chart",
+  };
+
+  const key = typeof name === "string" ? (aliasMap[name] ?? name) : name;
+  const IconComponent = icons[key as IconName];
+
   if (!IconComponent) {
     console.warn(`Icon "${name}" not found`);
     return null;

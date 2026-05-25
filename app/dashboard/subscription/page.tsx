@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
+import { formatCurrency } from "@/lib/utils";
 
 type Subscription = {
   plan: "1m" | "3m" | "6m" | "12m";
@@ -26,71 +27,39 @@ interface Plan {
   features: PlanFeature[];
 }
 
-const plans: Plan[] = [
-  {
-    key: "1m",
-    name: "Starter",
-    months: 1,
-    price: 9,
-    pricePerMonth: 9,
-    features: [
-      { name: "Unlimited Events", included: true },
-      { name: "Basic Analytics", included: true },
-      { name: "Email Support", included: true },
-      { name: "Marketing Tools", included: false },
-      { name: "Priority Support", included: false },
-      { name: "Advanced Analytics", included: false },
-    ],
-  },
-  {
-    key: "3m",
-    name: "Growth",
-    months: 3,
-    price: 25,
-    pricePerMonth: 8.33,
-    savings: "Save 7%",
-    features: [
-      { name: "Unlimited Events", included: true },
-      { name: "Basic Analytics", included: true },
-      { name: "Email Support", included: true },
-      { name: "Marketing Tools", included: true },
-      { name: "Priority Support", included: false },
-      { name: "Advanced Analytics", included: false },
-    ],
-  },
-  {
-    key: "6m",
-    name: "Professional",
-    months: 6,
-    price: 45,
-    pricePerMonth: 7.50,
-    savings: "Save 17%",
-    popular: true,
-    features: [
-      { name: "Unlimited Events", included: true },
-      { name: "Basic Analytics", included: true },
-      { name: "Email Support", included: true },
-      { name: "Marketing Tools", included: true },
-      { name: "Priority Support", included: true },
-      { name: "Advanced Analytics", included: false },
-    ],
-  },
-  {
-    key: "12m",
-    name: "Enterprise",
-    months: 12,
-    price: 80,
-    pricePerMonth: 6.67,
-    savings: "Save 26%",
-    features: [
-      { name: "Unlimited Events", included: true },
-      { name: "Basic Analytics", included: true },
-      { name: "Email Support", included: true },
-      { name: "Marketing Tools", included: true },
-      { name: "Priority Support", included: true },
-      { name: "Advanced Analytics", included: true },
-    ],
-  },
+const planMeta: Omit<Plan, "price" | "pricePerMonth">[] = [
+  { key: "1m", name: "Starter", months: 1, features: [
+    { name: "Unlimited Events", included: true },
+    { name: "Basic Analytics", included: true },
+    { name: "Email Support", included: true },
+    { name: "Marketing Tools", included: false },
+    { name: "Priority Support", included: false },
+    { name: "Advanced Analytics", included: false },
+  ]},
+  { key: "3m", name: "Growth", months: 3, savings: "Save 7%", features: [
+    { name: "Unlimited Events", included: true },
+    { name: "Basic Analytics", included: true },
+    { name: "Email Support", included: true },
+    { name: "Marketing Tools", included: true },
+    { name: "Priority Support", included: false },
+    { name: "Advanced Analytics", included: false },
+  ]},
+  { key: "6m", name: "Professional", months: 6, savings: "Save 17%", popular: true, features: [
+    { name: "Unlimited Events", included: true },
+    { name: "Basic Analytics", included: true },
+    { name: "Email Support", included: true },
+    { name: "Marketing Tools", included: true },
+    { name: "Priority Support", included: true },
+    { name: "Advanced Analytics", included: false },
+  ]},
+  { key: "12m", name: "Enterprise", months: 12, savings: "Save 26%", features: [
+    { name: "Unlimited Events", included: true },
+    { name: "Basic Analytics", included: true },
+    { name: "Email Support", included: true },
+    { name: "Marketing Tools", included: true },
+    { name: "Priority Support", included: true },
+    { name: "Advanced Analytics", included: true },
+  ]},
 ];
 
 const allFeatures = [
@@ -107,29 +76,64 @@ export default function OrganiserSubscriptionPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showComparison, setShowComparison] = useState(false);
-
-  async function load() {
-    const res = await fetch("/api/organiser/subscription");
-    const data = await res.json();
-    if (data?.ok) setSub(data.subscription as Subscription);
-  }
+  const [prices, setPrices] = useState<Record<string, number> | null>(null);
+  const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
+    async function load() {
+      const [subRes, priceRes, balRes] = await Promise.all([
+        fetch("/api/organiser/subscription"),
+        fetch("/api/organiser/subscription-plans"),
+        fetch("/api/wallet/balance").then(r => r.json()).catch(() => ({})),
+      ]);
+      const subData = await subRes.json();
+      if (subData?.ok) setSub(subData.subscription as Subscription);
+      const priceData = await priceRes.json();
+      if (priceData?.ok) setPrices(priceData.plans);
+      if (balRes.balance !== undefined) setBalance(balRes.balance);
+    }
     void load();
   }, []);
 
+  const plans: Plan[] = useMemo(() => {
+    if (!prices) return [];
+    return planMeta.map((meta) => ({
+      ...meta,
+      price: prices[meta.key] || 0,
+      pricePerMonth: Math.round((prices[meta.key] || 0) / meta.months),
+    }));
+  }, [prices]);
+
   async function activate(plan: NonNullable<Subscription>["plan"]) {
+    const planPrice = prices?.[plan] || 0;
+    if (balance !== null && balance < planPrice) {
+      setError(`Insufficient wallet balance. You need ${formatCurrency(planPrice)} but have ${formatCurrency(balance)}. Please fund your wallet first.`);
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/organiser/subscription", {
+      const res = await fetch("/api/organiser/subscription/activate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
       });
       const data = await res.json();
-      if (!res.ok || !data?.ok) throw new Error(data?.error || "Failed to activate");
-      setSub(data.subscription as Subscription);
+
+      if (data?.insufficient) {
+        setBalance(data.balance);
+        throw new Error(`Insufficient wallet balance. You need ${formatCurrency(data.price)} but have ${formatCurrency(data.balance)}. Please fund your wallet first.`);
+      }
+
+      if (!data?.ok) throw new Error(data?.error || "Failed to activate");
+
+      const months = plan === "1m" ? 1 : plan === "3m" ? 3 : plan === "6m" ? 6 : 12;
+      const now = Date.now();
+      const expiresAt = new Date(now);
+      expiresAt.setMonth(expiresAt.getMonth() + months);
+      setSub({ plan, activatedAt: now, expiresAt: expiresAt.getTime() });
+      setBalance(data.balance);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -226,11 +230,11 @@ export default function OrganiserSubscriptionPage() {
               <h3 className="text-xl font-bold text-neutral-900 mb-2">{plan.name}</h3>
               <div className="mb-4">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-neutral-900">${plan.price}</span>
+                  <span className="text-4xl font-bold text-neutral-900">{formatCurrency(plan.price)}</span>
                   <span className="text-neutral-500">/{plan.months}mo</span>
                 </div>
                 <div className="text-sm text-neutral-500 mt-1">
-                  ${plan.pricePerMonth.toFixed(2)}/month
+                  {formatCurrency(plan.pricePerMonth)}/month
                 </div>
                 {plan.savings && (
                   <div className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-lg">
@@ -239,17 +243,26 @@ export default function OrganiserSubscriptionPage() {
                 )}
               </div>
 
-              <button
-                onClick={() => activate(plan.key)}
-                disabled={loading}
-                className={`w-full mb-4 rounded-xl py-2.5 text-sm font-bold transition-colors ${
-                  isPopular
-                    ? "bg-lime text-dark hover:bg-lime-hover"
-                    : "border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
-                } disabled:opacity-50`}
-              >
-                {loading ? "Processing..." : isCurrent ? "Extend Plan" : "Get Started"}
-              </button>
+              {balance !== null && balance < plan.price && !isCurrent ? (
+                <Link
+                  href="/dashboard/wallet/add"
+                  className="block w-full mb-4 rounded-xl py-2.5 text-sm font-bold text-center transition-colors bg-amber-500 text-white hover:bg-amber-600"
+                >
+                  Fund Wallet
+                </Link>
+              ) : (
+                <button
+                  onClick={() => activate(plan.key)}
+                  disabled={loading}
+                  className={`w-full mb-4 rounded-xl py-2.5 text-sm font-bold transition-colors ${
+                    isPopular
+                      ? "bg-lime text-dark hover:bg-lime-hover"
+                      : "border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50"
+                  } disabled:opacity-50`}
+                >
+                  {loading ? "Processing..." : isCurrent ? "Extend Plan" : "Get Started"}
+                </button>
+              )}
 
               <div className="space-y-3">
                 {plan.features.map((feature, idx) => (
@@ -304,7 +317,7 @@ export default function OrganiserSubscriptionPage() {
                     >
                       <div>{plan.name}</div>
                       <div className="text-xs font-normal text-neutral-500 mt-1">
-                        ${plan.price}/{plan.months}mo
+                        {formatCurrency(plan.price)}/{plan.months}mo
                       </div>
                     </th>
                   ))}

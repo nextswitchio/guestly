@@ -1,9 +1,28 @@
-export function formatCurrency(amount: number, currency = "NGN", locale = "en-NG") {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: currency === "NGN" ? 0 : 2,
-  }).format(amount);
+/* ---------- module-level currency state ---------- */
+let _primaryCurrency = "NGN";
+let _rates: Record<string, number> = {};
+let _currencies: Record<string, { symbol: string; name: string; decimals: number }> = {};
+
+export function setCurrencyGlobals(
+  primary: string,
+  rates: Record<string, number>,
+  currencies: Record<string, { symbol: string; name: string; decimals: number }>,
+) {
+  _primaryCurrency = primary;
+  _rates = rates;
+  _currencies = currencies;
+}
+
+export function getPrimaryCurrency() {
+  return _primaryCurrency;
+}
+
+export function formatCurrency(amount: number, currency?: string, _locale?: string) {
+  const cur = currency || _primaryCurrency || "NGN";
+  const meta = _currencies[cur];
+  const decimals = currency === "USDT" ? 2 : (meta?.decimals ?? (cur === "NGN" ? 0 : 2));
+  const sym = meta?.symbol || (cur === "NGN" ? "₦" : "$");
+  return `${sym}${Math.abs(amount).toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`;
 }
 
 export function formatDate(timestamp: number | string | Date, locale = "en-NG") {

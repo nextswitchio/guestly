@@ -1,20 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Shield, Mail, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Shield, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/ToastProvider';
 
 export default function AdminForgotPasswordPage() {
+  const { addToast } = useToast();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setLoading(true);
 
     try {
       const response = await fetch('/api/admin/auth/forgot', {
@@ -27,10 +29,12 @@ export default function AdminForgotPasswordPage() {
         setSent(true);
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to send reset email');
+        addToast(data.error || 'Failed to send reset email', { type: 'error' });
       }
     } catch {
-      setError('Network error. Please try again.');
+      addToast('Network error. Please try again.', { type: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,14 +78,7 @@ export default function AdminForgotPasswordPage() {
                 className="bg-[#1a1a24] border-slate-700"
               />
 
-              {error && (
-                <div className="flex items-center gap-2 rounded-xl bg-danger-500/10 p-3 text-xs font-medium text-danger-400 border border-danger-500/20">
-                  <Mail className="w-4 h-4 shrink-0" />
-                  {error}
-                </div>
-              )}
-
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" loading={loading}>
                 Send Reset Instructions
               </Button>
             </form>

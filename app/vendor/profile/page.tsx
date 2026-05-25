@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { useToast } from "@/components/ui/ToastProvider";
 import { User, Star, Phone, Mail, Globe, MapPin, Building2, Save, Edit3, RefreshCw } from "lucide-react";
 import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
 import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from "@/lib/platformCatalog";
@@ -23,6 +24,7 @@ type VendorClientProfile = {
 };
 
 export default function VendorProfilePage() {
+  const { addToast } = useToast();
   const [profile, setProfile] = useState<VendorClientProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -94,12 +96,14 @@ export default function VendorProfilePage() {
         }).catch(() => {});
         await load();
         setEditMode(false);
+        addToast("Profile saved successfully!", { type: "success" });
       }
       else {
         const d = await res.json();
-        alert(typeof d.error === "string" ? d.error : d.error?.message || "Failed to save");
+        const msg = typeof d.error === "string" ? d.error : d.error?.message || "Failed to save";
+        addToast(msg, { type: "error" });
       }
-    } catch { alert("Failed to save"); }
+    } catch { addToast("Failed to save", { type: "error" }); }
     finally { setSaving(false); }
   };
 

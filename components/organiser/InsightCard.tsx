@@ -1,8 +1,9 @@
-import { ArrowRight, Banknote, BarChart3, Building2, Clock, Lightbulb, Megaphone, Target, Users } from 'lucide-react';
 "use client";
+import { ArrowRight, Banknote, BarChart3, Building2, Clock, Lightbulb, Megaphone, Target, Users } from 'lucide-react';
 import React from "react";
 import Badge from "@/components/ui/Badge";
 import { EventInsight } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
 
 interface InsightCardProps {
   insight: EventInsight;
@@ -158,19 +159,19 @@ function getKeyMetrics(insight: EventInsight): Array<{ label: string; value: str
       
     case "revenue_forecast":
       if (data.projectedRevenue !== undefined) {
-        metrics.push({ label: "Projected", value: `$${data.projectedRevenue.toLocaleString()}` });
+        metrics.push({ label: "Projected", value: formatCurrency(data.projectedRevenue) });
       }
       if (data.currentRevenue !== undefined) {
-        metrics.push({ label: "Current", value: `$${data.currentRevenue.toLocaleString()}` });
+        metrics.push({ label: "Current", value: formatCurrency(data.currentRevenue) });
       }
       break;
       
     case "pricing_recommendation":
       if (data.recommendedPrice !== undefined) {
-        metrics.push({ label: "Recommended", value: `$${data.recommendedPrice}` });
+        metrics.push({ label: "Recommended", value: formatCurrency(data.recommendedPrice) });
       }
       if (data.currentPrice !== undefined) {
-        metrics.push({ label: "Current", value: `$${data.currentPrice}` });
+        metrics.push({ label: "Current", value: formatCurrency(data.currentPrice) });
       }
       break;
       

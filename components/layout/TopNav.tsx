@@ -63,8 +63,7 @@ export default function TopNav() {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     } catch {}
     setUser(null);
-    router.push("/");
-    router.refresh();
+    window.location.href = "/";
   };
 
   const getDashboardLink = () => {

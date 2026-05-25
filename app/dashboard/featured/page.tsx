@@ -1,12 +1,16 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Badge from "@/components/ui/Badge";
 import EmptyState from "@/components/ui/EmptyState";
+import CheckoutModal from "@/components/featured/CheckoutModal";
+import { useToast } from "@/components/ui/ToastProvider";
+import { formatCurrency } from "@/lib/utils";
 
 type EventOption = {
   id: string;
@@ -30,17 +34,10 @@ type FeaturedRequest = {
   currency: string;
   status: "pending" | "approved" | "rejected" | "cancelled" | "expired";
   payment_status: "pending" | "charged" | "paid" | "waived";
+  payment_reference?: string | null;
   rejection_reason?: string | null;
   event?: { title: string } | null;
 };
-
-function formatCurrency(amount: number, currency = "NGN") {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 function durationHours(start: string, end: string) {
   if (!start || !end) return 0;
@@ -50,6 +47,7 @@ function durationHours(start: string, end: string) {
 }
 
 export default function FeaturedPlacementRequestPage() {
+  const { addToast } = useToast();
   const [events, setEvents] = React.useState<EventOption[]>([]);
   const [requests, setRequests] = React.useState<FeaturedRequest[]>([]);
   const [feePerHour, setFeePerHour] = React.useState(5000);
@@ -58,6 +56,7 @@ export default function FeaturedPlacementRequestPage() {
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState("");
+  const [showCheckout, setShowCheckout] = React.useState(false);
   const [form, setForm] = React.useState({
     eventId: "",
     coverageType: "city" as "city" | "country",
@@ -102,6 +101,7 @@ export default function FeaturedPlacementRequestPage() {
       }
     } catch {
       setError("Unable to load featured placement details.");
+      addToast("Unable to load featured placement details.", { type: "error" });
     } finally {
       setLoading(false);
     }
@@ -122,35 +122,74 @@ export default function FeaturedPlacementRequestPage() {
     });
   }
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
+  async function doSubmit(paymentMethod?: string, mobileProvider?: string, phoneNumber?: string) {
     setSubmitting(true);
     setError("");
     setSuccess("");
     try {
-      const response = await fetch("/api/featured/requests", {
+      const body: Record<string, unknown> = {
+        eventId: form.eventId,
+        coverageType: form.coverageType,
+        country: form.country,
+        city: form.coverageType === "city" ? form.city : undefined,
+        startDate: new Date(form.startDate).toISOString(),
+        endDate: new Date(form.endDate).toISOString(),
+        notes: form.notes || undefined,
+        paymentMethod: paymentMethod || "wallet",
+      };
+      if (paymentMethod === "mobile_money" && mobileProvider && phoneNumber) {
+        body.mobileProvider = mobileProvider;
+        body.phoneNumber = phoneNumber;
+      }
+
+      const res = await fetch("/api/featured/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          eventId: form.eventId,
-          coverageType: form.coverageType,
-          country: form.country,
-          city: form.coverageType === "city" ? form.city : undefined,
-          startDate: new Date(form.startDate).toISOString(),
-          endDate: new Date(form.endDate).toISOString(),
-          notes: form.notes || undefined,
-        }),
+        body: JSON.stringify(body),
       });
-      const data = await response.json();
-      if (!data.success) throw new Error(data.error?.detail || data.error?.message || "Unable to submit request.");
-      setSuccess("Featured placement request submitted for admin review.");
-      setForm((prev) => ({ ...prev, notes: "" }));
-      await load();
+      const resData = await res.json();
+      if (!resData.success) throw new Error(resData.error || "Unable to submit request.");
+      const requestId = resData.data?.id;
+      addToast("Featured request submitted successfully!", { type: "success" });
+      if (resData.payment_url) {
+        window.location.href = resData.payment_url;
+        return;
+      }
+      window.location.href = `/dashboard/featured/success?id=${requestId}`;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to submit request.");
+      const msg = err instanceof Error ? err.message : "Unable to submit request.";
+      setError(msg);
+      addToast(msg, { type: "error" });
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setShowCheckout(true);
+  }
+
+  async function handleCheckoutSubmit(method: string, mobileProvider?: string, phoneNumber?: string) {
+    if (method === "wallet") {
+      try {
+        const balRes = await fetch("/api/wallet/balance");
+        const { balance } = await balRes.json();
+        if (balance == null || balance < totalFee) {
+          const msg = "Insufficient wallet balance. Please add funds first.";
+          setError(msg);
+          addToast(msg, { type: "warning" });
+          return;
+        }
+        await doSubmit("wallet");
+      } catch {
+        const msg = "Failed to verify wallet balance.";
+        setError(msg);
+        addToast(msg, { type: "error" });
+      }
+      return;
+    }
+    await doSubmit(method, mobileProvider, phoneNumber);
   }
 
   const statusBadge = (status: FeaturedRequest["status"]) => {
@@ -261,8 +300,8 @@ export default function FeaturedPlacementRequestPage() {
                   />
                 </div>
 
-                <Button type="submit" disabled={submitting || !form.eventId || hours <= 0}>
-                  {submitting ? "Submitting..." : "Submit Request"}
+                <Button type="submit" loading={submitting} disabled={!form.eventId || hours <= 0}>
+                  Pay & Submit
                 </Button>
               </form>
             </Card>
@@ -292,6 +331,24 @@ export default function FeaturedPlacementRequestPage() {
                   <p>{selectedEvent.category}</p>
                 </div>
               )}
+
+              <div className="mt-5 rounded-xl border border-lime/20 bg-lime/5 p-4">
+                <h3 className="text-sm font-semibold text-neutral-900">Coverage includes</h3>
+                <ul className="mt-3 space-y-2 text-xs text-neutral-600">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-lime" />
+                    Featured placement on event discovery pages (city/country level)
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-lime" />
+                    Promotional posts across TikTok, Instagram, X, Facebook, LinkedIn, Twitch, and YouTube
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-lime" />
+                    Dedicated featured blog post on the Guestly platform
+                  </li>
+                </ul>
+              </div>
             </Card>
           </div>
         )}
@@ -308,6 +365,7 @@ export default function FeaturedPlacementRequestPage() {
                   <th className="px-4 py-3 text-left text-sm font-semibold text-neutral-500">Coverage</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-neutral-500">Fee</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-neutral-500">Status</th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold text-neutral-500">Receipt</th>
                 </tr>
               </thead>
               <tbody>
@@ -325,6 +383,21 @@ export default function FeaturedPlacementRequestPage() {
                       <p className="text-xs text-neutral-500">{request.duration_hours} hours</p>
                     </td>
                     <td className="px-4 py-3">{statusBadge(request.status)}</td>
+                    <td className="px-4 py-3 text-right">
+                      {request.payment_reference ? (
+                        <Link
+                          href={`/dashboard/featured/receipt/${request.id}`}
+                          className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Receipt
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-neutral-400">—</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -333,6 +406,17 @@ export default function FeaturedPlacementRequestPage() {
           </div>
         </Card>
       </div>
+
+      <CheckoutModal
+        open={showCheckout}
+        onClose={() => { setShowCheckout(false); setError(""); }}
+        fee={totalFee}
+        hours={hours}
+        currency={currency}
+        rate={feePerHour}
+        onSubmit={handleCheckoutSubmit}
+        submitting={submitting}
+      />
     </ProtectedRoute>
   );
 }

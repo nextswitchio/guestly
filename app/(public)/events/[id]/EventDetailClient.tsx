@@ -12,9 +12,22 @@ import { SocialProofWidget } from "@/components/events/SocialProofWidget";
 import { RecentPurchasePopup } from "@/components/events/RecentPurchasePopup";
 import { SocialShareButtons } from "@/components/events/SocialShareButtons";
 import { EventReviews } from "@/components/events/EventReviews";
+import FollowButton from "@/components/users/FollowButton";
 
 interface EventDetailClientProps {
   event: Event;
+}
+
+interface OrganizerInfo {
+  id: string;
+  name: string;
+  verified: boolean;
+  avatar?: string;
+  bio?: string;
+  email?: string;
+  followerCount?: number;
+  totalEvents?: number;
+  totalAttendees?: number;
 }
 
 export default function EventDetailClient({ event }: EventDetailClientProps) {
@@ -25,8 +38,10 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
   const [merchProductCount, setMerchProductCount] = React.useState(0);
   const [loadingMerch, setLoadingMerch] = React.useState(true);
   const [activeTab, setActiveTab] = React.useState<"about" | "discussion">("about");
-  const [organizer, setOrganizer] = React.useState<{ name: string; verified: boolean } | null>(null);
+  const [organizer, setOrganizer] = React.useState<OrganizerInfo | null>(null);
   const [attendeeCount, setAttendeeCount] = React.useState(0);
+  const [isSaved, setIsSaved] = React.useState(false);
+  const [saveLoading, setSaveLoading] = React.useState(false);
 
   const eventType = event.eventType ?? "Physical";
   const isEventPast = new Date(event.date) < new Date();
@@ -47,18 +62,81 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
       .catch(() => {})
       .finally(() => setLoadingMerch(false));
 
-    // Fetch organiser info and ticket sales count
+    // Set organizer info
+    if (event.organizerName) {
+      setOrganizer({
+        id: event.organizerId ?? `org-${event.organizerName.toLowerCase().replace(/\s+/g, '-')}`,
+        name: event.organizerName,
+        verified: event.organizerVerified ?? false,
+        avatar: event.organizerAvatar,
+        bio: event.organizerBio,
+        email: event.organizerEmail,
+        followerCount: event.organizerFollowerCount,
+        totalEvents: event.organizerTotalEvents,
+        totalAttendees: event.organizerTotalAttendees,
+      });
+    } else if (event.organizerId) {
+      fetch(`/api/users/organizer/${event.organizerId}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (d && d.display_name) {
+            setOrganizer({
+              id: event.organizerId!,
+              name: d.display_name,
+              verified: d.is_verified ?? false,
+              avatar: d.avatar,
+              bio: d.bio,
+              email: d.email,
+              followerCount: d.followerCount ?? 0,
+              totalEvents: d.totalEvents ?? 0,
+              totalAttendees: d.totalAttendees ?? 0,
+            });
+          }
+        })
+        .catch(() => {});
+    }
+
+    // Fetch ticket sales count
     fetch(`/api/events/${event.id}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         const ev = d?.event ?? d?.data ?? d;
-        if (ev?.organizer_name) {
-          setOrganizer({ name: ev.organizer_name, verified: ev.organizer_verified ?? false });
-        }
         if (ev?.tickets_sold != null) setAttendeeCount(ev.tickets_sold);
       })
       .catch(() => {});
+
+    // Check if event is saved/bookmarked
+    fetch('/api/events/save')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.ok && Array.isArray(d.data)) {
+          setIsSaved(d.data.some((e: any) => e.id === event.id || e.event_id === event.id));
+        }
+      })
+      .catch(() => {});
   }, [event.id]);
+
+  const toggleSave = async () => {
+    setSaveLoading(true);
+    try {
+      const res = await fetch('/api/events/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId: event.id }),
+      });
+      if (res.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
+      if (res.ok) {
+        setIsSaved((prev) => !prev);
+      }
+    } catch (err) {
+      console.error('Error toggling save:', err);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -271,6 +349,61 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
                 </div>
               </div>
 
+              {/* Organizer details */}
+              {organizer && (
+                <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Organizer</h3>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-lime/20 flex items-center justify-center overflow-hidden shrink-0">
+                      {organizer.avatar ? (
+                        <img src={organizer.avatar} alt={organizer.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-lg font-bold text-lime">{organizer.name.charAt(0)}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-bold text-slate-900 truncate">{organizer.name}</p>
+                        {organizer.verified && (
+                          <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Verified</span>
+                        )}
+                      </div>
+                      {organizer.email && (
+                        <p className="text-sm text-slate-500 truncate">{organizer.email}</p>
+                      )}
+                    </div>
+                    <FollowButton
+                      userId={organizer.id}
+                      initialIsFollowing={false}
+                      type="organizer"
+                    />
+                  </div>
+                  {organizer.bio && (
+                    <p className="text-sm text-slate-600 mb-4 line-clamp-3">{organizer.bio}</p>
+                  )}
+                  <div className="grid grid-cols-2 gap-3 text-sm pt-3 border-t border-slate-100">
+                    {organizer.totalEvents != null && (
+                      <div>
+                        <p className="text-slate-400 text-xs">Events</p>
+                        <p className="font-semibold text-slate-900">{organizer.totalEvents}</p>
+                      </div>
+                    )}
+                    {organizer.totalAttendees != null && (
+                      <div>
+                        <p className="text-slate-400 text-xs">Total Attendees</p>
+                        <p className="font-semibold text-slate-900">{organizer.totalAttendees.toLocaleString()}</p>
+                      </div>
+                    )}
+                    {organizer.followerCount != null && (
+                      <div>
+                        <p className="text-slate-400 text-xs">Followers</p>
+                        <p className="font-semibold text-slate-900">{organizer.followerCount.toLocaleString()}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Action buttons */}
               <div
                 ref={actionsSection.ref}
@@ -315,12 +448,17 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
                   )}
                 </Button>
 
-                <form action="/api/events/save" method="POST">
-                  <input type="hidden" name="eventId" value={event.id} />
-                  <Button type="submit" variant="outline" className="w-full font-bold rounded-xl" size="lg">
-                    Save Event
-                  </Button>
-                </form>
+                <Button
+                  id="save-event-btn"
+                  variant={isSaved ? "secondary" : "outline"}
+                  className="w-full font-bold rounded-xl"
+                  size="lg"
+                  onClick={toggleSave}
+                  loading={saveLoading}
+                  disabled={saveLoading}
+                >
+                  {isSaved ? "Saved" : "Save Event"}
+                </Button>
               </div>
             </div>
           </div>

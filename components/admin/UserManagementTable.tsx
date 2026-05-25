@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import { UserRoleSelector } from "./UserRoleSelector";
 import { UserStatusBadge } from "./UserStatusBadge";
+import { formatCurrency } from "@/lib/utils";
 
 interface AdminUser {
   id: string;
@@ -40,15 +41,6 @@ export function UserManagementTable({ users, loading, onUserUpdate }: UserManage
       month: 'short',
       day: 'numeric'
     });
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
   };
 
   const handleViewDetails = (user: AdminUser) => {
@@ -255,15 +247,6 @@ function UserDetailsModal({
 
     fetchUserDetails();
   }, [user.id]);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

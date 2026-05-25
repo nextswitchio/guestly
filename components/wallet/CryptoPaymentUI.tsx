@@ -2,6 +2,7 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/ToastProvider";
 
 type CryptoType = "usdt_trc20" | "usdt_erc20" | "bitcoin";
 
@@ -55,6 +56,7 @@ interface PendingDeposit {
 }
 
 export default function CryptoPaymentUI() {
+  const { addToast } = useToast();
   const [selectedCrypto, setSelectedCrypto] = React.useState<CryptoType>("usdt_trc20");
   const [copied, setCopied] = React.useState(false);
   const [pendingDeposits, setPendingDeposits] = React.useState<PendingDeposit[]>([]);
@@ -127,14 +129,13 @@ export default function CryptoPaymentUI() {
 
   async function trackDeposit() {
     if (!amount || parseFloat(amount) <= 0) {
-      alert("Please enter a valid amount");
+      addToast("Please enter a valid amount", { type: "error" });
       return;
     }
 
     setIsTracking(true);
 
     try {
-      // Simulate conversion rate (in production, fetch real rates)
       const conversionRate = selected.id === "bitcoin" ? 45000 : 1;
       const amountNum = parseFloat(amount);
       const amountUSD = amountNum * conversionRate;
@@ -154,13 +155,12 @@ export default function CryptoPaymentUI() {
       if (data.success) {
         setPendingDeposits((prev) => [...prev, data.deposit]);
         setAmount("");
-        showSuccessNotification("Deposit tracking started! We'll notify you when confirmed.");
+        addToast("Deposit tracking started! We'll notify you when confirmed.", { type: "success" });
       } else {
-        alert(data.error || "Failed to track deposit");
+        addToast(data.error || "Failed to track deposit", { type: "error" });
       }
-    } catch (err) {
-      console.error("Failed to track deposit:", err);
-      alert("Failed to track deposit");
+    } catch {
+      addToast("Failed to track deposit", { type: "error" });
     } finally {
       setIsTracking(false);
     }

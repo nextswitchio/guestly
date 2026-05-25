@@ -1,18 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import type { Campaign } from '@/lib/marketing';
 
 interface CampaignCalendarProps {
-  campaigns: Campaign[];
+  campaigns?: Campaign[];
   onUpdate?: () => void;
+  organizerId?: string;
 }
 
-export default function CampaignCalendar({ campaigns, onUpdate }: CampaignCalendarProps) {
+export default function CampaignCalendar({ campaigns: campaignsProp, onUpdate, organizerId }: CampaignCalendarProps) {
+  const [campaigns, setCampaigns] = useState<Campaign[]>(campaignsProp || []);
+  const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  useEffect(() => {
+    if (campaignsProp && campaignsProp.length > 0) {
+      setCampaigns(campaignsProp);
+      return;
+    }
+    if (organizerId) {
+      fetchCampaigns();
+    }
+  }, [campaignsProp, organizerId]);
+
+  const fetchCampaigns = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/campaigns?organizerId=${organizerId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setCampaigns(data.campaigns || []);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();

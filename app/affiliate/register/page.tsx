@@ -6,8 +6,10 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/ToastProvider';
 
 export default function AffiliateRegisterPage() {
+  const { addToast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,11 +17,11 @@ export default function AffiliateRegisterPage() {
     password: '',
   });
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setLoading(true);
 
     try {
       const response = await fetch('/api/auth/register', {
@@ -32,10 +34,12 @@ export default function AffiliateRegisterPage() {
         setSubmitted(true);
       } else {
         const data = await response.json();
-        setError(data.error || 'Registration failed');
+        addToast(data.error || 'Registration failed', { type: 'error' });
+        setLoading(false);
       }
     } catch {
-      setError('Network error. Please try again.');
+      addToast('Network error. Please try again.', { type: 'error' });
+      setLoading(false);
     }
   };
 
@@ -108,11 +112,7 @@ export default function AffiliateRegisterPage() {
               required
             />
 
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 p-3 rounded-xl">{error}</div>
-            )}
-
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" loading={loading}>
               Create Affiliate Account
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>

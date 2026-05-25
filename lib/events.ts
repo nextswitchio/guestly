@@ -35,6 +35,15 @@ export type Event = {
     General?: { price: number; available: number };
     VIP?: { price: number; available: number };
   };
+  organizerName?: string;
+  organizerId?: string;
+  organizerVerified?: boolean;
+  organizerAvatar?: string;
+  organizerBio?: string;
+  organizerEmail?: string;
+  organizerFollowerCount?: number;
+  organizerTotalEvents?: number;
+  organizerTotalAttendees?: number;
 };
 
 // ---------------------------------------------------------------------------

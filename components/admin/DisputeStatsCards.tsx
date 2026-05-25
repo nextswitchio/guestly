@@ -1,6 +1,7 @@
 'use client';
 
 import { Card } from '@/components/ui/Card';
+import { formatCurrency } from '@/lib/utils';
 
 // Simple SVG Icons
 function ExclamationTriangleIcon({ className = "h-6 w-6" }: { className?: string }) {
@@ -66,13 +67,6 @@ interface DisputeStatsCardsProps {
 }
 
 export function DisputeStatsCards({ stats }: DisputeStatsCardsProps) {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-    }).format(amount);
-  };
-
   const formatTime = (hours: number) => {
     if (hours < 24) {
       return `${Math.round(hours)}h`;

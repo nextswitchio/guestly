@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Input } from '@/components/ui/Input';
 import { Icon } from '@/components/ui/Icon';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface SocialPostComposerProps {
   eventId?: string;
@@ -40,6 +41,7 @@ export default function SocialPostComposer({
   const [hashtags, setHashtags] = useState('#Events #Guestly');
   const [imageUrl, setImageUrl] = useState(eventImage || '');
   const [scheduleDate, setScheduleDate] = useState('');
+  const { addToast } = useToast();
   const [posting, setPosting] = useState(false);
 
   const togglePlatform = (platform: Platform) => {
@@ -67,12 +69,12 @@ export default function SocialPostComposer({
 
   const handlePost = async () => {
     if (selectedPlatforms.length === 0) {
-      alert('Please select at least one platform');
+      addToast('Please select at least one platform', { type: 'warning' });
       return;
     }
 
     if (isOverLimit()) {
-      alert('Post exceeds character limit for selected platforms');
+      addToast('Post exceeds character limit for selected platforms', { type: 'warning' });
       return;
     }
 
@@ -97,11 +99,11 @@ export default function SocialPostComposer({
         onPost?.(data);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to post to social media');
+        addToast(error.error || 'Failed to post to social media', { type: 'error' });
       }
     } catch (error) {
       console.error('Failed to post:', error);
-      alert('Failed to post to social media');
+      addToast('Failed to post to social media', { type: 'error' });
     } finally {
       setPosting(false);
     }
@@ -249,13 +251,8 @@ export default function SocialPostComposer({
             Cancel
           </Button>
         )}
-        <Button onClick={handlePost} disabled={posting || selectedPlatforms.length === 0 || overLimit}>
-          {posting ? (
-            <>
-              <Icon name="loader" className="w-5 h-5 mr-2 animate-spin" />
-              Posting...
-            </>
-          ) : scheduleDate ? (
+        <Button onClick={handlePost} loading={posting} disabled={posting || selectedPlatforms.length === 0 || overLimit}>
+          {scheduleDate ? (
             <>
               <Icon name="clock" className="w-4 h-4 mr-2" />
               Schedule Post

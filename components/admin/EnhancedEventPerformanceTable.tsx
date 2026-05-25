@@ -80,14 +80,45 @@ export default function EnhancedEventPerformanceTable({
       
       const response = await fetch(`/api/admin/events/performance?${params}`);
       const result = await response.json();
-      
-      if (result.success) {
-        setEvents(result.data.events);
-        setTotalPages(result.data.totalPages);
-        setTotal(result.data.total);
+
+      // Extract events and pagination info from various response shapes
+      let extractedEvents: EventPerformanceData[] = [];
+      let extractedTotal = 0;
+      let extractedTotalPages = 1;
+
+      // Shape: { success: true, data: { events: [...], total: X, totalPages: Y, ... } }
+      if (result?.data?.events) {
+        extractedEvents = result.data.events;
+        extractedTotal = result.data.total ?? result.data.events.length;
+        extractedTotalPages = result.data.totalPages ?? 1;
+      // Shape: { events: [...], total: X, totalPages: Y } (no success/data wrapper)
+      } else if (result?.events) {
+        extractedEvents = result.events;
+        extractedTotal = result.total ?? result.events.length;
+        extractedTotalPages = result.totalPages ?? 1;
+      // Shape: Direct array (response is the array itself)
+      } else if (Array.isArray(result)) {
+        extractedEvents = result;
+        extractedTotal = result.length;
+        extractedTotalPages = 1;
+      // Shape: { data: [...], meta: { total: X, totalPages: Y } }
+      } else if (Array.isArray(result?.data)) {
+        extractedEvents = result.data;
+        extractedTotal = result.meta?.total ?? result.data.length;
+        extractedTotalPages = result.meta?.totalPages ?? 1;
+      // Shape: { success: true, data: [...] } (data is array directly)
+      } else if (result?.success && Array.isArray(result.data)) {
+        extractedEvents = result.data;
+        extractedTotal = result.data.length;
+        extractedTotalPages = 1;
       } else {
-        setError(result.error?.message || 'Failed to fetch events');
+        setError(result?.error?.message || 'Failed to fetch events');
+        return;
       }
+
+      setEvents(extractedEvents);
+      setTotalPages(extractedTotalPages);
+      setTotal(extractedTotal);
     } catch (err) {
       setError('Failed to fetch events');
       console.error('Error fetching events:', err);

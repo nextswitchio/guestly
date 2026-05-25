@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface ReferralLinkGeneratorProps {
   userId: string;
@@ -12,6 +13,7 @@ interface ReferralLinkGeneratorProps {
 }
 
 export default function ReferralLinkGenerator({ userId, eventId }: ReferralLinkGeneratorProps) {
+  const { addToast } = useToast();
   const [selectedEventId, setSelectedEventId] = useState(eventId || '');
   const [referralLink, setReferralLink] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,7 +21,7 @@ export default function ReferralLinkGenerator({ userId, eventId }: ReferralLinkG
 
   const generateLink = async () => {
     if (!selectedEventId) {
-      alert('Please enter an event ID');
+      addToast('Please enter an event ID', { type: 'warning' });
       return;
     }
 
@@ -36,11 +38,11 @@ export default function ReferralLinkGenerator({ userId, eventId }: ReferralLinkG
         setReferralLink(data.referralLink.url);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to generate referral link');
+        addToast(error.error || 'Failed to generate referral link', { type: 'error' });
       }
     } catch (error) {
       console.error('Failed to generate referral link:', error);
-      alert('Failed to generate referral link');
+      addToast('Failed to generate referral link', { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -85,15 +87,9 @@ export default function ReferralLinkGenerator({ userId, eventId }: ReferralLinkG
             onChange={(e) => setSelectedEventId(e.target.value)}
             className="flex-1"
           />
-          <Button onClick={generateLink} disabled={loading || !selectedEventId}>
-            {loading ? (
-              <Icon name="loader" className="w-5 h-5 animate-spin" />
-            ) : (
-              <>
-                <Icon name="link" className="w-5 h-5 mr-2" />
-                Generate
-              </>
-            )}
+          <Button onClick={generateLink} loading={loading} disabled={loading || !selectedEventId}>
+            <Icon name="link" className="w-5 h-5 mr-2" />
+            Generate
           </Button>
         </div>
 

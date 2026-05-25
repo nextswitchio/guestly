@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
+import { useToast } from "@/components/ui/ToastProvider";
 import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
 import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from "@/lib/platformCatalog";
 
@@ -28,6 +29,7 @@ type UserProfile = {
 
 function ProfileContent() {
   const searchParams = useSearchParams();
+  const { addToast } = useToast();
   const viewingUserId = searchParams.get("userId");
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -121,9 +123,12 @@ function ProfileContent() {
         const data = await res.json();
         setProfile(data);
         setIsEditing(false);
+        addToast("Profile saved successfully!", { type: "success" });
+      } else {
+        addToast("Failed to save profile", { type: "error" });
       }
-    } catch (error) {
-      console.error("Error saving profile:", error);
+    } catch {
+      addToast("Something went wrong while saving", { type: "error" });
     } finally {
       setSaving(false);
     }

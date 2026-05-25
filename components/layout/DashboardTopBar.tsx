@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Avatar from "@/components/ui/Avatar";
 import { useSidebar } from "@/components/ui/sidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -34,7 +34,6 @@ export default function DashboardTopBar() {
   const profileRef = React.useRef<HTMLDivElement>(null);
   const menuButtonRef = React.useRef<HTMLButtonElement>(null);
   const menuId = React.useId();
-  const router = useRouter();
   const pathname = usePathname();
   const sidebar = useSidebar();
   const collapsed = sidebar ? !sidebar.open : false;
@@ -54,14 +53,14 @@ export default function DashboardTopBar() {
   React.useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { setRole(d?.ok ? d.role : null); })
+      .then((d) => { setRole(d?.ok ? d.user?.role : null); })
       .catch(() => { });
   }, []);
 
   React.useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { setRole(d?.ok ? d.role : null); })
+      .then((d) => { setRole(d?.ok ? d.user?.role : null); })
       .catch(() => { });
   }, [pathname]);
 
@@ -87,8 +86,7 @@ export default function DashboardTopBar() {
     await fetch("/api/auth/logout", { method: "POST" });
     setRole(null);
     setProfileOpen(false);
-    if (role === "vendor") router.replace("/");
-    else router.replace("/login");
+    window.location.href = "/login";
   }
 
   return (

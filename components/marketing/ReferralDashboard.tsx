@@ -8,6 +8,7 @@ import { Tabs } from '@/components/ui/Tabs';
 import ReferralLinkGenerator from './ReferralLinkGenerator';
 import ReferralStats from './ReferralStats';
 import type { ReferralStats as Stats } from '@/lib/marketing';
+import { formatCurrency } from '@/lib/utils';
 
 interface ReferralDashboardProps {
   userId: string;
@@ -78,7 +79,7 @@ export default function ReferralDashboard({ userId }: ReferralDashboardProps) {
             <Icon name="dollar-sign" className="w-5 h-5 text-green-500" />
           </div>
           <p className="text-2xl font-bold text-green-500">
-            ${stats?.totalEarned.toFixed(2) || '0.00'}
+            {formatCurrency(stats?.totalEarned || 0)}
           </p>
         </Card>
 
@@ -88,7 +89,7 @@ export default function ReferralDashboard({ userId }: ReferralDashboardProps) {
             <Icon name="clock" className="w-5 h-5 text-amber-500" />
           </div>
           <p className="text-2xl font-bold text-amber-500">
-            ${stats?.pendingRewards.toFixed(2) || '0.00'}
+            {formatCurrency(stats?.pendingRewards || 0)}
           </p>
         </Card>
       </div>
@@ -161,7 +162,7 @@ export default function ReferralDashboard({ userId }: ReferralDashboardProps) {
                             <div className="flex gap-4 text-sm text-neutral-500">
                               <span>{event.conversions} conversions</span>
                             <span className="text-green-500 font-medium">
-                              ${event.earned.toFixed(2)} earned
+                              {formatCurrency(event.earned)} earned
                             </span>
                           </div>
                         </div>

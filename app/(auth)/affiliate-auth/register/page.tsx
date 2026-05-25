@@ -3,13 +3,15 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { SignupForm } from "@/components/auth/SignupForm";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function AffiliateRegisterPage() {
   const router = useRouter();
-  const [error, setError] = useState("");
+  const { addToast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (data: any) => {
-    setError("");
+    setLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
@@ -22,12 +24,15 @@ export default function AffiliateRegisterPage() {
       });
       const result = await res.json();
       if (res.ok) {
+        addToast("Registration successful! Please log in.", { type: "success" });
         router.replace("/affiliate-auth/login");
       } else {
-        setError(result.error || "Application failed. Please try again.");
+        addToast(result.error || "Application failed. Please try again.", { type: "error" });
+        setLoading(false);
       }
     } catch {
-      setError("Something went wrong. Please try again.");
+      addToast("Something went wrong. Please try again.", { type: "error" });
+      setLoading(false);
     }
   };
 
@@ -40,12 +45,7 @@ export default function AffiliateRegisterPage() {
       transition={{ duration: 0.3 }}
       className="w-full"
     >
-      {error && (
-        <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-      <SignupForm onSubmit={handleRegister} loginHref="/affiliate-auth/login" />
+      <SignupForm onSubmit={handleRegister} loginHref="/affiliate-auth/login" loading={loading} />
     </motion.div>
   );
 }

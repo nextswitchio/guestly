@@ -3,7 +3,9 @@ import { Check, Timer, X } from 'lucide-react';
 import React from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/ToastProvider";
 import type { WithdrawalRequest } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
 
 interface WithdrawalRequestsListProps {
   requests: WithdrawalRequest[];
@@ -32,12 +34,11 @@ export default function WithdrawalRequestsList({
   onCancel,
   onRefresh,
 }: WithdrawalRequestsListProps) {
+  const { addToast } = useToast();
   const [cancelling, setCancelling] = React.useState<string | null>(null);
 
   const handleCancel = async (requestId: string) => {
-    if (!confirm("Are you sure you want to cancel this withdrawal request?")) {
-      return;
-    }
+    addToast("Cancelling withdrawal request...", { type: "info" });
 
     setCancelling(requestId);
     try {
@@ -74,12 +75,9 @@ export default function WithdrawalRequestsList({
         <h2 className="text-sm font-semibold text-neutral-900">
           Withdrawal Requests
         </h2>
-        <button
-          onClick={onRefresh}
-          className="text-xs font-medium text-lime hover:underline"
-        >
+        <Button onClick={onRefresh} variant="ghost" size="xs">
           Refresh
-        </button>
+        </Button>
       </div>
 
       <div className="space-y-3">
@@ -92,7 +90,7 @@ export default function WithdrawalRequestsList({
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold text-neutral-900 tabular-nums">
-                    ${request.amount.toFixed(2)}
+                    {formatCurrency(request.amount)}
                   </span>
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ${

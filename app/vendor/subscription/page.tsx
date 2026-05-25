@@ -1,8 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { useToast } from "@/components/ui/ToastProvider";
 import { Check, Crown, Zap, TrendingUp, Star, Shield } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 
 type Plan = "free" | "1m" | "3m" | "6m" | "12m";
 interface PlanDetails {
@@ -26,16 +29,22 @@ function buildPlans(prices: Record<Plan, number>): Record<Plan, PlanDetails> {
 }
 
 export default function VendorSubscriptionPage() {
+  const { addToast } = useToast();
   const [currentPlan, setCurrentPlan] = useState<Plan>("free");
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [plans, setPlans] = useState<Record<Plan, PlanDetails>>(buildPlans(DEFAULT_PRICES));
+  const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
     fetchPrices();
     fetchSub();
+    fetch("/api/wallet/balance")
+      .then(r => r.json())
+      .then(d => { if (d.balance !== undefined) setBalance(d.balance); })
+      .catch(() => {});
   }, []);
 
   const fetchPrices = async () => {
@@ -68,20 +77,31 @@ export default function VendorSubscriptionPage() {
 
   const subscribe = async (plan: Plan) => {
     if (plan === "free") return;
+
+    const planPrice = plans[plan]?.price || 0;
+    if (balance !== null && balance < planPrice) {
+      addToast(`Insufficient wallet balance. You need ${formatCurrency(planPrice)} but have ${formatCurrency(balance)}. Please fund your wallet first.`, { type: "warning" });
+      return;
+    }
+
     setSubscribing(true); setSelectedPlan(plan);
     try {
       const res = await fetch("/api/vendor/subscription/activate", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
       });
-      if (res.ok) {
-        const d = await res.json();
+      const d = await res.json();
+      if (d.insufficient) {
+        setBalance(d.balance);
+        addToast(`Insufficient wallet balance. You need ${formatCurrency(d.price)} but have ${formatCurrency(d.balance)}. Please fund your wallet first.`, { type: "warning" });
+      } else if (res.ok) {
         setCurrentPlan(d.subscription.plan); setExpiresAt(d.subscription.expiresAt);
+        setBalance(d.balance !== undefined ? d.balance : balance);
+        addToast("Subscription activated successfully!", { type: "success" });
       } else {
-        const err = await res.json();
-        alert(err.error || "Failed");
+        addToast(d.error || "Failed", { type: "error" });
       }
-    } catch { alert("Error"); }
+    } catch { addToast("Error", { type: "error" }); }
     finally { setSubscribing(false); setSelectedPlan(null); }
   };
 
@@ -122,7 +142,7 @@ export default function VendorSubscriptionPage() {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-dark">₦{plans[currentPlan].price.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-dark">{formatCurrency(plans[currentPlan].price)}</p>
               <p className="text-sm text-gray-500">{plans[currentPlan].duration}</p>
             </div>
           </div>
@@ -149,7 +169,7 @@ export default function VendorSubscriptionPage() {
               <div className="mb-5">
                 <h3 className="text-xl font-bold text-dark mb-2">{plan.name}</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-dark">₦{plan.price.toLocaleString()}</span>
+                  <span className="text-3xl font-bold text-dark">{formatCurrency(plan.price)}</span>
                   {key !== "free" && <span className="text-sm text-gray-500">/ {plan.duration.toLowerCase()}</span>}
                 </div>
                 {key !== "free" && (
@@ -168,15 +188,24 @@ export default function VendorSubscriptionPage() {
                 ))}
               </ul>
 
-              <Button
-                variant={plan.popular ? "primary" : "outline"}
-                fullWidth
-                disabled={isCurrent || subscribing}
-                loading={subscribing && selectedPlan === key}
-                onClick={() => subscribe(key)}
-              >
-                {isCurrent ? "Current Plan" : key === "free" ? "Free Forever" : "Subscribe Now"}
-              </Button>
+              {balance !== null && balance < plan.price && key !== "free" && !isCurrent ? (
+                <Link
+                  href="/wallet/add"
+                  className="block w-full rounded-xl py-2.5 text-sm font-bold text-center bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+                >
+                  Fund Wallet
+                </Link>
+              ) : (
+                <Button
+                  variant={plan.popular ? "primary" : "outline"}
+                  fullWidth
+                  disabled={isCurrent || subscribing}
+                  loading={subscribing && selectedPlan === key}
+                  onClick={() => subscribe(key)}
+                >
+                  {isCurrent ? "Current Plan" : key === "free" ? "Free Forever" : "Subscribe Now"}
+                </Button>
+              )}
             </Card>
           );
         })}

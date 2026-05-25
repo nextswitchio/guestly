@@ -3,6 +3,8 @@ import { Check, Users, X } from 'lucide-react';
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/ToastProvider";
 import GroupNotificationBell from "@/components/wallet/GroupNotificationBell";
 import type { GroupWallet } from "@/lib/store";
 
@@ -11,6 +13,7 @@ export default function GroupWalletsPage() {
   const [groupWallets, setGroupWallets] = useState<GroupWallet[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const { addToast } = useToast();
 
   useEffect(() => {
     fetchGroupWallets();
@@ -309,12 +312,17 @@ function CreateGroupModal({
       const data = await res.json();
 
       if (data.success) {
+        addToast("Group wallet created successfully!", { type: "success" });
         onSuccess();
       } else {
-        setError(data.error || "Failed to create group wallet");
+        const msg = data.error || "Failed to create group wallet";
+        setError(msg);
+        addToast(msg, { type: "error" });
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+    } catch {
+      const msg = "An error occurred. Please try again.";
+      setError(msg);
+      addToast(msg, { type: "error" });
     } finally {
       setLoading(false);
     }
@@ -510,13 +518,9 @@ function CreateGroupModal({
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium disabled:opacity-50"
-            >
-              {loading ? "Creating..." : "Create Group"}
-            </button>
+            <Button type="submit" loading={loading} fullWidth>
+              Create Group
+            </Button>
           </div>
         </form>
       </div>

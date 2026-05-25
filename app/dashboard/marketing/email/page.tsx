@@ -88,18 +88,14 @@ export default function EmailMarketingPage() {
       {composerMode === 'none' && (
         <div className="flex gap-1">
           {tabs.map((tab) => (
-            <button
+            <Button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                activeTab === tab.id
-                  ? 'bg-lime text-dark'
-                  : 'text-neutral-500 hover:bg-neutral-100'
-              }`}
+              variant={activeTab === tab.id ? 'primary' : 'outline'}
             >
               <Icon name={tab.icon} size={16} />
               {tab.label}
-            </button>
+            </Button>
           ))}
         </div>
       )}

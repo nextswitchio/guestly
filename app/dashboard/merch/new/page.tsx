@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
+import Button from '@/components/ui/Button';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { useToast } from '@/components/ui/ToastProvider';
 
 export default function NewMerchProductPage() {
   const router = useRouter();
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -33,14 +36,14 @@ export default function NewMerchProductPage() {
       });
 
       if (response.ok) {
+        addToast('Product created successfully!', { type: 'success' });
         router.push('/dashboard/merch');
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to create product');
+        addToast(error.error || 'Failed to create product', { type: 'error' });
       }
-    } catch (error) {
-      console.error('Failed to create product:', error);
-      alert('Failed to create product');
+    } catch {
+      addToast('Failed to create product', { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -141,13 +144,9 @@ export default function NewMerchProductPage() {
           </div>
 
           <div className="flex gap-3 pt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-xl bg-lime px-6 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover disabled:opacity-50 transition-colors"
-            >
-              {loading ? 'Creating...' : 'Create Product'}
-            </button>
+            <Button type="submit" loading={loading}>
+              Create Product
+            </Button>
             <button
               type="button"
               onClick={() => router.back()}

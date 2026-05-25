@@ -2,6 +2,7 @@
 import React from "react";
 import Icon from "@/components/ui/Icon";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
+import { formatCurrency } from "@/lib/utils";
 
 function TargetIcon() {
   return (
@@ -126,7 +127,7 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
           </span>
           <div>
             <p className="text-sm font-semibold text-neutral-900">Event Savings</p>
-            <p className="text-xs text-neutral-500">Goal: ${goal.toFixed(2)}</p>
+            <p className="text-xs text-neutral-500">Goal: {formatCurrency(goal)}</p>
           </div>
         </div>
         <span className="text-xs font-bold text-lime">{pct}%</span>
@@ -186,11 +187,11 @@ export default function SavingsProgressBar({ goal, progress }: { goal: number; p
       {/* Stats row */}
       <div className="mt-4 flex items-center justify-between text-xs">
         <span className="text-neutral-500">
-          Saved <span className="font-semibold text-neutral-900">${progress.toFixed(2)}</span>
+          Saved <span className="font-semibold text-neutral-900">{formatCurrency(progress)}</span>
         </span>
         {remaining > 0 ? (
           <span className="text-neutral-500">
-            <span className="font-semibold text-neutral-900">${remaining.toFixed(2)}</span> to go
+            <span className="font-semibold text-neutral-900">{formatCurrency(remaining)}</span> to go
           </span>
         ) : (
           <span className="flex items-center gap-1 font-semibold text-green-600">

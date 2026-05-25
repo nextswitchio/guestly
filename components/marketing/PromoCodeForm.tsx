@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface Event {
   id: string;
@@ -24,6 +25,7 @@ export default function PromoCodeForm({
   onSuccess,
   onCancel,
 }: PromoCodeFormProps) {
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
@@ -43,14 +45,12 @@ export default function PromoCodeForm({
   });
 
   useEffect(() => {
-    // Fetch events for the organizer
     const fetchEvents = async () => {
       try {
-        const response = await fetch('/api/events');
+        const response = await fetch('/api/events/my?page_size=50');
         if (response.ok) {
           const data = await response.json();
-          // Ensure data is an array
-          setEvents(Array.isArray(data) ? data : []);
+          setEvents(Array.isArray(data.events) ? data.events.map((e: { id: string; title: string }) => ({ id: e.id, title: e.title })) : []);
         } else {
           setEvents([]);
         }
@@ -102,15 +102,15 @@ export default function PromoCodeForm({
         }),
       });
 
-      if (response.ok) {
-        onSuccess?.();
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to create promo code');
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: response.statusText }));
+        addToast(error.error || 'Failed to create promo code', { type: 'error' });
+        return;
       }
+      onSuccess?.();
     } catch (error) {
       console.error('Failed to create promo code:', error);
-      alert('Failed to create promo code');
+      addToast('Failed to create promo code', { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -330,10 +330,11 @@ export default function PromoCodeForm({
         </Button>
         <Button
           type="submit"
+          loading={loading}
           disabled={loading || !formData.eventId || !formData.code || !formData.description}
           className="flex-1"
         >
-          {loading ? <Icon name="loader" className="w-5 h-5 animate-spin" /> : 'Create Promo Code'}
+          Create Promo Code
         </Button>
       </div>
     </form>

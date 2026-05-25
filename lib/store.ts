@@ -623,6 +623,7 @@ const refundProcessing: Record<string, RefundProcessing> = {}; // refundId -> re
 const refundsByDispute: Record<string, string> = {}; // disputeId -> refundId
 
 type EventDraft = {
+  id?: string;
   type?: "Physical" | "Virtual" | "Hybrid";
   title?: string;
   description?: string;

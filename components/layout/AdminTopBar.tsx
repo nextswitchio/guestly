@@ -72,7 +72,7 @@ export default function AdminTopBar() {
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.replace("/admin/login");
+    window.location.href = "/admin/login";
   }
 
   return (

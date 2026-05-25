@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from '@/lib/platformCatalog';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface Event {
   id: string;
@@ -26,8 +27,8 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [error, setError] = useState('');
   const [catalog, setCatalog] = useState<PlatformCatalog>(DEFAULT_PLATFORM_CATALOG);
+  const { addToast } = useToast();
   const [form, setForm] = useState<Event>({
     id: '',
     title: '',
@@ -102,15 +103,16 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
 
       if (response.ok) {
         setSaved(true);
+        addToast('Event updated successfully!', { type: 'success' });
         setTimeout(() => {
           router.push(`/dashboard/events/${id}/manage`);
         }, 1500);
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to update event');
+        addToast(data.error || 'Failed to update event', { type: 'error' });
       }
     } catch {
-      setError('Network error. Please try again.');
+      addToast('Network error. Please try again.', { type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -206,10 +208,6 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
               accept="image/*"
               placeholder="Upload event image"
             />
-
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 p-3 rounded-xl">{error}</div>
-            )}
 
             <div className="flex gap-3 pt-2">
               <Button type="submit" loading={saving}>

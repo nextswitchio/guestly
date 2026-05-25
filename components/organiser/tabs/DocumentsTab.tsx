@@ -8,6 +8,7 @@ import FileUpload from "@/components/ui/FileUpload";
 import Modal from "@/components/ui/Modal";
 import Tabs from "@/components/ui/Tabs";
 import Icon from "@/components/ui/Icon";
+import { useToast } from "@/components/ui/ToastProvider";
 import RundownBuilder from "@/components/organiser/RundownBuilder";
 import TimelineVisualization from "@/components/organiser/TimelineVisualization";
 
@@ -53,6 +54,7 @@ const DOCUMENT_TYPES = [
 ] as const;
 
 export default function DocumentsTab({ eventId }: { eventId: string }) {
+  const { addToast } = useToast();
   const [docs, setDocs] = React.useState<Doc[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [uploadModalOpen, setUploadModalOpen] = React.useState(false);
@@ -121,12 +123,12 @@ export default function DocumentsTab({ eventId }: { eventId: string }) {
     e.preventDefault();
     
     if (rundownItems.length === 0) {
-      alert("Please add at least one schedule item");
+      addToast("Please add at least one schedule item", { type: "warning" });
       return;
     }
 
     if (rundownItems.some(item => !item.activity)) {
-      alert("All schedule items must have an activity name");
+      addToast("All schedule items must have an activity name", { type: "warning" });
       return;
     }
 
@@ -192,14 +194,15 @@ export default function DocumentsTab({ eventId }: { eventId: string }) {
   }
 
   async function handleDelete(docId: string) {
-    if (!confirm("Are you sure you want to delete this document?")) return;
-
     const res = await fetch(`/api/events/${eventId}/documents?docId=${docId}`, {
       method: "DELETE",
     });
 
     if (res.ok) {
       await load();
+      addToast("Document deleted", { type: "success" });
+    } else {
+      addToast("Failed to delete document", { type: "error" });
     }
   }
 

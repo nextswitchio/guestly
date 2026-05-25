@@ -1,26 +1,9 @@
 "use client";
-import { useEffect, useState, type FC } from "react";
+import { useEffect, useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import Heading from "@/components/Heading";
-import {
-  BallIcon,
-  BriefcaseIcon,
-  FolderIcon,
-  GlassIcon,
-  MusicIcon,
-  ViewIcon,
-} from "@/utils/icons";
+import Icon from "@/components/ui/Icon";
 import { DEFAULT_PLATFORM_CATALOG, PlatformCategory, normalizeCatalog } from "@/lib/platformCatalog";
-
-const categoryIcons: Record<string, FC<{ className?: string }>> = {
-  music: MusicIcon,
-  tech: FolderIcon,
-  business: BriefcaseIcon,
-  art: ViewIcon,
-  arts: ViewIcon,
-  food: GlassIcon,
-  sports: BallIcon,
-};
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -78,9 +61,7 @@ export function ExploreByCategory() {
           viewport={{ once: true, margin: "-50px" }}
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6"
         >
-          {categories.map((category) => {
-            const CategoryIcon = categoryIcons[category.slug] || BriefcaseIcon;
-            return (
+          {categories.map((category) => (
             <a
               key={category.slug}
               href={`/explore?category=${encodeURIComponent(category.name)}`}
@@ -93,13 +74,13 @@ export function ExploreByCategory() {
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className="w-16 h-16 sm:w-32 sm:h-32 rounded-full border border-dark group-hover:border-lime group-hover:bg-lime-hover/5 flex items-center justify-center transition-all duration-300"
               >
-                <CategoryIcon className="text-dark group-hover:text-lime transition-colors duration-300 w-8 h-8 sm:w-16 sm:h-16" />
+                <Icon name={category.icon || "briefcase"} className="text-dark group-hover:text-lime transition-colors duration-300 w-8 h-8 sm:w-16 sm:h-16" />
               </motion.div>
               <span className="text-sm sm:text-base tracking-tight text-dark text-center leading-[25.2px]">
                 {category.name}
               </span>
             </a>
-          )})}
+          ))}
         </motion.div>
       </div>
     </section>

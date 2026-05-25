@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon';
 import Tabs from '@/components/ui/Tabs';
 import Input from '@/components/ui/Input';
+import { useToast } from '@/components/ui/ToastProvider';
 import AffiliatePerformance from './AffiliatePerformance';
 import type { Affiliate } from '@/lib/marketing';
 
@@ -15,6 +16,7 @@ interface AffiliateDashboardProps {
 }
 
 export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) {
+  const { addToast } = useToast();
   const [affiliate, setAffiliate] = useState<Affiliate | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,7 +41,7 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
 
   const requestPayout = async () => {
     if (!affiliate || affiliate.pendingEarnings < 50) {
-      alert('Minimum payout amount is $50');
+      addToast('Minimum payout amount is $50', { type: 'warning' });
       return;
     }
 
@@ -50,15 +52,15 @@ export default function AffiliateDashboard({ userId }: AffiliateDashboardProps) 
         method: 'POST',
       });
       if (response.ok) {
-        alert('Payout request submitted successfully');
+        addToast('Payout request submitted successfully', { type: 'success' });
         fetchAffiliateData();
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to request payout');
+        addToast(error.error || 'Failed to request payout', { type: 'error' });
       }
     } catch (error) {
       console.error('Failed to request payout:', error);
-      alert('Failed to request payout');
+      addToast('Failed to request payout', { type: 'error' });
     }
   };
 

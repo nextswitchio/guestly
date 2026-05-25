@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Icon from "@/components/ui/Icon";
 import { EnhancedUserManagementTable } from "@/components/admin/EnhancedUserManagementTable";
+import { getAuthHeaders } from "@/lib/api/client";
 import { UserStatsCards } from "@/components/admin/UserStatsCards";
 import { UserFilters } from "@/components/admin/UserFilters";
 
@@ -20,7 +21,7 @@ export default function AdminUsersPage() {
   const [totalPages, setTotalPages] = React.useState(1);
 
   async function loadStatsData() {
-    const response = await fetch('/api/admin/users?stats=true');
+    const response = await fetch('/api/admin/users?stats=true', { headers: getAuthHeaders() });
     const data = await response.json();
     return data.success ? data.data : null;
   }
@@ -45,14 +46,16 @@ export default function AdminUsersPage() {
     if (role) params.append('role', role);
     if (status) params.append('status', status);
 
-    const response = await fetch(`/api/admin/users?${params}`);
+    const response = await fetch(`/api/admin/users?${params}`, { headers: getAuthHeaders() });
     const data = await response.json();
-    return data.success
-      ? {
-          users: data.data.users ?? [],
-          totalPages: data.data.pagination?.totalPages ?? 1,
-        }
-      : null;
+
+    if (!data.success) return null;
+
+    const d = data.data;
+    return {
+      users: d.users ?? d.items ?? d.data ?? [],
+      totalPages: d.pagination?.totalPages ?? d.pagination?.total_pages ?? d.page_count ?? d.total_pages ?? 1,
+    };
   }
 
   const fetchStats = React.useCallback(async () => {
@@ -139,7 +142,7 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
       });
 
@@ -159,7 +162,7 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch('/api/admin/users/bulk', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify({ userIds, updates })
       });
 
@@ -177,6 +180,7 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
 
       const data = await response.json();
@@ -193,7 +197,7 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch('/api/admin/users/bulk', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify({ userIds })
       });
 

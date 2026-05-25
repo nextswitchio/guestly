@@ -169,7 +169,7 @@ export default function AttendeeSidebar() {
           <button
             onClick={async () => {
               await fetch("/api/auth/logout", { method: "POST" });
-              router.push("/");
+              window.location.href = "/";
             }}
             title={collapsed ? "Sign Out" : undefined}
             className={`group relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-150 min-h-[44px] w-full ${

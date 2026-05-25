@@ -3,12 +3,15 @@ import React from "react";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import AdminTopBar from "@/components/layout/AdminTopBar";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
+import { CurrencyProvider } from "@/lib/currency";
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider>
-      <AdminShell>{children}</AdminShell>
-    </SidebarProvider>
+    <CurrencyProvider>
+      <SidebarProvider>
+        <AdminShell>{children}</AdminShell>
+      </SidebarProvider>
+    </CurrencyProvider>
   );
 }
 

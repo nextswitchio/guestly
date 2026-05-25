@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { BACKEND_URL } from "@/lib/api/client";
 
 function getAuthHeaders(request: NextRequest): Record<string, string> {
-  const token = request.cookies.get("access_token")?.value;
+  const headerAuth = request.headers.get("authorization") || request.headers.get("Authorization");
+  const token = headerAuth ?? request.cookies.get("access_token")?.value;
   return {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -34,6 +35,7 @@ export async function GET(request: NextRequest) {
       role: "vendor",
     });
     if (search) backendParams.set("search", search);
+    if (category) backendParams.set("category", category);
     if (status) backendParams.set("status", status);
 
     const response = await fetch(
@@ -49,26 +51,87 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Build vendor list from admin_list_users response
     const users = (data.users || []).map((u: any) => ({
       id: u.id,
       userId: u.id,
-      name: u.display_name || u.business_name || u.email,
-      businessName: u.business_name,
+      // User model fields
+      display_name: u.display_name,
       email: u.email,
-      category: u.category || "Uncategorized",
-      description: u.description || "",
-      status: u.status || "pending",
+      role: u.role,
+      isActive: u.isActive,
+      isVerified: u.isVerified,
+      avatar: u.avatar,
+      bio: u.bio,
+      interests: u.interests || [],
+      location: u.location,
+      eventsCreated: u.eventsCreated || 0,
+      eventsAttended: u.eventsAttended || 0,
+      totalSpent: u.totalSpent || 0,
+      walletBalance: u.walletBalance || 0,
+      profileCompleteness: u.profileCompleteness || 0,
+      createdAt: u.createdAt,
+      lastActivityAt: u.lastActivityAt,
+      // Vendor-specific fields (filled from profile enrichment)
+      vendorName: null as string | null,
+      vendorCategory: null as string | null,
+      description: null as string | null,
       contactEmail: u.email,
-      contactPhone: u.phone || "",
-      city: u.city || "",
-      rating: u.rating || 0,
-      eventCount: u.events_created || u.events_attended || 0,
-      completedEvents: u.completed_events || 0,
-      totalRevenue: u.total_revenue || 0,
-      subscription: u.subscription || null,
-      createdAt: u.created_at,
-      lastActivityAt: u.last_activity_at,
+      contactPhone: null as string | null,
+      city: null as string | null,
+      rating: null as number | null,
+      reviewCount: null as number | null,
+      completedEvents: null as number | null,
+      services: null as string[] | null,
+      pricing: null as string | null,
+      portfolio: null as string[] | null,
+      rateCard: null as string | null,
+      vendorStatus: null as string | null,
+      subscriptionPlan: null as string | null,
+      subscriptionExpiresAt: null as string | null,
+      hasProfile: false,
     }));
+
+    // Enrich with VendorProfile data from public vendors endpoint (approved only)
+    try {
+      const profilePageSize = Math.max(100, users.length + 50);
+      const profileRes = await fetch(
+        `${BACKEND_URL}/vendors/?page=1&page_size=${profilePageSize}`,
+        { headers: getAuthHeaders(request) }
+      );
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        const profiles: any[] = profileData.vendors || [];
+        const profileByUserId: Record<string, any> = {};
+        for (const p of profiles) {
+          profileByUserId[p.user_id] = p;
+        }
+        for (const u of users) {
+          const profile = profileByUserId[u.id];
+          if (profile) {
+            u.vendorName = profile.name;
+            u.vendorCategory = profile.category;
+            u.description = profile.description;
+            u.contactEmail = profile.contact_email || u.email;
+            u.contactPhone = profile.contact_phone;
+            u.city = profile.city;
+            u.rating = profile.rating;
+            u.reviewCount = profile.review_count;
+            u.completedEvents = profile.completed_events;
+            u.services = profile.services || [];
+            u.pricing = profile.pricing;
+            u.portfolio = profile.portfolio || [];
+            u.rateCard = profile.rate_card;
+            u.vendorStatus = profile.status;
+            u.subscriptionPlan = profile.subscription_plan;
+            u.subscriptionExpiresAt = profile.subscription_expires_at;
+            u.hasProfile = true;
+          }
+        }
+      }
+    } catch (e) {
+      // Non-fatal: enrichment is best-effort
+    }
 
     return NextResponse.json({
       data: { vendors: users },

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
-import Button from "@/components/Button";
+import Button from "@/components/ui/Button";
 import { getImageSrc } from "@/utils/imageUtils";
 import {
   CheckIcon,
@@ -12,7 +12,7 @@ import {
   User1Icon,
 } from "@/utils/icons";
 
-export function SignupForm({ onSubmit, loginHref = "/login" }: { onSubmit: (data: any) => void; loginHref?: string }) {
+export function SignupForm({ onSubmit, loginHref = "/login", loading = false }: { onSubmit: (data: any) => void; loginHref?: string; loading?: boolean }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [form, setForm] = useState({
@@ -207,10 +207,10 @@ export function SignupForm({ onSubmit, loginHref = "/login" }: { onSubmit: (data
       {/* Actions */}
       <div className="flex gap-4 mt-8">
         <div className="w-full">
-          <Button variant="teal-outline">Back</Button>
+          <Button variant="teal-outline" fullWidth>Back</Button>
         </div>
         <motion.div className="w-full" whileHover={{ y: -2 }}>
-          <Button variant="teal" onClick={handleSubmit}>
+          <Button variant="teal" onClick={handleSubmit} loading={loading} fullWidth>
             Continue
           </Button>
         </motion.div>

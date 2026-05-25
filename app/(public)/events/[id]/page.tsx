@@ -35,6 +35,15 @@ function mapApiEvent(raw: any): Event | null {
     streamingConfig: raw.streamingConfig ?? raw.streaming_config,
     postEventMerchSales: raw.postEventMerchSales ?? raw.post_event_merch_sales,
     postEventCommunityAccess: raw.postEventCommunityAccess ?? raw.post_event_community_access,
+    organizerName: raw.organizer_name ?? raw.organizerName,
+    organizerId: raw.organizer_id ?? raw.organizerId,
+    organizerVerified: raw.organizer_verified ?? raw.organizerVerified,
+    organizerAvatar: raw.organizer_avatar ?? raw.organizerAvatar,
+    organizerBio: raw.organizer_bio ?? raw.organizerBio,
+    organizerEmail: raw.organizer_email ?? raw.organizerEmail,
+    organizerFollowerCount: raw.organizer_follower_count ?? raw.organizerFollowerCount,
+    organizerTotalEvents: raw.organizer_total_events ?? raw.organizerTotalEvents,
+    organizerTotalAttendees: raw.organizer_total_attendees ?? raw.organizerTotalAttendees,
   };
 }
 

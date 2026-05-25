@@ -5,18 +5,26 @@ import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import Input from "@/components/ui/Input";
 import Modal from "@/components/ui/Modal";
+import { getAuthHeaders } from "@/lib/api/client";
 
 interface Organizer {
   id: string;
   display_name?: string;
   email: string;
+  role: string;
   is_active: boolean;
+  is_verified: boolean;
   eventsCount?: number;
-  totalRevenue?: number;
-  createdAt?: number;
-  lastActivityAt?: number;
-  phone?: string;
-  city?: string;
+  eventsAttended?: number;
+  totalSpent?: number;
+  walletBalance?: number;
+  profileCompleteness?: number;
+  createdAt?: string;
+  lastActivityAt?: string;
+  location?: { city?: string; country?: string };
+  avatar?: string;
+  bio?: string;
+  interests?: string[];
 }
 
 export default function AdminOrganizersPage() {
@@ -26,6 +34,7 @@ export default function AdminOrganizersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalOrganizers, setTotalOrganizers] = useState(0);
   const [selectedOrganizer, setSelectedOrganizer] = useState<Organizer | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -40,11 +49,51 @@ export default function AdminOrganizersPage() {
       if (searchQuery) params.set("search", searchQuery);
       if (statusFilter !== "all") params.set("status", statusFilter);
 
-      const res = await fetch(`/api/admin/users?${params}`);
+      const res = await fetch(`/api/admin/users?${params}`, {
+        headers: getAuthHeaders(),
+      });
       if (res.ok) {
-        const data = await res.json();
-        setOrganizers(data.data?.users || []);
-        setTotalPages(data.data?.pagination?.totalPages || 1);
+        const raw = await res.json();
+        let rawItems: any[] = [];
+        let pages = 1;
+
+        if (Array.isArray(raw)) {
+          rawItems = raw;
+        } else if (raw.data) {
+          if (Array.isArray(raw.data)) {
+            rawItems = raw.data;
+          } else if (raw.data.users) {
+            rawItems = raw.data.users;
+            pages = raw.data.pagination?.totalPages || raw.data.totalPages || 1;
+          }
+        } else if (raw.users) {
+          rawItems = raw.users;
+          pages = raw.pagination?.totalPages || raw.totalPages || 1;
+        }
+
+        const items: Organizer[] = rawItems.map((u: any) => ({
+          id: u.id,
+          email: u.email,
+          display_name: u.displayName ?? u.display_name ?? "Unnamed",
+          role: u.role ?? "organizer",
+          is_active: u.status === "active" || u.is_active === true,
+          is_verified: u.isVerified === true,
+          eventsCount: u.eventsCreated ?? 0,
+          eventsAttended: u.eventsAttended ?? 0,
+          totalSpent: u.totalSpent ?? 0,
+          walletBalance: u.walletBalance ?? 0,
+          profileCompleteness: u.profileCompleteness ?? 0,
+          createdAt: u.createdAt,
+          lastActivityAt: u.lastActivityAt,
+          location: u.location ?? undefined,
+          avatar: u.avatar,
+          bio: u.bio,
+          interests: u.interests ?? [],
+        }));
+
+        setOrganizers(items);
+        setTotalPages(pages);
+        setTotalOrganizers(items.length);
       }
     } catch (e) {
       console.error(e);
@@ -58,12 +107,12 @@ export default function AdminOrganizersPage() {
   }, [fetchOrganizers]);
 
   const stats = {
-    total: organizers.length,
+    total: totalOrganizers || organizers.length,
     active: organizers.filter((o) => o.is_active).length,
     inactive: organizers.filter((o) => !o.is_active).length,
   };
 
-  const formatDate = (ts?: number) =>
+  const formatDate = (ts?: string | number) =>
     ts ? new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A";
 
   return (
@@ -161,9 +210,10 @@ export default function AdminOrganizersPage() {
               <thead>
                 <tr className="border-b border-neutral-200 bg-neutral-50">
                   <th className="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Organizer</th>
-                  <th className="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Contact</th>
+                  <th className="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Location</th>
                   <th className="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Events</th>
-                  <th className="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Revenue</th>
+                  <th className="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Spent</th>
+                  <th className="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Verified</th>
                   <th className="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Joined</th>
                   <th className="text-left py-3 px-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Status</th>
                   <th className="text-right py-3 px-4 font-semibold text-slate-600 text-xs uppercase tracking-wider">Actions</th>
@@ -181,9 +231,13 @@ export default function AdminOrganizersPage() {
                   >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-lime/10 flex items-center justify-center text-sm font-bold text-dark">
-                          {(o.display_name || o.email).charAt(0).toUpperCase()}
-                        </div>
+                        {o.avatar ? (
+                          <img src={o.avatar} alt="" className="w-9 h-9 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-lime/10 flex items-center justify-center text-sm font-bold text-dark">
+                            {(o.display_name || o.email).charAt(0).toUpperCase()}
+                          </div>
+                        )}
                         <div>
                           <p className="font-medium text-slate-900">{o.display_name || "Unnamed"}</p>
                           <p className="text-xs text-slate-400">{o.email}</p>
@@ -191,15 +245,24 @@ export default function AdminOrganizersPage() {
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <p className="text-sm text-slate-600">{o.phone || "—"}</p>
-                      <p className="text-xs text-slate-400">{o.city || "—"}</p>
+                      <p className="text-sm text-slate-600">{o.location?.city || "—"}</p>
+                      {o.location?.country && (
+                        <p className="text-xs text-slate-400">{o.location.country}</p>
+                      )}
                     </td>
                     <td className="py-3 px-4">
                       <span className="text-sm font-semibold text-slate-900">{o.eventsCount || 0}</span>
                     </td>
                     <td className="py-3 px-4">
                       <span className="text-sm font-semibold text-slate-900">
-                        ₦{((o as any).totalRevenue || 0).toLocaleString()}
+                        ₦{(o.totalSpent || 0).toLocaleString()}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${
+                        o.is_verified ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
+                      }`}>
+                        {o.is_verified ? "Verified" : "Unverified"}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-sm text-slate-500">{formatDate(o.createdAt)}</td>
@@ -275,25 +338,41 @@ export default function AdminOrganizersPage() {
         {selectedOrganizer && (
           <div className="space-y-6">
             <div className="flex items-center gap-4 pb-4 border-b border-neutral-200">
-              <div className="w-14 h-14 rounded-full bg-lime/10 flex items-center justify-center text-xl font-bold text-dark">
-                {(selectedOrganizer.display_name || selectedOrganizer.email).charAt(0).toUpperCase()}
-              </div>
+              {selectedOrganizer.avatar ? (
+                <img src={selectedOrganizer.avatar} alt="" className="w-14 h-14 rounded-full object-cover" />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-lime/10 flex items-center justify-center text-xl font-bold text-dark">
+                  {(selectedOrganizer.display_name || selectedOrganizer.email).charAt(0).toUpperCase()}
+                </div>
+              )}
               <div>
                 <h3 className="text-lg font-semibold text-slate-900">
                   {selectedOrganizer.display_name || "Unnamed"}
                 </h3>
                 <p className="text-sm text-slate-500">{selectedOrganizer.email}</p>
+                <div className="flex gap-2 mt-1">
+                  <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${
+                    selectedOrganizer.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                  }`}>
+                    {selectedOrganizer.is_active ? "Active" : "Inactive"}
+                  </span>
+                  <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${
+                    selectedOrganizer.is_verified ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-500"
+                  }`}>
+                    {selectedOrganizer.is_verified ? "Verified" : "Unverified"}
+                  </span>
+                </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Phone</label>
-                <p className="text-sm text-slate-900 mt-1">{selectedOrganizer.phone || "Not provided"}</p>
+                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">City</label>
+                <p className="text-sm text-slate-900 mt-1">{selectedOrganizer.location?.city || "Not provided"}</p>
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">City</label>
-                <p className="text-sm text-slate-900 mt-1">{selectedOrganizer.city || "Not provided"}</p>
+                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Country</label>
+                <p className="text-sm text-slate-900 mt-1">{selectedOrganizer.location?.country || "Not provided"}</p>
               </div>
               <div>
                 <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Joined</label>
@@ -308,10 +387,46 @@ export default function AdminOrganizersPage() {
                 <p className="text-sm text-slate-900 mt-1">{selectedOrganizer.eventsCount || 0}</p>
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Revenue</label>
-                <p className="text-sm text-slate-900 mt-1">₦{((selectedOrganizer as any).totalRevenue || 0).toLocaleString()}</p>
+                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Events Attended</label>
+                <p className="text-sm text-slate-900 mt-1">{selectedOrganizer.eventsAttended || 0}</p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Spent</label>
+                <p className="text-sm text-slate-900 mt-1">₦{(selectedOrganizer.totalSpent || 0).toLocaleString()}</p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Wallet Balance</label>
+                <p className="text-sm text-slate-900 mt-1">₦{(selectedOrganizer.walletBalance || 0).toLocaleString()}</p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Profile Completeness</label>
+                <p className="text-sm text-slate-900 mt-1">{selectedOrganizer.profileCompleteness || 0}%</p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Role</label>
+                <p className="text-sm text-slate-900 mt-1 capitalize">{selectedOrganizer.role}</p>
               </div>
             </div>
+
+            {selectedOrganizer.bio && (
+              <div>
+                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Bio</label>
+                <p className="text-sm text-slate-900 mt-1 leading-relaxed">{selectedOrganizer.bio}</p>
+              </div>
+            )}
+
+            {selectedOrganizer.interests && selectedOrganizer.interests.length > 0 && (
+              <div>
+                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Interests</label>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {selectedOrganizer.interests.map((interest: string, i: number) => (
+                    <span key={i} className="text-xs bg-lime/10 text-dark px-3 py-1 rounded-full font-medium">
+                      {interest}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-3 pt-4 border-t border-neutral-200">
               <Button
@@ -320,14 +435,14 @@ export default function AdminOrganizersPage() {
                 onClick={async () => {
                   await fetch(`/api/admin/users/${selectedOrganizer.id}`, {
                     method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
                     body: JSON.stringify({ is_active: !selectedOrganizer.is_active }),
                   });
                   fetchOrganizers();
                   setShowDetails(false);
                 }}
               >
-                {selectedOrganizer.is_active ? "Suspend" : "Activate"}
+                {selectedOrganizer.is_active ? "Suspend Account" : "Activate Account"}
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setShowDetails(false)}>
                 Close

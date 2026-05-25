@@ -9,6 +9,8 @@ import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from "@/lib/platformCatalog";
+import { Button } from "@/components/ui/Button";
+import { useToast } from "@/components/ui/ToastProvider";
 
 type Draft = {
   type?: "Physical" | "Virtual" | "Hybrid";
@@ -84,6 +86,8 @@ export default function CreateEventPage() {
   const [identityStatus, setIdentityStatus] = React.useState<string | null>(null);
   const [identityLoading, setIdentityLoading] = React.useState(true);
   const [catalog, setCatalog] = React.useState<PlatformCatalog>(DEFAULT_PLATFORM_CATALOG);
+  const [publishing, setPublishing] = React.useState(false);
+  const { addToast } = useToast();
 
   React.useEffect(() => {
     fetch("/api/platform/catalog")
@@ -212,15 +216,18 @@ export default function CreateEventPage() {
   async function publish() {
     if (!validateStep(step)) return;
     if (identityStatus !== "verified") {
-      setErrors({ _publish: "Verify your identity before publishing an event." });
+      addToast("Verify your identity before publishing an event.", { type: "warning" });
       return;
     }
+    setPublishing(true);
     const res = await fetch("/api/drafts/event/publish", { method: "POST" });
+    setPublishing(false);
     if (res.ok) {
+      addToast("Event published successfully!", { type: "success" });
       router.replace("/dashboard/events");
     } else {
       const data = await res.json().catch(() => ({}));
-      setErrors({ _publish: data.error || "Unable to publish event" });
+      addToast(data.error || "Unable to publish event", { type: "error" });
     }
   }
 
@@ -1182,37 +1189,21 @@ export default function CreateEventPage() {
             </button>
 
             {step < STEPS.length - 1 ? (
-              <button
-                onClick={next}
-                disabled={saving}
-                className="flex items-center gap-2 rounded-xl bg-lime px-6 py-2.5 font-semibold text-dark shadow-sm transition hover:bg-lime-hover disabled:opacity-60"
-              >
-                {saving ? (
-                  <>
-                    <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                    </svg>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    Continue
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </>
-                )}
-              </button>
+              <Button onClick={next} loading={saving} disabled={saving}>
+                <>
+                  Continue
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </>
+              </Button>
             ) : (
-              <button
-                onClick={publish}
-                disabled={identityLoading || !isIdentityVerified}
-                className="flex items-center gap-2 rounded-xl bg-lime px-8 py-2.5 font-semibold text-dark shadow-sm transition hover:bg-lime-hover disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <Icon name="rocket" size={20} />
-                Publish Event
-              </button>
+              <Button onClick={publish} loading={publishing} disabled={identityLoading || !isIdentityVerified || publishing}>
+                <>
+                  <Icon name="rocket" size={20} />
+                  Publish Event
+                </>
+              </Button>
             )}
           </div>
         </div>

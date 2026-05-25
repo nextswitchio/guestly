@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Icon } from "@/components/ui/Icon";
 import type { WithdrawalMethod, BankDetails, CryptoWithdrawalDetails } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
 
 interface WithdrawalModalProps {
   open: boolean;
@@ -206,7 +207,7 @@ export default function WithdrawalModal({
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              hint={`Available: $${availableBalance.toFixed(2)}`}
+              hint={`Available: ${formatCurrency(availableBalance)}`}
             />
 
             {method === "bank" && (
@@ -316,7 +317,7 @@ export default function WithdrawalModal({
                 <div className="flex justify-between">
                   <span className="text-neutral-600">Amount:</span>
                   <span className="font-semibold text-neutral-900">
-                    ${parseFloat(amount).toFixed(2)}
+                    {formatCurrency(parseFloat(amount) || 0)}
                   </span>
                 </div>
 

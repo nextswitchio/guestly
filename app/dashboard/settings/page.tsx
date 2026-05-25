@@ -7,6 +7,7 @@ import Switch from "@/components/ui/Switch";
 import Modal from "@/components/ui/Modal";
 import IdentityVerification, { type IdentityData } from "@/components/identity/IdentityVerification";
 import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
+import { formatCurrency } from "@/lib/utils";
 
 type TabType = "profile" | "identity" | "notifications" | "security" | "billing" | "team";
 
@@ -519,9 +520,9 @@ export default function SettingsPage() {
                   <h2 className="text-lg font-semibold text-neutral-900 mb-4">Billing History</h2>
                   <div className="space-y-3">
                     {[
-                      { date: "Mar 1, 2024", amount: "$80", status: "Paid" },
-                      { date: "Feb 1, 2024", amount: "$80", status: "Paid" },
-                      { date: "Jan 1, 2024", amount: "$80", status: "Paid" },
+                      { date: "Mar 1, 2024", amount: 80, status: "Paid" },
+                      { date: "Feb 1, 2024", amount: 80, status: "Paid" },
+                      { date: "Jan 1, 2024", amount: 80, status: "Paid" },
                     ].map((invoice, idx) => (
                       <div
                         key={idx}
@@ -532,7 +533,7 @@ export default function SettingsPage() {
                           <p className="text-sm text-neutral-500">Annual Subscription</p>
                         </div>
                         <div className="flex items-center gap-4">
-                          <span className="font-semibold text-neutral-900">{invoice.amount}</span>
+                          <span className="font-semibold text-neutral-900">{formatCurrency(invoice.amount)}</span>
                           <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-lg">
                             {invoice.status}
                           </span>

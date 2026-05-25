@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import Button from "@/components/Button";
+import Button from "@/components/ui/Button";
 
 interface StepFourVerifyProps {
   email: string;
@@ -12,6 +12,7 @@ interface StepFourVerifyProps {
 export function VerifyForm({ email, onVerify, onResend }: StepFourVerifyProps) {
   const [code, setCode] = useState<string[]>(new Array(6).fill(""));
   const [isVerifying, setIsVerifying] = useState(false);
+  const loading = isVerifying;
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -117,16 +118,10 @@ export function VerifyForm({ email, onVerify, onResend }: StepFourVerifyProps) {
           onClick={() => isComplete && handleVerify(code.join(""))}
           disabled={!isComplete || isVerifying}
           variant="teal"
+          loading={loading}
+          fullWidth
         >
-          {isVerifying ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full mx-auto"
-            />
-          ) : (
-            "Verify"
-          )}
+          Verify
         </Button>
       </motion.div>
 

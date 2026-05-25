@@ -15,12 +15,12 @@ interface Event {
 
 interface Discussion {
   id: string;
-  userId: string;
-  userName: string;
+  authorId: string;
+  authorName: string;
   title: string;
   content: string;
-  timestamp: number;
-  replies: number;
+  createdAt: number;
+  replyCount: number;
   likes: number;
 }
 
@@ -42,6 +42,8 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
   const [loading, setLoading] = useState(true);
   const [newTitle, setNewTitle] = useState('');
   const [newMessage, setNewMessage] = useState('');
+  const [postError, setPostError] = useState('');
+  const [posting, setPosting] = useState(false);
   const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
@@ -108,12 +110,14 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
 
   const handlePostMessage = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPostError('');
     if (!newTitle.trim() || !newMessage.trim()) return;
     if (!userId) {
       router.push('/login');
       return;
     }
 
+    setPosting(true);
     try {
       const response = await fetch(`/api/events/${id}/discussions`, {
         method: 'POST',
@@ -122,13 +126,25 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
         body: JSON.stringify({ title: newTitle, content: newMessage }),
       });
 
-      if (response.ok) {
-        setNewTitle('');
-        setNewMessage('');
-        fetchDiscussions();
+      if (response.status === 401) {
+        router.push('/login');
+        return;
       }
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setPostError(data?.error || data?.message || 'Failed to post. Please try again.');
+        return;
+      }
+
+      setNewTitle('');
+      setNewMessage('');
+      fetchDiscussions();
     } catch (error) {
       console.error('Failed to post message:', error);
+      setPostError('Network error. Please check your connection and try again.');
+    } finally {
+      setPosting(false);
     }
   };
 
@@ -216,9 +232,12 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white min-h-[120px]"
               required
             />
-            <Button type="submit">
+            {postError && (
+              <div className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">{postError}</div>
+            )}
+            <Button type="submit" loading={posting} disabled={posting}>
               <Icon name="arrow-right" className="w-4 h-4 mr-2" />
-              Post Discussion
+              {posting ? 'Posting...' : 'Post Discussion'}
             </Button>
           </form>
         </Card>
@@ -244,13 +263,13 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
               <Card key={discussion.id} className="p-4 sm:p-6">
                 <div className="flex items-start gap-3 sm:gap-4">
                   <div className="w-10 h-10 rounded-full bg-lime/20 flex items-center justify-center text-dark font-semibold shrink-0">
-                    {discussion.userName.charAt(0).toUpperCase()}
+                    {discussion.authorName.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold">{discussion.userName}</span>
+                      <span className="font-semibold">{discussion.authorName}</span>
                       <span className="text-sm text-gray-500">
-                        {new Date(discussion.timestamp).toLocaleDateString()}
+                        {new Date(discussion.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     {discussion.title && (
@@ -260,7 +279,7 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
                     <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                       <button className="flex items-center gap-1 hover:text-lime">
                         <Icon name="message-circle" className="w-4 h-4" />
-                        {discussion.replies} replies
+                        {discussion.replyCount} replies
                       </button>
                       <button className="flex items-center gap-1 hover:text-lime">
                         <Icon name="heart" className="w-4 h-4" />

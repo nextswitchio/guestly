@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import Badge from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
+import { formatCurrency } from "@/lib/utils";
 
 type PlacementStatus = 'pending' | 'approved' | 'rejected' | 'cancelled' | 'expired';
 type PaymentStatus = 'pending' | 'charged' | 'paid' | 'waived';
@@ -59,14 +60,6 @@ export default function FeaturedPlacementManager() {
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState('');
 
-  const formatCurrency = React.useCallback((amount: number, code = currency) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: code || 'NGN',
-      maximumFractionDigits: 0,
-    }).format(amount);
-  }, [currency]);
-
   const load = React.useCallback(async () => {
     setLoading(true);
     setError('');
@@ -76,18 +69,33 @@ export default function FeaturedPlacementManager() {
         fetch('/api/admin/featured?action=stats', { cache: 'no-store' }),
         fetch(`/api/admin/featured${filter !== 'all' ? `?status=${filter}` : ''}`, { cache: 'no-store' }),
       ]);
-      const [settingsData, statsData, placementsData] = await Promise.all([
-        settingsRes.json(),
-        statsRes.json(),
-        placementsRes.json(),
-      ]);
-      if (settingsData.success) {
-        setFeePerHour(String(settingsData.data.fee_per_hour ?? 5000));
-        setCurrency(settingsData.data.currency || 'NGN');
+
+      if (settingsRes.ok) {
+        const settingsData = await settingsRes.json();
+        if (settingsData.success) {
+          setFeePerHour(String(settingsData.data?.fee_per_hour ?? 5000));
+          setCurrency(settingsData.data?.currency || 'NGN');
+        } else if (settingsData.fee_per_hour) {
+          setFeePerHour(String(settingsData.fee_per_hour));
+          setCurrency(settingsData.currency || 'NGN');
+        }
       }
-      if (statsData.success) setStats(statsData.data);
-      if (placementsData.success) setPlacements(placementsData.data || []);
-      if (!placementsData.success) setError(placementsData.error?.message || 'Unable to load featured placement requests.');
+
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        if (statsData.success) setStats(statsData.data);
+        else if (statsData.data) setStats(statsData.data);
+      }
+
+      if (placementsRes.ok) {
+        const placementsData = await placementsRes.json();
+        if (placementsData.success) setPlacements(placementsData.data || []);
+        else if (Array.isArray(placementsData)) setPlacements(placementsData);
+        else if (placementsData.data) setPlacements(placementsData.data);
+        else setError('Unable to load featured placement requests.');
+      } else {
+        setError('Unable to load featured placement requests.');
+      }
     } catch {
       setError('Unable to load featured placement requests.');
     } finally {

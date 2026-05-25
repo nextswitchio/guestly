@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface PushNotificationFormProps {
   eventId: string;
@@ -36,6 +37,7 @@ export function PushNotificationForm({ eventId, onSubmit, onCancel }: PushNotifi
     estimatedRecipients: 0,
   });
 
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,11 +59,11 @@ export function PushNotificationForm({ eventId, onSubmit, onCancel }: PushNotifi
         onSubmit?.(data.campaign);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to create push notification');
+        addToast(error.error || 'Failed to create push notification', { type: 'error' });
       }
     } catch (error) {
       console.error('Failed to create push notification:', error);
-      alert('Failed to create push notification');
+      addToast('Failed to create push notification', { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -134,8 +136,8 @@ export function PushNotificationForm({ eventId, onSubmit, onCancel }: PushNotifi
         </div>
 
         <div className="flex gap-3 pt-4">
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Creating...' : formData.scheduledAt ? 'Schedule Notification' : 'Send Now'}
+          <Button type="submit" loading={loading} disabled={loading}>
+            {formData.scheduledAt ? 'Schedule Notification' : 'Send Now'}
           </Button>
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>

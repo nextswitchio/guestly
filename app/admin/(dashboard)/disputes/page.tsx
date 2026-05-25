@@ -11,6 +11,7 @@ import Select from '@/components/ui/Select';
 import { DisputeDetailsModal } from '@/components/admin/DisputeDetailsModal';
 import { DisputeStatsCards } from '@/components/admin/DisputeStatsCards';
 import { DisputeFilters } from '@/components/admin/DisputeFilters';
+import { formatCurrency } from '@/lib/utils';
 import type { Dispute, DisputeStatus, DisputeReason } from '@/lib/store';
 
 interface DisputeStats {
@@ -23,10 +24,34 @@ interface DisputeStats {
   averageResolutionTime: number;
 }
 
+function normalizeDisputesResponse(response: unknown): Dispute[] {
+  if (Array.isArray(response)) return response;
+  if (response && typeof response === 'object') {
+    if ('data' in response && Array.isArray((response as any).data)) return (response as any).data;
+    if ('disputes' in response && Array.isArray((response as any).disputes)) return (response as any).disputes;
+  }
+  return [];
+}
+
+function normalizeStatsResponse(response: unknown): DisputeStats | null {
+  if (!response || typeof response !== 'object') return null;
+  const src = response as Record<string, any>;
+  return {
+    total: src.total ?? 0,
+    open: src.open ?? 0,
+    investigating: src.investigating ?? 0,
+    resolved: src.resolved ?? 0,
+    rejected: src.rejected ?? 0,
+    totalRefunded: src.totalRefunded ?? src.total_refunded ?? 0,
+    averageResolutionTime: src.averageResolutionTime ?? src.average_resolution_time ?? 0,
+  };
+}
+
 export default function DisputesPage() {
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [stats, setStats] = useState<DisputeStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [filters, setFilters] = useState({
@@ -36,8 +61,13 @@ export default function DisputesPage() {
   });
 
   useEffect(() => {
-    fetchDisputes();
-    fetchStats();
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
+      await Promise.all([fetchDisputes(), fetchStats()]);
+      setLoading(false);
+    };
+    loadData();
   }, [filters]);
 
   const fetchDisputes = async () => {
@@ -48,24 +78,23 @@ export default function DisputesPage() {
       if (filters.search) params.append('search', filters.search);
 
       const response = await fetch(`/api/admin/disputes?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setDisputes(data.data ?? []);
-      }
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      setDisputes(normalizeDisputesResponse(data));
     } catch (error) {
       console.error('Failed to fetch disputes:', error);
-    } finally {
-      setLoading(false);
+      setError('Failed to load disputes');
+      setDisputes([]);
     }
   };
 
   const fetchStats = async () => {
     try {
       const response = await fetch('/api/admin/disputes/stats');
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data.data);
-      }
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      const statsData = (data as any).data ?? (data as any).stats ?? data;
+      setStats(normalizeStatsResponse(statsData));
     } catch (error) {
       console.error('Failed to fetch dispute stats:', error);
     }
@@ -103,13 +132,6 @@ export default function DisputesPage() {
       other: 'Other',
     };
     return labels[reason] || reason;
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-    }).format(amount);
   };
 
   const formatDate = (timestamp: number) => {
@@ -150,6 +172,12 @@ export default function DisputesPage() {
           </p>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
 
       {/* Stats Cards */}
       {stats && <DisputeStatsCards stats={stats} />}

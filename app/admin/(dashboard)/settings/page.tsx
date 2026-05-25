@@ -10,6 +10,7 @@ import Icon from '@/components/ui/Icon';
 type PlatformSettings = {
   // General
   platformName: string;
+  primaryCurrency: string;
   supportEmail: string;
   supportPhone: string;
   siteUrl: string;
@@ -26,6 +27,12 @@ type PlatformSettings = {
   subscription3mPrice: string;
   subscription6mPrice: string;
   subscription12mPrice: string;
+
+  // Organizer Subscription Pricing
+  organizerSubscription1mPrice: string;
+  organizerSubscription3mPrice: string;
+  organizerSubscription6mPrice: string;
+  organizerSubscription12mPrice: string;
 
   // Payment Methods
   enableCard: boolean;
@@ -78,6 +85,7 @@ type PlatformSettings = {
 
 const DEFAULT_SETTINGS: PlatformSettings = {
   platformName: 'Guestly',
+  primaryCurrency: 'NGN',
   supportEmail: 'support@guestly.com',
   supportPhone: '+234 800 123 4567',
   siteUrl: 'http://localhost:3000',
@@ -92,6 +100,11 @@ const DEFAULT_SETTINGS: PlatformSettings = {
   subscription3mPrice: '12999',
   subscription6mPrice: '23999',
   subscription12mPrice: '44999',
+
+  organizerSubscription1mPrice: '9999',
+  organizerSubscription3mPrice: '24999',
+  organizerSubscription6mPrice: '44999',
+  organizerSubscription12mPrice: '79999',
 
   enableCard: true,
   enableMobileMoney: true,
@@ -271,26 +284,59 @@ export default function AdminSettingsPage() {
               <h2 className="text-xl font-semibold mb-6">Financial Settings</h2>
               <p className="text-sm text-slate-500 mb-6">Configure commission rates, payouts, and pricing limits.</p>
               <div className="space-y-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-neutral-900">Primary Currency</label>
+                  <select
+                    value={settings.primaryCurrency}
+                    onChange={e => update('primaryCurrency', e.target.value)}
+                    className="h-11 w-full rounded-xl border bg-white text-neutral-900 border-neutral-200 hover:border-neutral-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:border-lime focus-visible:ring-lime/20 px-3.5 transition-all duration-200"
+                  >
+                    <option value="NGN">₦ NGN — Nigerian Naira</option>
+                    <option value="USD">$ USD — US Dollar</option>
+                    <option value="GHS">GH₵ GHS — Ghanaian Cedi</option>
+                    <option value="KES">KSh KES — Kenyan Shilling</option>
+                    <option value="ZAR">R ZAR — South African Rand</option>
+                    <option value="GBP">£ GBP — British Pound</option>
+                    <option value="EUR">€ EUR — Euro</option>
+                    <option value="XOF">CFA XOF — CFA Franc</option>
+                    <option value="RWF">FRw RWF — Rwandan Franc</option>
+                    <option value="UGX">USh UGX — Ugandan Shilling</option>
+                    <option value="TZS">TSh TZS — Tanzanian Shilling</option>
+                  </select>
+                  <p className="text-xs text-neutral-500">All monetary values are stored and displayed in this currency. User locale detection will automatically convert displayed amounts.</p>
+                </div>
                 <Input label="Global Commission Rate (%)" type="number" value={settings.commissionRate} onChange={e => update('commissionRate', e.target.value)} />
                 <Input label="Organizer Commission Rate (%)" type="number" value={settings.organizerCommissionRate} onChange={e => update('organizerCommissionRate', e.target.value)} />
                 <Input label="Vendor Commission Rate (%)" type="number" value={settings.vendorCommissionRate} onChange={e => update('vendorCommissionRate', e.target.value)} />
-                <Input label="Minimum Payout (₦)" type="number" value={settings.minPayout} onChange={e => update('minPayout', e.target.value)} />
-                <Input label="Max Ticket Price (₦)" type="number" value={settings.maxTicketPrice} onChange={e => update('maxTicketPrice', e.target.value)} />
+                <Input label={`Minimum Payout (${settings.primaryCurrency === 'NGN' ? '₦' : settings.primaryCurrency === 'USD' ? '$' : settings.primaryCurrency})`} type="number" value={settings.minPayout} onChange={e => update('minPayout', e.target.value)} />
+                <Input label={`Max Ticket Price (${settings.primaryCurrency === 'NGN' ? '₦' : settings.primaryCurrency === 'USD' ? '$' : settings.primaryCurrency})`} type="number" value={settings.maxTicketPrice} onChange={e => update('maxTicketPrice', e.target.value)} />
               </div>
             </Card>
           )}
 
           {activeSection === 'subscriptions' && (
-            <Card className="p-6 sm:p-8">
-              <h2 className="text-xl font-semibold mb-6">Vendor Subscription Plans</h2>
-              <p className="text-sm text-slate-500 mb-6">Set pricing for vendor subscription plans. Prices in Naira (kobo).</p>
-              <div className="space-y-5">
-                <Input label="1 Month Plan (₦)" type="number" value={settings.subscription1mPrice} onChange={e => update('subscription1mPrice', e.target.value)} />
-                <Input label="3 Months Plan (₦)" type="number" value={settings.subscription3mPrice} onChange={e => update('subscription3mPrice', e.target.value)} />
-                <Input label="6 Months Plan (₦)" type="number" value={settings.subscription6mPrice} onChange={e => update('subscription6mPrice', e.target.value)} />
-                <Input label="12 Months Plan (₦)" type="number" value={settings.subscription12mPrice} onChange={e => update('subscription12mPrice', e.target.value)} />
-              </div>
-            </Card>
+            <>
+              <Card className="p-6 sm:p-8">
+                <h2 className="text-xl font-semibold mb-6">Vendor Subscription Plans</h2>
+                <p className="text-sm text-slate-500 mb-6">Set pricing for vendor subscription plans. Prices in Naira (kobo).</p>
+                <div className="space-y-5">
+                  <Input label="Vendor 1 Month Plan (₦)" type="number" value={settings.subscription1mPrice} onChange={e => update('subscription1mPrice', e.target.value)} />
+                  <Input label="Vendor 3 Months Plan (₦)" type="number" value={settings.subscription3mPrice} onChange={e => update('subscription3mPrice', e.target.value)} />
+                  <Input label="Vendor 6 Months Plan (₦)" type="number" value={settings.subscription6mPrice} onChange={e => update('subscription6mPrice', e.target.value)} />
+                  <Input label="Vendor 12 Months Plan (₦)" type="number" value={settings.subscription12mPrice} onChange={e => update('subscription12mPrice', e.target.value)} />
+                </div>
+              </Card>
+              <Card className="p-6 sm:p-8">
+                <h2 className="text-xl font-semibold mb-6">Organizer Subscription Plans</h2>
+                <p className="text-sm text-slate-500 mb-6">Set pricing for organizer subscription plans. Prices in Naira (kobo).</p>
+                <div className="space-y-5">
+                  <Input label="Organizer 1 Month Plan (₦)" type="number" value={settings.organizerSubscription1mPrice} onChange={e => update('organizerSubscription1mPrice', e.target.value)} />
+                  <Input label="Organizer 3 Months Plan (₦)" type="number" value={settings.organizerSubscription3mPrice} onChange={e => update('organizerSubscription3mPrice', e.target.value)} />
+                  <Input label="Organizer 6 Months Plan (₦)" type="number" value={settings.organizerSubscription6mPrice} onChange={e => update('organizerSubscription6mPrice', e.target.value)} />
+                  <Input label="Organizer 12 Months Plan (₦)" type="number" value={settings.organizerSubscription12mPrice} onChange={e => update('organizerSubscription12mPrice', e.target.value)} />
+                </div>
+              </Card>
+            </>
           )}
 
           {activeSection === 'payments' && (

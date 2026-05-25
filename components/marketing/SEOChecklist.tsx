@@ -22,7 +22,8 @@ export function SEOChecklist({ eventId, eventName }: SEOChecklistProps) {
   const [score, setScore] = useState(0);
 
   useEffect(() => {
-    fetchChecklist();
+    if (eventId) fetchChecklist();
+    else setLoading(false);
   }, [eventId]);
 
   const fetchChecklist = async () => {

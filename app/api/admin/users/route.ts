@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { BACKEND_URL } from "@/lib/api/client";
 
 function getAuthHeaders(request: NextRequest): Record<string, string> {
+  // Prefer Authorization header if provided (client may send token in header)
+  const headerAuth = request.headers.get("authorization") || request.headers.get("Authorization");
+  if (headerAuth) return { Authorization: headerAuth };
+
   const token = request.cookies.get("access_token")?.value;
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
@@ -12,8 +16,9 @@ function backendRole(role: string | null): string | null {
 }
 
 export async function GET(request: NextRequest) {
-  const role = request.cookies.get("role")?.value;
-  const token = request.cookies.get("access_token")?.value;
+  // Accept role via cookie or header (`x-role`) to support client-side auth flows
+  const role = request.cookies.get("role")?.value || request.headers.get("x-role") || request.headers.get("x-user-role");
+  const token = request.cookies.get("access_token")?.value || request.headers.get("authorization") || request.headers.get("Authorization");
 
   if (role !== "admin" || !token) {
     return NextResponse.json(
@@ -68,20 +73,48 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const total = Number(data.total ?? 0);
+    let rawUsers = data.users ?? data.items ?? data.data ?? data.results ?? [];
+    if (!Array.isArray(rawUsers) && rawUsers?.users) {
+      rawUsers = rawUsers.users;
+    } else if (!Array.isArray(rawUsers) && rawUsers?.items) {
+      rawUsers = rawUsers.items;
+    }
+    const total = Number(data.total ?? data.total_count ?? data.count ?? rawUsers.length);
     const pageSize = Number(limit);
+
+    const users = rawUsers.map((u: any) => ({
+      id: u.id,
+      email: u.email,
+      displayName: u.display_name ?? u.displayName,
+      role: u.role,
+      status: u.status,
+      createdAt: u.created_at ?? u.createdAt,
+      lastActivityAt: u.last_activity_at ?? u.lastActivityAt,
+      eventsCreated: u.events_created ?? u.eventsCreated,
+      eventsAttended: u.events_attended ?? u.eventsAttended,
+      totalSpent: u.total_spent ?? u.totalSpent,
+      walletBalance: u.wallet_balance ?? u.walletBalance,
+      profileCompleteness: u.profile_completeness ?? u.profileCompleteness,
+      location: u.location
+        ? { city: u.location.city, country: u.location.country }
+        : undefined,
+    }));
+
+    if (!users.length) {
+      console.warn("[admin/users] Backend returned empty users list. Raw response keys:", Object.keys(data));
+    }
 
     return NextResponse.json({
       success: true,
       data: {
-        users: data.users ?? [],
+        users,
         pagination: {
-          page: Number(data.page ?? page),
+          page: Number(data.page ?? data.page_number ?? data.current_page ?? page),
           limit: pageSize,
           total,
-          totalPages: Number(data.page_count ?? Math.max(1, Math.ceil(total / pageSize))),
-          hasNext: Number(data.page ?? page) < Number(data.page_count ?? 1),
-          hasPrev: Number(data.page ?? page) > 1,
+          totalPages: Number(data.page_count ?? data.total_pages ?? Math.max(1, Math.ceil(total / pageSize))),
+          hasNext: Number(data.page ?? 1) < Number(data.page_count ?? data.total_pages ?? 1),
+          hasPrev: Number(data.page ?? 1) > 1,
         },
       },
     });

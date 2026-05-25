@@ -256,9 +256,10 @@ export default function EventHero({
                 </Button>
               )}
               
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="lg"
+                onClick={() => document.getElementById('save-event-btn')?.click()}
                 className="glass-light border-white/30 text-white hover:bg-white/10 font-medium rounded-xl backdrop-blur-sm transition-all duration-[var(--duration-normal)]"
                 leftIcon={
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

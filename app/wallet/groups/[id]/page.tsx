@@ -3,6 +3,7 @@ import { ArrowLeft, Banknote, Check, Users, X, XCircle } from 'lucide-react';
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Button from "@/components/ui/Button";
 import { useToast } from "@/components/ui/ToastProvider";
 import GroupNotificationBell from "@/components/wallet/GroupNotificationBell";
 import type { GroupWallet, GroupContribution } from "@/lib/store";
@@ -556,6 +557,7 @@ function ContributeModal({
   onClose: () => void;
   onSuccess: (amount: number) => void;
 }) {
+  const { addToast } = useToast();
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -569,7 +571,9 @@ function ContributeModal({
     const contributionAmount = parseFloat(amount);
 
     if (isNaN(contributionAmount) || contributionAmount <= 0) {
-      setError("Please enter a valid amount");
+      const msg = "Please enter a valid amount";
+      setError(msg);
+      addToast(msg, { type: "error" });
       return;
     }
 
@@ -585,12 +589,17 @@ function ContributeModal({
       const data = await res.json();
 
       if (data.success) {
+        addToast(`Contributed $${contributionAmount.toFixed(2)} successfully!`, { type: "success" });
         onSuccess(contributionAmount);
       } else {
-        setError(data.error || "Failed to contribute");
+        const msg = data.error || "Failed to contribute";
+        setError(msg);
+        addToast(msg, { type: "error" });
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+    } catch {
+      const msg = "An error occurred. Please try again.";
+      setError(msg);
+      addToast(msg, { type: "error" });
     } finally {
       setLoading(false);
     }
@@ -646,9 +655,9 @@ function ContributeModal({
             <button type="button" onClick={onClose} className="flex-1 px-6 py-3 bg-neutral-50 text-neutral-900 rounded-lg hover:bg-neutral-100 transition-colors font-medium">
               Cancel
             </button>
-            <button type="submit" disabled={loading} className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium disabled:opacity-50">
-              {loading ? "Contributing..." : "Contribute"}
-            </button>
+            <Button type="submit" loading={loading} fullWidth>
+              Contribute
+            </Button>
           </div>
         </form>
       </div>

@@ -7,13 +7,16 @@ import SkipLinks from "@/components/ui/SkipLinks";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Shield, X } from "lucide-react";
+import { CurrencyProvider } from "@/lib/currency";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider>
-      <SkipLinks />
-      <DashboardShell>{children}</DashboardShell>
-    </SidebarProvider>
+    <CurrencyProvider>
+      <SidebarProvider>
+        <SkipLinks />
+        <DashboardShell>{children}</DashboardShell>
+      </SidebarProvider>
+    </CurrencyProvider>
   );
 }
 
@@ -89,7 +92,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       )}
-      <main id="main-content" className={`min-w-0 px-4 py-8 sm:px-6 lg:px-8 ${offsets} transition-all duration-300`} tabIndex={-1}>
+      <main id="main-content" className={`min-w-0 px-4 py-8 sm:px-6 lg:px-8 ${offsets} transition-all duration-300 text-neutral-900`} tabIndex={-1}>
         {children}
       </main>
     </div>

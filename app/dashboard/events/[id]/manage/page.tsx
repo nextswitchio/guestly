@@ -5,16 +5,17 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
   RefreshCw, XCircle, Edit, Eye, Ticket, Users, BarChart2,
-  Megaphone, DollarSign, UserCheck, CheckCircle, AlertCircle,
+  Megaphone, UserCheck, CheckCircle, AlertCircle,
   Clock, Ban, Play, ChevronDown, Plus, Trash2, Send, Star,
-  MapPin, Calendar, Tag, Globe, Building2, Layers, Check, Handshake,
-  ClipboardList, Sparkles
+  MapPin, Calendar, Tag, Globe, Layers, Check, Handshake,
+  ClipboardList, Sparkles, Mail, Phone
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import Badge from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import MobileTabs from '@/components/ui/MobileTabs';
+import { useToast } from '@/components/ui/ToastProvider';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -54,11 +55,55 @@ interface Review {
 
 interface Vendor {
   id: string;
+  userId?: string;
   name: string;
+  description?: string;
   category: string;
-  city: string;
+  city?: string;
   rating: number;
+  pricing?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  completedEvents?: number;
+  reviewCount?: number;
+  portfolio?: string[];
+  rateCard?: string;
+  services?: string[];
+  status?: string;
+  subscriptionPlan?: string;
+  review_count?: number;
+  completed_events?: number;
+}
+
+interface ServiceProfile {
+  id: string;
+  vendorId?: string;
+  vendor_id?: string;
+  name: string;
+  description?: string;
+  category: string;
+  subcategory?: string;
   pricing: string;
+  pricingModel?: string;
+  pricing_model?: string;
+  minBudget?: number;
+  min_budget?: number;
+  maxBudget?: number;
+  max_budget?: number;
+  bannerImage?: string;
+  banner_image?: string;
+  rateCardUrl?: string;
+  rate_card_url?: string;
+  portfolioUrl?: string;
+  portfolio_url?: string;
+  socialUrl?: string;
+  social_url?: string;
+  images?: string[];
+  tags?: string[];
+  isActive?: boolean;
+  is_active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface Event {
@@ -294,7 +339,7 @@ function StatusBadge({ status }: { status: string }) {
 
 // ─── Overview Tab ─────────────────────────────────────────────────────────────
 
-function OverviewTab({ event, id, onStatusChange, statusChanging, statusError, statusSuccess }: {
+function OverviewTab({ event, id, onStatusChange, statusChanging }: {
   event: Event;
   id: string;
   onStatusChange: (s: string) => void;
@@ -365,16 +410,6 @@ function OverviewTab({ event, id, onStatusChange, statusChanging, statusError, s
       {transitions.length > 0 && (
         <div className="rounded-2xl border border-neutral-200 bg-white p-6">
           <h3 className="text-sm font-semibold text-neutral-900 mb-3">Change Status</h3>
-          {statusError && (
-            <div className="mb-3 flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
-              <AlertCircle className="w-4 h-4 shrink-0" />{statusError}
-            </div>
-          )}
-          {statusSuccess && (
-            <div className="mb-3 flex items-center gap-2 rounded-xl bg-lime-50 border border-lime-200 text-lime-700 text-sm px-4 py-3">
-              <CheckCircle className="w-4 h-4 shrink-0" />{statusSuccess}
-            </div>
-          )}
           <div className="flex flex-wrap gap-2">
             {transitions.map(s => (
               <Button key={s} variant="outline" size="sm" loading={statusChanging} onClick={() => onStatusChange(s)}>
@@ -617,8 +652,11 @@ function BudgetTab({ id, eventTickets }: { id: string; eventTickets: Ticket[] })
   });
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ label: '', amount: '', category: BUDGET_CATEGORIES[0], paid: false });
+  const [formErrors, setFormErrors] = useState<{ label?: string; amount?: string }>({});
   const [predictions, setPredictions] = useState<{ title: string; value: string; desc: string }[]>([]);
   const [loadingPredictions, setLoadingPredictions] = useState(false);
+
+  const genId = () => Math.random().toString(36).substring(2, 11);
 
   const save = (updated: BudgetItem[]) => {
     setItems(updated);
@@ -626,9 +664,15 @@ function BudgetTab({ id, eventTickets }: { id: string; eventTickets: Ticket[] })
   };
 
   const addItem = () => {
-    if (!form.label || !form.amount) return;
-    save([...items, { id: crypto.randomUUID(), label: form.label, amount: parseFloat(form.amount), category: form.category, paid: form.paid }]);
+    const errors: { label?: string; amount?: string } = {};
+    if (!form.label.trim()) errors.label = 'Description is required';
+    if (!form.amount.trim()) errors.amount = 'Amount is required';
+    else if (isNaN(parseFloat(form.amount)) || parseFloat(form.amount) <= 0) errors.amount = 'Enter a valid amount';
+    setFormErrors(errors);
+    if (Object.keys(errors).length) return;
+    save([...items, { id: genId(), label: form.label.trim(), amount: parseFloat(form.amount), category: form.category, paid: form.paid }]);
     setForm({ label: '', amount: '', category: BUDGET_CATEGORIES[0], paid: false });
+    setFormErrors({});
     setShowAdd(false);
   };
 
@@ -726,10 +770,13 @@ function BudgetTab({ id, eventTickets }: { id: string; eventTickets: Ticket[] })
         )}
       </div>
 
-      <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Add Budget Item">
-        <div className="space-y-4 p-4">
-          <Input label="Description" value={form.label} onChange={e => setForm({ ...form, label: e.target.value })} placeholder="e.g. Venue deposit" />
-          <Input label="Amount (₦)" type="number" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} placeholder="0" />
+      <Modal open={showAdd} onClose={() => {
+        setShowAdd(false);
+        setFormErrors({});
+      }} title="Add Budget Item">
+        <div className="space-y-4">
+          <Input label="Description" value={form.label} onChange={e => { setForm({ ...form, label: e.target.value }); setFormErrors(prev => ({ ...prev, label: undefined })); }} placeholder="e.g. Venue deposit" error={formErrors.label} />
+          <Input label="Amount (₦)" value={form.amount} onChange={e => { setForm({ ...form, amount: e.target.value }); setFormErrors(prev => ({ ...prev, amount: undefined })); }} placeholder="0" error={formErrors.amount} />
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1.5">Category</label>
             <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
@@ -743,7 +790,7 @@ function BudgetTab({ id, eventTickets }: { id: string; eventTickets: Ticket[] })
           </label>
           <div className="flex gap-2 pt-2">
             <Button onClick={addItem} className="flex-1">Add Item</Button>
-            <Button variant="outline" onClick={() => setShowAdd(false)} className="flex-1">Cancel</Button>
+            <Button variant="outline" onClick={() => { setShowAdd(false); setFormErrors({}); }} className="flex-1">Cancel</Button>
           </div>
         </div>
       </Modal>
@@ -753,14 +800,19 @@ function BudgetTab({ id, eventTickets }: { id: string; eventTickets: Ticket[] })
 
 // ─── Vendors Tab ──────────────────────────────────────────────────────────────
 
-function VendorsTab({ id }: { id: string }) {
+function VendorsTab({ event, id }: { event: Event; id: string }) {
   const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [servicesByVendor, setServicesByVendor] = useState<Record<string, ServiceProfile[]>>({});
+  const [servicesLoading, setServicesLoading] = useState(false);
   const [invitations, setInvitations] = useState<VendorInvitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [inviting, setInviting] = useState<string | null>(null);
-  const [toast, setToast] = useState('');
+  const { addToast } = useToast();
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+  const [reviewDrafts, setReviewDrafts] = useState<Record<string, { rating: number; comment: string }>>({});
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -770,12 +822,38 @@ function VendorsTab({ id }: { id: string }) {
           fetch('/api/vendors'),
           fetch(`/api/proxy/events/${id}/vendors`, { credentials: 'include' }),
         ]);
-        if (vRes.ok) { const d = await vRes.json(); setVendors(d.vendors || d.data || []); }
+        if (vRes.ok) {
+          const d = await vRes.json();
+          const vendorList = (d.vendors || d.data || []).map((v: Record<string, unknown>) => ({
+            ...v,
+            reviewCount: (v as any).reviewCount ?? (v as any).review_count,
+            completedEvents: (v as any).completedEvents ?? (v as any).completed_events,
+          }));
+          setVendors(vendorList);
+          fetchServicesForVendors(vendorList.map((v: Vendor) => v.id));
+        }
         if (iRes.ok) { const d = await iRes.json(); setInvitations(Array.isArray(d) ? d : []); }
       } finally { setLoading(false); }
     };
     load();
   }, [id]);
+
+  const fetchServicesForVendors = async (vendorIds: string[]) => {
+    setServicesLoading(true);
+    const results: Record<string, ServiceProfile[]> = {};
+    await Promise.all(vendorIds.map(async (vid) => {
+      try {
+        const res = await fetch(`/api/vendors/${vid}`);
+        if (res.ok) {
+          const data = await res.json();
+          const sp = (data.vendor?.serviceProfiles || data.data?.vendor?.serviceProfiles || []);
+          results[vid] = sp;
+        }
+      } catch { /* best-effort */ }
+    }));
+    setServicesByVendor(results);
+    setServicesLoading(false);
+  };
 
   const invite = async (vendorId: string) => {
     setInviting(vendorId);
@@ -787,19 +865,49 @@ function VendorsTab({ id }: { id: string }) {
       });
       if (res.ok) {
         setInvitations(prev => [...prev, { id: crypto.randomUUID(), vendor_id: vendorId, status: 'pending', created_at: new Date().toISOString() }]);
-        setToast('Vendor invited successfully');
+        addToast('Vendor invited successfully', { type: 'success' });
       } else {
         const d = await res.json().catch(() => ({}));
-        setToast(d.detail || 'Failed to invite vendor');
+        addToast(d.detail || 'Failed to invite vendor', { type: 'error' });
       }
     } finally {
       setInviting(null);
-      setTimeout(() => setToast(''), 3000);
     }
   };
 
+  const submitReview = async (vendorId: string) => {
+    const draft = reviewDrafts[vendorId] || { rating: 5, comment: '' };
+    if (!draft.comment.trim()) { addToast('Please write a review comment', { type: 'warning' }); return; }
+    setReviewingId(vendorId);
+    try {
+      const res = await fetch(`/api/vendors/${vendorId}/reviews`, {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId: id, rating: draft.rating, comment: draft.comment.trim() }),
+      });
+      if (res.ok) {
+        setReviewDrafts(prev => ({ ...prev, [vendorId]: { rating: 5, comment: '' } }));
+        addToast('Review submitted', { type: 'success' });
+      } else {
+        const err = await res.json().catch(() => ({ detail: 'Failed to submit review' }));
+        addToast(err.detail || err.error || 'Failed to submit review', { type: 'error' });
+      }
+    } catch { addToast('Network error', { type: 'error' }); }
+    finally { setReviewingId(null); }
+  };
+
   const invitedIds = new Set(invitations.map(i => i.vendor_id));
-  const filtered = vendors.filter(v =>
+  const eventCity = event.city?.toLowerCase().trim() || '';
+
+  const sorted = [...vendors].sort((a, b) => {
+    const aCity = a.city?.toLowerCase().trim() || '';
+    const bCity = b.city?.toLowerCase().trim() || '';
+    if (aCity === eventCity && bCity !== eventCity) return -1;
+    if (bCity === eventCity && aCity !== eventCity) return 1;
+    return 0;
+  });
+
+  const filtered = sorted.filter(v =>
     (!search || v.name?.toLowerCase().includes(search.toLowerCase())) &&
     (!category || v.category === category)
   );
@@ -807,10 +915,6 @@ function VendorsTab({ id }: { id: string }) {
 
   return (
     <div className="space-y-6">
-      {toast && (
-        <div className="rounded-xl bg-lime-50 border border-lime-200 text-lime-800 text-sm px-4 py-3">{toast}</div>
-      )}
-
       {/* Invited vendors */}
       {invitations.length > 0 && (
         <div className="rounded-2xl border border-neutral-200 bg-white">
@@ -818,17 +922,42 @@ function VendorsTab({ id }: { id: string }) {
             <h3 className="font-semibold text-neutral-900">Invited Vendors ({invitations.length})</h3>
           </div>
           <div className="divide-y divide-neutral-100">
-            {invitations.map(inv => (
-              <div key={inv.id} className="flex items-center justify-between p-4">
-                <p className="text-sm text-neutral-700">Vendor ID: {inv.vendor_id.slice(0, 8)}…</p>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                  inv.status === 'accepted' ? 'bg-lime-100 text-lime-700' :
-                  inv.status === 'declined' ? 'bg-red-100 text-red-700' :
-                  'bg-yellow-100 text-yellow-700'}`}>
-                  {inv.status}
-                </span>
+            {invitations.map(inv => {
+              const v = vendors.find(v => v.id === inv.vendor_id);
+              const draft = reviewDrafts[inv.vendor_id] || { rating: 5, comment: '' };
+              return (
+              <div key={inv.id} className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-neutral-900 truncate">{v?.name || `Vendor`}</p>
+                    <p className="text-xs text-neutral-500">{v?.category}{v?.city ? ` · ${v.city}` : ''}</p>
+                  </div>
+                  <span className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${
+                    inv.status === 'accepted' ? 'bg-lime-100 text-lime-700' :
+                    inv.status === 'declined' ? 'bg-red-100 text-red-700' :
+                    'bg-yellow-100 text-yellow-700'}`}>
+                    {inv.status}
+                  </span>
+                </div>
+                {inv.status === 'accepted' && v && (
+                  <div className="mt-3 pt-3 border-t border-neutral-100 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <select value={draft.rating} onChange={e => setReviewDrafts(prev => ({ ...prev, [inv.vendor_id]: { rating: Number(e.target.value), comment: prev[inv.vendor_id]?.comment || '' } }))}
+                        className="h-9 rounded-lg border border-neutral-200 bg-white px-2 text-xs text-neutral-900 focus:outline-none focus:ring-2 focus:ring-lime-400/40">
+                        {[5,4,3,2,1].map(r => <option key={r} value={r}>{r} star{r === 1 ? '' : 's'}</option>)}
+                      </select>
+                      <Button size="sm" disabled={reviewingId === inv.vendor_id} onClick={() => submitReview(inv.vendor_id)}>
+                        {reviewingId === inv.vendor_id ? '...' : 'Review'}
+                      </Button>
+                    </div>
+                    <textarea value={draft.comment} onChange={e => setReviewDrafts(prev => ({ ...prev, [inv.vendor_id]: { rating: prev[inv.vendor_id]?.rating || 5, comment: e.target.value } }))}
+                      rows={2} placeholder="Rate this vendor after the event"
+                      className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-lime-400/40" />
+                  </div>
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -849,25 +978,329 @@ function VendorsTab({ id }: { id: string }) {
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center text-neutral-500 text-sm">No vendors found.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {filtered.map(v => (
-            <div key={v.id} className="rounded-2xl border border-neutral-200 bg-white p-4 flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-semibold text-neutral-900 truncate">{v.name}</p>
-                <p className="text-xs text-neutral-500 mt-0.5">{v.category} · {v.city}</p>
-                <div className="flex items-center gap-1 mt-1">
-                  <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                  <span className="text-xs text-neutral-600">{v.rating?.toFixed(1) ?? '—'}</span>
-                  {v.pricing && <span className="text-xs text-neutral-400 ml-2">{v.pricing}</span>}
+        <div className="grid grid-cols-1 gap-4">
+          {filtered.map(v => {
+            const isInvited = invitedIds.has(v.id);
+            const profiles = servicesByVendor[v.id] || [];
+            const isNearby = v.city?.toLowerCase().trim() === eventCity;
+            return (
+            <div key={v.id} className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
+              {/* Main card header */}
+              <div className="p-4 flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-neutral-900">{v.name}</p>
+                      {isNearby && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-lime-100 text-lime-700 font-medium inline-flex items-center gap-0.5">
+                          <MapPin className="w-2.5 h-2.5" />Nearby
+                        </span>
+                      )}
+                      {v.status === 'approved' && (
+                        <CheckCircle className="w-3.5 h-3.5 text-lime-500" />
+                      )}
+                    </div>
+                    <p className="text-xs text-neutral-500 mt-0.5">
+                      {v.category}
+                      {v.city ? ` · ${v.city}` : ''}
+                      {v.subscriptionPlan ? ` · ${v.subscriptionPlan}` : ''}
+                    </p>
+                    <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                        <span className="text-xs text-neutral-600">{v.rating?.toFixed(1) ?? '—'}</span>
+                        {v.reviewCount !== undefined && (
+                          <span className="text-xs text-neutral-400">({v.reviewCount})</span>
+                        )}
+                      </div>
+                      {v.pricing && <span className="text-xs font-medium text-neutral-500">{v.pricing}</span>}
+                      {v.completedEvents !== undefined && (
+                        <span className="text-xs text-neutral-500">{v.completedEvents} event{v.completedEvents !== 1 ? 's' : ''}</span>
+                      )}
+                    </div>
+                  </div>
+                  <Button size="sm" variant={isInvited ? 'outline' : 'default'}
+                    disabled={isInvited} loading={inviting === v.id}
+                    onClick={() => invite(v.id)}>
+                    {isInvited ? 'Invited' : <><Send className="w-3.5 h-3.5 mr-1" />Invite</>}
+                  </Button>
                 </div>
+
+                {v.description && (
+                  <p className="text-xs text-neutral-600 leading-relaxed line-clamp-2">{v.description}</p>
+                )}
+
+                {/* Services / tags */}
+                {(v.services && v.services.length > 0) && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {v.services.map(s => (
+                      <span key={s} className="text-[11px] px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600">{s}</span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Contact info */}
+                {(v.contactEmail || v.contactPhone) && (
+                  <div className="flex items-center gap-3 text-xs text-neutral-500">
+                    {v.contactEmail && (
+                      <a href={`mailto:${v.contactEmail}`} className="flex items-center gap-1 hover:text-lime transition-colors">
+                        <Mail className="w-3 h-3" />
+                        {v.contactEmail}
+                      </a>
+                    )}
+                    {v.contactPhone && (
+                      <a href={`tel:${v.contactPhone}`} className="flex items-center gap-1 hover:text-lime transition-colors">
+                        <Phone className="w-3 h-3" />
+                        {v.contactPhone}
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {/* Portfolio / Rate card links */}
+                {(v.portfolio?.length || v.rateCard) && (
+                  <div className="flex gap-2 flex-wrap">
+                    {v.rateCard && (
+                      <a href={v.rateCard} target="_blank" rel="noopener noreferrer"
+                        className="text-xs inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-lime-50 text-lime-700 hover:bg-lime-100 transition-colors">
+                        <Eye className="w-3 h-3" />Rate Card
+                      </a>
+                    )}
+                    {v.portfolio?.map((url, i) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                        className="text-xs inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition-colors">
+                        <Globe className="w-3 h-3" />Portfolio {i + 1}
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {/* View details */}
+                <button onClick={() => setSelectedVendor(v)}
+                  className="text-xs text-lime-600 hover:text-lime-700 font-medium text-left">
+                  View full profile →
+                </button>
               </div>
-              <Button size="sm" variant={invitedIds.has(v.id) ? 'outline' : 'default'}
-                disabled={invitedIds.has(v.id)} loading={inviting === v.id}
-                onClick={() => invite(v.id)}>
-                {invitedIds.has(v.id) ? 'Invited' : <><Send className="w-3.5 h-3.5 mr-1" />Invite</>}
-              </Button>
+
+              {/* Service profiles section */}
+              {profiles.length > 0 && (
+                <div className="border-t border-neutral-100 bg-neutral-50/50 p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-neutral-400" />
+                    <h4 className="text-xs font-semibold text-neutral-700 uppercase tracking-wider">Service Profiles</h4>
+                    {servicesLoading && <RefreshCw className="w-3 h-3 animate-spin text-neutral-400" />}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {profiles.map(sp => (
+                      <ServiceProfileCard key={sp.id} profile={sp} />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Vendor detail modal */}
+      <Modal open={!!selectedVendor} onClose={() => setSelectedVendor(null)} title={selectedVendor?.name || ''}>
+        {selectedVendor && (
+          <VendorDetailModal vendor={selectedVendor} profiles={servicesByVendor[selectedVendor.id] || []} onInvite={invite} isInvited={invitedIds.has(selectedVendor.id)} inviting={inviting === selectedVendor.id} />
+        )}
+      </Modal>
+    </div>
+  );
+}
+
+function ServiceProfileCard({ profile }: { profile: ServiceProfile }) {
+  const model = profile.pricingModel || profile.pricing_model || '';
+  const minB = profile.minBudget ?? profile.min_budget;
+  const maxB = profile.maxBudget ?? profile.max_budget;
+  const tags = profile.tags || [];
+  const images = profile.images || [];
+  const rateCardUrl = profile.rateCardUrl || profile.rate_card_url;
+  const portfolioUrl = profile.portfolioUrl || profile.portfolio_url;
+  const socialUrl = profile.socialUrl || profile.social_url;
+
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-3 space-y-2">
+      {profile.bannerImage && (
+        <div className="relative h-20 w-full rounded-lg overflow-hidden bg-neutral-100">
+          <img src={profile.bannerImage} alt={profile.name} className="w-full h-full object-cover" loading="lazy" />
+        </div>
+      )}
+      <div>
+        <p className="font-medium text-sm text-neutral-900">{profile.name}</p>
+        {profile.subcategory && (
+          <p className="text-[11px] text-neutral-500">{profile.subcategory}</p>
+        )}
+      </div>
+      {profile.description && (
+        <p className="text-xs text-neutral-600 leading-relaxed line-clamp-2">{profile.description}</p>
+      )}
+      <div className="flex items-center gap-2 text-xs flex-wrap">
+        <span className="font-semibold text-neutral-900">{profile.pricing}</span>
+        {model && (
+          <span className="px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-600 text-[10px] uppercase">{model}</span>
+        )}
+        {minB !== undefined && maxB !== undefined && (
+          <span className="text-neutral-500">₦{minB.toLocaleString()} – ₦{maxB.toLocaleString()}</span>
+        )}
+      </div>
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {tags.map(t => (
+            <span key={t} className="text-[10px] px-1.5 py-0.5 rounded-full bg-lime-50 text-lime-700">{t}</span>
           ))}
+        </div>
+      )}
+      {(rateCardUrl || portfolioUrl || socialUrl) && (
+        <div className="flex gap-1.5 flex-wrap">
+          {rateCardUrl && (
+            <a href={rateCardUrl} target="_blank" rel="noopener noreferrer"
+              className="text-[10px] inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
+              Rate Card
+            </a>
+          )}
+          {portfolioUrl && (
+            <a href={portfolioUrl} target="_blank" rel="noopener noreferrer"
+              className="text-[10px] inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors">
+              Portfolio
+            </a>
+          )}
+          {socialUrl && (
+            <a href={socialUrl} target="_blank" rel="noopener noreferrer"
+              className="text-[10px] inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors">
+              Social
+            </a>
+          )}
+        </div>
+      )}
+      {images.length > 0 && (
+        <div className="flex gap-1 overflow-x-auto pb-1">
+          {images.map((img, i) => (
+            <img key={i} src={img} alt="" className="w-12 h-12 rounded-lg object-cover bg-neutral-100 shrink-0" loading="lazy" />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function VendorDetailModal({ vendor, profiles, onInvite, isInvited, inviting }: {
+  vendor: Vendor;
+  profiles: ServiceProfile[];
+  onInvite: (id: string) => void;
+  isInvited: boolean;
+  inviting: boolean;
+}) {
+  return (
+    <div className="space-y-5 max-h-[70vh] overflow-y-auto pr-1">
+      {/* Header */}
+      <div className="flex items-start gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-lg font-bold text-neutral-900">{vendor.name}</h2>
+            {vendor.status === 'approved' && <CheckCircle className="w-4 h-4 text-lime-500" />}
+          </div>
+          <p className="text-sm text-neutral-500 mt-0.5">{vendor.category}{vendor.city ? ` · ${vendor.city}` : ''}</p>
+        </div>
+        <Button size="sm" variant={isInvited ? 'outline' : 'default'}
+          disabled={isInvited} loading={inviting}
+          onClick={() => onInvite(vendor.id)}>
+          {isInvited ? 'Invited' : <><Send className="w-3.5 h-3.5 mr-1" />Invite</>}
+        </Button>
+      </div>
+
+      {/* Rating & stats */}
+      <div className="flex flex-wrap gap-4 text-sm">
+        <div className="flex items-center gap-1">
+          <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+          <span className="font-semibold text-neutral-900">{vendor.rating?.toFixed(1) ?? '—'}</span>
+          <span className="text-neutral-500">({vendor.reviewCount ?? 0} reviews)</span>
+        </div>
+        {vendor.completedEvents !== undefined && (
+          <span className="text-neutral-600">{vendor.completedEvents} events completed</span>
+        )}
+        {vendor.pricing && <span className="text-neutral-600">{vendor.pricing}</span>}
+        {vendor.subscriptionPlan && (
+          <span className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 text-xs">{vendor.subscriptionPlan}</span>
+        )}
+      </div>
+
+      {/* Description */}
+      {vendor.description && (
+        <div>
+          <h3 className="text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1">About</h3>
+          <p className="text-sm text-neutral-600 leading-relaxed">{vendor.description}</p>
+        </div>
+      )}
+
+      {/* Services */}
+      {vendor.services && vendor.services.length > 0 && (
+        <div>
+          <h3 className="text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">Services</h3>
+          <div className="flex flex-wrap gap-1.5">
+            {vendor.services.map(s => (
+              <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">{s}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Portfolio */}
+      {vendor.portfolio && vendor.portfolio.length > 0 && (
+        <div>
+          <h3 className="text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">Portfolio</h3>
+          <div className="flex flex-wrap gap-2">
+            {vendor.portfolio.map((url, i) => (
+              <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                className="text-xs inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors">
+                <Globe className="w-3.5 h-3.5" />Portfolio {i + 1}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Rate card */}
+      {vendor.rateCard && (
+        <div>
+          <h3 className="text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">Rate Card</h3>
+          <a href={vendor.rateCard} target="_blank" rel="noopener noreferrer"
+            className="text-sm inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-lime-50 text-lime-700 hover:bg-lime-100 transition-colors">
+            <Eye className="w-4 h-4" />View Rate Card
+          </a>
+        </div>
+      )}
+
+      {/* Contact */}
+      <div>
+        <h3 className="text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1.5">Contact</h3>
+        <div className="space-y-1 text-sm text-neutral-600">
+          {vendor.contactEmail && (
+            <a href={`mailto:${vendor.contactEmail}`} className="flex items-center gap-2 hover:text-lime transition-colors">
+              <Mail className="w-4 h-4 text-neutral-400" />{vendor.contactEmail}
+            </a>
+          )}
+          {vendor.contactPhone && (
+            <a href={`tel:${vendor.contactPhone}`} className="flex items-center gap-2 hover:text-lime transition-colors">
+              <Phone className="w-4 h-4 text-neutral-400" />{vendor.contactPhone}
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Service Profiles */}
+      {profiles.length > 0 && (
+        <div>
+          <h3 className="text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-2">Service Profiles</h3>
+          <div className="grid grid-cols-1 gap-3">
+            {profiles.map(sp => (
+              <ServiceProfileCard key={sp.id} profile={sp} />
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -1061,9 +1494,7 @@ export default function ManageEventPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusChanging, setStatusChanging] = useState(false);
-
-  const [statusError, setStatusError] = useState<string | null>(null);
-  const [statusSuccess, setStatusSuccess] = useState<string | null>(null);
+  const { addToast } = useToast();
 
   const fetchEvent = async () => {
     if (!id) return;
@@ -1089,8 +1520,6 @@ export default function ManageEventPage({ params }: { params: Promise<{ id: stri
   const handleStatusChange = async (newStatus: string) => {
     if (!event) return;
     setStatusChanging(true);
-    setStatusError(null);
-    setStatusSuccess(null);
     try {
       const res = await fetch(`/api/events/${id}`, {
         method: 'PUT',
@@ -1101,17 +1530,16 @@ export default function ManageEventPage({ params }: { params: Promise<{ id: stri
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setEvent(data);
-        setStatusSuccess(`Status changed to ${STATUS_CONFIG[newStatus]?.label ?? newStatus}`);
-        setTimeout(() => setStatusSuccess(null), 3000);
+        addToast(`Status changed to ${STATUS_CONFIG[newStatus]?.label ?? newStatus}`, { type: 'success' });
       } else if (res.status === 401) {
-        setStatusError('Session expired — please log in again.');
+        addToast('Session expired — please log in again.', { type: 'error' });
       } else if (res.status === 403) {
-        setStatusError('You are not authorised to change this event\'s status.');
+        addToast('You are not authorised to change this event\'s status.', { type: 'error' });
       } else {
-        setStatusError(data?.detail || `Failed to update status (${res.status})`);
+        addToast(data?.detail || `Failed to update status (${res.status})`, { type: 'error' });
       }
     } catch {
-      setStatusError('Network error. Please try again.');
+      addToast('Network error. Please try again.', { type: 'error' });
     } finally {
       setStatusChanging(false);
     }
@@ -1142,7 +1570,7 @@ export default function ManageEventPage({ params }: { params: Promise<{ id: stri
     {
       id: 'overview', label: 'Overview', title: 'Overview', icon: 'home',
       description: 'Event details and status',
-      content: <OverviewTab event={event} id={id} onStatusChange={handleStatusChange} statusChanging={statusChanging} statusError={statusError} statusSuccess={statusSuccess} />,
+      content: <OverviewTab event={event} id={id} onStatusChange={handleStatusChange} statusChanging={statusChanging} />,
     },
     {
       id: 'planning', label: 'Planning', title: 'Planning', icon: 'clipboard',
@@ -1160,9 +1588,9 @@ export default function ManageEventPage({ params }: { params: Promise<{ id: stri
       content: <BudgetTab id={id} eventTickets={event.tickets} />,
     },
     {
-      id: 'vendors', label: 'Vendors', title: 'Vendors', icon: 'building-2',
+      id: 'vendors', label: 'Vendors', title: 'Vendors', icon: 'store',
       description: 'Source and invite vendors',
-      content: <VendorsTab id={id} />,
+      content: <VendorsTab event={event} id={id} />,
     },
     {
       id: 'attendees', label: 'Attendees', title: 'Attendees', icon: 'users',
@@ -1175,7 +1603,7 @@ export default function ManageEventPage({ params }: { params: Promise<{ id: stri
       content: <ReviewsTab id={id} />,
     },
     {
-      id: 'insights', label: 'Insights', title: 'Insights', icon: 'bar-chart-2',
+      id: 'insights', label: 'Insights', title: 'Insights', icon: 'bar-chart',
       description: 'Performance analytics',
       content: <InsightsTab id={id} />,
     },

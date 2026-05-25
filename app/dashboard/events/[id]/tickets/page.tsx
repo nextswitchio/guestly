@@ -3,6 +3,8 @@ import { RefreshCw, Plus, Ticket, Trash2, X } from 'lucide-react';
 
 import { useState, useEffect, use } from 'react';
 import { Icon } from '@/components/ui/Icon';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface TicketType {
   id: string;
@@ -20,6 +22,8 @@ export default function EventTicketsPage({ params }: { params: Promise<{ id: str
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [editingTicket, setEditingTicket] = useState<TicketType | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -27,6 +31,7 @@ export default function EventTicketsPage({ params }: { params: Promise<{ id: str
     description: '',
   });
   const [error, setError] = useState('');
+  const { addToast } = useToast();
 
   useEffect(() => {
     fetchTickets();
@@ -46,42 +51,68 @@ export default function EventTicketsPage({ params }: { params: Promise<{ id: str
     }
   };
 
+  const handleDelete = async (ticketId: string) => {
+    setDeleting(ticketId);
+    try {
+      const res = await fetch(`/api/events/${id}/tickets/${ticketId}`, { method: 'DELETE' });
+      if (!res.ok) { addToast('Failed to delete ticket', { type: 'error' }); return; }
+      await fetchTickets();
+      addToast('Ticket type removed', { type: 'success' });
+    } catch { addToast('Network error', { type: 'error' }); }
+    finally { setDeleting(null); }
+  };
+
+  const openEdit = (ticket: TicketType) => {
+    setEditingTicket(ticket);
+    setFormData({ name: ticket.name, price: ticket.price.toString(), quantity: ticket.quantity.toString(), description: ticket.description });
+    setShowModal(true);
+  };
+
   const handleAddTicket = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!formData.name || !formData.price || !formData.quantity) {
-      setError('Please fill in all required fields');
+      addToast('Please fill in all required fields', { type: 'warning' });
       return;
     }
 
     setSubmitting(true);
     try {
-      const response = await fetch(`/api/events/${id}/tickets`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          price: parseFloat(formData.price),
-          quantity: parseInt(formData.quantity),
-          description: formData.description,
-          ticket_type: formData.name,
-          attendance_type: 'physical',
-          available: parseInt(formData.quantity),
-          total: parseInt(formData.quantity),
-        }),
-      });
+      const body = {
+        name: formData.name,
+        price: parseFloat(formData.price),
+        quantity: parseInt(formData.quantity),
+      };
 
-      if (response.ok) {
-        setShowModal(false);
-        setFormData({ name: '', price: '', quantity: '', description: '' });
-        await fetchTickets();
+      let ok: boolean;
+      if (editingTicket) {
+        const res = await fetch(`/api/events/${id}/tickets/${editingTicket.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        ok = res.ok;
+        if (!ok) { const d = await res.json(); addToast(d.error || 'Failed to update ticket', { type: 'error' }); }
       } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to create ticket type');
+        const res = await fetch(`/api/events/${id}/tickets`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...body, description: formData.description, ticket_type: formData.name, attendance_type: 'physical', available: body.quantity, total: body.quantity }),
+        });
+        ok = res.ok;
+        if (!ok) { const d = await res.json(); addToast(d.error || 'Failed to create ticket type', { type: 'error' }); }
+      }
+
+      if (ok) {
+        setShowModal(false);
+        setEditingTicket(null);
+        setFormData({ name: '', price: '', quantity: '', description: '' });
+        addToast(editingTicket ? 'Ticket updated successfully' : 'Ticket created successfully', { type: 'success' });
+        await fetchTickets();
       }
     } catch (err) {
-      setError('Failed to create ticket type');
+      addToast(editingTicket ? 'Failed to update ticket' : 'Failed to create ticket type', { type: 'error' });
       console.error(err);
     } finally {
       setSubmitting(false);
@@ -169,12 +200,12 @@ export default function EventTicketsPage({ params }: { params: Promise<{ id: str
             )}
 
             <div className="flex gap-2">
-              <button className="rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors">
+              <button onClick={() => openEdit(ticket)} className="rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors">
                 Edit
               </button>
-              <button className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+              <button onClick={() => handleDelete(ticket.id)} disabled={deleting === ticket.id} className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50">
                 <Trash2 className="w-4 h-4 mr-1.5 inline" />
-                Remove
+                {deleting === ticket.id ? '...' : 'Remove'}
               </button>
             </div>
           </div>
@@ -205,11 +236,13 @@ export default function EventTicketsPage({ params }: { params: Promise<{ id: str
           <div className="bg-white rounded-2xl max-w-md w-full shadow-lg">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-bold text-neutral-900">Add Ticket Type</h2>
+              <h2 className="text-xl font-bold text-neutral-900">{editingTicket ? 'Edit Ticket Type' : 'Add Ticket Type'}</h2>
               <button 
                 onClick={() => {
                   setShowModal(false);
+                  setEditingTicket(null);
                   setError('');
+                  setFormData({ name: '', price: '', quantity: '', description: '' });
                 }}
                 className="text-neutral-400 hover:text-neutral-600 transition-colors">
                 <X className="w-5 h-5" />
@@ -287,17 +320,16 @@ export default function EventTicketsPage({ params }: { params: Promise<{ id: str
                   type="button"
                   onClick={() => {
                     setShowModal(false);
+                    setEditingTicket(null);
                     setError('');
+                    setFormData({ name: '', price: '', quantity: '', description: '' });
                   }}
                   className="flex-1 px-4 py-2 border border-neutral-200 text-neutral-700 rounded-lg font-medium hover:bg-neutral-50 transition-colors">
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 px-4 py-2 bg-lime text-dark rounded-lg font-bold hover:bg-lime-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                  {submitting ? 'Creating...' : 'Create Ticket'}
-                </button>
+                <Button type="submit" loading={submitting} fullWidth>
+                  {editingTicket ? 'Update Ticket' : 'Create Ticket'}
+                </Button>
               </div>
             </form>
           </div>

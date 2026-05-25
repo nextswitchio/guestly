@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
+import { formatCurrency } from '@/lib/utils';
 
 type PerformanceSummary = {
   totalEvents: number;
@@ -23,11 +24,37 @@ export default function EventPerformanceSummary() {
       setLoading(true);
       const response = await fetch('/api/admin/events/performance?page=1&pageSize=1');
       const result = await response.json();
-      
-      if (result.success) {
-        setSummary(result.data.summary);
+
+      // Extract summary from various response shapes
+      let summaryData: PerformanceSummary | null = null;
+
+      // Shape: { success: true, data: { summary: {...} } }
+      if (result?.data?.summary) {
+        summaryData = result.data.summary;
+      // Shape: { success: true, data: { totalEvents: ..., ... } } (summary fields at data level)
+      } else if (result?.data?.totalEvents !== undefined) {
+        summaryData = result.data;
+      // Shape: { summary: {...} } (no success/data wrapper)
+      } else if (result?.summary) {
+        summaryData = result.summary;
+      // Shape: { totalEvents: ..., totalRevenue: ..., ... } (flat summary fields)
+      } else if (result?.totalEvents !== undefined) {
+        summaryData = result;
+      // Shape: Direct array of events (compute summary)
+      } else if (Array.isArray(result)) {
+        summaryData = computeSummaryFromEvents(result);
+      // Shape: { data: [...], meta: {...} } (paginated, data is array)
+      } else if (Array.isArray(result?.data)) {
+        summaryData = computeSummaryFromEvents(result.data);
+      // Shape: { events: [...], total: ..., ... } (no success wrapper)
+      } else if (Array.isArray(result?.events)) {
+        summaryData = computeSummaryFromEvents(result.events);
+      }
+
+      if (summaryData) {
+        setSummary(summaryData);
       } else {
-        setError(result.error?.message || 'Failed to fetch summary');
+        setError(result?.error?.message || 'Failed to fetch summary');
       }
     } catch (err) {
       setError('Failed to fetch summary');
@@ -37,17 +64,45 @@ export default function EventPerformanceSummary() {
     }
   };
 
+  const computeSummaryFromEvents = (events: any[]): PerformanceSummary => {
+    const totalEvents = events.length;
+    const totalRevenue = events.reduce((sum, e) => sum + (e.revenue || 0), 0);
+    const totalTicketsSold = events.reduce((sum, e) => sum + (e.ticketsSold || 0), 0);
+    const averageTicketsPerEvent = totalEvents > 0 ? totalTicketsSold / totalEvents : 0;
+    const averageRevenuePerEvent = totalEvents > 0 ? totalRevenue / totalEvents : 0;
+
+    // Find top performing category
+    const categoryRevenue: Record<string, number> = {};
+    events.forEach(e => {
+      const cat = e.category || 'N/A';
+      categoryRevenue[cat] = (categoryRevenue[cat] || 0) + (e.revenue || 0);
+    });
+    const topPerformingCategory = Object.entries(categoryRevenue)
+      .sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A';
+
+    // Find top performing city
+    const cityRevenue: Record<string, number> = {};
+    events.forEach(e => {
+      const c = e.city || 'N/A';
+      cityRevenue[c] = (cityRevenue[c] || 0) + (e.revenue || 0);
+    });
+    const topPerformingCity = Object.entries(cityRevenue)
+      .sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A';
+
+    return {
+      totalEvents,
+      totalRevenue,
+      totalTicketsSold,
+      averageTicketsPerEvent,
+      averageRevenuePerEvent,
+      topPerformingCategory,
+      topPerformingCity,
+    };
+  };
+
   useEffect(() => {
     fetchSummary();
   }, []);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
 
   if (loading) {
     return (

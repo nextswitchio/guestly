@@ -6,11 +6,31 @@ import { Button } from "@/components/ui/Button";
 import { Banknote, Calendar, TrendingUp, CheckCircle, Clock, Star, ArrowUpRight, Users } from "lucide-react";
 import VendorAnalytics from "@/components/vendors/VendorAnalytics";
 
+function invitationTimestamp(invitation: any): number {
+  const raw = invitation.created_at ?? invitation.createdAt ?? invitation.invitedAt;
+  const timestamp = typeof raw === "number" ? raw : new Date(raw).getTime();
+  return Number.isFinite(timestamp) ? timestamp : Date.now();
+}
+
+function timeAgo(ts: number): string {
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  return `${Math.floor(d / 30)}mo ago`;
+}
+
 export default function VendorDashboardPage() {
   const [metrics, setMetrics] = useState({ totalEarnings: 0, completedEvents: 0, averageRating: 0, responseTime: "N/A", upcomingBookings: 0, pendingInvitations: 0 });
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
   const [pendingInvitations, setPendingInvitations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [responding, setResponding] = useState<string | null>(null);
+  const [respondError, setRespondError] = useState<string | null>(null);
   const [subscription, setSubscription] = useState<{ plan: string; expiresAt: number } | null>(null);
   const [vendorId, setVendorId] = useState<string>("");
 
@@ -39,7 +59,7 @@ export default function VendorDashboardPage() {
           const accepted = invites.filter((i: any) => i.status === "accepted");
           const now = new Date();
           const upcoming = accepted.filter((i: any) => i.event && new Date(i.event.date) > now)
-            .map((i: any) => ({ eventId: i.eventId, eventTitle: i.event?.title || "Event", eventDate: i.event?.date || "", eventVenue: i.event?.venue || "", eventCity: i.event?.city || "", category: i.category, status: "confirmed" as const }))
+            .map((i: any) => ({ eventId: i.event?.id || i.id, eventTitle: i.event?.title || "Event", eventDate: i.event?.date || "", eventVenue: i.event?.venue || "", eventCity: i.event?.city || "", category: i.category, status: "confirmed" as const }))
             .sort((a: any, b: any) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
           setUpcomingEvents(upcoming);
           const completed = accepted.filter((i: any) => i.event && new Date(i.event.date) < now);
@@ -51,13 +71,20 @@ export default function VendorDashboardPage() {
   };
 
   const respond = async (invitationId: string, status: "accepted" | "declined") => {
+    setResponding(invitationId);
+    setRespondError(null);
     try {
-      await fetch(`/api/vendors/invitations/${invitationId}/respond`, {
+      const res = await fetch(`/api/vendors/invitations/${invitationId}/respond`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Failed to respond" }));
+        setRespondError(err.error || "Something went wrong");
+      }
       fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error(e); setRespondError("Network error"); }
+    finally { setResponding(null); }
   };
 
   const isPremium = subscription && subscription.expiresAt > Date.now();
@@ -84,6 +111,13 @@ export default function VendorDashboardPage() {
 
   return (
     <div className="space-y-6">
+      {respondError && (
+        <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+          {respondError}
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-dark">Vendor Dashboard</h1>
@@ -141,14 +175,44 @@ export default function VendorDashboardPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <h3 className="font-semibold text-dark truncate">{inv.event?.title || "Event"}</h3>
-                          <p className="text-sm text-gray-500">{inv.category} • {inv.event?.city}</p>
-                          <p className="text-xs text-gray-400">{inv.event?.date && new Date(inv.event.date).toLocaleDateString()}</p>
+                          <p className="text-sm text-gray-500">{inv.category}</p>
+                          <p className="text-xs text-gray-400">
+                            {inv.event?.date && new Date(inv.event.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {inv.event?.venue && `${inv.event.venue}, `}{inv.event?.city}{inv.event?.state && `, ${inv.event.state}`}
+                          </p>
+                          {inv.organizer && (
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              {inv.organizer.avatar ? (
+                                <img src={inv.organizer.avatar} alt="" className="w-4 h-4 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-4 h-4 rounded-full bg-lime/10 flex items-center justify-center text-[9px] font-bold text-dark">
+                                  {inv.organizer.display_name?.charAt(0) || "O"}
+                                </div>
+                              )}
+                              <p className="text-xs text-gray-400 truncate">{inv.organizer.display_name}</p>
+                              {inv.organizer.is_verified && (
+                                <span className="px-1 py-0.5 bg-blue-100 text-blue-700 text-[9px] rounded-full font-medium leading-none">Verified</span>
+                              )}
+                            </div>
+                          )}
+                          {(inv.created_at || inv.createdAt || inv.invitedAt) && (
+                            <p className="text-xs text-gray-400 mt-0.5">Invited {timeAgo(invitationTimestamp(inv))}</p>
+                          )}
                         </div>
                         <span className="shrink-0 rounded-full bg-warning-100 px-2.5 py-0.5 text-xs font-semibold text-warning-700">Pending</span>
                       </div>
+                      {inv.fee ? (
+                        <p className="text-xs font-semibold text-lime mt-1">Fee: ₦{Number(inv.fee).toLocaleString()}</p>
+                      ) : inv.amount ? (
+                        <p className="text-xs font-semibold text-lime mt-1">Compensation: ₦{Number(inv.amount).toLocaleString()}</p>
+                      ) : null}
                       <div className="mt-3 flex gap-2">
-                        <Button size="sm" onClick={() => respond(inv.id, "accepted")}>Accept</Button>
-                        <Button size="sm" variant="outline" onClick={() => respond(inv.id, "declined")}>Decline</Button>
+                        <Button size="sm" disabled={responding === inv.id} onClick={() => respond(inv.id, "accepted")}>
+                          {responding === inv.id ? "..." : "Accept"}
+                        </Button>
+                        <Button size="sm" variant="outline" disabled={responding === inv.id} onClick={() => respond(inv.id, "declined")}>Decline</Button>
                       </div>
                     </div>
                   </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface SocialAccount {
   platform: 'facebook' | 'instagram' | 'twitter' | 'linkedin' | 'tiktok';
@@ -60,6 +61,7 @@ export function SocialMediaConnector({
   organizerId: propOrganizerId,
   onConnectionChange,
 }: SocialMediaConnectorProps) {
+  const { addToast } = useToast();
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
@@ -126,11 +128,11 @@ export function SocialMediaConnector({
         onConnectionChange?.();
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to connect account');
+        addToast(error.error || 'Failed to connect account', { type: 'error' });
       }
     } catch (error) {
       console.error('Failed to connect account:', error);
-      alert('Failed to connect account');
+      addToast('Failed to connect account', { type: 'error' });
     } finally {
       setConnecting(null);
     }
@@ -154,11 +156,11 @@ export function SocialMediaConnector({
         onConnectionChange?.();
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to disconnect account');
+        addToast(error.error || 'Failed to disconnect account', { type: 'error' });
       }
     } catch (error) {
       console.error('Failed to disconnect account:', error);
-      alert('Failed to disconnect account');
+      addToast('Failed to disconnect account', { type: 'error' });
     } finally {
       setConnecting(null);
     }
@@ -227,26 +229,20 @@ export function SocialMediaConnector({
                       variant="outline"
                       size="sm"
                       onClick={() => handleDisconnect(platform)}
+                      loading={isProcessing}
                       disabled={isProcessing}
                     >
-                      {isProcessing ? (
-                        <Icon name="spinner" className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Icon name="x" className="w-4 h-4 mr-2" />
-                      )}
+                      <Icon name="x" className="w-4 h-4 mr-2" />
                       Disconnect
                     </Button>
                   ) : (
                     <Button
                       size="sm"
                       onClick={() => handleConnect(platform)}
+                      loading={isProcessing}
                       disabled={isProcessing}
                     >
-                      {isProcessing ? (
-                        <Icon name="spinner" className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Icon name="link" className="w-4 h-4 mr-2" />
-                      )}
+                      <Icon name="link" className="w-4 h-4 mr-2" />
                       Connect
                     </Button>
                   )}

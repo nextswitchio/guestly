@@ -40,7 +40,7 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = React.useState(true);
   const [range, setRange] = React.useState('30d');
 
-  const fmt = (num: number) => num.toLocaleString();
+  const fmt = (num: number | undefined | null) => (num ?? 0).toLocaleString();
 
   React.useEffect(() => {
     setLoading(true);

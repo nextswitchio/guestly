@@ -13,9 +13,10 @@ interface AudienceRule {
 
 interface RetargetingAudienceBuilderProps {
   onSave?: (audience: { name: string; rules: AudienceRule[]; estimatedSize: number }) => void;
+  onCancel?: () => void;
 }
 
-export default function RetargetingAudienceBuilder({ onSave }: RetargetingAudienceBuilderProps) {
+export default function RetargetingAudienceBuilder({ onSave, onCancel }: RetargetingAudienceBuilderProps) {
   const [audienceName, setAudienceName] = useState('');
   const [rules, setRules] = useState<AudienceRule[]>([
     {
@@ -190,7 +191,7 @@ export default function RetargetingAudienceBuilder({ onSave }: RetargetingAudien
         <Button onClick={handleSave} disabled={!audienceName}>
           Create Audience
         </Button>
-        <Button variant="outline">Cancel</Button>
+        <Button variant="outline" onClick={onCancel}>Cancel</Button>
       </div>
     </div>
   );

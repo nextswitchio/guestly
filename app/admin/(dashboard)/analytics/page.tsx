@@ -7,6 +7,7 @@ import Badge from "@/components/ui/Badge";
 import Icon from "@/components/ui/Icon";
 import DateRangeSelector from "@/components/ui/DateRangeSelector";
 import { BarChart, LineChart, PieChart } from "@/components/charts";
+import { formatCurrency } from "@/lib/utils";
 
 type Period = "day" | "week" | "month" | "year";
 type TabId = "overview" | "revenue" | "events" | "users" | "operations" | "exports";
@@ -174,14 +175,6 @@ const REPORT_EXPORTS = [
   { id: "locations", label: "City Revenue", detail: "City-level event, order, and revenue performance" },
   { id: "countries", label: "Country Revenue", detail: "Country-level event, order, and revenue performance" },
 ];
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 0,
-  }).format(value || 0);
-}
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-NG").format(value || 0);

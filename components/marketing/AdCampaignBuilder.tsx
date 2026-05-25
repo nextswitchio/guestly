@@ -10,6 +10,7 @@ import { Icon } from '@/components/ui/Icon';
 import AdPlatformSelector from './AdPlatformSelector';
 import AdTargetingForm from './AdTargetingForm';
 import AdCreativeUploader from './AdCreativeUploader';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface AdCampaignBuilderProps {
   organizerId: string;
@@ -26,6 +27,7 @@ export default function AdCampaignBuilder({
   onComplete,
   onCancel,
 }: AdCampaignBuilderProps) {
+  const { addToast } = useToast();
   const [currentStep, setCurrentStep] = useState<Step>('platform');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -101,11 +103,11 @@ export default function AdCampaignBuilder({
         onComplete?.(data.campaign);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to create ad campaign');
+        addToast(error.error || 'Failed to create ad campaign', { type: 'error' });
       }
     } catch (error) {
       console.error('Failed to create ad campaign:', error);
-      alert('Failed to create ad campaign');
+      addToast('Failed to create ad campaign', { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -381,15 +383,10 @@ export default function AdCampaignBuilder({
         </Button>
         <Button
           onClick={currentStepIndex === steps.length - 1 ? handleSubmit : handleNext}
+          loading={loading}
           disabled={loading || !canProceed()}
         >
-          {loading ? (
-            <span className="animate-spin inline-block"><RefreshCw className="h-4 w-4 inline-block" /></span>
-          ) : currentStepIndex === steps.length - 1 ? (
-            'Create Campaign'
-          ) : (
-            'Next'
-          )}
+          {currentStepIndex === steps.length - 1 ? 'Create Campaign' : 'Next'}
         </Button>
       </div>
     </div>

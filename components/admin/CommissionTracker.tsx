@@ -4,6 +4,7 @@ import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
 import Button from "@/components/ui/Button";
 import { BarChart, LineChart } from "@/components/charts";
+import { formatCurrency } from "@/lib/utils";
 
 interface CommissionSummary {
   totalCommissions: number;
@@ -110,13 +111,6 @@ export default function CommissionTracker() {
     } catch (error) {
       console.error('Error generating report:', error);
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-    }).format(amount);
   };
 
   const getStatusColor = (status: string) => {

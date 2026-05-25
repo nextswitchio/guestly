@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { amount, method, bank_details, crypto_details, notes } = body;
+    const { amount, method, bankDetails, cryptoDetails, notes } = body;
 
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: "Invalid withdrawal amount" }, { status: 400 });
@@ -19,13 +19,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid withdrawal method" }, { status: 400 });
     }
 
+    let backendBody: Record<string, any> = { amount };
+
+    if (method === "bank" && bankDetails) {
+      backendBody.bank_name = bankDetails.bankName || "";
+      backendBody.account_number = bankDetails.accountNumber || "";
+      backendBody.account_name = bankDetails.accountName || "";
+    } else if (method === "crypto" && cryptoDetails) {
+      backendBody.bank_name = cryptoDetails.cryptoType || "";
+      backendBody.account_number = cryptoDetails.address || "";
+      backendBody.account_name = "Crypto Withdrawal";
+    } else {
+      return NextResponse.json({ error: "Invalid withdrawal details" }, { status: 400 });
+    }
+
     const res = await fetch(`${BACKEND_URL}/api/v1/wallet/withdraw`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ amount, method, bank_details, crypto_details, notes }),
+      body: JSON.stringify(backendBody),
     });
 
     if (!res.ok) {
@@ -57,7 +71,7 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await res.json();
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ success: true, data: data.withdrawals || [], total: data.total || 0 });
   } catch {
     return NextResponse.json({ error: "Failed to fetch withdrawals" }, { status: 500 });
   }

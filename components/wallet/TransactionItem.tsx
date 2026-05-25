@@ -1,4 +1,5 @@
 import React from "react";
+import { formatCurrency } from "@/lib/utils";
 
 type Txn = {
   id: string;
@@ -62,7 +63,7 @@ export default function TransactionItem({ txn }: { txn: Txn }) {
         className={`shrink-0 text-sm font-semibold tabular-nums ${isCredit ? "text-green-600" : "text-neutral-900"
           }`}
       >
-        {isCredit ? "+" : "-"}${txn.amount.toFixed(2)}
+        {isCredit ? "+" : "-"}{formatCurrency(txn.amount)}
       </span>
     </div>
   );

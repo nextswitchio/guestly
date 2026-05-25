@@ -1,4 +1,5 @@
 import { DataTableColumn } from '@/components/ui/DataTable';
+import { formatCurrency } from '@/lib/utils';
 
 // Export utilities for common data table operations
 export class DataTableExporter {
@@ -97,13 +98,8 @@ export class DataTableExporter {
 
 // Common column formatters
 export const DataTableFormatters = {
-  currency: (amount: number, currency: string = 'NGN'): string => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }).format(amount);
+  currency: (amount: number, currency?: string): string => {
+    return formatCurrency(amount, currency);
   },
 
   date: (date: Date | string | number): string => {

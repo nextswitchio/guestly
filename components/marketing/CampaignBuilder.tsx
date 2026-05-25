@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Icon } from '@/components/ui/Icon';
 import ChannelSelector from './ChannelSelector';
+import { useToast } from '@/components/ui/ToastProvider';
 import type { Campaign, Channel } from '@/lib/marketing';
 
 interface CampaignBuilderProps {
@@ -25,6 +26,7 @@ export default function CampaignBuilder({
   onComplete,
   onCancel,
 }: CampaignBuilderProps) {
+  const { addToast } = useToast();
   const [currentStep, setCurrentStep] = useState<Step>('basics');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -85,11 +87,11 @@ export default function CampaignBuilder({
         onComplete?.(data.campaign);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to create campaign');
+        addToast(error.error || 'Failed to create campaign', { type: 'error' });
       }
     } catch (error) {
       console.error('Failed to create campaign:', error);
-      alert('Failed to create campaign');
+      addToast('Failed to create campaign', { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -294,15 +296,10 @@ export default function CampaignBuilder({
         </Button>
         <Button
           onClick={currentStepIndex === steps.length - 1 ? handleSubmit : handleNext}
+          loading={loading}
           disabled={loading || (currentStep === 'basics' && !formData.name)}
         >
-          {loading ? (
-            <Icon name="loader" className="w-5 h-5 animate-spin" />
-          ) : currentStepIndex === steps.length - 1 ? (
-            'Create Campaign'
-          ) : (
-            'Next'
-          )}
+          {currentStepIndex === steps.length - 1 ? 'Create Campaign' : 'Next'}
         </Button>
       </div>
     </div>

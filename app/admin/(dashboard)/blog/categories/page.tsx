@@ -4,7 +4,19 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/ToastProvider';
 import { Plus, Edit, Trash2, Folder, Eye, EyeOff } from 'lucide-react';
+
+const CATEGORY_ICONS = [
+  { name: 'folder', label: 'Folder' },
+  { name: 'bookmark', label: 'Bookmark' },
+  { name: 'sparkles', label: 'Highlights' },
+  { name: 'star', label: 'Featured' },
+  { name: 'trending-up', label: 'Trending' },
+  { name: 'calendar', label: 'Calendar' },
+  { name: 'message-circle', label: 'Announcements' },
+];
 
 interface Category {
   id: string;
@@ -21,6 +33,7 @@ interface Category {
 }
 
 export default function BlogCategoriesPage() {
+  const { addToast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +44,7 @@ export default function BlogCategoriesPage() {
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [color, setColor] = useState('#84cc16');
-  const [icon, setIcon] = useState('📁');
+  const [icon, setIcon] = useState('folder');
   const [order, setOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
   const [seoTitle, setSeoTitle] = useState('');
@@ -63,7 +76,7 @@ export default function BlogCategoriesPage() {
     setSlug('');
     setDescription('');
     setColor('#84cc16');
-    setIcon('📁');
+    setIcon('folder');
     setOrder(0);
     setIsActive(true);
     setSeoTitle('');
@@ -77,7 +90,7 @@ export default function BlogCategoriesPage() {
     setSlug(category.slug);
     setDescription(category.description || '');
     setColor(category.color || '#84cc16');
-    setIcon(category.icon || '📁');
+    setIcon(category.icon || 'folder');
     setOrder(category.order);
     setIsActive(category.is_active);
     setSeoTitle(category.seo_title || '');
@@ -87,7 +100,7 @@ export default function BlogCategoriesPage() {
 
   const handleSave = async () => {
     if (!name.trim() || !slug.trim()) {
-      alert('Name and slug are required');
+      addToast('Name and slug are required', { type: 'warning' });
       return;
     }
 
@@ -120,18 +133,17 @@ export default function BlogCategoriesPage() {
         setShowModal(false);
         resetForm();
         loadCategories();
+        addToast('Category saved successfully', { type: 'success' });
       } else {
         const error = await response.json();
-        alert(error.detail || 'Failed to save category');
+        addToast(error.detail || 'Failed to save category', { type: 'error' });
       }
     } catch (err) {
-      alert('Failed to save category');
+      addToast('Failed to save category', { type: 'error' });
     }
   };
 
   const handleDelete = async (categoryId: string) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
-
     try {
       const response = await fetch(`/api/admin/blog/categories/${categoryId}`, {
         method: 'DELETE',
@@ -140,12 +152,13 @@ export default function BlogCategoriesPage() {
 
       if (response.ok) {
         loadCategories();
+        addToast('Category deleted successfully', { type: 'success' });
       } else {
         const error = await response.json();
-        alert(error.detail || 'Failed to delete category');
+        addToast(error.detail || 'Failed to delete category', { type: 'error' });
       }
     } catch (err) {
-      alert('Failed to delete category');
+      addToast('Failed to delete category', { type: 'error' });
     }
   };
 
@@ -200,7 +213,11 @@ export default function BlogCategoriesPage() {
                     className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
                     style={{ backgroundColor: `${category.color}20` }}
                   >
-                    {category.icon}
+                    {CATEGORY_ICONS.some((option) => option.name === category.icon) ? (
+                      <Icon name={category.icon as any} size={20} />
+                    ) : (
+                      <span className="text-lg">{category.icon}</span>
+                    )}
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg">{category.name}</h3>
@@ -296,13 +313,24 @@ export default function BlogCategoriesPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Icon (Emoji)</label>
-                    <Input
-                      value={icon}
-                      onChange={(e) => setIcon(e.target.value)}
-                      placeholder="📁"
-                      maxLength={2}
-                    />
+                    <label className="block text-sm font-medium mb-2">Icon</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {CATEGORY_ICONS.map((option) => (
+                        <button
+                          key={option.name}
+                          type="button"
+                          onClick={() => setIcon(option.name)}
+                          className={`flex flex-col items-center justify-center gap-1 rounded-2xl border p-3 text-xs transition-colors ${
+                            icon === option.name
+                              ? 'border-lime bg-lime/10 text-lime'
+                              : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300'
+                          }`}
+                        >
+                          <Icon name={option.name as any} size={18} />
+                          <span>{option.label}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div>

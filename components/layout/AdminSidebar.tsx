@@ -377,7 +377,7 @@ export default function AdminSidebar() {
         <button
           onClick={async () => {
             await fetch("/api/auth/logout", { method: "POST" });
-            router.push("/admin/login");
+            window.location.href = "/admin/login";
           }}
           title={collapsed ? "Sign Out" : undefined}
           className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-150 min-h-[44px] text-white/60 hover:bg-white/5 hover:text-white ${

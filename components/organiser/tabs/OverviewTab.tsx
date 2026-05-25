@@ -54,7 +54,7 @@ export default function OverviewTab({ eventId }: { eventId: string }) {
       .finally(() => setLoading(false));
   }, [eventId]);
 
-  if (!e) {
+  if (!event) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-200 py-16">
         <Icon name="calendar" size={32} className="text-neutral-400" />
@@ -63,7 +63,7 @@ export default function OverviewTab({ eventId }: { eventId: string }) {
     );
   }
 
-  const eventDate = new Date(e.date);
+  const eventDate = new Date(event.date);
   const now = new Date();
   const isUpcoming = eventDate > now;
   const isPast = eventDate < now;
@@ -74,10 +74,10 @@ export default function OverviewTab({ eventId }: { eventId: string }) {
       {/* Event Hero Card */}
       <Card className="overflow-hidden p-0">
         <div className="relative h-48 w-full bg-gradient-to-br from-primary-500 to-primary-700">
-          {e.image && (
+          {event.image && (
             <Image 
-              src={e.image} 
-              alt={e.title} 
+              src={event.image} 
+              alt={event.title} 
               fill 
               className="object-cover opacity-40" 
             />
@@ -91,23 +91,23 @@ export default function OverviewTab({ eventId }: { eventId: string }) {
                     Physical
                   </span>
                   <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                    {e.category}
+                      {event.category}
                   </span>
                 </div>
-                <h2 className="text-2xl font-bold text-white">{e.title}</h2>
+                  <h2 className="text-2xl font-bold text-white">{event.title}</h2>
                 <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-white/90">
                   <span className="flex items-center gap-1.5">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    {e.date}
+                    {event.date}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    {e.city}
+                    {event.city}
                   </span>
                 </div>
               </div>
@@ -123,9 +123,9 @@ export default function OverviewTab({ eventId }: { eventId: string }) {
           </div>
         </div>
         
-        {e.description && (
+        {event.description && (
           <div className="p-6">
-            <p className="text-sm leading-relaxed text-neutral-600">{e.description}</p>
+            <p className="text-sm leading-relaxed text-neutral-600">{event.description}</p>
           </div>
         )}
       </Card>

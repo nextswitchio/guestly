@@ -3,6 +3,7 @@ import { useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SigninForm } from "@/components/auth/SignInForm";
+import { useToast } from "@/components/ui/ToastProvider";
 
 function redirectForRole(role: string | undefined, router: ReturnType<typeof useRouter>) {
   if (role === "organiser" || role === "organizer") router.replace("/dashboard");
@@ -15,11 +16,10 @@ function redirectForRole(role: string | undefined, router: ReturnType<typeof use
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [error, setError] = useState("");
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (data: { email: string; password: string }) => {
-    setError("");
     setLoading(true);
     const role = searchParams.get("role") || "attendee";
     try {
@@ -30,13 +30,13 @@ function LoginContent() {
       });
       const result = await res.json();
       if (!res.ok || !result.ok) {
-        setError(result.error || "Login failed. Please try again.");
+        addToast(result.error || "Login failed. Please try again.", { type: "error" });
         setLoading(false);
         return;
       }
       redirectForRole(result.role, router);
     } catch {
-      setError("Something went wrong. Please try again.");
+      addToast("Something went wrong. Please try again.", { type: "error" });
       setLoading(false);
     }
   };
@@ -50,19 +50,7 @@ function LoginContent() {
       transition={{ duration: 0.3 }}
       className="w-full"
     >
-      {error && (
-        <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[var(--color-primary-500)] border-t-transparent" />
-          <p className="mt-4 text-sm text-neutral-600">Signing you in...</p>
-        </div>
-      ) : (
-        <SigninForm onSubmit={handleLogin} />
-      )}
+      <SigninForm onSubmit={handleLogin} loading={loading} />
     </motion.div>
   );
 }

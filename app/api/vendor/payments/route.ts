@@ -32,7 +32,9 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { event_id, amount, notes } = body;
+    const event_id = body.event_id || body.eventId;
+    const amount = body.amount;
+    const notes = body.notes || null;
 
     if (!event_id || !amount || amount <= 0) {
       return NextResponse.json({ error: "Event ID and valid amount are required" }, { status: 400 });

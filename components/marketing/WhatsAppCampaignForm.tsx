@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { formatCurrency } from '@/lib/utils';
 
 interface WhatsAppCampaignFormProps {
   eventId: string;
@@ -314,17 +315,17 @@ export function WhatsAppCampaignForm({ eventId, onSubmit, onCancel }: WhatsAppCa
               </div>
               <div className="flex justify-between">
                 <span>Cost per message:</span>
-                <span className="font-medium">${costPerMessage.toFixed(2)}</span>
+                <span className="font-medium">{formatCurrency(costPerMessage)}</span>
               </div>
               {formData.mediaUrl && (
                 <div className="flex justify-between">
                   <span>Media cost per message:</span>
-                  <span className="font-medium">${mediaCost.toFixed(2)}</span>
+                  <span className="font-medium">{formatCurrency(mediaCost)}</span>
                 </div>
               )}
               <div className="flex justify-between pt-2 border-t border-green-300">
                 <span className="font-semibold">Estimated Total:</span>
-                <span className="font-bold text-lg">${estimatedCost.toFixed(2)}</span>
+                <span className="font-bold text-lg">{formatCurrency(estimatedCost)}</span>
               </div>
             </div>
             <p className="text-xs text-green-700 mt-2">

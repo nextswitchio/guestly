@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Banknote, Plus, Receipt, CheckCircle, Clock } from "lucide-react";
+import { Banknote, Plus, Receipt, CheckCircle, Clock, AlertCircle, RefreshCw, Wallet } from "lucide-react";
 
 export default function VendorPaymentsPage() {
   const [payments, setPayments] = useState<any[]>([]);
@@ -15,10 +15,13 @@ export default function VendorPaymentsPage() {
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
+    setError(null);
     try {
       const [payRes, invRes] = await Promise.all([
         fetch("/api/vendor/payments"),
@@ -26,39 +29,66 @@ export default function VendorPaymentsPage() {
       ]);
       if (payRes.ok) {
         const d = await payRes.json();
-        if (d.success) { setPayments(d.data.payments || []); setStats(d.data.stats); }
+        if (d.success) {
+          const raw = d.data || [];
+          const list = Array.isArray(raw) ? raw : raw.payments || [];
+          setPayments(list);
+          const totalEarnings = list.reduce((s: number, p: any) => s + (p.status === "paid" || p.status === "confirmed" ? p.amount : (p.amount_paid || 0)), 0);
+          const paidAmount = list.filter((p: any) => p.status === "paid" || p.status === "confirmed").reduce((s: number, p: any) => s + p.amount, 0);
+          const pendingAmount = list.filter((p: any) => p.status === "pending" || p.status === "partial").reduce((s: number, p: any) => s + (p.amount - (p.amount_paid || 0)), 0);
+          setStats({ totalEarnings, paidAmount, pendingAmount, totalPayments: list.length, paidPayments: list.filter((p: any) => p.status === "paid" || p.status === "confirmed").length, pendingPayments: list.filter((p: any) => p.status === "pending" || p.status === "partial").length });
+        }
       }
       if (invRes.ok) {
         const d = await invRes.json();
         if (d.success) {
           const acc = (d.data || []).filter((i: any) => i.status === "accepted");
-          setEvents(acc.map((i: any) => ({ id: i.eventId, title: i.event?.title || "Event" })));
+          setEvents(acc.map((i: any) => ({ id: i.event?.id || i.eventId, title: i.event?.title || "Event" })));
         }
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error(e); setError("Failed to load payments"); }
     finally { setLoading(false); }
   };
 
   const handleRequest = async () => {
     if (!selectedEventId || !amount) return;
     setSubmitting(true);
+    setError(null);
     try {
       const res = await fetch("/api/vendor/payments", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ eventId: selectedEventId, amount: parseFloat(amount), notes }),
       });
       if (res.ok) { setShowForm(false); setSelectedEventId(""); setAmount(""); setNotes(""); fetchData(); }
-    } catch (e) { console.error(e); }
+      else { const e = await res.json().catch(() => ({ error: "Request failed" })); setError(e.error || e.detail || "Request failed"); }
+    } catch (e) { console.error(e); setError("Network error"); }
     finally { setSubmitting(false); }
   };
 
+  const handleConfirm = async (paymentId: string) => {
+    setConfirmingId(paymentId);
+    setError(null);
+    try {
+      const res = await fetch(`/api/vendor/payments/${paymentId}/confirm`, {
+        method: "POST",
+      });
+      if (res.ok) { fetchData(); }
+      else { const e = await res.json().catch(() => ({ error: "Confirmation failed" })); setError(e.error || "Confirmation failed"); }
+    } catch (e) { console.error(e); setError("Network error"); }
+    finally { setConfirmingId(null); }
+  };
+
   const badge = (status: string) => {
-    const s: Record<string, string> = { pending: "bg-warning-50 text-warning-700", processing: "bg-dark/5 text-dark", paid: "bg-lime/10 text-dark", cancelled: "bg-gray-100 text-gray-500" };
+    const s: Record<string, string> = { pending: "bg-warning-50 text-warning-700", partial: "bg-blue-50 text-blue-700", paid: "bg-lime/10 text-dark", confirmed: "bg-lime/10 text-dark", cancelled: "bg-gray-100 text-gray-500" };
     return <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${s[status] || s.pending}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span>;
   };
 
   const fmt = (n: number) => `₦${n.toLocaleString()}`;
-  const fmtDate = (ts: number) => new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const fmtDate = (ts: number | string) => {
+    if (!ts) return "—";
+    const d = typeof ts === "string" ? new Date(ts) : new Date(ts);
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
 
   if (loading) {
     return (
@@ -83,6 +113,14 @@ export default function VendorPaymentsPage() {
         <Button onClick={() => setShowForm(true)}><Plus className="w-4 h-4 mr-2" />Request Payment</Button>
       </div>
 
+      {error && (
+        <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span className="flex-1">{error}</span>
+          <button onClick={fetchData} className="text-xs font-medium underline hover:no-underline">Retry</button>
+        </div>
+      )}
+
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="p-5">
@@ -91,12 +129,12 @@ export default function VendorPaymentsPage() {
               <p className="text-sm text-gray-500">Total Earnings</p>
             </div>
             <p className="text-3xl font-bold text-dark">{fmt(stats.totalEarnings)}</p>
-            <p className="text-xs text-gray-400 mt-1">{stats.totalPayments} payment{stats.totalPayments !== 1 ? "s" : ""}</p>
+            <p className="text-xs text-gray-400 mt-1">{stats.totalPayments} request{stats.totalPayments !== 1 ? "s" : ""}</p>
           </Card>
           <Card className="p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2.5 rounded-xl bg-lime/10"><CheckCircle className="w-5 h-5 text-dark" /></div>
-              <p className="text-sm text-gray-500">Paid</p>
+              <p className="text-sm text-gray-500">Received</p>
             </div>
             <p className="text-3xl font-bold text-dark">{fmt(stats.paidAmount)}</p>
             <p className="text-xs text-gray-400 mt-1">{stats.paidPayments} completed</p>
@@ -104,7 +142,7 @@ export default function VendorPaymentsPage() {
           <Card className="p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2.5 rounded-xl bg-warning-50"><Clock className="w-5 h-5 text-warning-600" /></div>
-              <p className="text-sm text-gray-500">Pending</p>
+              <p className="text-sm text-gray-500">Outstanding</p>
             </div>
             <p className="text-3xl font-bold text-warning-600">{fmt(stats.pendingAmount)}</p>
             <p className="text-xs text-gray-400 mt-1">{stats.pendingPayments} pending</p>
@@ -121,25 +159,74 @@ export default function VendorPaymentsPage() {
             <Button onClick={() => setShowForm(true)}>Create Your First Request</Button>
           </div>
         ) : (
-          <div className="space-y-3">
-            {payments.map((p: any) => (
+          <div className="space-y-4">
+            {payments.map((p: any) => {
+              const balance = p.amount - (p.amount_paid || 0);
+              const needsConfirm = (p.status === "paid" || p.status === "partial") && !p.confirmed_at;
+              return (
               <div key={p.id} className="rounded-xl border border-gray-100 p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-dark">{p.eventName}</h3>
+                    <h3 className="font-semibold text-dark">{p.eventName || "Payment"}</h3>
                     {badge(p.status)}
                   </div>
                   <span className="text-xl font-bold text-dark">{fmt(p.amount)}</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <span className="text-gray-400">Requested: <span className="text-gray-600">{fmtDate(p.requestedAt)}</span></span>
-                  {p.paidAt && <span className="text-gray-400">Paid: <span className="text-gray-600">{fmtDate(p.paidAt)}</span></span>}
-                  {p.paymentMethod && <span className="text-gray-400">Method: <span className="text-gray-600 capitalize">{p.paymentMethod.replace("_", " ")}</span></span>}
-                  {p.transactionReference && <span className="text-gray-400">Ref: <span className="text-gray-600 font-mono text-xs">{p.transactionReference}</span></span>}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
+                  <span className="text-gray-400">Requested: <span className="text-gray-600">{fmtDate(p.created_at || p.createdAt)}</span></span>
+                  {p.paid_at && <span className="text-gray-400">Paid: <span className="text-gray-600">{fmtDate(p.paid_at)}</span></span>}
+                  {p.confirmed_at && <span className="text-gray-400">Confirmed: <span className="text-gray-600">{fmtDate(p.confirmed_at)}</span></span>}
+                  {p.payment_method && <span className="text-gray-400">Method: <span className="text-gray-600 capitalize">{p.payment_method.replace("_", " ")}</span></span>}
+                  {p.transaction_reference && <span className="text-gray-400">Ref: <span className="text-gray-600 font-mono text-xs">{p.transaction_reference}</span></span>}
                 </div>
+                {/* Partial payment progress bar */}
+                {(p.amount_paid || 0) > 0 && (
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                      <span>Paid: {fmt(p.amount_paid || 0)}</span>
+                      <span>Balance: {fmt(balance)}</span>
+                    </div>
+                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-lime rounded-full transition-all" style={{ width: `${Math.min(100, ((p.amount_paid || 0) / p.amount) * 100)}%` }} />
+                    </div>
+                  </div>
+                )}
                 {p.notes && <p className="text-sm text-gray-500 mt-2">{p.notes}</p>}
+                {/* Confirm Receipt button */}
+                {needsConfirm && (
+                  <div className="mt-3 flex items-center gap-2 p-2.5 rounded-lg bg-blue-50 border border-blue-100">
+                    <Wallet className="w-4 h-4 text-blue-600 shrink-0" />
+                    <p className="text-xs text-blue-700 flex-1">Payment received but not yet confirmed. Confirm to complete the transaction.</p>
+                    <Button size="sm" loading={confirmingId === p.id} onClick={() => handleConfirm(p.id)}>
+                      <CheckCircle className="w-3.5 h-3.5 mr-1" />Confirm Receipt
+                    </Button>
+                  </div>
+                )}
+                {/* Transactions breakdown */}
+                {p.transactions && p.transactions.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Transaction History</p>
+                    <div className="space-y-2">
+                      {p.transactions.map((txn: any) => (
+                        <div key={txn.id} className="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <CheckCircle className="w-3.5 h-3.5 text-lime shrink-0" />
+                            <span className="text-gray-700 font-medium">{fmt(txn.amount)}</span>
+                            {txn.payment_method && <span className="text-gray-400 text-xs capitalize">{txn.payment_method.replace("_", " ")}</span>}
+                            {txn.transaction_reference && <span className="text-gray-400 font-mono text-[10px]">#{txn.transaction_reference.slice(0, 8)}</span>}
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-xs text-gray-400">{fmtDate(txn.created_at || txn.createdAt)}</span>
+                            {txn.confirmed_at && <CheckCircle className="w-3 h-3 text-lime" />}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>
@@ -156,7 +243,7 @@ export default function VendorPaymentsPage() {
                   {events.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
                 </select>
               </div>
-              <Input label="Amount (NGN)" type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" />
+              <Input label="Amount (₦)" type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" />
               <div>
                 <label className="block text-sm font-medium text-dark mb-1.5">Notes (optional)</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-dark focus:outline-none focus:ring-2 focus:ring-lime/40 focus:border-lime" />

@@ -1,9 +1,11 @@
 'use client';
-import { RefreshCw, Save } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
+import Button from '@/components/ui/Button';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface Product {
   id: string;
@@ -18,9 +20,9 @@ interface Product {
 export default function EditMerchPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState<Product>({
     id: '',
@@ -62,14 +64,18 @@ export default function EditMerchPage({ params }: { params: Promise<{ id: string
       });
 
       if (response.ok) {
-        setSaved(true);
-        setTimeout(() => router.push('/dashboard/merch'), 1500);
+        addToast('Product updated successfully!', { type: 'success' });
+        router.push('/dashboard/merch');
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to update product');
+        const msg = data.error || 'Failed to update product';
+        setError(msg);
+        addToast(msg, { type: 'error' });
       }
     } catch {
-      setError('Network error. Please try again.');
+      const msg = 'Network error. Please try again.';
+      setError(msg);
+      addToast(msg, { type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -91,16 +97,7 @@ export default function EditMerchPage({ params }: { params: Promise<{ id: string
       </div>
 
       <div className="rounded-2xl border border-neutral-200 bg-white p-6 sm:p-8">
-        {saved ? (
-          <div className="text-center py-8">
-            <div className="flex h-12 w-12 mx-auto mb-4 items-center justify-center rounded-full bg-green-100">
-              <Save className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-neutral-900 mb-2">Product Updated!</h3>
-            <p className="text-neutral-500">Redirecting to merchandise dashboard...</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1.5">Product Name</label>
               <input
@@ -157,14 +154,9 @@ export default function EditMerchPage({ params }: { params: Promise<{ id: string
             )}
 
             <div className="flex gap-3 pt-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex items-center gap-2 rounded-xl bg-lime px-6 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover disabled:opacity-50 transition-colors"
-              >
-                <Save className="w-4 h-4" />
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
+              <Button type="submit" loading={saving}>
+                Save Changes
+              </Button>
               <button
                 type="button"
                 onClick={() => router.push('/dashboard/merch')}
@@ -174,7 +166,6 @@ export default function EditMerchPage({ params }: { params: Promise<{ id: string
               </button>
             </div>
           </form>
-        )}
       </div>
     </div>
   );

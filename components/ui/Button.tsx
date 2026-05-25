@@ -8,7 +8,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   iconPosition?: 'left' | 'right';
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  variant?: 'primary' | 'white' | 'secondary' | 'outline' | 'teal' | 'teal-outline' | 'ghost' | 'success' | 'danger';
+  variant?: 'primary' | 'white' | 'secondary' | 'outline' | 'teal' | 'teal-outline' | 'ghost' | 'success' | 'danger' | 'default';
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   height?: string;
   glow?: boolean;
@@ -64,6 +64,8 @@ const Button: React.FC<ButtonProps> = ({
     "teal-outline":
       "bg-white text-dark border border-[#E5E7EB] cursor-pointer hover:bg-gray-50",
     outline:
+      "bg-transparent text-dark border border-[#012E3B] cursor-pointer hover:bg-gray-100",
+    default:
       "bg-transparent text-dark border border-[#012E3B] cursor-pointer hover:bg-gray-100",
     ghost:
       "bg-transparent text-dark border border-transparent cursor-pointer hover:bg-gray-100",

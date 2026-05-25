@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const amount = body?.amount || 0;
+    const { amount = 0, paymentMethod, mobileProvider, phoneNumber } = body;
 
     if (amount <= 0) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
@@ -21,7 +21,12 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({
+        amount,
+        method: paymentMethod || "card",
+        mobile_provider: mobileProvider || undefined,
+        phone_number: phoneNumber || undefined,
+      }),
     });
 
     if (!res.ok) {

@@ -16,9 +16,9 @@ export default function VendorTopBar() {
 
   async function handleLogout() {
     try {
-      const res = await fetch("/api/auth/logout", { method: "POST" });
-      if (res.ok) router.push("/vendor-auth/login");
-    } catch (e) { console.error(e); }
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+    window.location.href = "/vendor-auth/login";
   }
 
   return (

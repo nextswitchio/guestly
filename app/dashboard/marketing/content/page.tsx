@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Icon } from '@/components/ui/Icon';
+import Button from '@/components/ui/Button';
+import { useToast } from '@/components/ui/ToastProvider';
 import { BlogPostEditor } from '@/components/marketing/BlogPostEditor';
 import { ContentDistributor } from '@/components/marketing/ContentDistributor';
 
@@ -22,6 +24,7 @@ type BlogPost = {
 };
 
 export default function ContentMarketingPage() {
+  const { addToast } = useToast();
   const [organizerId, setOrganizerId] = useState<string>('');
   const [showEditor, setShowEditor] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
@@ -102,7 +105,7 @@ export default function ContentMarketingPage() {
         body: JSON.stringify({ channels }),
       });
       if (res.ok) {
-        alert('Content distributed successfully');
+        addToast('Content distributed successfully', { type: 'success' });
       }
     } catch (err) {
       console.error('Failed to distribute content:', err);
@@ -133,13 +136,12 @@ export default function ContentMarketingPage() {
             Create and distribute blog posts and event updates
           </p>
         </div>
-        <button
+        <Button
           onClick={() => { setShowEditor(true); setEditingPost(null); }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-lime text-dark font-semibold rounded-xl hover:bg-lime-hover transition-colors"
         >
           <Icon name="plus" size={16} />
           New Post
-        </button>
+        </Button>
       </div>
 
       {error && (

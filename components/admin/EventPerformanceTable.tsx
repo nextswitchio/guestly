@@ -4,6 +4,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Icon from '@/components/ui/Icon';
+import { formatCurrency } from '@/lib/utils';
 
 type EventPerformanceData = {
   id: string;
@@ -111,14 +112,6 @@ export default function EventPerformanceTable({ onEventClick }: EventPerformance
   const clearFilters = () => {
     setFilters({});
     setPage(1);
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   const formatDate = (dateString: string) => {

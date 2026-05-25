@@ -4,6 +4,7 @@ import { Bell, Camera, Mail, MessageCircle, Pause, Play, RefreshCw, Smartphone, 
 import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
+import { Button } from '@/components/ui/Button';
 import CampaignMetrics from '@/components/marketing/CampaignMetrics';
 import type { Campaign } from '@/lib/marketing';
 
@@ -72,12 +73,9 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
           <p className="text-neutral-500 mb-4">
             The campaign you're looking for doesn't exist.
           </p>
-          <button
-            onClick={() => router.push('/dashboard/marketing')}
-            className="rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors"
-          >
+          <Button onClick={() => router.push('/dashboard/marketing')}>
             Back to Marketing
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -105,13 +103,13 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <button
+          <Button
             onClick={() => router.back()}
-            className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+            variant="outline"
           >
             <Icon name="arrow-left" size={16} />
             Back
-          </button>
+          </Button>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">{campaign.name}</h1>
             <p className="text-neutral-500 mt-1">{campaign.description}</p>
@@ -120,29 +118,28 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
 
         <div className="flex gap-2">
           {campaign.status === 'active' ? (
-            <button
+            <Button
               onClick={handlePause}
-              className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+              variant="outline"
             >
               <Pause className="h-4 w-4" />
               Pause
-            </button>
+            </Button>
           ) : campaign.status === 'paused' ? (
-            <button
+            <Button
               onClick={handleResume}
-              className="flex items-center gap-2 rounded-xl bg-lime px-4 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors"
             >
               <Play className="h-4 w-4" />
               Resume
-            </button>
+            </Button>
           ) : null}
-          <button
+          <Button
             onClick={() => router.push(`/dashboard/marketing/campaigns/${id}/edit`)}
-            className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+            variant="outline"
           >
             <Icon name="edit" size={16} />
             Edit
-          </button>
+          </Button>
         </div>
       </div>
 

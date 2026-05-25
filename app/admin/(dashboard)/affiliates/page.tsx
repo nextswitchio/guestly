@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Icon from "@/components/ui/Icon";
+import { formatCurrency } from "@/lib/utils";
 
 type AffiliateStatus = "pending" | "approved" | "suspended";
 type CommissionType = "percentage" | "fixed" | "hybrid";
@@ -110,14 +111,6 @@ async function fetchAffiliates({
   const response = await fetch(`/api/admin/affiliates?${params}`);
   const data = await response.json();
   return data.success ? data.data : null;
-}
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 0,
-  }).format(amount || 0);
 }
 
 function statusClass(status: AffiliateStatus) {
@@ -464,7 +457,7 @@ export default function AdminAffiliatesPage() {
                   onChange={(event) => updateSettingsField("commissionRate", event.target.value)}
                 />
                 <Input
-                  label="Fixed Commission (NGN)"
+                  label="Fixed Commission (₦)"
                   type="number"
                   min="0"
                   step="100"
@@ -472,7 +465,7 @@ export default function AdminAffiliatesPage() {
                   onChange={(event) => updateSettingsField("fixedCommissionAmount", event.target.value)}
                 />
                 <Input
-                  label="Payout Threshold (NGN)"
+                  label="Payout Threshold (₦)"
                   type="number"
                   min="0"
                   step="500"

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Edit3, Plus, RefreshCw, Save, Star, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import Icon from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import {
   DEFAULT_PLATFORM_CATALOG,
@@ -30,6 +31,17 @@ const emptyForm = {
   isActive: true,
   sortOrder: 0,
 };
+
+const AVAILABLE_ICONS = [
+  'calendar', 'ticket', 'money', 'rocket', 'chart', 'trending-up', 'trending-down',
+  'target', 'sparkles', 'lightbulb', 'bell', 'clock', 'megaphone', 'shield',
+  'settings', 'document', 'users', 'trophy', 'palette', 'music', 'camera',
+  'home', 'package', 'edit', 'clipboard', 'user', 'star', 'fire', 'heart',
+  'thumbs-up', 'party', 'globe', 'mail', 'search',
+  'location', 'wallet', 'bar-chart', 'briefcase', 'store', 'laptop',
+  'utensils', 'landmark', 'speaker', 'mic',
+  'folder-transfer', 'records', 'mail-heart', 'starburst', 'justice', 'world-2',
+];
 
 function fallbackFor(resource: CategoryResource) {
   return resource === "event-categories"
@@ -58,10 +70,8 @@ export default function CategoryCatalogManager({ resource, title, description }:
       if (res.ok) {
         const data = await res.json();
         const mapped = (Array.isArray(data) ? data : []).map(toCamelCategory);
-        if (mapped.length > 0) {
-          setItems(mapped);
-          return;
-        }
+        setItems(mapped);
+        return;
       }
 
       const fallbackRes = await fetch("/api/platform/catalog", { cache: "no-store" });
@@ -128,6 +138,7 @@ export default function CategoryCatalogManager({ resource, title, description }:
 
   async function remove(item: PlatformCategory) {
     if (!item.id) return;
+    if (!window.confirm(`Are you sure you want to delete "${item.name}"?`)) return;
     setSaving(true);
     try {
       await fetch(`/api/admin/catalog/${resource}/${item.id}`, { method: "DELETE" });
@@ -150,6 +161,28 @@ export default function CategoryCatalogManager({ resource, title, description }:
     } finally {
       setSaving(false);
     }
+  }
+
+  function IconSelector({ value, onChange }: { value: string; onChange: (icon: string) => void }) {
+    return (
+      <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border border-slate-200 rounded-xl">
+        {AVAILABLE_ICONS.map((iconName) => (
+          <button
+            key={iconName}
+            type="button"
+            onClick={() => onChange(iconName)}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs transition-colors ${
+              value === iconName
+                ? 'border-2 border-lime bg-lime/10 text-lime-700'
+                : 'border border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+            }`}
+          >
+            <Icon name={iconName} size={16} />
+            <span>{iconName}</span>
+          </button>
+        ))}
+      </div>
+    );
   }
 
   return (
@@ -180,7 +213,10 @@ export default function CategoryCatalogManager({ resource, title, description }:
           <div className="grid gap-4 md:grid-cols-2">
             <Input label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
             <Input label="Slug" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="auto-generated if blank" />
-            <Input label="Icon key" value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} placeholder="music, camera, shield" />
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Icon</label>
+              <IconSelector value={form.icon} onChange={(icon) => setForm({ ...form, icon })} />
+            </div>
             <Input label="Sort order" type="number" value={String(form.sortOrder)} onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) || 0 })} />
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-700">Color</label>

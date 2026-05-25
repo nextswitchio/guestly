@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
-import Button from "@/components/Button";
+import Button from "@/components/ui/Button";
 import { CheckIcon, LockIcon, MailIcon } from "@/utils/icons";
 
-export function SigninForm({ onSubmit, signupHref = "/signup" }: { onSubmit: (data: any) => void; signupHref?: string }) {
+export function SigninForm({ onSubmit, signupHref = "/signup", loading = false }: { onSubmit: (data: any) => void; signupHref?: string; loading?: boolean }) {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     email: "",
@@ -108,7 +108,7 @@ export function SigninForm({ onSubmit, signupHref = "/signup" }: { onSubmit: (da
       {/* Actions */}
       <div className="flex gap-4 mt-8">
         <motion.div className="w-full" whileHover={{ y: -2 }}>
-          <Button variant="teal" onClick={handleSubmit}>
+          <Button variant="teal" onClick={handleSubmit} loading={loading} fullWidth>
             Continue
           </Button>
         </motion.div>

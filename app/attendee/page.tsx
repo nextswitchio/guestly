@@ -49,7 +49,7 @@ export default function AttendeePage() {
   const [eventsLoading, setEventsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    fetch("/api/wallet").then(r => r.json()).then(d => { if (d.success) setWallet(d.data); }).catch(() => {});
+    fetch("/api/wallet/balance").then(r => r.json()).then(d => { if (d.ok) setWallet(d); }).catch(() => {});
     fetch("/api/orders/user").then(r => r.json()).then(d => { if (d.success) setOrders(d.orders); }).catch(() => {});
     fetch("/api/events/save").then(r => r.json()).then(d => {
       if (d.ok) {
