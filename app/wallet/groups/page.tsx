@@ -199,6 +199,7 @@ function CreateGroupModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const { addToast } = useToast();
   const [name, setName] = useState("");
   const [eventId, setEventId] = useState("");
   const [groupType, setGroupType] = useState<'friends' | 'family' | 'corporate'>('friends');
