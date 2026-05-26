@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import {
   Briefcase1Icon,
   Music1Icon,
@@ -22,9 +22,10 @@ const interests = [
 interface InterestsProps {
   onNext: (selected: string[]) => void;
   onSkip: () => void;
+  loading?: boolean;
 }
 
-export function InterestPick({ onNext, onSkip }: InterestsProps) {
+export function InterestPick({ onNext, onSkip, loading }: InterestsProps) {
   const [selected, setSelected] = useState<string[]>([]);
 
   const toggleInterest = (id: string) => {
@@ -79,7 +80,7 @@ export function InterestPick({ onNext, onSkip }: InterestsProps) {
       {/* Buttons */}
       <div className="flex gap-4 mb-4">
         <div className="w-full">
-          <Button variant="teal-outline">Back</Button>
+          <Button variant="teal-outline" fullWidth>Back</Button>
         </div>
 
         <motion.div
@@ -89,8 +90,10 @@ export function InterestPick({ onNext, onSkip }: InterestsProps) {
         >
           <Button
             onClick={() => onNext(selected)}
-            disabled={selected.length === 0}
+            disabled={selected.length === 0 || loading}
             variant="teal"
+            loading={loading}
+            fullWidth
           >
             Continue
           </Button>

@@ -16,7 +16,7 @@ function AffiliateLoginContent() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.email, password: data.password, role: "attendee" }),
+        body: JSON.stringify({ email: data.email, password: data.password, role: "affiliate" }),
       });
       const result = await res.json();
       if (!res.ok || !result.ok) {

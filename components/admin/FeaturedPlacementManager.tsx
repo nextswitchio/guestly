@@ -25,6 +25,7 @@ type FeaturedPlacement = {
   status: PlacementStatus;
   payment_status: PaymentStatus;
   notes?: string | null;
+  media_files?: { url: string; name: string; type: string; size: number }[] | null;
   rejection_reason?: string | null;
   created_at: string;
   event?: {
@@ -84,6 +85,7 @@ export default function FeaturedPlacementManager() {
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         if (statsData.success) setStats(statsData.data);
+        else if (statsData.total_requests !== undefined) setStats(statsData);
         else if (statsData.data) setStats(statsData.data);
       }
 
@@ -191,21 +193,29 @@ export default function FeaturedPlacementManager() {
       {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
       {stats && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
           <Card className="p-4">
-            <p className="text-sm font-medium text-slate-500">Pending Requests</p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">{stats.pending_requests}</p>
+            <p className="text-sm font-medium text-slate-500">Total Requests</p>
+            <p className="mt-2 text-2xl font-bold text-slate-900">{stats.total_requests}</p>
           </Card>
           <Card className="p-4">
-            <p className="text-sm font-medium text-slate-500">Active Placements</p>
-            <p className="mt-2 text-2xl font-bold text-success-500">{stats.active_placements}</p>
+            <p className="text-sm font-medium text-slate-500">Pending</p>
+            <p className="mt-2 text-2xl font-bold text-amber-600">{stats.pending_requests}</p>
           </Card>
           <Card className="p-4">
             <p className="text-sm font-medium text-slate-500">Approved</p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">{stats.approved_requests}</p>
+            <p className="mt-2 text-2xl font-bold text-blue-600">{stats.approved_requests}</p>
           </Card>
           <Card className="p-4">
-            <p className="text-sm font-medium text-slate-500">Placement Revenue</p>
+            <p className="text-sm font-medium text-slate-500">Active Placements</p>
+            <p className="mt-2 text-2xl font-bold text-green-600">{stats.active_placements}</p>
+          </Card>
+          <Card className="p-4">
+            <p className="text-sm font-medium text-slate-500">Rejected</p>
+            <p className="mt-2 text-2xl font-bold text-red-600">{stats.rejected_requests}</p>
+          </Card>
+          <Card className="p-4">
+            <p className="text-sm font-medium text-slate-500">Revenue</p>
             <p className="mt-2 text-2xl font-bold text-slate-900">{formatCurrency(stats.total_revenue, stats.currency)}</p>
           </Card>
         </div>
@@ -270,7 +280,7 @@ export default function FeaturedPlacementManager() {
                 type="button"
                 onClick={() => setFilter(status)}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  filter === status ? 'bg-primary-500 text-white' : 'bg-neutral-100 text-slate-600 hover:bg-neutral-200'
+                  filter === status ? 'bg-lime text-dark font-bold' : 'bg-neutral-100 text-slate-600 hover:bg-neutral-200'
                 }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -287,6 +297,7 @@ export default function FeaturedPlacementManager() {
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-500">Coverage</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-500">Period</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-500">Fee</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-slate-500">Media</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-500">Status</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-500">Actions</th>
               </tr>
@@ -310,6 +321,37 @@ export default function FeaturedPlacementManager() {
                   <td className="px-4 py-3 text-sm">
                     <p className="font-semibold text-slate-900">{formatCurrency(placement.total_fee, placement.currency)}</p>
                     <p className="text-slate-500">{formatCurrency(placement.fee_per_hour, placement.currency)} / hour</p>
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    {placement.media_files && placement.media_files.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {placement.media_files.map((file, i) => (
+                          <a
+                            key={i}
+                            href={file.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group relative flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 hover:border-lime hover:bg-lime/5 transition-colors"
+                            title={file.name}
+                          >
+                            {file.type.startsWith("image/") ? (
+                              <img src={file.url} alt="" className="h-full w-full rounded object-cover" />
+                            ) : (
+                              <span className="text-[10px] font-bold text-neutral-500 uppercase">
+                                {file.name.split(".").pop() || "?"}
+                              </span>
+                            )}
+                            <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                              <svg className="h-3 w-3 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                            </span>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="space-y-2">

@@ -60,7 +60,8 @@ export function VerifyForm({ email, onVerify, onResend }: StepFourVerifyProps) {
 
   const handleVerify = async (fullCode: string) => {
     setIsVerifying(true);
-    onVerify(fullCode);
+    await onVerify(fullCode);
+    setIsVerifying(false);
   };
 
   const isComplete = code.every((c) => c !== "");

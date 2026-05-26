@@ -49,12 +49,16 @@ export async function POST(req: NextRequest) {
     if (draft.type === "Hybrid") {
       if ((ts.generalPhysicalQty ?? 0) > 0) {
         tickets.push({ name: "General (In-Person)", ticket_type: "General", price: ts.generalPhysicalPrice ?? 0, available: ts.generalPhysicalQty, total: ts.generalPhysicalQty, attendance_type: "physical" });
+      } else if ((ts.generalQty ?? 0) > 0) {
+        tickets.push({ name: "General", ticket_type: "General", price: ts.generalPrice ?? 0, available: ts.generalQty, total: ts.generalQty, attendance_type: "physical" });
       }
       if ((ts.generalVirtualQty ?? 0) > 0) {
         tickets.push({ name: "General (Virtual)", ticket_type: "General", price: ts.generalVirtualPrice ?? 0, available: ts.generalVirtualQty, total: ts.generalVirtualQty, attendance_type: "virtual" });
       }
       if ((ts.vipPhysicalQty ?? 0) > 0) {
         tickets.push({ name: "VIP (In-Person)", ticket_type: "VIP", price: ts.vipPhysicalPrice ?? 0, available: ts.vipPhysicalQty, total: ts.vipPhysicalQty, attendance_type: "physical" });
+      } else if ((ts.vipQty ?? 0) > 0) {
+        tickets.push({ name: "VIP", ticket_type: "VIP", price: ts.vipPrice ?? 0, available: ts.vipQty, total: ts.vipQty, attendance_type: "physical" });
       }
       if ((ts.vipVirtualQty ?? 0) > 0) {
         tickets.push({ name: "VIP (Virtual)", ticket_type: "VIP", price: ts.vipVirtualPrice ?? 0, available: ts.vipVirtualQty, total: ts.vipVirtualQty, attendance_type: "virtual" });

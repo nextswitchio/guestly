@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import CryptoPaymentUI from "@/components/wallet/CryptoPaymentUI";
 import { formatCurrency } from "@/lib/utils";
 
-type PaymentMethod = "card" | "bank_transfer" | "mobile_money" | "crypto";
+type PaymentMethod = "virtual_account" | "card" | "bank_transfer" | "mobile_money" | "crypto";
 type MobileMoneyProvider = "mpesa" | "mtn" | "airtel";
 
 export default function AddFundsForm() {
@@ -24,6 +24,14 @@ export default function AddFundsForm() {
   const [mobileProvider, setMobileProvider] = React.useState<MobileMoneyProvider>("mpesa");
   const [phoneNumber, setPhoneNumber] = React.useState("");
 
+  const [virtualAccount, setVirtualAccount] = React.useState<{
+    bank_name: string | null;
+    account_number: string | null;
+    account_name: string | null;
+    verification_required?: boolean;
+  } | null>(null);
+  const [vaLoading, setVaLoading] = React.useState(true);
+
   React.useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
       .then((r) => r.json())
@@ -33,6 +41,11 @@ export default function AddFundsForm() {
       .then((r) => r.json())
       .then((d) => setBalance(typeof d.balance === "number" ? d.balance : 0))
       .catch(() => setBalance(0));
+    fetch("/api/wallet/virtual-account")
+      .then((r) => r.json())
+      .then((d) => setVirtualAccount(d))
+      .catch(() => setVirtualAccount(null))
+      .finally(() => setVaLoading(false));
   }, []);
 
   function setQuick(v: number) {
@@ -100,6 +113,15 @@ export default function AddFundsForm() {
   const backHref = role === "organiser" ? "/dashboard/wallet" : "/wallet";
 
   const methods: { value: PaymentMethod; label: string; icon: React.ReactNode }[] = [
+    {
+      value: "virtual_account",
+      label: "Bank Account",
+      icon: (
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+        </svg>
+      ),
+    },
     {
       value: "card",
       label: "Card",
@@ -348,6 +370,74 @@ export default function AddFundsForm() {
             </div>
           )}
 
+          {/* Virtual Account */}
+          {paymentMethod === "virtual_account" && (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Your Unique Bank Account</h3>
+              {vaLoading ? (
+                <div className="flex items-center gap-3 py-6">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-lime border-t-transparent" />
+                  <span className="text-sm text-neutral-500">Loading your account details...</span>
+                </div>
+              ) : virtualAccount?.verification_required ? (
+                <div className="flex flex-col items-center gap-4 rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+                    <svg className="h-6 w-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-7.364A9 9 0 1112 3a9 9 0 017.364 4.636z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-amber-900">Identity Verification Required</p>
+                    <p className="mt-1 text-sm text-amber-700">
+                      Verify your identity to get a unique bank account number for funding your wallet. Transfers to this account are credited automatically.
+                    </p>
+                  </div>
+                  <Link href="/dashboard/settings" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-amber-800 ring-1 ring-amber-200 hover:bg-amber-100">
+                    Verify Identity
+                  </Link>
+                </div>
+              ) : virtualAccount?.account_number ? (
+                <div className="space-y-4">
+                  <div className="rounded-xl bg-lime/5 border border-lime/20 p-4">
+                    <p className="flex items-center gap-2 text-sm font-medium text-dark">
+                      <svg className="h-4 w-4 text-lime" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Transfer to this account to fund your wallet
+                    </p>
+                  </div>
+                  {[
+                    { label: "Bank", value: virtualAccount.bank_name },
+                    { label: "Account Name", value: virtualAccount.account_name },
+                    { label: "Account Number", value: virtualAccount.account_number },
+                  ].map((item) => (
+                    <div key={item.label} className="flex items-center justify-between rounded-xl bg-neutral-50 px-4 py-3">
+                      <span className="text-sm text-neutral-500">{item.label}</span>
+                      <span className="text-sm font-semibold text-neutral-900 font-mono">{item.value}</span>
+                    </div>
+                  ))}
+                  <div className="rounded-xl bg-lime/10 border border-lime/20 p-4 text-sm text-dark">
+                    <strong>Note:</strong> Funds are credited automatically once the transfer is confirmed. No need to upload a receipt.
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-6 text-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100">
+                    <svg className="h-6 w-6 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-neutral-900">Account being set up</p>
+                    <p className="mt-1 text-sm text-neutral-500">
+                      Your unique bank account is being created. Please check back shortly.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Crypto */}
           {paymentMethod === "crypto" && (
             <div className="rounded-2xl border border-neutral-200 bg-white p-6">
@@ -357,7 +447,7 @@ export default function AddFundsForm() {
           )}
 
           {/* Submit */}
-          {paymentMethod !== "crypto" && (
+          {paymentMethod !== "crypto" && paymentMethod !== "virtual_account" && (
             <button
               type="button"
               onClick={submit}

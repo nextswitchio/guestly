@@ -11,6 +11,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import CheckoutModal from "@/components/featured/CheckoutModal";
 import { useToast } from "@/components/ui/ToastProvider";
 import { formatCurrency } from "@/lib/utils";
+import { uploadToCloudinary } from "@/lib/cloudinaryClient";
 
 type EventOption = {
   id: string;
@@ -57,6 +58,8 @@ export default function FeaturedPlacementRequestPage() {
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState("");
   const [showCheckout, setShowCheckout] = React.useState(false);
+  const [mediaFiles, setMediaFiles] = React.useState<{ url: string; name: string; type: string; size: number }[]>([]);
+  const [uploadingFiles, setUploadingFiles] = React.useState(false);
   const [form, setForm] = React.useState({
     eventId: "",
     coverageType: "city" as "city" | "country",
@@ -122,6 +125,26 @@ export default function FeaturedPlacementRequestPage() {
     });
   }
 
+  async function handleUploadFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (!files.length) return;
+    setUploadingFiles(true);
+    for (const file of files) {
+      try {
+        const result = await uploadToCloudinary(file, { folder: "guestly/featured", resourceType: "auto" });
+        setMediaFiles((prev) => [...prev, { url: result.secureUrl, name: file.name, type: file.type, size: file.size }]);
+      } catch {
+        addToast(`Failed to upload ${file.name}`, { type: "error" });
+      }
+    }
+    setUploadingFiles(false);
+  }
+
+  function removeMediaFile(index: number) {
+    setMediaFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
   async function doSubmit(paymentMethod?: string, mobileProvider?: string, phoneNumber?: string) {
     setSubmitting(true);
     setError("");
@@ -135,6 +158,7 @@ export default function FeaturedPlacementRequestPage() {
         startDate: new Date(form.startDate).toISOString(),
         endDate: new Date(form.endDate).toISOString(),
         notes: form.notes || undefined,
+        mediaFiles: mediaFiles.length ? mediaFiles : undefined,
         paymentMethod: paymentMethod || "wallet",
       };
       if (paymentMethod === "mobile_money" && mobileProvider && phoneNumber) {
@@ -298,6 +322,58 @@ export default function FeaturedPlacementRequestPage() {
                     className="min-h-24 w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-lime focus:outline-none focus:ring-2 focus:ring-lime/20"
                     placeholder="Optional placement goals or campaign context"
                   />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-neutral-700">Promotional Materials</label>
+                  <p className="mb-3 text-xs text-neutral-500">
+                    Upload images, presentations, or documents to help our team promote your event.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {mediaFiles.map((file, i) => (
+                      <div key={i} className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm">
+                        {file.type.startsWith("image/") ? (
+                          <img src={file.url} alt="" className="h-8 w-8 rounded object-cover" />
+                        ) : (
+                          <span className="flex h-8 w-8 items-center justify-center rounded bg-neutral-200 text-xs font-bold text-neutral-600">
+                            {file.name.split(".").pop()?.toUpperCase() || "FILE"}
+                          </span>
+                        )}
+                        <span className="max-w-32 truncate text-neutral-700">{file.name}</span>
+                        <button type="button" onClick={() => removeMediaFile(i)} className="text-red-500 hover:text-red-700">
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      multiple
+                      className="hidden"
+                      id="media-upload"
+                      onChange={handleUploadFiles}
+                    />
+                    <label
+                      htmlFor="media-upload"
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-600 hover:border-lime hover:text-lime transition-colors"
+                    >
+                      {uploadingFiles ? (
+                        <span className="flex items-center gap-2">
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-400 border-t-lime" />
+                          Uploading...
+                        </span>
+                      ) : (
+                        <>
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          Upload Files
+                        </>
+                      )}
+                    </label>
+                  </div>
                 </div>
 
                 <Button type="submit" loading={submitting} disabled={!form.eventId || hours <= 0}>

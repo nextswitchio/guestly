@@ -17,10 +17,14 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<TabType>("profile");
   const [orgName, setOrgName] = useState("My Organisation");
   const [email, setEmail] = useState("organiser@guestly.co");
-  const [phone, setPhone] = useState("+234 800 000 0000");
-  const [website, setWebsite] = useState("https://myorg.com");
-  const [bio, setBio] = useState("We create amazing events");
+  const [phone, setPhone] = useState("");
+  const [website, setWebsite] = useState("");
+  const [bio, setBio] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [socialTwitter, setSocialTwitter] = useState("");
+  const [socialFacebook, setSocialFacebook] = useState("");
+  const [socialInstagram, setSocialInstagram] = useState("");
+  const [socialLinkedin, setSocialLinkedin] = useState("");
   const [saving, setSaving] = useState(false);
   const [identityData, setIdentityData] = useState<IdentityData | null>(null);
   const [identityLoading, setIdentityLoading] = useState(true);
@@ -32,8 +36,14 @@ export default function SettingsPage() {
         if (d.profile) {
           setOrgName(d.profile.display_name || orgName);
           setEmail(d.profile.email || email);
-          setBio(d.profile.bio || bio);
+          setPhone(d.profile.phone || "");
+          setWebsite(d.profile.website || "");
+          setBio(d.profile.bio || "");
           setAvatar(d.profile.avatar || "");
+          setSocialTwitter(d.profile.social_twitter || "");
+          setSocialFacebook(d.profile.social_facebook || "");
+          setSocialInstagram(d.profile.social_instagram || "");
+          setSocialLinkedin(d.profile.social_linkedin || "");
         }
       })
       .catch(() => {});
@@ -151,8 +161,15 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           display_name: orgName,
+          email,
+          phone,
+          website,
           bio,
           avatar: avatar || null,
+          social_twitter: socialTwitter || null,
+          social_facebook: socialFacebook || null,
+          social_instagram: socialInstagram || null,
+          social_linkedin: socialLinkedin || null,
         }),
       });
       if (res.ok) {
@@ -306,12 +323,19 @@ export default function SettingsPage() {
                 <div className="rounded-2xl border border-neutral-200 bg-white p-6">
                   <h2 className="text-lg font-semibold text-neutral-900 mb-4">Social Links</h2>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    {["Facebook", "Twitter", "Instagram", "LinkedIn"].map((platform) => (
-                      <div key={platform}>
-                        <label className="block text-sm font-medium text-neutral-700 mb-1.5">{platform}</label>
+                    {[
+                    { label: "Twitter", key: "twitter", state: socialTwitter, set: setSocialTwitter },
+                    { label: "Facebook", key: "facebook", state: socialFacebook, set: setSocialFacebook },
+                    { label: "Instagram", key: "instagram", state: socialInstagram, set: setSocialInstagram },
+                    { label: "LinkedIn", key: "linkedin", state: socialLinkedin, set: setSocialLinkedin },
+                  ].map((platform) => (
+                      <div key={platform.key}>
+                        <label className="block text-sm font-medium text-neutral-700 mb-1.5">{platform.label}</label>
                         <input
                           type="text"
-                          placeholder={`${platform.toLowerCase()}.com/yourpage`}
+                          value={platform.state}
+                          onChange={(e) => platform.set(e.target.value)}
+                          placeholder={`${platform.label.toLowerCase()}.com/yourpage`}
                           className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
                         />
                       </div>

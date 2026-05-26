@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import { TicketIcon } from "@/utils/icons";
 
 const roles = [
@@ -90,13 +90,14 @@ export function UserRole({ onNext }: { onNext: (role: string) => void }) {
 
       <div className="flex gap-4">
         <div className="w-full">
-          <Button variant="teal-outline">Back</Button>
+          <Button variant="teal-outline" fullWidth>Back</Button>
         </div>
         <div className="w-full">
           <Button
             variant="teal"
             disabled={!selected}
             onClick={() => selected && onNext(selected)}
+            fullWidth
           >
             Continue
           </Button>

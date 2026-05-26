@@ -2,10 +2,10 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import { LocationIcon } from "@/utils/icons";
 
-export function LocationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
+export function LocationForm({ onSubmit, loading }: { onSubmit: (data: any) => void; loading?: boolean }) {
   const [form, setForm] = useState({
     location: "",
   });
@@ -15,7 +15,7 @@ export function LocationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
 
   const validate = () => {
     const newErrors: Record<string, boolean> = {};
-    if (!form.location.trim()) newErrors.fullName = true;
+    if (!form.location.trim()) newErrors.location = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -68,7 +68,7 @@ export function LocationForm({ onSubmit }: { onSubmit: (data: any) => void }) {
       {/* Actions */}
       <div className="flex gap-4 mt-8">
         <motion.div className="w-full" whileHover={{ y: -2 }}>
-          <Button variant="teal" onClick={handleSubmit}>
+          <Button variant="teal" onClick={handleSubmit} loading={loading} fullWidth>
             Continue
           </Button>
         </motion.div>

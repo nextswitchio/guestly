@@ -112,10 +112,6 @@ function EventCard({ event }: { event: HomeFeaturedEvent }) {
         <h3 className="text-lg sm:text-[22px] font-medium text-dark transition-colors duration-300 line-clamp-2">
           {event.title}
         </h3>
-        <p className="text-sm sm:text-base text-dark leading-[22px] sm:leading-[24px] line-clamp-3">
-          {event.description}
-        </p>
-
         {/* Tags Row */}
         <div className="flex flex-col gap-1.5 pt-1">
           <span className="inline-flex w-fit items-center gap-1.5 px-2 py-1 text-sm sm:text-base sm:leading-[22px] bg-[#D6F8EE] text-dark">

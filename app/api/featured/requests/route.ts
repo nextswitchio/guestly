@@ -19,6 +19,7 @@ function toBackendPayload(body: Record<string, unknown>) {
     start_date: body.startDate ?? body.start_date,
     end_date: body.endDate ?? body.end_date,
     notes: body.notes || null,
+    media_files: (body.mediaFiles as Array<{url:string;name:string;type:string;size:number}>) || null,
     payment_method: (body.paymentMethod as string) || "wallet",
     mobile_provider: (body.mobileProvider as string) || null,
     phone_number: (body.phoneNumber as string) || null,
