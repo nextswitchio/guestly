@@ -81,7 +81,6 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setError('');
 
     try {
       const response = await fetch(`/api/events/${id}`, {
