@@ -344,8 +344,6 @@ function OverviewTab({ event, id, onStatusChange, statusChanging }: {
   id: string;
   onStatusChange: (s: string) => void;
   statusChanging: boolean;
-  statusError: string | null;
-  statusSuccess: string | null;
 }) {
   const router = useRouter();
   const transitions = STATUS_TRANSITIONS[event.status] ?? [];
