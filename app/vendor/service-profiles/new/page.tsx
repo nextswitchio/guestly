@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 import { DEFAULT_PLATFORM_CATALOG, PlatformCatalog, normalizeCatalog } from '@/lib/platformCatalog';
+import { useToast } from '@/components/ui/ToastProvider';
 
 const PRICING_MODELS = [
   { value: 'fixed', label: 'Fixed Price' }, { value: 'hourly', label: 'Hourly Rate' },
@@ -15,6 +16,7 @@ const PRICING_MODELS = [
 
 export default function NewServiceProfilePage() {
   const router = useRouter();
+  const { addToast } = useToast();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [atLimit, setAtLimit] = useState(false);
@@ -67,8 +69,10 @@ export default function NewServiceProfilePage() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, minBudget: form.minBudget ? parseFloat(form.minBudget) : undefined, maxBudget: form.maxBudget ? parseFloat(form.maxBudget) : undefined }),
       });
-      if (res.ok) router.push('/vendor/service-profiles');
-      else { 
+      if (res.ok) {
+        addToast('Service profile created successfully!', { type: 'success' });
+        router.push('/vendor/service-profiles');
+      } else { 
         const d = await res.json(); 
         let errorMsg = 'Failed to create profile';
         
@@ -86,8 +90,13 @@ export default function NewServiceProfilePage() {
             : 'Validation error';
         }
         setError(errorMsg);
+        addToast(errorMsg, { type: 'error' });
       }
-    } catch { setError('Network error.'); }
+    } catch { 
+      const msg = 'Network error.';
+      setError(msg);
+      addToast(msg, { type: 'error' });
+    }
     finally { setSaving(false); }
   };
 

@@ -6,8 +6,10 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Icon } from '@/components/ui/Icon';
+import { useToast } from '@/components/ui/ToastProvider';
 
 export default function SupportPage() {
+  const { addToast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,15 +17,21 @@ export default function SupportPage() {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSending(true);
     // In a real app, this would send to a support API
-    setSubmitted(true);
     setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 3000);
+      setSubmitted(true);
+      setSending(false);
+      addToast('Message sent! We\'ll get back to you within 24 hours.', { type: 'success' });
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      }, 3000);
+    }, 1000);
   };
 
   const faqs = [
@@ -157,7 +165,7 @@ export default function SupportPage() {
                 />
               </div>
 
-              <Button type="submit" className="w-full md:w-auto">
+              <Button type="submit" loading={sending} className="w-full md:w-auto">
                 <span className="mr-2"><Upload className="h-4 w-4 inline-block" /></span>
                 Send Message
               </Button>

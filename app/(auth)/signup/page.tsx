@@ -7,8 +7,10 @@ import { SignupForm } from "@/components/auth/SignupForm";
 import { VerifyForm } from "@/components/auth/VerifyForm";
 import { InterestPick } from "@/components/auth/InterestPick";
 import { LocationForm } from "@/components/auth/LocationForm";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function SignupPage() {
+  const { addToast } = useToast();
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("attendee");
@@ -41,8 +43,9 @@ export default function SignupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-    } catch (error) {
-      console.error("Failed to resend OTP:", error);
+      addToast('OTP resent successfully!', { type: 'success' });
+    } catch {
+      addToast('Failed to resend OTP. Please try again.', { type: 'error' });
     }
   };
 

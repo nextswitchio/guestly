@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Icon from "@/components/ui/Icon";
+import { useToast } from "@/components/ui/ToastProvider";
 import { formatCurrency } from "@/lib/utils";
 
 type AffiliateStatus = "pending" | "approved" | "suspended";
@@ -157,6 +158,7 @@ function fromSettingsForm(form: Record<keyof CommissionSettings, string>): Commi
 }
 
 export default function AdminAffiliatesPage() {
+  const { addToast } = useToast();
   const [stats, setStats] = React.useState<AffiliateStats | null>(null);
   const [affiliates, setAffiliates] = React.useState<AffiliateUser[]>([]);
   const [selectedAffiliate, setSelectedAffiliate] = React.useState<AffiliateUser | null>(null);
@@ -266,9 +268,12 @@ export default function AdminAffiliatesPage() {
         throw new Error(data.error?.detail || data.error?.message || "Failed to save affiliate");
       }
       applySelectedAffiliate(data.data);
+      addToast('Affiliate settings saved successfully!', { type: 'success' });
       await refreshData();
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "Failed to save affiliate settings.");
+      const msg = saveError instanceof Error ? saveError.message : "Failed to save affiliate settings.";
+      setError(msg);
+      addToast(msg, { type: 'error' });
     } finally {
       setSaving(false);
     }

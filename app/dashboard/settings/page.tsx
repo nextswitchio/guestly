@@ -7,11 +7,13 @@ import Switch from "@/components/ui/Switch";
 import Modal from "@/components/ui/Modal";
 import IdentityVerification, { type IdentityData } from "@/components/identity/IdentityVerification";
 import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
+import { useToast } from "@/components/ui/ToastProvider";
 import { formatCurrency } from "@/lib/utils";
 
 type TabType = "profile" | "identity" | "notifications" | "security" | "billing" | "team";
 
 export default function SettingsPage() {
+  const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>("profile");
   const [orgName, setOrgName] = useState("My Organisation");
   const [email, setEmail] = useState("organiser@guestly.co");
@@ -50,10 +52,12 @@ export default function SettingsPage() {
     });
     if (!res.ok) {
       const err = await res.json();
+      addToast(err.error || 'Failed to submit identity', { type: 'error' });
       throw new Error(err.error || 'Failed to submit');
     }
     const result = await res.json();
     setIdentityData({ ...data, id: result.verification.id, status: result.verification.status, submittedAt: result.verification.submittedAt });
+    addToast('Identity submitted successfully!', { type: 'success' });
   };
   
   const [notifs, setNotifs] = useState({
@@ -104,6 +108,7 @@ export default function SettingsPage() {
     setBankName("");
     setAccountNumber("");
     setAccountHolderName("");
+    addToast('Payment method added successfully!', { type: 'success' });
     setSavingPayment(false);
     setPaymentModalOpen(false);
   };
@@ -140,15 +145,25 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    await fetch('/api/profile', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        display_name: orgName,
-        bio,
-        avatar: avatar || null,
-      }),
-    }).catch(() => {});
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          display_name: orgName,
+          bio,
+          avatar: avatar || null,
+        }),
+      });
+      if (res.ok) {
+        addToast('Profile saved successfully!', { type: 'success' });
+      } else {
+        const data = await res.json().catch(() => ({}));
+        addToast(data.error || 'Failed to save profile', { type: 'error' });
+      }
+    } catch {
+      addToast('Failed to save profile', { type: 'error' });
+    }
     setSaving(false);
   };
 

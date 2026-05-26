@@ -5,8 +5,10 @@ import { listBlogPosts } from '@/lib/marketing';
 import Link from 'next/link';
 import { StarIcon } from '@/utils/icons';
 import { useState } from 'react';
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function BlogPage() {
+  const { addToast } = useToast();
   const posts = listBlogPosts('public');
   const featuredPost = posts[0];
   const remainingPosts = posts.slice(1);
@@ -40,11 +42,14 @@ export default function BlogPage() {
       if (res.ok) {
         setNewsletterStatus('success');
         setNewsletterEmail('');
+        addToast('Thanks for subscribing! Check your inbox for a confirmation email.', { type: 'success' });
       } else {
         setNewsletterStatus('error');
+        addToast('Something went wrong. Please try again.', { type: 'error' });
       }
     } catch {
       setNewsletterStatus('error');
+      addToast('Something went wrong. Please try again.', { type: 'error' });
     }
   };
 
@@ -223,16 +228,7 @@ export default function BlogPage() {
             <p className="mt-3 text-slate-600">
               Get event tips, industry insights, and platform updates delivered to your inbox.
             </p>
-            {newsletterStatus === 'success' ? (
-              <p className="mt-6 rounded-xl bg-green-50 px-5 py-3 text-green-700 font-medium">
-                Thanks for subscribing! Check your inbox for a confirmation email.
-              </p>
-            ) : newsletterStatus === 'error' ? (
-              <p className="mt-6 rounded-xl bg-red-50 px-5 py-3 text-red-700 font-medium">
-                Something went wrong. Please try again.
-              </p>
-            ) : (
-              <form onSubmit={handleNewsletterSubscribe} className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <form onSubmit={handleNewsletterSubscribe} className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <input
                   type="email"
                   value={newsletterEmail}
@@ -249,7 +245,6 @@ export default function BlogPage() {
                   {newsletterStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
                 </button>
               </form>
-            )}
           </div>
         </div>
       </section>

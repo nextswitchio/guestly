@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
+import { useToast } from "@/components/ui/ToastProvider";
 import {
   DEFAULT_PLATFORM_CATALOG,
   PlatformCity,
@@ -30,6 +31,7 @@ const emptyCity = {
 };
 
 export default function AdminGeographyPage() {
+  const { addToast } = useToast();
   const [countries, setCountries] = useState<PlatformCountry[]>([]);
   const [cities, setCities] = useState<PlatformCity[]>([]);
   const [countryForm, setCountryForm] = useState(emptyCountry);
@@ -110,9 +112,12 @@ export default function AdminGeographyPage() {
         throw new Error(data.detail || data.error || "Unable to save country.");
       }
       resetCountryForm();
+      addToast(editingCountryId ? 'Country updated successfully!' : 'Country added successfully!', { type: 'success' });
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to save country.");
+      const msg = err instanceof Error ? err.message : "Unable to save country.";
+      setError(msg);
+      addToast(msg, { type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -139,9 +144,12 @@ export default function AdminGeographyPage() {
         throw new Error(data.detail || data.error || "Unable to save city.");
       }
       resetCityForm();
+      addToast(editingCityId ? 'City updated successfully!' : 'City added successfully!', { type: 'success' });
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to save city.");
+      const msg = err instanceof Error ? err.message : "Unable to save city.";
+      setError(msg);
+      addToast(msg, { type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -152,6 +160,7 @@ export default function AdminGeographyPage() {
     setSaving(true);
     try {
       await fetch(`/api/admin/catalog/${resource}/${id}`, { method: "DELETE" });
+      addToast(`${resource === 'countries' ? 'Country' : 'City'} deleted successfully!`, { type: 'success' });
       await load();
     } finally {
       setSaving(false);
@@ -167,6 +176,7 @@ export default function AdminGeographyPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...city, isFeatured: !city.isFeatured }),
       });
+      addToast(city.isFeatured ? 'City unfeatured!' : 'City featured!', { type: 'success' });
       await load();
     } finally {
       setSaving(false);

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface Event {
   id: string;
@@ -36,6 +37,7 @@ interface EventUpdate {
 export default function EventCommunityPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const { addToast } = useToast();
   const [event, setEvent] = useState<Event | null>(null);
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [eventUpdates, setEventUpdates] = useState<EventUpdate[]>([]);
@@ -139,10 +141,11 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
 
       setNewTitle('');
       setNewMessage('');
+      addToast('Discussion posted successfully!', { type: 'success' });
       fetchDiscussions();
-    } catch (error) {
-      console.error('Failed to post message:', error);
+    } catch {
       setPostError('Network error. Please check your connection and try again.');
+      addToast('Network error. Please check your connection and try again.', { type: 'error' });
     } finally {
       setPosting(false);
     }

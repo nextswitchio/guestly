@@ -5,6 +5,7 @@ import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface Campaign {
   id: string;
@@ -21,9 +22,9 @@ interface Campaign {
 export default function EditCampaignPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState<Campaign>({
     id: '',
@@ -79,14 +80,18 @@ export default function EditCampaignPage({ params }: { params: Promise<{ id: str
       });
 
       if (response.ok) {
-        setSaved(true);
-        setTimeout(() => router.push(`/dashboard/marketing/campaigns/${id}`), 1500);
+        addToast('Campaign updated successfully!', { type: 'success' });
+        router.push(`/dashboard/marketing/campaigns/${id}`);
       } else {
         const data = await response.json();
-        setError(data.error || 'Failed to update campaign');
+        const msg = data.error || 'Failed to update campaign';
+        setError(msg);
+        addToast(msg, { type: 'error' });
       }
     } catch {
-      setError('Network error. Please try again.');
+      const msg = 'Network error. Please try again.';
+      setError(msg);
+      addToast(msg, { type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -108,16 +113,7 @@ export default function EditCampaignPage({ params }: { params: Promise<{ id: str
       </div>
 
       <div className="rounded-2xl border border-neutral-200 bg-white p-6 sm:p-8">
-        {saved ? (
-          <div className="text-center py-8">
-            <div className="flex h-12 w-12 mx-auto mb-4 items-center justify-center rounded-full bg-green-100">
-              <Save className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="text-xl font-semibold text-neutral-900 mb-2">Campaign Updated!</h3>
-            <p className="text-neutral-500">Redirecting to campaign details...</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1.5">Campaign Name</label>
               <input
@@ -190,10 +186,6 @@ export default function EditCampaignPage({ params }: { params: Promise<{ id: str
               />
             </div>
 
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 p-3 rounded-xl">{error}</div>
-            )}
-
             <div className="flex gap-3 pt-2">
               <Button
                 type="submit"
@@ -212,7 +204,6 @@ export default function EditCampaignPage({ params }: { params: Promise<{ id: str
               </Button>
             </div>
           </form>
-        )}
       </div>
     </div>
   );

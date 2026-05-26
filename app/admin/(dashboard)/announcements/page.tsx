@@ -3,6 +3,7 @@ import React from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
+import { useToast } from "@/components/ui/ToastProvider";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
@@ -35,6 +36,7 @@ type AnnouncementStats = {
 };
 
 export default function AnnouncementsPage() {
+  const { addToast } = useToast();
   const [announcements, setAnnouncements] = React.useState<Announcement[]>([]);
   const [stats, setStats] = React.useState<AnnouncementStats | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -96,11 +98,14 @@ export default function AnnouncementsPage() {
       const data = await response.json();
       if (data.success) {
         setShowCreateModal(false);
+        addToast('Announcement created successfully!', { type: 'success' });
         fetchAnnouncements();
         fetchStats();
+      } else {
+        addToast(data.error || 'Failed to create announcement', { type: 'error' });
       }
-    } catch (error) {
-      console.error('Error creating announcement:', error);
+    } catch {
+      addToast('Failed to create announcement', { type: 'error' });
     }
   };
 
@@ -114,11 +119,14 @@ export default function AnnouncementsPage() {
 
       const data = await response.json();
       if (data.success) {
+        addToast('Announcement updated successfully!', { type: 'success' });
         fetchAnnouncements();
         fetchStats();
+      } else {
+        addToast(data.error || 'Failed to update announcement', { type: 'error' });
       }
-    } catch (error) {
-      console.error('Error updating announcement:', error);
+    } catch {
+      addToast('Failed to update announcement', { type: 'error' });
     }
   };
 
@@ -132,11 +140,14 @@ export default function AnnouncementsPage() {
 
       const data = await response.json();
       if (data.success) {
+        addToast('Announcement deleted successfully!', { type: 'success' });
         fetchAnnouncements();
         fetchStats();
+      } else {
+        addToast(data.error || 'Failed to delete announcement', { type: 'error' });
       }
-    } catch (error) {
-      console.error('Error deleting announcement:', error);
+    } catch {
+      addToast('Failed to delete announcement', { type: 'error' });
     }
   };
 

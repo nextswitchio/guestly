@@ -6,6 +6,7 @@ import { ArrowLeft, User, CreditCard, Bell, Save, RefreshCw, Check, Shield } fro
 import Switch from '@/components/ui/Switch';
 import IdentityVerification, { type IdentityData } from '@/components/identity/IdentityVerification';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface AffiliateSettings {
   businessName: string;
@@ -30,6 +31,7 @@ interface AffiliateSettings {
 type SettingsTab = 'profile' | 'payment' | 'notifications' | 'identity';
 
 export default function AffiliateSettingsPage() {
+  const { addToast } = useToast();
   const [settings, setSettings] = useState<AffiliateSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -86,10 +88,14 @@ export default function AffiliateSettingsPage() {
           body: JSON.stringify({ avatar: settings.avatar || null }),
         }).catch(() => {});
         setSaved(true);
+        addToast('Settings saved successfully!', { type: 'success' });
         setTimeout(() => setSaved(false), 2000);
+      } else {
+        const data = await res.json();
+        addToast(data.error || 'Failed to save settings', { type: 'error' });
       }
-    } catch (error) {
-      console.error('Failed to save settings:', error);
+    } catch {
+      addToast('Failed to save settings', { type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -103,10 +109,12 @@ export default function AffiliateSettingsPage() {
     });
     if (!res.ok) {
       const err = await res.json();
+      addToast(err.error || 'Failed to submit identity', { type: 'error' });
       throw new Error(err.error || 'Failed to submit');
     }
     const result = await res.json();
     setIdentityData({ ...data, id: result.verification.id, status: result.verification.status, submittedAt: result.verification.submittedAt });
+    addToast('Identity submitted successfully!', { type: 'success' });
   };
 
   const channels = ['Instagram', 'Twitter', 'TikTok', 'YouTube', 'Facebook', 'Blog', 'WhatsApp', 'Email'];

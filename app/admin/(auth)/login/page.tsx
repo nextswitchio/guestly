@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { addToast } = useToast();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [email, setEmail] = React.useState("");
@@ -34,14 +36,19 @@ export default function AdminLoginPage() {
       const data = await res.json();
 
       if (!res.ok || !data.ok) {
-        setError(data.error || "Invalid credentials");
+        const msg = data.error || "Invalid credentials";
+        setError(msg);
+        addToast(msg, { type: 'error' });
         setLoading(false);
         return;
       }
 
+      addToast('Login successful!', { type: 'success' });
       router.replace("/admin");
     } catch {
-      setError("Connection failed. Please try again.");
+      const msg = "Connection failed. Please try again.";
+      setError(msg);
+      addToast(msg, { type: 'error' });
       setLoading(false);
     }
   };

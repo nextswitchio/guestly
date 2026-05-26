@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/Card";
 import IdentityVerification, { type IdentityData } from "@/components/identity/IdentityVerification";
 import { Shield, RefreshCw } from "lucide-react";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function VendorIdentityPage() {
+  const { addToast } = useToast();
   const [identityData, setIdentityData] = useState<IdentityData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,10 +26,12 @@ export default function VendorIdentityPage() {
     });
     if (!res.ok) {
       const err = await res.json();
+      addToast(err.error || 'Failed to submit identity', { type: 'error' });
       throw new Error(err.error || 'Failed to submit');
     }
     const result = await res.json();
     setIdentityData({ ...data, id: result.verification.id, status: result.verification.status, submittedAt: result.verification.submittedAt });
+    addToast('Identity submitted successfully!', { type: 'success' });
   };
 
   if (loading) return <div className="flex items-center justify-center py-12"><RefreshCw className="w-8 h-8 animate-spin text-gray-300" /></div>;

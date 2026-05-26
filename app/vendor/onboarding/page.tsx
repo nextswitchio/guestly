@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import Button from "@/components/Button";
 import { CheckIcon, InfoIcon, LockIcon, MailIcon, User1Icon } from "@/utils/icons";
+import { useToast } from "@/components/ui/ToastProvider";
 import { Eye, EyeOff } from "lucide-react";
 import { getImageSrc } from "@/utils/imageUtils";
 import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
@@ -12,6 +13,7 @@ import { DEFAULT_PLATFORM_CATALOG, PlatformCategory, normalizeCatalog } from "@/
 
 export default function VendorOnboarding() {
   const router = useRouter();
+  const { addToast } = useToast();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -111,13 +113,18 @@ export default function VendorOnboarding() {
         }),
       });
       if (profRes.ok) {
+        addToast('Vendor account created successfully!', { type: 'success' });
         router.push("/vendor/dashboard");
       } else {
         const err = await profRes.json();
-        setErrors({ form: err.error || "Failed to create profile" });
+        const msg = err.error || "Failed to create profile";
+        setErrors({ form: msg });
+        addToast(msg, { type: 'error' });
       }
     } catch {
-      setErrors({ form: "Something went wrong. Please try again." });
+      const msg = "Something went wrong. Please try again.";
+      setErrors({ form: msg });
+      addToast(msg, { type: 'error' });
     } finally {
       setLoading(false);
     }
