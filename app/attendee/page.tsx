@@ -3,7 +3,6 @@ import React from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import EventCard from "@/components/events/EventCard";
 import EmptyState from "@/components/ui/EmptyState";
-import Card from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { useRouter } from "next/navigation";
 
@@ -16,18 +15,19 @@ const tabs = [
 
 type TabKey = (typeof tabs)[number]["key"];
 
-function StatCard({ label, value, icon, iconBg }: { label: string; value: string | number; icon: string; iconBg: string }) {
+function StatCard({ label, value, icon, iconBg, children }: { label: string; value: string | number; icon: string; iconBg: string; children?: React.ReactNode }) {
   return (
-    <div className="group relative rounded-xl bg-white p-5 shadow-sm border border-neutral-200/60 transition-all duration-300 hover:shadow-md hover:border-neutral-300">
+    <div className="group relative rounded-xl bg-white p-5 shadow-sm border border-neutral-200/60 transition-all duration-300 hover:shadow-md hover:border-neutral-300 flex flex-col">
       <div className="flex items-center gap-3">
-        <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${iconBg} text-white transition-transform duration-300 group-hover:scale-110`}>
+        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${iconBg} text-white transition-transform duration-300 group-hover:scale-110`}>
           <Icon name={icon as any} size={20} />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-2xl font-bold tabular-nums text-neutral-900 truncate">{value}</p>
           <p className="text-xs font-medium text-neutral-500">{label}</p>
         </div>
       </div>
+      {children && <div className="mt-3 pt-3 border-t border-neutral-100 space-y-1.5">{children}</div>}
     </div>
   );
 }
@@ -53,7 +53,7 @@ export default function AttendeePage() {
     fetch("/api/orders/user").then(r => r.json()).then(d => { if (d.success) setOrders(d.orders); }).catch(() => {});
     fetch("/api/events/save").then(r => r.json()).then(d => {
       if (d.ok) {
-        setSavedIds(d.data.map((e: any) => e.id));
+        setSavedIds(d.data.map((e: any) => e.event_id || e.id));
         setSavedEvents(d.data);
       }
     }).catch(() => {});
@@ -63,10 +63,12 @@ export default function AttendeePage() {
 
     // Fetch upcoming and past events from backend
     setEventsLoading(true);
-    const now = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split("T")[0];
+    const yesterdayEnd = new Date(Date.now() - 86400000);
+    yesterdayEnd.setHours(23, 59, 59, 999);
     Promise.all([
-      fetch(`/api/events?status=published&date_from=${now}&page_size=20`).then(r => r.json()).catch(() => ({ events: [] })),
-      fetch(`/api/events?status=published&date_to=${now}&page_size=20`).then(r => r.json()).catch(() => ({ events: [] })),
+      fetch(`/api/events?status=published&startDate=${today}&page_size=20`).then(r => r.json()).catch(() => ({ events: [] })),
+      fetch(`/api/events?status=published&endDate=${yesterdayEnd.toISOString()}&page_size=20`).then(r => r.json()).catch(() => ({ events: [] })),
     ]).then(([upcoming, past]) => {
       setUpcomingEvents(Array.isArray(upcoming?.events) ? upcoming.events : []);
       setPastEvents(Array.isArray(past?.events) ? past.events : []);
@@ -89,10 +91,21 @@ export default function AttendeePage() {
       .finally(() => setRecommendationsLoading(false));
   }, []);
 
+  function fmt(d: string) {
+    if (!d) return "";
+    return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
   const sectionMap: Record<TabKey, any[]> = { upcoming: upcomingEvents, saved: savedEvents, recommended, past: pastEvents };
   const events = sectionMap[tab];
   const walletBalance = wallet?.balance ?? 0;
+  const promoBalance = wallet?.promoBalance ?? 0;
   const recentOrders = orders.slice(0, 3);
+  const totalSpent = orders.reduce((sum, o) => sum + (o.total ?? 0), 0);
+  const nextEvent = upcomingEvents.length > 0 ? upcomingEvents[0] : null;
+  const paidOrders = orders.filter(o => o.status === "paid").length;
+  const pendingOrders = orders.length - paidOrders;
+  const lastSaved = savedEvents.length > 0 ? savedEvents[savedEvents.length - 1] : null;
 
   return (
     <ProtectedRoute allowRoles={["attendee"]}>
@@ -143,57 +156,156 @@ export default function AttendeePage() {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <StatCard label="Upcoming" value={upcomingEvents.length} icon="calendar" iconBg="bg-dark" />
-          <StatCard label="Saved" value={savedEvents.length} icon="heart" iconBg="bg-rose-500" />
-          <StatCard label="Orders" value={orders.length} icon="ticket" iconBg="bg-emerald-500" />
-          <StatCard label="Balance" value={`₦${walletBalance.toLocaleString()}`} icon="wallet" iconBg="bg-amber-500" />
-        </div>
-
-        {/* Recent Orders */}
-        {recentOrders.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-bold text-neutral-900">My Tickets</h2>
-              <button onClick={() => router.push("/attendee/orders")} className="text-xs font-semibold text-dark hover:text-dark/70 transition-colors">
-                View all &rarr;
-              </button>
+        {/* Stats + Quick Actions (side by side) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Stats col */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <StatCard label="Upcoming" value={upcomingEvents.length} icon="calendar" iconBg="bg-dark">
+                {nextEvent ? (
+                  <>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-neutral-400">Next event</span>
+                      <span className="font-medium text-neutral-700 truncate max-w-[55%] text-right">{nextEvent.title}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-neutral-400">Date</span>
+                      <span className="font-medium text-neutral-700">{fmt(nextEvent.date)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-xs text-neutral-400">No upcoming events</p>
+                )}
+              </StatCard>
+              <StatCard label="Saved" value={savedEvents.length} icon="heart" iconBg="bg-rose-500">
+                {lastSaved ? (
+                  <>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-neutral-400">Last saved</span>
+                      <span className="font-medium text-neutral-700 truncate max-w-[55%] text-right">{lastSaved.title}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-neutral-400">Date</span>
+                      <span className="font-medium text-neutral-700">{fmt(lastSaved.date)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-xs text-neutral-400">Save events to find them later</p>
+                )}
+              </StatCard>
+              <StatCard label="Orders" value={orders.length} icon="ticket" iconBg="bg-emerald-500">
+                {orders.length > 0 ? (
+                  <>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-neutral-400">Total spent</span>
+                      <span className="font-semibold text-neutral-800">₦{totalSpent.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs">
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <span className="text-neutral-500">{paidOrders} paid</span>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-warning-400" />
+                        <span className="text-neutral-500">{pendingOrders} pending</span>
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-xs text-neutral-400">No orders yet</p>
+                )}
+              </StatCard>
+              <StatCard label="Balance" value={`₦${walletBalance.toLocaleString()}`} icon="wallet" iconBg="bg-amber-500">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-neutral-400">Main balance</span>
+                  <span className="font-medium text-neutral-700">₦{(walletBalance - promoBalance).toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-neutral-400">Promo credit</span>
+                  <span className="font-medium text-emerald-600">{promoBalance > 0 ? `₦${promoBalance.toLocaleString()}` : "—"}</span>
+                </div>
+              </StatCard>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {recentOrders.map((order: any) => (
-                <div key={order.id} className="group relative rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 border-l-4 border-l-lime transition-all duration-300 hover:shadow-md">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-neutral-900 truncate">{order.event_title ?? order.eventTitle ?? "Event"}</p>
-                      <p className="text-[11px] text-neutral-500 mt-0.5">
-                        {order.created_at ? new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
-                          order.status === "paid" ? "bg-emerald-100 text-emerald-700" :
-                          order.status === "refunded" ? "bg-neutral-100 text-neutral-500" :
-                          "bg-warning-100 text-warning-700"
-                        }`}>
-                          {order.status}
-                        </span>
-                        {order.items?.map((item: any, i: number) => (
-                          <span key={i} className="text-[10px] font-medium text-neutral-400">{item.type} x{item.quantity}</span>
-                        ))}
+
+            {/* Recent Orders */}
+            {recentOrders.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-base font-bold text-neutral-900">My Tickets</h2>
+                  <button onClick={() => router.push("/attendee/orders")} className="text-xs font-semibold text-dark hover:text-dark/70 transition-colors">
+                    View all &rarr;
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {recentOrders.map((order: any) => (
+                    <div key={order.id} className="group relative rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 border-l-4 border-l-lime transition-all duration-300 hover:shadow-md">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-neutral-900 truncate">{order.event_title ?? order.eventTitle ?? "Event"}</p>
+                          <p className="text-[11px] text-neutral-500 mt-0.5">
+                            {order.created_at ? new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                              order.status === "paid" ? "bg-emerald-100 text-emerald-700" :
+                              order.status === "refunded" ? "bg-neutral-100 text-neutral-500" :
+                              "bg-warning-100 text-warning-700"
+                            }`}>
+                              {order.status}
+                            </span>
+                            {order.items?.map((item: any, i: number) => (
+                              <span key={i} className="text-[10px] font-medium text-neutral-400">{item.type} x{item.quantity}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => router.push("/attendee/orders")}
+                          className="shrink-0 h-7 w-7 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-400 hover:text-neutral-600 hover:bg-neutral-200 transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <Icon name="arrow-right" size={14} />
+                        </button>
                       </div>
                     </div>
-                    <button
-                      onClick={() => router.push("/attendee/orders")}
-                      className="shrink-0 h-7 w-7 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-400 hover:text-neutral-600 hover:bg-neutral-200 transition-all opacity-0 group-hover:opacity-100"
-                    >
-                      <Icon name="arrow-right" size={14} />
-                    </button>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+              </section>
+            )}
+          </div>
+
+          {/* Quick Actions col */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Quick Actions</h3>
+            <button onClick={() => router.push("/attendee/referrals")} className="group flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 text-left transition-all duration-300 hover:shadow-md hover:border-neutral-300 w-full">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-lime/10 text-dark transition-transform duration-300 group-hover:scale-110 shrink-0">
+                <Icon name="link" size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-neutral-900">Refer & Earn</p>
+                <p className="text-xs text-neutral-500 truncate">
+                  {referralStats ? `${referralStats.totalReferrals} referral${referralStats.totalReferrals !== 1 ? "s" : ""} • ₦${(referralStats.totalEarned ?? 0).toLocaleString()} earned` : "Invite friends to earn rewards"}
+                </p>
+              </div>
+            </button>
+            <button onClick={() => router.push("/wallet")} className="group flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 text-left transition-all duration-300 hover:shadow-md hover:border-neutral-300 w-full">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 transition-transform duration-300 group-hover:scale-110 shrink-0">
+                <Icon name="target" size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-neutral-900">Savings</p>
+                <p className="text-xs text-neutral-500">Save towards your next event</p>
+              </div>
+            </button>
+            <button onClick={() => router.push("/near")} className="group flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 text-left transition-all duration-300 hover:shadow-md hover:border-neutral-300 w-full">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-600 transition-transform duration-300 group-hover:scale-110 shrink-0">
+                <Icon name="location" size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-neutral-900">Near Me</p>
+                <p className="text-xs text-neutral-500">Discover events around you</p>
+              </div>
+            </button>
+          </div>
+        </div>
 
         {/* Tabs */}
         <div className="flex gap-1.5 overflow-x-auto rounded-xl bg-neutral-100 p-1">
@@ -239,14 +351,15 @@ export default function AttendeePage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {events.map((e) => (
                 <EventCard
-                  key={e.id}
-                  id={e.id}
+                  key={e.event_id || e.id}
+                  id={e.event_id || e.id}
                   title={e.title}
                   description={e.description}
                   date={e.date}
                   city={e.city}
                   category={e.category}
                   image={e.image}
+                  eventType={e.event_type?.toLowerCase()}
                   distanceKm={(e as any).distanceKm}
                 />
               ))}
@@ -257,68 +370,61 @@ export default function AttendeePage() {
         {/* Following */}
         {followedOrganizers.length > 0 && (
           <section>
-            <h2 className="text-base font-bold text-dark mb-3">Following ({followedOrganizers.length})</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-bold text-dark">Following ({followedOrganizers.length})</h2>
+              <span className="text-[10px] text-neutral-400">Organizers you follow</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {followedOrganizers.map((org: any) => (
-                <div key={org.userId} className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-lime/10 text-dark text-sm font-bold">
-                    {org.displayName?.charAt(0)?.toUpperCase() || "O"}
+                <div key={org.following_id} className="rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 transition-all duration-300 hover:shadow-md hover:border-neutral-300">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-lime/10 text-dark text-base font-bold overflow-hidden">
+                      {org.avatar ? (
+                        <img src={org.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{org.display_name?.charAt(0)?.toUpperCase() || "O"}</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-dark truncate">{org.display_name}</p>
+                      {org.bio && <p className="text-xs text-neutral-500 mt-0.5 line-clamp-2 leading-relaxed">{org.bio}</p>}
+                      <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                        {(org.location_city || org.location_country) && (
+                          <span className="text-[11px] text-neutral-400 flex items-center gap-1">
+                            <Icon name="location" size={11} />
+                            {[org.location_city, org.location_country].filter(Boolean).join(", ")}
+                          </span>
+                        )}
+                        {org.created_at && (
+                          <span className="text-[11px] text-neutral-400">
+                            Since {new Date(org.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="shrink-0">
+                      <button
+                        onClick={async () => {
+                          await fetch("/api/follows", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ organizerId: org.following_id, action: "unfollow" }),
+                          });
+                          setFollowedOrganizers(prev => prev.filter(o => o.following_id !== org.following_id));
+                        }}
+                        className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                      >
+                        Unfollow
+                      </button>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-dark truncate">{org.displayName}</p>
-                    <p className="text-xs text-gray-500">{org.followers || 0} follower{(org.followers || 0) !== 1 ? "s" : ""}</p>
-                  </div>
-                  <button
-                    onClick={async () => {
-                      await fetch("/api/follows", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ organizerId: org.userId, action: "unfollow" }),
-                      });
-                      setFollowedOrganizers(prev => prev.filter(o => o.userId !== org.userId));
-                    }}
-                    className="shrink-0 rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
-                  >
-                    Unfollow
-                  </button>
                 </div>
               ))}
             </div>
           </section>
         )}
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button onClick={() => router.push("/attendee/referrals")} className="group flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 text-left transition-all duration-300 hover:shadow-md hover:border-neutral-300">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-lime/10 text-dark transition-transform duration-300 group-hover:scale-110">
-              <Icon name="link" size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-neutral-900">Refer & Earn</p>
-              <p className="text-xs text-neutral-500 truncate">
-                {referralStats ? `${referralStats.totalReferrals} referral${referralStats.totalReferrals !== 1 ? "s" : ""} • ₦${(referralStats.totalEarned ?? 0).toLocaleString()} earned` : "Invite friends to earn rewards"}
-              </p>
-            </div>
-          </button>
-          <button onClick={() => router.push("/wallet")} className="group flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 text-left transition-all duration-300 hover:shadow-md hover:border-neutral-300">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 transition-transform duration-300 group-hover:scale-110">
-              <Icon name="target" size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-neutral-900">Savings</p>
-              <p className="text-xs text-neutral-500">Save towards your next event</p>
-            </div>
-          </button>
-          <button onClick={() => router.push("/near")} className="group flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm border border-neutral-200/60 text-left transition-all duration-300 hover:shadow-md hover:border-neutral-300">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-600 transition-transform duration-300 group-hover:scale-110">
-              <Icon name="location" size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-neutral-900">Near Me</p>
-              <p className="text-xs text-neutral-500">Discover events around you</p>
-            </div>
-          </button>
-        </div>
+
       </div>
     </ProtectedRoute>
   );

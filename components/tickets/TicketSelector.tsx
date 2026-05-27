@@ -1,17 +1,20 @@
 "use client";
 import React from "react";
 import Button from "@/components/ui/Button";
-import Badge from "@/components/ui/Badge";
 import { formatCurrency } from "@/lib/utils";
+
+type TicketItem = {
+  id?: string;
+  type?: string;
+  name?: string;
+  price: number;
+  available: number;
+  attendanceType?: "physical" | "virtual";
+};
 
 type Availability = {
   eventId: string;
-  tickets: Array<{ 
-    type: "General" | "VIP"; 
-    price: number; 
-    available: number;
-    attendanceType?: "physical" | "virtual";
-  }>;
+  tickets?: Array<TicketItem>;
 };
 
 export default function TicketSelector({
@@ -34,17 +37,19 @@ export default function TicketSelector({
     load();
   }, [eventId]);
 
-  // Create unique key for each ticket (type + attendanceType)
-  function getTicketKey(ticket: Availability['tickets'][0]): string {
-    return ticket.attendanceType ? `${ticket.type}-${ticket.attendanceType}` : ticket.type;
+  // Create unique key for each ticket (type/name + attendanceType)
+  function getTicketKey(ticket: TicketItem): string {
+    const label = ticket.type ?? ticket.name ?? "ticket";
+    return ticket.attendanceType ? `${label}-${ticket.attendanceType}` : label;
   }
 
   function setQty(ticketKey: string, qty: number) {
     setQuantities((q) => ({ ...q, [ticketKey]: Math.max(0, qty) }));
   }
 
+  const ticketItems = avail?.tickets ?? [];
   const total =
-    avail?.tickets?.reduce(
+    ticketItems.reduce(
       (sum, t) => sum + (quantities[getTicketKey(t)] || 0) * t.price,
       0
     ) ?? 0;
@@ -52,14 +57,15 @@ export default function TicketSelector({
   const hasItems = Object.values(quantities).some((q) => q > 0);
 
   async function continueFlow() {
-    if (!avail?.tickets?.length) return;
-    const items = (avail.tickets || [])
-      .map((t) => ({ 
-        type: t.type, 
+    if (!avail || !ticketItems.length) return;
+    const items = ticketItems
+      .map((t) => ({
+        ticketId: t.id,
+        type: t.type ?? t.name ?? "Ticket",
         quantity: quantities[getTicketKey(t)] || 0,
-        attendanceType: t.attendanceType
+        attendanceType: t.attendanceType,
       }))
-      .filter((i) => i.quantity > 0);
+      .filter((i) => i.quantity > 0 && !!i.ticketId);
     if (items.length === 0) return;
     setLoading(true);
     const res = await fetch("/api/orders", {
@@ -95,57 +101,87 @@ export default function TicketSelector({
     );
   }
 
+  if (!ticketItems.length) {
+    return (
+      <div className="rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-5">
+        <p className="text-sm text-neutral-500">No tickets are available for this event.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      {avail.tickets.map((t) => {
+      {ticketItems.map((t) => {
         const ticketKey = getTicketKey(t);
         const qty = quantities[ticketKey] || 0;
+        const ticketLabel = t.type ?? t.name ?? "Ticket";
+        const isVIP = t.type === "VIP" || t.name?.toLowerCase().includes("vip");
         return (
           <div
             key={ticketKey}
-            className="flex items-center justify-between rounded-xl border border-neutral-100 bg-white p-5 shadow-sm"
+            className={`group flex flex-col gap-4 rounded-[1.75rem] border border-slate-200/80 bg-slate-50 p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${t.available === 0 ? "opacity-80" : ""}`}
           >
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-neutral-900">
-                  {t.type}
-                </span>
-                {t.type === "VIP" && <Badge variant="warning">Premium</Badge>}
-                {t.attendanceType === "physical" && (
-                  <Badge variant="primary">In-Person</Badge>
-                )}
-                {t.attendanceType === "virtual" && (
-                  <Badge variant="success">Virtual</Badge>
-                )}
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isVIP ? "bg-warning-100 text-warning-700" : "bg-primary-100 text-primary-700"}`}>
+                    <span className="text-sm font-semibold uppercase tracking-[0.18em]">
+                      {isVIP ? "VIP" : "TKT"}
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-base font-semibold text-slate-900 truncate">{ticketLabel}</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                      {t.attendanceType && (
+                        <span className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-slate-700">
+                          {t.attendanceType === "physical" ? "In-Person" : "Virtual"}
+                        </span>
+                      )}
+                      <span className="rounded-full bg-lime/10 px-2.5 py-1 text-lime-800">
+                        {t.available} available
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-end justify-between gap-6">
+                  <div>
+                    <div className="text-sm uppercase tracking-[0.2em] text-slate-500">Price</div>
+                    <p className="mt-1 text-3xl font-bold text-slate-900">{formatCurrency(t.price)}</p>
+                  </div>
+                  <div className="rounded-3xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">
+                    {qty} selected
+                  </div>
+                </div>
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-base font-bold text-neutral-900">
-                  {formatCurrency(t.price)}
-                </span>
-                <span className="text-xs text-neutral-400">
-                  {t.available} left
-                </span>
+
+              <div className="flex flex-col items-stretch gap-2">
+                <button
+                  className="flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-lg font-semibold text-slate-900 transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => setQty(ticketKey, qty - 1)}
+                  disabled={qty === 0}
+                >
+                  −
+                </button>
+                <button
+                  className="flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-lg font-semibold text-slate-900 transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => setQty(ticketKey, qty + 1)}
+                  disabled={qty >= t.available}
+                >
+                  +
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
-              <button
-                className="flex h-11 w-11 items-center justify-center rounded-lg border border-neutral-200 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 disabled:opacity-40"
-                onClick={() => setQty(ticketKey, qty - 1)}
-                disabled={qty === 0}
-              >
-                −
-              </button>
-              <span className="w-12 text-center text-sm font-semibold tabular-nums">
-                {qty}
-              </span>
-              <button
-                className="flex h-11 w-11 items-center justify-center rounded-lg border border-neutral-200 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 disabled:opacity-40"
-                onClick={() => setQty(ticketKey, qty + 1)}
-                disabled={qty >= t.available}
-              >
-                +
-              </button>
+            <div className="grid grid-cols-2 gap-3 rounded-3xl bg-slate-100 p-4 text-sm text-slate-700">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Remaining</p>
+                <p className="font-semibold text-slate-900">{t.available}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Max per order</p>
+                <p className="font-semibold text-slate-900">{t.available > 0 ? Math.min(10, t.available) : 0}</p>
+              </div>
             </div>
           </div>
         );

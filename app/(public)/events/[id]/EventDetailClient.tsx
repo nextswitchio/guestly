@@ -119,8 +119,9 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
   const toggleSave = async () => {
     setSaveLoading(true);
     try {
+      const method = isSaved ? 'DELETE' : 'POST';
       const res = await fetch('/api/events/save', {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ eventId: event.id }),
       });
@@ -141,7 +142,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
   return (
     <div className="min-h-screen bg-white">
       {/* Breadcrumb */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6">
         <nav className="flex items-center gap-1.5 text-xs text-slate-400">
           <Link href="/" className="hover:text-slate-600 transition-colors">Home</Link>
           <span>/</span>
@@ -152,7 +153,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
       </div>
 
       {/* Hero */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 mb-12">
         <EventHero
           id={event.id}
           title={event.title}
@@ -161,9 +162,14 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
           category={event.category}
           image={event.image}
           description={event.description}
+          venue={event.venue}
+          state={event.state}
+          country={event.country}
           organizer={organizer ?? undefined}
           attendeeCount={attendeeCount}
           eventType={eventType}
+          isSaved={isSaved}
+          onSaveToggle={toggleSave}
         />
         <div className="mt-6">
           <SocialProofWidget eventId={event.id} />
@@ -181,7 +187,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
 
       {/* Content Grid */}
       <div className="bg-[#f8fafc] py-12 sm:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {/* Main content */}
             <div className="lg:col-span-2 space-y-8">

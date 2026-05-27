@@ -12,7 +12,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
     const data = await res.json();
-    return NextResponse.json({ ok: true, availability: data });
+    const tickets = Array.isArray(data) ? data : data.tickets ?? [];
+    return NextResponse.json({ ok: true, availability: { eventId, tickets } });
   } catch {
     return NextResponse.json({ error: "Failed to fetch tickets" }, { status: 500 });
   }

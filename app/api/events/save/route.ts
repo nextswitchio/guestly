@@ -7,23 +7,39 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ ok: true, data });
 }
 
-export async function POST(req: NextRequest) {
-  let eventId: string | undefined;
+async function getEventId(req: NextRequest): Promise<string | null> {
   const body = await req.json().catch(() => undefined);
   if (body && typeof body === "object") {
     const obj = body as { eventId?: string };
-    eventId = obj.eventId;
+    if (obj.eventId) return obj.eventId;
   }
-  if (!eventId) {
-    const fd = await req.formData().catch(() => undefined);
-    eventId = fd?.get("eventId")?.toString();
-  }
+  const fd = await req.formData().catch(() => undefined);
+  return fd?.get("eventId")?.toString() ?? null;
+}
+
+export async function POST(req: NextRequest) {
+  const eventId = await getEventId(req);
   if (!eventId) return NextResponse.json({ ok: false, error: "eventId required" }, { status: 400 });
 
   const { data, status, ok } = await fetchBackendJson(
     req,
     `/api/v1/events/bookmark?event_id=${encodeURIComponent(eventId)}`,
     { method: "POST" },
+  );
+
+  if (!ok) return NextResponse.json(data, { status });
+
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(req: NextRequest) {
+  const eventId = await getEventId(req);
+  if (!eventId) return NextResponse.json({ ok: false, error: "eventId required" }, { status: 400 });
+
+  const { data, status, ok } = await fetchBackendJson(
+    req,
+    `/api/v1/events/bookmark/${encodeURIComponent(eventId)}`,
+    { method: "DELETE" },
   );
 
   if (!ok) return NextResponse.json(data, { status });

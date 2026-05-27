@@ -19,7 +19,13 @@ type Props = {
   }>;
   description?: string;
   onAction?: () => void;
+  onSaveToggle?: () => void;
+  isSaved?: boolean;
+  venue?: string;
+  state?: string;
+  country?: string;
   organizer?: {
+    id?: string;
     name: string;
     verified?: boolean;
     avatar?: string;
@@ -38,6 +44,11 @@ export default function EventHero({
   images,
   description,
   onAction,
+  onSaveToggle,
+  isSaved = false,
+  venue,
+  state,
+  country,
   organizer,
   attendeeCount,
   eventType = "Physical",
@@ -52,18 +63,18 @@ export default function EventHero({
   }, []);
 
   useEffect(() => {
-    if (!organizer?.name) return;
-    const oid = `org-${organizer.name.toLowerCase().replace(/\s+/g, "-")}`;
+    if (!organizer?.id && !organizer?.name) return;
+    const oid = organizer.id || `org-${organizer.name!.toLowerCase().replace(/\s+/g, "-")}`;
     fetch(`/api/follows/check?organizerId=${oid}`)
       .then(r => r.json())
-      .then(d => { if (d.success) setFollowing(d.following); })
+      .then(d => { if (d.following !== undefined) setFollowing(d.following); })
       .catch(() => {});
-  }, [organizer?.name]);
+  }, [organizer?.id, organizer?.name]);
 
   const toggleFollow = async () => {
-    if (!organizer?.name) return;
+    if (!organizer?.id && !organizer?.name) return;
     setFollowLoading(true);
-    const oid = `org-${organizer.name.toLowerCase().replace(/\s+/g, "-")}`;
+    const oid = organizer.id || `org-${organizer.name!.toLowerCase().replace(/\s+/g, "-")}`;
     try {
       const res = await fetch("/api/follows", {
         method: "POST",
@@ -71,7 +82,7 @@ export default function EventHero({
         body: JSON.stringify({ organizerId: oid, action: following ? "unfollow" : "follow" }),
       });
       const d = await res.json();
-      if (d.success) setFollowing(d.following);
+      if (d.following !== undefined) setFollowing(d.following);
     } catch {}
     finally { setFollowLoading(false); }
   };
@@ -94,7 +105,7 @@ export default function EventHero({
   ];
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-neutral-900 h-[60vh] min-h-[320px] sm:min-h-[500px] max-h-[700px]">
+    <div className="relative overflow-hidden rounded-3xl bg-neutral-900 h-[70vh] min-h-[400px] sm:min-h-[500px] max-h-[700px]">
       {/* Background image gallery with swipe support */}
       <div className="absolute inset-0">
         <SwipeableImageGallery
@@ -112,43 +123,43 @@ export default function EventHero({
       </div>
 
       {/* Glass morphism content overlay */}
-      <div className="absolute inset-0 flex flex-col justify-end">
+      <div className="absolute inset-0 flex flex-col justify-end overflow-y-auto">
         <div 
-          className={`glass-dark rounded-t-3xl p-8 sm:p-12 transition-all duration-[var(--duration-slow)] ${
+          className={`glass-dark rounded-t-3xl p-4 sm:p-8 lg:p-12 transition-all duration-[var(--duration-slow)] ${
             isVisible ? "animate-fade-in-up" : "opacity-0 translate-y-8"
           }`}
         >
             <div className="max-w-6xl">
             {/* Event type and category badges */}
-            <div className="flex flex-wrap items-center gap-3 mb-6">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
               <Badge 
                 variant="primary" 
-                className="glass-light border-lime/30 text-lime font-semibold"
+                className="glass-light border-lime/30 text-lime font-semibold text-xs sm:text-sm"
               >
                 {category}
               </Badge>
               <Badge 
                 variant={eventType === "Virtual" ? "success" : eventType === "Hybrid" ? "warning" : "neutral"}
-                className="glass-light border-white/20 text-white font-medium"
+                className="glass-light border-white/20 text-white font-medium text-xs sm:text-sm"
               >
                 {eventType} Event
               </Badge>
             </div>
 
             {/* Title with enhanced typography */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight tracking-tight text-white mb-6 max-w-4xl">
+            <h1 className="text-xl sm:text-3xl lg:text-5xl xl:text-6xl font-bold leading-tight tracking-tight text-white mb-3 sm:mb-6 max-w-4xl">
               {title}
             </h1>
 
             {/* Description */}
             {description && (
-              <p className="text-sm sm:text-lg leading-relaxed text-neutral-200 mb-6 sm:mb-8 max-w-2xl line-clamp-3">
+              <p className="text-xs sm:text-sm lg:text-lg leading-relaxed text-neutral-200 mb-3 sm:mb-8 max-w-2xl line-clamp-2 sm:line-clamp-3">
                 {description}
               </p>
             )}
 
             {/* Event details grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 sm:mb-8">
               {/* Date & Time */}
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
@@ -172,9 +183,12 @@ export default function EventHero({
                     <circle cx="12" cy="10" r="3" />
                   </svg>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-neutral-300">Location</p>
-                  <p className="text-white font-semibold">{city}</p>
+                  <p className="text-white font-semibold truncate">{venue || city}</p>
+                  <p className="text-neutral-300 text-sm truncate">
+                    {[city, state, country].filter(Boolean).join(", ")}
+                  </p>
                   <p className="text-neutral-300 text-sm">{eventType === "Virtual" ? "Online Event" : "In Person"}</p>
                 </div>
               </div>
@@ -211,7 +225,7 @@ export default function EventHero({
               )}
 
               {/* Social proof */}
-              {attendeeCount && attendeeCount > 0 && (
+              {attendeeCount != null && attendeeCount > 0 && (
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
                     <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -228,13 +242,13 @@ export default function EventHero({
             </div>
 
             {/* CTA buttons with enhanced styling */}
-            <div className="flex flex-wrap items-start gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {isPast ? (
                 <Button 
-                  size="lg"
-                  className="bg-slate-400 text-white font-semibold rounded-xl shadow-lg cursor-default opacity-70"
+                  size="sm"
+                  className="bg-slate-400 text-white font-semibold rounded-xl shadow-lg cursor-default opacity-70 sm:px-8 sm:py-4 sm:text-base sm:min-h-[56px]"
                   leftIcon={
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                     </svg>
                   }
@@ -243,11 +257,11 @@ export default function EventHero({
                 </Button>
               ) : (
                 <Button 
-                  size="lg" 
+                  size="sm" 
                   href={`/events/${id}/buy`}
-                  className="bg-lime hover:bg-lime-hover text-dark font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-[var(--duration-normal)] hover:scale-105"
+                  className="bg-lime hover:bg-lime-hover text-dark font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-[var(--duration-normal)] hover:scale-105 sm:px-8 sm:py-4 sm:text-base sm:min-h-[56px]"
                   leftIcon={
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                     </svg>
                   }
@@ -258,29 +272,33 @@ export default function EventHero({
               
               <Button
                 variant="outline"
-                size="lg"
-                onClick={() => document.getElementById('save-event-btn')?.click()}
-                className="glass-light border-white/30 text-white hover:bg-white/10 font-medium rounded-xl backdrop-blur-sm transition-all duration-[var(--duration-normal)]"
+                size="sm"
+                onClick={onSaveToggle}
+                className={`font-medium rounded-xl backdrop-blur-sm transition-all duration-[var(--duration-normal)] sm:px-8 sm:py-4 sm:text-base sm:min-h-[56px] ${
+                  isSaved
+                    ? "bg-lime/20 border-lime/30 text-lime"
+                    : "glass-light border-white/30 text-white hover:bg-white/10"
+                }`}
                 leftIcon={
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill={isSaved ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
                 }
               >
-                Save Event
+                {isSaved ? "Saved" : "Save Event"}
               </Button>
 
               {organizer && (
                 <button
                   onClick={toggleFollow}
                   disabled={followLoading}
-                  className={`inline-flex items-center gap-2.5 rounded-xl border px-8 py-4 text-base font-semibold transition-all min-h-[56px] ${
+                  className={`inline-flex items-center gap-1.5 sm:gap-2.5 rounded-xl border px-4 sm:px-8 py-2 sm:py-4 text-xs sm:text-base font-semibold transition-all min-h-[36px] sm:min-h-[56px] ${
                     following
                       ? "bg-lime/10 border-lime/20 text-lime hover:bg-lime/20"
                       : "bg-white/10 border-white/20 text-white hover:bg-white/20"
                   } disabled:opacity-50`}
                 >
-                  <svg className="w-5 h-5" fill={following ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill={following ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M20 8v6M23 11h-6" />
                   </svg>
                   {followLoading ? "..." : following ? "Following" : "Follow"}

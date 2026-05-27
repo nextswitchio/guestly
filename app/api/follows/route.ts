@@ -9,14 +9,40 @@ function getAuthHeaders(req: NextRequest): Record<string, string> {
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const type = searchParams.get("type") || "following";
+  const headers = getAuthHeaders(req);
 
   try {
     const res = await fetch(
       `${BACKEND_URL}/api/v1/community/${type}`,
-      { headers: getAuthHeaders(req) }
+      { headers }
     );
-    const data = await res.json();
-    return NextResponse.json({ success: true, data }, { status: res.status });
+    const follows: any[] = await res.json();
+
+    const enriched = await Promise.all(
+      follows.map(async (f) => {
+        const orgId = f.following_id;
+        try {
+          const profileRes = await fetch(
+            `${BACKEND_URL}/api/v1/users/${orgId}`,
+            { headers }
+          );
+          if (!profileRes.ok) return { ...f, display_name: "Organizer", bio: null, avatar: null, location_city: null, location_country: null };
+          const profile = await profileRes.json();
+          return {
+            ...f,
+            display_name: profile.display_name || profile.displayName || "Organizer",
+            bio: profile.bio || null,
+            avatar: profile.avatar || null,
+            location_city: profile.location_city || null,
+            location_country: profile.location_country || null,
+          };
+        } catch {
+          return { ...f, display_name: "Organizer", bio: null, avatar: null, location_city: null, location_country: null };
+        }
+      })
+    );
+
+    return NextResponse.json({ success: true, data: enriched }, { status: res.status });
   } catch {
     return NextResponse.json({ success: true, data: [] });
   }
