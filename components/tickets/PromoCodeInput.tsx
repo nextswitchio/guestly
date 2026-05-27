@@ -85,12 +85,13 @@ export function PromoCodeInput({
             setError('');
           }}
           placeholder="Enter code"
-          className="flex-1"
+          className="flex-1 h-10"
           disabled={isValidating}
         />
         <Button
           onClick={handleApply}
           disabled={!code.trim() || isValidating}
+          className="h-10 px-4 text-sm"
         >
           {isValidating ? 'Validating...' : 'Apply'}
         </Button>

@@ -5,6 +5,7 @@ export async function GET(req: NextRequest) {
   const token = req.cookies.get("access_token")?.value;
   const { searchParams } = req.nextUrl;
   const id = searchParams.get("id");
+  const eventId = searchParams.get("eventId");
 
   if (id) {
     try {
@@ -22,11 +23,15 @@ export async function GET(req: NextRequest) {
   }
 
   const page = searchParams.get("page") || "1";
-  const page_size = searchParams.get("page_size") || "20";
+  const page_size = searchParams.get("page_size") || "100";
+
+  // Build query string — backend supports event_id filter
+  const qs = new URLSearchParams({ page, page_size });
+  if (eventId) qs.set("event_id", eventId);
 
   try {
     const res = await fetch(
-      `${BACKEND_URL}/api/v1/orders/?page=${page}&page_size=${page_size}`,
+      `${BACKEND_URL}/api/v1/orders/?${qs.toString()}`,
       { headers: token ? { Authorization: `Bearer ${token}` } : {} }
     );
     const data = await res.json();

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import QRDisplay from "@/components/tickets/QRDisplay";
 import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Confetti animation component using framer-motion
 function Confetti() {
@@ -195,7 +196,7 @@ function ConfirmationContent({ order }: ConfirmationContentProps) {
               <Button variant="outline" size="lg" className="border-white/10 bg-white/5 text-white hover:bg-white/10">
                 <Icon name="share" size={16} className="mr-2" /> Share
               </Button>
-              <Button variant="outline" size="lg" className="border-white/10 bg-white/5 text-white hover:bg-white/10">
+              <Button href={`/receipt/${order.id}`} variant="outline" size="lg" className="border-white/10 bg-white/5 text-white hover:bg-white/10">
                 <Icon name="download" size={16} className="mr-2" /> Receipt
               </Button>
             </div>
@@ -246,26 +247,34 @@ export default function ConfirmationPage({ params }: { params: Promise<{ orderId
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-navy-950 flex items-center justify-center">
-        <div className="flex gap-1">
-          <span className="h-3 w-3 rounded-full bg-primary-500 animate-bounce" />
-          <span className="h-3 w-3 rounded-full bg-primary-500 animate-bounce [animation-delay:0.2s]" />
-          <span className="h-3 w-3 rounded-full bg-primary-500 animate-bounce [animation-delay:0.4s]" />
+      <ProtectedRoute>
+        <div className="min-h-screen bg-navy-950 flex items-center justify-center">
+          <div className="flex gap-1">
+            <span className="h-3 w-3 rounded-full bg-primary-500 animate-bounce" />
+            <span className="h-3 w-3 rounded-full bg-primary-500 animate-bounce [animation-delay:0.2s]" />
+            <span className="h-3 w-3 rounded-full bg-primary-500 animate-bounce [animation-delay:0.4s]" />
+          </div>
         </div>
-      </div>
+      </ProtectedRoute>
     );
   }
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-4 text-center">
-        <Icon name="x-circle" className="text-white w-16 h-16 mb-6" />
-        <h1 className="text-2xl font-black text-white mb-2">Order not found</h1>
-        <p className="text-navy-400 mb-8 max-w-xs">We couldn&apos;t find this order or it hasn&apos;t been paid yet.</p>
-        <Button href="/explore" variant="outline">Browse Events</Button>
-      </div>
+      <ProtectedRoute>
+        <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-4 text-center">
+          <Icon name="x-circle" className="text-white w-16 h-16 mb-6" />
+          <h1 className="text-2xl font-black text-white mb-2">Order not found</h1>
+          <p className="text-navy-400 mb-8 max-w-xs">We couldn&apos;t find this order or it hasn&apos;t been paid yet.</p>
+          <Button href="/explore" variant="outline">Browse Events</Button>
+        </div>
+      </ProtectedRoute>
     );
   }
 
-  return <ConfirmationContent order={order} />;
+  return (
+    <ProtectedRoute>
+      <ConfirmationContent order={order} />
+    </ProtectedRoute>
+  );
 }

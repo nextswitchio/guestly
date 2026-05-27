@@ -128,6 +128,23 @@ interface Event {
   tickets: Ticket[];
 }
 
+interface InfluencerCollab {
+  id: string;
+  eventId: string;
+  influencerId: string;
+  influencerName: string;
+  influencerPlatform?: string;
+  influencerHandle?: string;
+  status: string;
+  compensationType: string;
+  compensationAmount?: number;
+  commissionRate?: number;
+  freeTicketCount?: number;
+  trackingCode?: string;
+  promoCode?: string;
+  invitedAt?: string | number;
+}
+
 // ─── Status helpers ───────────────────────────────────────────────────────────
 
 const getDefaultTemplate = (template: string): string => {
@@ -1423,20 +1440,24 @@ function InsightsTab({ id }: { id: string }) {
   const [metrics, setMetrics] = useState<{ views: number; saves: number; reactions: number; tickets_sold: number; revenue: number } | null>(null);
 
   useEffect(() => {
-    fetch(`/api/proxy/events/${id}/metrics`)
+    fetch(`/api/events/${id}/insights`)
       .then(r => r.json())
-      .then(d => setMetrics(d))
+      .then(d => {
+        const payload = d.data ?? d;
+        setMetrics(payload);
+      })
       .catch(() => {});
   }, [id]);
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {[
           { label: 'Views', value: metrics?.views ?? '—', icon: <Eye className="w-4 h-4" /> },
           { label: 'Saves', value: metrics?.saves ?? '—', icon: <Star className="w-4 h-4" /> },
           { label: 'Reactions', value: metrics?.reactions ?? '—', icon: <CheckCircle className="w-4 h-4" /> },
           { label: 'Tickets Sold', value: metrics?.tickets_sold ?? '—', icon: <Ticket className="w-4 h-4" /> },
+          { label: 'Revenue', value: metrics?.revenue != null ? `₦${metrics.revenue.toLocaleString()}` : '—', icon: <BarChart2 className="w-4 h-4" /> },
         ].map(m => (
           <div key={m.label} className="rounded-2xl border border-neutral-200 bg-white p-4">
             <div className="flex items-center gap-2 text-neutral-400 mb-2">{m.icon}<span className="text-xs">{m.label}</span></div>
@@ -1479,6 +1500,304 @@ function MarketingTab({ id }: { id: string }) {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── Influencers Tab ───────────────────────────────────────────────────────
+
+interface DiscoveredUser {
+  id: string;
+  displayName: string;
+  avatar: string | null;
+  bio: string | null;
+  locationCity: string | null;
+  locationCountry: string | null;
+  socialInstagram: string | null;
+  socialTwitter: string | null;
+  socialFacebook: string | null;
+  socialLinkedin: string | null;
+  website: string | null;
+  interests: string[];
+}
+
+function SocialLink({ href, label, icon }: { href: string | null; label: string; icon: React.ReactNode }) {
+  if (!href) return null;
+  const url = href.startsWith('http') ? href : `https://${href}`;
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer"
+      className="flex items-center gap-1 text-xs text-lime-700 hover:underline">
+      {icon}{label}
+    </a>
+  );
+}
+
+function InfluencerCard({ user, onInvite, inviting }: { user: DiscoveredUser; onInvite: (u: DiscoveredUser) => void; inviting: boolean }) {
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-4 flex flex-col gap-3">
+      <div className="flex items-start gap-3">
+        {user.avatar
+          ? <img src={user.avatar} alt={user.displayName} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+          : <div className="w-12 h-12 rounded-full bg-lime-100 flex items-center justify-center flex-shrink-0 text-lime-700 font-bold text-lg">{user.displayName[0]?.toUpperCase()}</div>
+        }
+        <div className="min-w-0">
+          <p className="font-semibold text-sm text-neutral-900 truncate">{user.displayName}</p>
+          {(user.locationCity || user.locationCountry) && (
+            <p className="text-xs text-neutral-500 mt-0.5">📍 {[user.locationCity, user.locationCountry].filter(Boolean).join(', ')}</p>
+          )}
+        </div>
+      </div>
+      {user.bio && <p className="text-xs text-neutral-600 line-clamp-2">{user.bio}</p>}
+      {user.interests.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {user.interests.slice(0, 4).map(i => (
+            <span key={i} className="px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 text-xs">{i}</span>
+          ))}
+        </div>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <SocialLink href={user.socialInstagram} label="Instagram" icon={<span>📸</span>} />
+        <SocialLink href={user.socialTwitter} label="Twitter / X" icon={<span>🐦</span>} />
+        <SocialLink href={user.socialFacebook} label="Facebook" icon={<span>👤</span>} />
+        <SocialLink href={user.socialLinkedin} label="LinkedIn" icon={<span>💼</span>} />
+        {user.website && (
+          <a href={user.website.startsWith('http') ? user.website : `https://${user.website}`}
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs text-lime-700 hover:underline">🌐 Website</a>
+        )}
+      </div>
+      <Button size="sm" loading={inviting} onClick={() => onInvite(user)} className="w-full mt-1">
+        Invite to Collaborate
+      </Button>
+    </div>
+  );
+}
+
+function InfluencersTab({ id, event }: { id: string; event: { city?: string; country?: string } | null }) {
+  const [collabs, setCollabs] = useState<InfluencerCollab[]>([]);
+  const [collabsLoading, setCollabsLoading] = useState(true);
+  const [selectedCollab, setSelectedCollab] = useState<InfluencerCollab | null>(null);
+  const [messages, setMessages] = useState<Array<{ id: string; senderId: string; content: string; createdAt: string }>>([]);
+  const [messageInput, setMessageInput] = useState('');
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [discoverUsers, setDiscoverUsers] = useState<DiscoveredUser[]>([]);
+  const [discoverLoading, setDiscoverLoading] = useState(false);
+  const [discoverQuery, setDiscoverQuery] = useState('');
+  const [discoverCity, setDiscoverCity] = useState(event?.city ?? '');
+  const [discoverCountry, setDiscoverCountry] = useState(event?.country ?? '');
+  const [discoverPage, setDiscoverPage] = useState(1);
+  const [discoverTotal, setDiscoverTotal] = useState(0);
+  const [discoverPageCount, setDiscoverPageCount] = useState(1);
+  const [invitingId, setInvitingId] = useState<string | null>(null);
+  const [inviteTarget, setInviteTarget] = useState<DiscoveredUser | null>(null);
+  const [inviteForm, setInviteForm] = useState({ compensationType: 'paid', compensationAmount: '', commissionRate: '', freeTicketCount: '' });
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    const load = async () => {
+      setCollabsLoading(true);
+      try {
+        const res = await fetch('/api/influencers/collaborations');
+        if (res.ok) {
+          const d = await res.json();
+          setCollabs((d.collaborations || []).filter((c: any) => c.eventId === id));
+        }
+      } catch { /* best-effort */ }
+      finally { setCollabsLoading(false); }
+    };
+    load();
+  }, [id]);
+
+  const discover = async (page = 1) => {
+    setDiscoverLoading(true);
+    try {
+      const qs = new URLSearchParams({ page: String(page), page_size: '12' });
+      if (discoverQuery) qs.set('q', discoverQuery);
+      if (discoverCity) qs.set('city', discoverCity);
+      if (discoverCountry) qs.set('country', discoverCountry);
+      const res = await fetch(`/api/influencers/discover?${qs.toString()}`);
+      if (res.ok) {
+        const d = await res.json();
+        setDiscoverUsers(d.users || []);
+        setDiscoverTotal(d.total || 0);
+        setDiscoverPageCount(d.pageCount || 1);
+        setDiscoverPage(page);
+      }
+    } catch { /* best-effort */ }
+    finally { setDiscoverLoading(false); }
+  };
+
+  useEffect(() => { discover(1); }, []);
+
+  const openInviteModal = (user: DiscoveredUser) => {
+    setInviteTarget(user);
+    setInviteForm({ compensationType: 'paid', compensationAmount: '', commissionRate: '', freeTicketCount: '' });
+  };
+
+  const submitInvite = async () => {
+    if (!inviteTarget) return;
+    setInvitingId(inviteTarget.id);
+    try {
+      const payload = {
+        influencerId: inviteTarget.id,
+        eventId: id,
+        influencerName: inviteTarget.displayName,
+        influencerPlatform: inviteTarget.socialInstagram ? 'instagram' : inviteTarget.socialTwitter ? 'twitter' : 'other',
+        influencerHandle: inviteTarget.socialInstagram || inviteTarget.socialTwitter || '',
+        compensationType: inviteForm.compensationType,
+        compensationAmount: inviteForm.compensationAmount ? Number(inviteForm.compensationAmount) : undefined,
+        commissionRate: inviteForm.commissionRate ? Number(inviteForm.commissionRate) : undefined,
+        freeTicketCount: inviteForm.freeTicketCount ? Number(inviteForm.freeTicketCount) : undefined,
+      };
+      const res = await fetch('/api/influencers/invite', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        setCollabs(prev => [d, ...prev]);
+        setInviteTarget(null);
+        addToast(`${inviteTarget.displayName} invited successfully`, { type: 'success' });
+      } else {
+        const err = await res.json().catch(() => ({}));
+        addToast(err.error || 'Failed to invite', { type: 'error' });
+      }
+    } catch { addToast('Network error', { type: 'error' }); }
+    finally { setInvitingId(null); }
+  };
+
+  const openMessages = async (c: InfluencerCollab) => {
+    setSelectedCollab(c);
+    setMessagesLoading(true);
+    try {
+      const res = await fetch(`/api/influencers/collaborations/${c.id}/messages`);
+      if (res.ok) {
+        const d = await res.json();
+        setMessages(Array.isArray(d.messages) ? d.messages : []);
+      } else {
+        setMessages([]);
+      }
+    } catch {
+      setMessages([]);
+    } finally {
+      setMessagesLoading(false);
+    }
+  };
+
+  const closeMessages = () => {
+    setSelectedCollab(null);
+    setMessages([]);
+    setMessageInput('');
+  };
+
+  const sendMessage = async () => {
+    if (!selectedCollab || !messageInput.trim()) return;
+    try {
+      const res = await fetch(`/api/influencers/collaborations/${selectedCollab.id}/messages`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: messageInput.trim() }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        setMessages(prev => [...prev, d.message]);
+        setMessageInput('');
+      } else {
+        const err = await res.json().catch(() => ({}));
+        addToast(err.error || 'Failed to send message', { type: 'error' });
+      }
+    } catch {
+      addToast('Network error', { type: 'error' });
+    }
+  };
+
+  const acceptCollab = async (collabId: string) => {
+    try {
+      const res = await fetch(`/api/influencers/collaborations/${collabId}/accept`, { method: 'POST' });
+      if (res.ok) { setCollabs(prev => prev.map(c => c.id === collabId ? { ...c, status: 'accepted' } : c)); addToast('Collaboration accepted', { type: 'success' }); }
+    } catch { addToast('Failed to accept', { type: 'error' }); }
+  };
+
+  const declineCollab = async (collabId: string) => {
+    try {
+      const res = await fetch(`/api/influencers/collaborations/${collabId}/decline`, { method: 'POST' });
+      if (res.ok) { setCollabs(prev => prev.map(c => c.id === collabId ? { ...c, status: 'declined' } : c)); addToast('Collaboration declined', { type: 'info' }); }
+    } catch { addToast('Failed to decline', { type: 'error' }); }
+  };
+
+  const statusBadge = (s: string) => {
+    const map: Record<string, string> = { accepted: 'bg-green-100 text-green-700', pending: 'bg-amber-100 text-amber-700', invited: 'bg-amber-100 text-amber-700', declined: 'bg-red-100 text-red-600', rejected: 'bg-red-100 text-red-600' };
+    return map[s] ?? 'bg-neutral-100 text-neutral-600';
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* ── Discover Panel ── */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+        <h3 className="font-semibold text-neutral-900 mb-1">Discover Influencers</h3>
+        <p className="text-sm text-neutral-500 mb-4">Browse platform users near your event. Click their social links to check their profiles before inviting.</p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <input className="h-10 flex-1 min-w-[160px] rounded-xl border border-neutral-200 px-3 text-sm"
+            placeholder="Search by name or @handle…" value={discoverQuery}
+            onChange={e => setDiscoverQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && discover(1)} />
+          <input className="h-10 w-36 rounded-xl border border-neutral-200 px-3 text-sm"
+            placeholder="City" value={discoverCity}
+            onChange={e => setDiscoverCity(e.target.value)} onKeyDown={e => e.key === 'Enter' && discover(1)} />
+          <input className="h-10 w-36 rounded-xl border border-neutral-200 px-3 text-sm"
+            placeholder="Country" value={discoverCountry}
+            onChange={e => setDiscoverCountry(e.target.value)} onKeyDown={e => e.key === 'Enter' && discover(1)} />
+          <Button onClick={() => discover(1)} loading={discoverLoading} size="sm">Search</Button>
+        </div>
+        {discoverLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => <div key={i} className="rounded-xl border border-neutral-100 bg-neutral-50 h-48 animate-pulse" />)}
+          </div>
+        ) : discoverUsers.length === 0 ? (
+          <p className="text-sm text-neutral-400 py-6 text-center">No users found. Try a different search or city.</p>
+        ) : (
+          <>
+            <p className="text-xs text-neutral-400 mb-3">{discoverTotal} user{discoverTotal !== 1 ? 's' : ''} found</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {discoverUsers.map(u => (
+                <InfluencerCard key={u.id} user={u} onInvite={openInviteModal} inviting={invitingId === u.id} />
+              ))}
+            </div>
+            {discoverPageCount > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-4">
+                <Button variant="outline" size="sm" onClick={() => discover(discoverPage - 1)} disabled={discoverPage <= 1}>← Prev</Button>
+                <span className="text-sm text-neutral-500">Page {discoverPage} of {discoverPageCount}</span>
+                <Button variant="outline" size="sm" onClick={() => discover(discoverPage + 1)} disabled={discoverPage >= discoverPageCount}>Next →</Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+      {selectedCollab && (
+        <Modal open={!!selectedCollab} onClose={closeMessages} title={`Messages — ${selectedCollab.influencerName}`}>
+          <div className="space-y-3 max-h-[60vh] overflow-auto">
+            {messagesLoading ? <div className="text-sm text-neutral-500">Loading...</div> : (
+              messages.length === 0 ? <div className="text-sm text-neutral-500">No messages yet.</div> : (
+                <div className="space-y-2">
+                  {messages.map(m => (
+                    <div key={m.id} className="p-2 rounded-lg bg-neutral-50 border border-neutral-100">
+                      <p className="text-xs text-neutral-500">{new Date(m.createdAt).toLocaleString()}</p>
+                      <p className="text-sm text-neutral-900">{m.content}</p>
+                    </div>
+                  ))}
+                </div>
+              )
+            )}
+          </div>
+          <div className="mt-3">
+            <textarea value={messageInput} onChange={e => setMessageInput(e.target.value)} rows={3}
+              className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" placeholder="Write a message..." />
+            <div className="flex gap-2 mt-2">
+              <Button onClick={sendMessage}>Send</Button>
+              <Button variant="outline" onClick={() => { if (selectedCollab) acceptCollab(selectedCollab.id); }}>Accept</Button>
+              <Button variant="outline" onClick={() => { if (selectedCollab) declineCollab(selectedCollab.id); }}>Decline</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -1609,6 +1928,11 @@ export default function ManageEventPage({ params }: { params: Promise<{ id: stri
       id: 'marketing', label: 'Marketing', title: 'Marketing', icon: 'megaphone',
       description: 'Promote your event',
       content: <MarketingTab id={id} />,
+    },
+    {
+      id: 'influencers', label: 'Influencers', title: 'Influencers', icon: 'users',
+      description: 'Invite and manage influencer collaborations',
+      content: <InfluencersTab id={id} />,
     },
   ];
 

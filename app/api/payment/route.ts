@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const data = await res.json();
 
     if (res.ok && data.success) {
-      return NextResponse.json({ ok: true, orderId: data.order_id, message: data.message });
+      return NextResponse.json({ ok: true, orderId: data.order_id, payment_url: data.payment_url, message: data.message });
     }
 
     return NextResponse.json(

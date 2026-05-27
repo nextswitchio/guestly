@@ -2,7 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
-  const token = req.cookies.get("access_token")?.value;
+  let token = req.cookies.get("access_token")?.value;
+  const refreshToken = req.cookies.get("refresh_token")?.value;
+
+  if (!token && refreshToken) {
+    const refreshRes = await fetch(`${BACKEND_URL}/api/v1/auth/refresh?token=${refreshToken}`, {
+      method: "POST",
+    });
+    if (refreshRes.ok) {
+      const refreshData = await refreshRes.json();
+      token = refreshData.access_token;
+    }
+  }
 
   if (!token) {
     return NextResponse.json({ ok: false, error: "Not authenticated" }, { status: 401 });
@@ -14,7 +25,7 @@ export async function GET(req: NextRequest) {
     });
 
     if (!res.ok) {
-      const response = NextResponse.json({ ok: false, error: "Token expired" }, { status: 401 });
+      const response = NextResponse.json({ ok: false, error: res.status === 401 ? "Session expired" : "Token expired" }, { status: 401 });
       response.cookies.set("access_token", "", { maxAge: 0, path: "/" });
       response.cookies.set("refresh_token", "", { maxAge: 0, path: "/" });
       response.cookies.set("role", "", { maxAge: 0, path: "/" });
@@ -24,7 +35,14 @@ export async function GET(req: NextRequest) {
     }
 
     const user = await res.json();
-    return NextResponse.json({ ok: true, user });
+    const response = NextResponse.json({ ok: true, user });
+    response.cookies.set("access_token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 86400,
+    });
+    return response;
   } catch {
     return NextResponse.json({ ok: false, error: "Backend unavailable" }, { status: 503 });
   }

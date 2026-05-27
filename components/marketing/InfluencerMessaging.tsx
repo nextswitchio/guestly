@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Icon } from '@/components/ui/Icon';
+import { getSocket, joinCollaboration, leaveCollaboration, sendCollaborationMessage } from '@/lib/websocket';
 
 interface Message {
   id: string;
@@ -81,12 +82,57 @@ export function InfluencerMessaging({
 
   useEffect(() => {
     fetchMessages();
-    
-    // Poll for new messages every 5 seconds
+
+    // Poll for new messages every 5 seconds (fallback)
     const interval = setInterval(fetchMessages, 5000);
-    
-    return () => clearInterval(interval);
-  }, [collaborationId]);
+
+    // Try Socket.IO real-time updates
+    let socketConnected = false;
+    try {
+      const socket = getSocket();
+      
+      socket.on('connect', () => {
+        socketConnected = true;
+        // Join collaboration room
+        joinCollaboration(collaborationId);
+      });
+
+      socket.on('collaboration_joined', () => {
+        // room joined successfully
+      });
+
+      socket.on('collaboration_message', (msg: any) => {
+        // Append incoming message
+        setMessages((prev) => [...prev, {
+          id: msg.id,
+          collaborationId: msg.collaboration_id || collaborationId,
+          senderId: msg.sender_id,
+          senderRole: msg.sender_role || (msg.sender_id === currentUserId ? 'organizer' : 'influencer'),
+          content: msg.content,
+          attachments: msg.attachments || [],
+          read: false,
+          createdAt: new Date(msg.created_at).getTime(),
+        }]);
+      });
+
+      socket.on('messages_marked_read', (data: any) => {
+        // Update UI to show messages as read
+      });
+
+      socket.on('disconnect', () => {
+        socketConnected = false;
+      });
+
+      return () => {
+        clearInterval(interval);
+        if (socketConnected) {
+          leaveCollaboration(collaborationId);
+        }
+      };
+    } catch (e) {
+      return () => clearInterval(interval);
+    }
+  }, [collaborationId, currentUserId]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -100,19 +146,29 @@ export function InfluencerMessaging({
 
     setSending(true);
     try {
-      const response = await fetch(
-        `/api/influencers/collaborations/${collaborationId}/messages`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: newMessage }),
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setMessages([...messages, data.message]);
+      // Try Socket.IO first
+      const socket = getSocket();
+      
+      if (socket.connected) {
+        // Send via Socket.IO - backend handler will persist and broadcast
+        sendCollaborationMessage(collaborationId, newMessage);
         setNewMessage('');
+      } else {
+        // Fallback to HTTP if Socket.IO not connected
+        const response = await fetch(
+          `/api/influencers/collaborations/${collaborationId}/messages`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: newMessage }),
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setMessages([...messages, data.message]);
+          setNewMessage('');
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error);

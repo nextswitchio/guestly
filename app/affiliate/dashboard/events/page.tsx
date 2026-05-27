@@ -12,7 +12,12 @@ interface Event {
   category: string;
   price: number;
   image?: string;
+  bannerImage?: string;
   organizerName: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  venue?: string;
   commissionRate: number;
   totalTickets: number;
   soldTickets: number;
@@ -34,10 +39,44 @@ export default function AffiliateEventsPage() {
 
   const fetchEvents = async () => {
     try {
-      const res = await fetch('/api/events?status=upcoming&limit=50');
+      const res = await fetch('/api/events?status=published&page_size=50');
       if (res.ok) {
         const data = await res.json();
-        setEvents(data.events || []);
+        setEvents(
+          (data.events || []).map((event: any) => {
+            const totalTickets = event.tickets?.reduce((sum: number, ticket: any) => sum + (ticket.total ?? 0), 0) || 0;
+            const soldTickets = event.tickets?.reduce(
+              (sum: number, ticket: any) => sum + ((ticket.total ?? 0) - (ticket.available ?? 0)),
+              0
+            ) || 0;
+
+            return {
+              id: event.id,
+              title: event.title,
+              date: event.date,
+              location: [event.venue, event.city, event.state, event.country].filter(Boolean).join(', '),
+              category: event.category,
+              price: event.tickets?.[0]?.price ?? 0,
+                image: event.image,
+                bannerImage: event.banner_image || event.bannerImage || event.banner || undefined,
+              organizerName:
+                event.organizer_name ||
+                event.organizer?.display_name ||
+                event.organizer?.name ||
+                event.organizerName ||
+                'Organizer',
+              city: event.city,
+              state: event.state,
+              country: event.country,
+              venue: event.venue,
+              commissionRate: event.commissionRate ?? 10,
+              totalTickets,
+              soldTickets,
+              affiliateLink: event.affiliateLink,
+              affiliateCode: event.affiliateCode,
+            };
+          })
+        );
       }
     } catch (error) {
       console.error('Failed to fetch events:', error);
@@ -55,10 +94,20 @@ export default function AffiliateEventsPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setGeneratedLinks(prev => ({
-          ...prev,
-          [eventId]: { url: data.link.url, code: data.link.code },
-        }));
+        const linkUrl = data.link?.url || data.url || data.referralLink?.url || '';
+        const code = data.link?.code || data.code || data.referralLink?.code || '';
+
+        if (linkUrl && code) {
+          setGeneratedLinks(prev => ({
+            ...prev,
+            [eventId]: { url: linkUrl, code },
+          }));
+        } else {
+          console.error('Referral generate response missing URL or code', data);
+        }
+      } else {
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Failed to generate referral link:', errorData);
       }
     } catch (error) {
       console.error('Failed to generate link:', error);
@@ -71,9 +120,15 @@ export default function AffiliateEventsPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const categories = ['all', ...Array.from(new Set(events.map(e => e.category)))];
-  const filtered = events.filter(e => {
-    const matchesSearch = e.title.toLowerCase().includes(search.toLowerCase()) || e.organizerName.toLowerCase().includes(search.toLowerCase());
+  const categories = ['all', ...Array.from(new Set(events.map((e) => e.category || '')))].filter((c) => c);
+  const normalizedSearch = search.toLowerCase();
+  const filtered = events.filter((e) => {
+    const title = (e.title || '').toLowerCase();
+    const organizer = (e.organizerName || '').toLowerCase();
+    const matchesSearch =
+      !normalizedSearch ||
+      title.includes(normalizedSearch) ||
+      organizer.includes(normalizedSearch);
     const matchesCategory = category === 'all' || e.category === category;
     return matchesSearch && matchesCategory;
   });
@@ -142,9 +197,17 @@ export default function AffiliateEventsPage() {
             return (
               <div key={event.id} className="rounded-2xl border border-neutral-200 bg-white overflow-hidden hover:shadow-md transition-shadow">
                 {/* Event Image Placeholder */}
-                <div className="h-40 bg-gradient-to-br from-lime/20 to-neutral-100 flex items-center justify-center">
-                  <Calendar className="h-10 w-10 text-neutral-400" />
-                </div>
+                { (event.bannerImage || event.image) ? (
+                  <img
+                    src={event.bannerImage || event.image}
+                    alt={event.title}
+                    className="h-40 w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-40 bg-gradient-to-br from-lime/20 to-neutral-100 flex items-center justify-center">
+                    <Calendar className="h-10 w-10 text-neutral-400" />
+                  </div>
+                )}
 
                 <div className="p-5">
                   <div className="flex items-start justify-between mb-2">

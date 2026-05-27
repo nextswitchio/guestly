@@ -1,45 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  markMessagesAsRead,
-  getInfluencerCollaboration,
-} from '@/lib/marketing';
+import { BACKEND_URL } from '@/lib/api/client';
 
-// POST /api/influencers/collaborations/[id]/messages/read - Mark messages as read
+function getAuthHeaders(req: NextRequest): Record<string, string> {
+  const token = req.cookies.get('access_token')?.value;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = req.cookies.get('user_id')?.value;
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id: collaborationId } = await params;
-    const body = await req.json();
-    const { messageIds } = body; // Optional: specific message IDs to mark as read
+    const body = await req.json().catch(() => ({}));
 
-    // Verify user is part of the collaboration
-    const collaboration = getInfluencerCollaboration(collaborationId);
-    if (!collaboration) {
-      return NextResponse.json({ error: 'Collaboration not found' }, { status: 404 });
-    }
-
-    if (collaboration.organizerId !== userId && collaboration.influencerId !== userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    const markedCount = markMessagesAsRead(collaborationId, userId, messageIds);
-
-    return NextResponse.json({
-      success: true,
-      markedCount,
+    const res = await fetch(`${BACKEND_URL}/api/v1/influencers/collaborations/${collaborationId}/messages/read`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(req),
+      },
+      body: JSON.stringify(body),
+      credentials: 'include',
     });
+
+    const data = await res.json().catch(() => ({}));
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error('Error marking messages as read:', error);
-    return NextResponse.json(
-      { error: 'Failed to mark messages as read' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to mark messages as read' }, { status: 500 });
   }
 }

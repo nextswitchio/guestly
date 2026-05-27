@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { BACKEND_URL } from '@/lib/api/client';
+
+function getAuthHeaders(req: NextRequest): Record<string, string> {
+  const token = req.cookies.get('access_token')?.value;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const userId = req.cookies.get('user_id')?.value;
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id } = await params;
-    // Would update collaboration status to 'declined' in DB in production
-
-    return NextResponse.json({ success: true });
+    const res = await fetch(`${BACKEND_URL}/api/v1/influencers/collaborations/${id}/decline`, {
+      method: 'POST',
+      headers: getAuthHeaders(req),
+      credentials: 'include',
+    });
+    const data = await res.json().catch(() => ({}));
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to decline invitation' }, { status: 500 });
   }

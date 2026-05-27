@@ -17,6 +17,7 @@ export default function VendorRegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          fullName: data.fullName || data.full_name || data.name,
           email: data.email,
           password: data.password,
           role: "vendor",

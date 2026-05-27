@@ -13,6 +13,9 @@ interface EventInsights {
   totalRevenue: number;
   conversionRate: number;
   avgTicketPrice: number;
+  views: number;
+  saves: number;
+  reactions: number;
   ticketTypeBreakdown: Array<{ label: string; value: number }>;
   weeklyTickets: Array<{ label: string; value: number }>;
   weeklyRevenue: Array<{ label: string; value: number }>;
@@ -27,56 +30,24 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     Promise.all([
       fetch(`/api/events/${id}`).then((r) => r.json()).catch(() => null),
-      fetch(`/api/orders?eventId=${id}`).then((r) => r.json()).catch(() => null),
-    ]).then(([eventData, ordersData]) => {
-      const event = eventData?.event ?? null;
-      const orders: any[] = Array.isArray(ordersData?.orders) ? ordersData.orders : [];
-      const paidOrders = orders.filter((o: any) => o.status === "paid");
+      fetch(`/api/events/${id}/insights`).then((r) => r.json()).catch(() => null),
+    ]).then(([eventData, metricsData]) => {
+      const event = eventData?.data ?? eventData ?? null;
+      const m = metricsData?.data ?? metricsData ?? {};
 
-      const totalRevenue = paidOrders.reduce((s: number, o: any) => s + (o.total ?? 0), 0);
-      const ticketsSold = paidOrders.reduce((s: number, o: any) =>
-        s + (o.items ?? []).reduce((si: number, i: any) => si + (i.quantity ?? 0), 0), 0);
-      const avgTicketPrice = ticketsSold > 0 ? totalRevenue / ticketsSold : 0;
-      const conversionRate = orders.length > 0 ? (paidOrders.length / orders.length) * 100 : 0;
-
-      // Ticket type breakdown from order items
-      const typeMap: Record<string, number> = {};
-      paidOrders.forEach((o: any) => {
-        (o.items ?? []).forEach((item: any) => {
-          const t = item.type ?? item.ticket_type ?? "General";
-          typeMap[t] = (typeMap[t] ?? 0) + (item.quantity ?? 0);
-        });
+      setInsights({
+        event: event ? { id: event.id, title: event.title } : null,
+        ticketsSold: m.tickets_sold ?? 0,
+        totalRevenue: m.revenue ?? 0,
+        conversionRate: m.conversion_rate ?? 0,
+        avgTicketPrice: m.avg_ticket_price ?? 0,
+        views: m.views ?? 0,
+        saves: m.saves ?? 0,
+        reactions: m.reactions ?? 0,
+        ticketTypeBreakdown: m.ticket_type_breakdown ?? [],
+        weeklyTickets: m.weekly_tickets ?? [],
+        weeklyRevenue: m.weekly_revenue ?? [],
       });
-      const ticketTypeBreakdown = Object.entries(typeMap).map(([label, value]) => ({ label, value }));
-
-      // Weekly buckets (last 4 weeks)
-      const now = Date.now();
-      const weeklyTickets = [1, 2, 3, 4].map((w) => {
-        const start = now - w * 7 * 86400000;
-        const end = now - (w - 1) * 7 * 86400000;
-        const count = paidOrders
-          .filter((o: any) => {
-            const t = new Date(o.created_at).getTime();
-            return t >= start && t < end;
-          })
-          .reduce((s: number, o: any) =>
-            s + (o.items ?? []).reduce((si: number, i: any) => si + (i.quantity ?? 0), 0), 0);
-        return { label: `Week ${5 - w}`, value: count };
-      });
-
-      const weeklyRevenue = [1, 2, 3, 4].map((w) => {
-        const start = now - w * 7 * 86400000;
-        const end = now - (w - 1) * 7 * 86400000;
-        const rev = paidOrders
-          .filter((o: any) => {
-            const t = new Date(o.created_at).getTime();
-            return t >= start && t < end;
-          })
-          .reduce((s: number, o: any) => s + (o.total ?? 0), 0);
-        return { label: `Week ${5 - w}`, value: rev };
-      });
-
-      setInsights({ event, ticketsSold, totalRevenue, conversionRate, avgTicketPrice, ticketTypeBreakdown, weeklyTickets, weeklyRevenue });
     }).finally(() => setLoading(false));
   }, [id]);
 
@@ -96,6 +67,9 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
         { label: 'Total Revenue', value: fmt(insights.totalRevenue), icon: 'trending-up' as const },
         { label: 'Conversion Rate', value: `${insights.conversionRate.toFixed(1)}%`, icon: 'target' as const },
         { label: 'Avg. Ticket Price', value: fmt(insights.avgTicketPrice), icon: 'chart' as const },
+        { label: 'Views', value: insights.views.toLocaleString(), icon: 'eye' as const },
+        { label: 'Saves', value: insights.saves.toLocaleString(), icon: 'star' as const },
+        { label: 'Reactions', value: insights.reactions.toLocaleString(), icon: 'check-circle' as const },
       ]
     : [];
 
@@ -119,7 +93,7 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
         {stats.map((stat, index) => (
           <div key={index} className="rounded-2xl border border-neutral-200 bg-white p-5">
             <div className="flex items-center justify-between mb-2">

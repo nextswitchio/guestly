@@ -27,12 +27,17 @@ export async function POST(req: NextRequest) {
       return response;
     }
 
-    const response = NextResponse.json({ ok: true });
+    const response = NextResponse.json({
+      ok: true,
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_in: data.expires_in,
+    });
     response.cookies.set("access_token", data.access_token, {
       httpOnly: true,
       sameSite: "lax",
       path: "/",
-      maxAge: data.expires_in || 1800,
+      maxAge: data.expires_in || 86400,
     });
     response.cookies.set("refresh_token", data.refresh_token, {
       httpOnly: true,

@@ -43,18 +43,29 @@ export default function BuyTickets({ params }: { params: Promise<{ id: string }>
 
   return (
     <ProtectedRoute allowRoles={["attendee"]}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-        <nav className="mb-4 flex items-center gap-1.5 text-xs text-slate-400">
-          <Link href="/" className="hover:text-slate-600">Home</Link>
-          <span>/</span>
-          <Link href={`/events/${id}`} className="hover:text-slate-600">Event</Link>
-          <span>/</span>
-          <span className="text-slate-600">Buy Tickets</span>
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-12">
+        <nav className="mb-6 flex items-center gap-2 text-xs text-neutral-400">
+          <Link href="/" className="hover:text-dark transition-colors">Home</Link>
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 18l6-6-6-6" /></svg>
+          <Link href={`/events/${id}`} className="hover:text-dark transition-colors">Event</Link>
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 18l6-6-6-6" /></svg>
+          <span className="text-neutral-600 font-medium">Buy Tickets</span>
         </nav>
-        <div className="mx-auto max-w-lg">
-          <h1 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Select Tickets</h1>
-          <p className="mb-6 text-sm text-slate-500">Choose your ticket type and quantity</p>
-          <TicketSelector eventId={id} onContinue={(orderId) => router.replace(`/checkout?orderId=${orderId}`)} />
+        <div className="mx-auto max-w-xl">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime/10">
+              <svg className="w-5 h-5 text-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-dark">Select Tickets</h1>
+              <p className="text-sm text-neutral-500">Choose your ticket type and quantity</p>
+            </div>
+          </div>
+          <div className="mt-6">
+            <TicketSelector eventId={id} onContinue={(orderId) => router.replace(`/checkout?orderId=${orderId}`)} />
+          </div>
         </div>
       </div>
     </ProtectedRoute>

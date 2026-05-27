@@ -27,7 +27,7 @@ export default function AffiliateRegisterPage() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, role: 'affiliate' }),
+        body: JSON.stringify({ fullName: formData.name, email: formData.email, phone: formData.phone, password: formData.password, role: 'affiliate' }),
       });
 
       if (response.ok) {

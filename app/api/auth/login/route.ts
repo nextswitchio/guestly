@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        maxAge: data.tokens.expires_in || 1800,
+        maxAge: data.tokens.expires_in || 86400,
       });
       response.cookies.set("refresh_token", data.tokens.refresh_token, {
         httpOnly: true,

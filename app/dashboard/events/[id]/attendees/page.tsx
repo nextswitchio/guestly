@@ -11,6 +11,7 @@ interface Attendee {
   ticketId: string;
   purchasedAt: number;
   checkedIn: boolean;
+  checkedInAt?: string | null;
 }
 
 export default function EventAttendeesPage({ params }: { params: Promise<{ id: string }> }) {
@@ -101,17 +102,23 @@ export default function EventAttendeesPage({ params }: { params: Promise<{ id: s
                 <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Email</th>
                 <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Ticket</th>
                 <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Ticket ID</th>
+                <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Purchased</th>
                 <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Status</th>
                 <th className="text-left px-6 py-3 text-sm font-semibold text-neutral-600">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAttendees.map((attendee) => (
-                <tr key={attendee.id} className="border-b border-neutral-100 hover:bg-neutral-50">
+              {filteredAttendees.map((attendee, index) => (
+                <tr key={`${attendee.id}-${attendee.ticketType}-${index}`} className="border-b border-neutral-100 hover:bg-neutral-50">
                   <td className="px-6 py-4 text-sm font-medium text-neutral-900">{attendee.name}</td>
                   <td className="px-6 py-4 text-sm text-neutral-500">{attendee.email}</td>
                   <td className="px-6 py-4 text-sm text-neutral-900">{attendee.ticketType}</td>
                   <td className="px-6 py-4 text-sm text-neutral-500 font-mono">{attendee.ticketId}</td>
+                  <td className="px-6 py-4 text-sm text-neutral-500">
+                    {attendee.purchasedAt
+                      ? new Date(attendee.purchasedAt * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+                      : '—'}
+                  </td>
                   <td className="px-6 py-4">
                     <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
                       attendee.checkedIn
@@ -120,6 +127,11 @@ export default function EventAttendeesPage({ params }: { params: Promise<{ id: s
                     }`}>
                       {attendee.checkedIn ? 'Checked In' : 'Not Checked In'}
                     </span>
+                    {attendee.checkedIn && attendee.checkedInAt && (
+                      <p className="text-xs text-neutral-400 mt-0.5">
+                        {new Date(attendee.checkedInAt).toLocaleString()}
+                      </p>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
@@ -139,7 +151,7 @@ export default function EventAttendeesPage({ params }: { params: Promise<{ id: s
               ))}
               {filteredAttendees.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-neutral-500">
+                  <td colSpan={7} className="px-6 py-12 text-center text-neutral-500">
                     No attendees found
                   </td>
                 </tr>

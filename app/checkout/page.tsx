@@ -100,12 +100,77 @@ function CheckoutContent() {
   } = useCart();
 
   const [order, setOrder] = React.useState<Order | null>(null);
-  const [method, setMethod] = React.useState<"wallet" | "card">("wallet");
+  const [method, setMethod] = React.useState<"wallet" | "paystack" | "mobile_money">("wallet");
+  const [mobileProvider, setMobileProvider] = React.useState<string>("mpesa");
+  const [mobilePhone, setMobilePhone] = React.useState<string>("");
   const [loading, setLoading] = React.useState(checkoutType === "ticket");
   const [processing, setProcessing] = React.useState(false);
   const [showConfetti, setShowConfetti] = React.useState(false);
   const [orderComplete, setOrderComplete] = React.useState(false);
   const [completedOrder, setCompletedOrder] = React.useState<Order | null>(null);
+  const [passCodes, setPassCodes] = React.useState<Array<{ id: string; code: string; ticket_type?: string }>>([]);
+  const [paystackReturn, setPaystackReturn] = React.useState(false);
+
+  const fetchPassCodes = React.useCallback(async (orderId: string) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/pass-codes`);
+      const data = await res.json();
+      if (data && data.pass_codes) {
+        setPassCodes(data.pass_codes);
+      }
+    } catch {}
+  }, []);
+
+  // Paystack callback — poll order status, fall back to direct verification
+  React.useEffect(() => {
+    const trxref = params.get("trxref");
+    const reference = params.get("reference");
+    const ref = reference || trxref;
+    if (!orderId || !ref) return;
+    setPaystackReturn(true);
+    let attempts = 0;
+    const maxAttempts = 30;
+    const poll = setInterval(async () => {
+      attempts++;
+      try {
+        // First check if webhook already updated the order
+        const orderRes = await fetch(`/api/orders?id=${orderId}`);
+        const orderData = await orderRes.json();
+        if (orderData.order && orderData.order.status === "paid") {
+          clearInterval(poll);
+          setShowConfetti(true);
+          setOrderComplete(true);
+          setCompletedOrder(orderData.order);
+          fetchPassCodes(orderId);
+          return;
+        }
+        // After 5 attempts (~10s), try direct verification with Paystack
+        if (attempts >= 5) {
+          const verifyRes = await fetch("/api/orders/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId, reference: ref }),
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            clearInterval(poll);
+            setShowConfetti(true);
+            setOrderComplete(true);
+            const updated = await (await fetch(`/api/orders?id=${orderId}`)).json();
+            if (updated.order) setCompletedOrder(updated.order);
+            fetchPassCodes(orderId);
+            return;
+          }
+        }
+      } catch {}
+      if (attempts >= maxAttempts) {
+        clearInterval(poll);
+        setPaystackReturn(false);
+        addToast("Payment is taking longer than expected. Check your orders page.", { type: "warning" });
+      }
+    }, 2000);
+    return () => clearInterval(poll);
+  }, [orderId]);
   const [shippingAddress, setShippingAddress] = React.useState<ShippingAddress>({
     fullName: "",
     addressLine1: "",
@@ -174,12 +239,7 @@ function CheckoutContent() {
     fetchSavings();
   }, [order, isMerch, isCombined, hasTickets, ticketItems, combinedTotal]);
 
-  function proceed() {
-    if (method !== "wallet") {
-      addToast("Only Wallet payments are supported in this demo for instant confirmation.", { type: "warning" });
-      return;
-    }
-
+  function proceed(overrideMethod?: string) {
     if (isCombined || isMerch) {
       if (needsShipping) {
         const errors: any = {};
@@ -188,10 +248,8 @@ function CheckoutContent() {
         });
         if (Object.keys(errors).length > 0) return setShippingErrors(errors);
       }
-      
       setProcessing(true);
       const promises: Promise<any>[] = [];
-      
       if (isCombined && hasTickets) {
         ticketItems.forEach(it => {
           promises.push(fetch("/api/orders", {
@@ -206,7 +264,6 @@ function CheckoutContent() {
           }).then(r => r.json()));
         });
       }
-      
       if (hasMerch) {
         promises.push(fetch("/api/merch/orders", {
           method: "POST",
@@ -218,39 +275,10 @@ function CheckoutContent() {
           }),
         }).then(r => r.json()));
       }
-      
       Promise.all(promises).then(async results => {
         if (results.every(r => r.success)) {
           const firstOrderId = results[0].order?.id || results[0].orderId;
-          
-          const payRes = await fetch("/api/payment", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: firstOrderId, method: "wallet" }),
-          });
-          const payData = await payRes.json();
-          
-          if (!payData.ok) {
-            setProcessing(false);
-            addToast(payData.error || "Payment failed", { type: "error" });
-            return;
-          }
-
-          setShowConfetti(true);
-          setProcessing(false);
-          setOrderComplete(true);
-          
-          const orderRes = await fetch(`/api/orders?id=${firstOrderId}`);
-          const orderData = await orderRes.json();
-          if (orderData.order) {
-            setCompletedOrder(orderData.order);
-          }
-          
-          clearAll();
-          setTimeout(() => {
-            const ids = results.map(r => r.order?.id || r.orderId).filter(Boolean).join(",");
-            router.replace(`/confirmation/${ids.split(',')[0]}?allIds=${ids}`);
-          }, 5000);
+          await payOrder(firstOrderId, results, overrideMethod);
         } else {
           setProcessing(false);
           addToast("Checkout failed", { type: "error" });
@@ -258,35 +286,107 @@ function CheckoutContent() {
       });
       return;
     }
-    
     if (!order) return;
-    
     setProcessing(true);
-    fetch("/api/payment", {
+    payOrder(order.id, undefined, overrideMethod);
+  }
+
+  async function payOrder(orderId: string, results?: any[], overrideMethod?: string) {
+    const activeMethod = overrideMethod || method;
+    const body: any = { orderId, method: activeMethod };
+    if (activeMethod === "paystack") {
+      body.payment_details = {
+        callback_url: `${window.location.origin}/checkout?orderId=${orderId}`,
+      };
+    }
+    if (activeMethod === "mobile_money") {
+      body.payment_details = {
+        mobile_provider: mobileProvider,
+        phone_number: mobilePhone,
+      };
+    }
+    const payRes = await fetch("/api/payment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId: order.id, method: "wallet" }),
-    }).then(async res => {
-      const data = await res.json();
-      if (data.ok) {
-        setShowConfetti(true);
-        setProcessing(false);
-        setOrderComplete(true);
-        
-        const orderRes = await fetch(`/api/orders?id=${order.id}`);
-        const orderData = await orderRes.json();
-        if (orderData.order) {
-          setCompletedOrder(orderData.order);
-        }
+      body: JSON.stringify(body),
+    });
+    const payData = await payRes.json();
 
-        setTimeout(() => {
-          router.replace(`/confirmation/${order.id}`);
-        }, 5000);
+    if (!payData.ok) {
+      setProcessing(false);
+      addToast(payData.error || "Payment failed", { type: "error" });
+      return;
+    }
+
+    if (activeMethod === "paystack") {
+      if (payData.payment_url) {
+        window.location.href = payData.payment_url;
       } else {
         setProcessing(false);
-        addToast(data.error || "Payment failed", { type: "error" });
+        addToast("Failed to initiate Paystack payment. Please try again.", { type: "error" });
       }
-    });
+      return;
+    }
+
+    if (activeMethod === "mobile_money") {
+      setProcessing(false);
+      setPaystackReturn(true);
+      addToast("Check your phone to complete payment", { type: "info" });
+      let attempts = 0;
+      const poll = setInterval(async () => {
+        attempts++;
+        try {
+          const res = await fetch(`/api/orders?id=${orderId}`);
+          const d = await res.json();
+          if (d.order && d.order.status === "paid") {
+            clearInterval(poll);
+            setShowConfetti(true);
+            setOrderComplete(true);
+            setCompletedOrder(d.order);
+            fetchPassCodes(orderId);
+            if (results) clearAll();
+            return;
+          }
+          // After 15 attempts (~30s), try verifying via reference if available
+          if (attempts >= 15 && d.order?.payment_reference) {
+            const verifyRes = await fetch("/api/orders/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ orderId, reference: d.order.payment_reference }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              clearInterval(poll);
+              setShowConfetti(true);
+              setOrderComplete(true);
+              const updated = await (await fetch(`/api/orders?id=${orderId}`)).json();
+              if (updated.order) setCompletedOrder(updated.order);
+              fetchPassCodes(orderId);
+              if (results) clearAll();
+              return;
+            }
+          }
+        } catch {}
+        if (attempts >= 30) {
+          clearInterval(poll);
+          setPaystackReturn(false);
+          addToast("Payment is taking longer than expected. Your order will be updated once confirmed.", { type: "warning" });
+        }
+      }, 2000);
+      return;
+    }
+
+    setShowConfetti(true);
+    setProcessing(false);
+    setOrderComplete(true);
+
+    const orderRes = await fetch(`/api/orders?id=${orderId}`);
+    const orderData = await orderRes.json();
+    if (orderData.order) setCompletedOrder(orderData.order);
+    fetchPassCodes(orderId);
+
+    if (results) clearAll();
+    const targetId = orderId;
   }
 
   const stepLabels = [
@@ -308,7 +408,39 @@ function CheckoutContent() {
 
         <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
           <AnimatePresence mode="wait">
-            {orderComplete && completedOrder ? (
+            {paystackReturn && !orderComplete ? (
+              <motion.div
+                key="awaiting"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center py-20 text-center"
+              >
+                <div className="w-full max-w-md mx-auto space-y-8">
+                  <div className="relative flex h-24 w-24 items-center justify-center mx-auto">
+                    <div className="absolute inset-0 rounded-full bg-lime/10 animate-ping" />
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-lime/20">
+                      <svg className="h-10 w-10 text-lime animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Awaiting Payment Confirmation</h2>
+                    <p className="text-navy-300 mt-2 text-sm">
+                      {method === "mobile_money"
+                        ? "Check your phone to complete the payment via Mobile Money."
+                        : "Complete the payment in the Paystack popup that opened."}
+                    </p>
+                  </div>
+                  <div className="flex justify-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-lime animate-bounce" />
+                    <span className="h-2 w-2 rounded-full bg-lime animate-bounce [animation-delay:0.15s]" />
+                    <span className="h-2 w-2 rounded-full bg-lime animate-bounce [animation-delay:0.3s]" />
+                  </div>
+                </div>
+              </motion.div>
+            ) : orderComplete && completedOrder ? (
               <motion.div
                 key="confirmation"
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -351,7 +483,7 @@ function CheckoutContent() {
                   <div className="space-y-4 mb-8">
                     <h1 className="text-3xl font-black text-white">Order Confirmed!</h1>
                     <p className="text-navy-300 font-medium leading-relaxed max-w-sm mx-auto">
-                      Your experience is ready. Redirecting to your tickets in a few seconds...
+                      Your experience is ready. Show this QR code at the venue.
                     </p>
                   </div>
 
@@ -382,22 +514,27 @@ function CheckoutContent() {
                     </div>
                   </div>
 
-                  {/* QR Code Section */}
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ 
-                      delay: 0.4,
-                      type: "spring",
-                      damping: 20,
-                      stiffness: 300
-                    }}
-                    className="bg-white rounded-[2rem] p-8 mb-8 shadow-2xl shadow-black/20"
-                  >
-                    <div className="mx-auto w-full max-w-[160px]">
-                      <QRDisplay value={completedOrder.id} />
+                  {/* Pass Codes Section */}
+                  {passCodes.length > 0 && (
+                    <div className="mb-8">
+                      <h2 className="text-sm font-black uppercase tracking-widest text-navy-400 mb-4 text-center">
+                        Your Pass Codes
+                      </h2>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {passCodes.map((pc, idx) => (
+                          <motion.div
+                            key={pc.id}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.5 + idx * 0.1 }}
+                            className="bg-white rounded-2xl p-4 shadow-2xl shadow-black/20"
+                          >
+                            <QRDisplay value={pc.code} />
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
-                  </motion.div>
+                  )}
 
                   <Button href="/attendee" size="xl" className="w-full">
                     Go to My Tickets Now
@@ -482,7 +619,7 @@ function CheckoutContent() {
                           {[
                             { icon: "shield", text: "Secure SSL" },
                             { icon: "check", text: "Verified" },
-                            { icon: "refresh", text: "Refundable" }
+                            { icon: "refresh-cw", text: "Refundable" }
                           ].map((t, i) => (
                             <div key={i} className="flex items-center gap-2 rounded-2xl bg-green-600/10 border border-success-500/20 px-4 py-3 text-green-600">
                               <Icon name={t.icon as any} size={16} />
@@ -493,9 +630,18 @@ function CheckoutContent() {
 
                         <PaymentMethodSelector 
                           value={method} 
-                          onChange={setMethod}
+                          onChange={(m) => {
+                            setMethod(m);
+                            if (m === "mobile_money") {
+                              setMobileProvider("mpesa");
+                              setMobilePhone("");
+                            } else if (order) {
+                              proceed(m);
+                            }
+                          }}
                           orderTotal={isCombined ? combinedTotal : isMerch ? cartTotal : order?.total}
                           savingsApplied={savingsApplied}
+                          onFundWallet={() => router.push("/wallet")}
                         />
 
                         {!isMerch && order && (
@@ -513,7 +659,7 @@ function CheckoutContent() {
 
                       {/* Desktop Proceed Button */}
                       <div className="hidden lg:block">
-                        <Button onClick={proceed} className="w-full h-16 text-lg font-black shadow-2xl shadow-primary-500/20" size="xl" disabled={processing}>
+                        <Button onClick={() => proceed()} className="w-full h-16 text-lg font-black shadow-2xl shadow-primary-500/20" size="xl" disabled={processing}>
                           {processing ? "Processing Experience..." : "Confirm & Pay"}
                         </Button>
                         <p className="mt-4 text-center text-xs text-navy-400 font-medium">
@@ -615,7 +761,7 @@ function CheckoutContent() {
 
                       {/* Mobile Sticky Button */}
                       <div className="lg:hidden sticky bottom-4 z-50">
-                        <Button onClick={proceed} className="w-full h-16 text-lg font-black shadow-3xl shadow-primary-500/40" size="xl" disabled={processing}>
+                        <Button onClick={() => proceed()} className="w-full h-16 text-lg font-black shadow-3xl shadow-primary-500/40" size="xl" disabled={processing}>
                           {processing ? "Processing..." : `Pay ${formatCurrency(isCombined ? combinedTotal : isMerch ? cartTotal : (order?.total || 0))}`}
                         </Button>
                       </div>

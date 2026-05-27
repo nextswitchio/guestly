@@ -130,6 +130,13 @@ let socket: Socket | null = null;
 export function getSocket() {
   if (!socket) {
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || window.location.origin;
+    
+    // Get JWT token from cookies
+    const token = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('access_token='))
+      ?.split('=')[1];
+    
     socket = io(socketUrl, {
       path: "/api/socket/io",
       addTrailingSlash: false,
@@ -137,6 +144,9 @@ export function getSocket() {
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 5,
+      auth: {
+        token: token || '',
+      },
     });
   }
   return socket;
@@ -256,6 +266,45 @@ export function subscribeNotifications(userId: string) {
 export function unsubscribeNotifications() {
   const socket = getSocket();
   socket.emit("unsubscribe_notifications");
+}
+
+// --- Influencer Collaboration Real-Time Messaging ---
+
+export interface CollaborationMessage {
+  id: string;
+  collaboration_id: string;
+  sender_id: string;
+  sender_role: 'organizer' | 'influencer';
+  content: string;
+  attachments?: string[];
+  created_at: string;
+}
+
+export function joinCollaboration(collaborationId: string) {
+  const socket = getSocket();
+  socket.emit("join_collaboration", { collaboration_id: collaborationId });
+}
+
+export function leaveCollaboration(collaborationId: string) {
+  const socket = getSocket();
+  socket.emit("leave_collaboration", { collaboration_id: collaborationId });
+}
+
+export function sendCollaborationMessage(collaborationId: string, content: string, attachments?: string[]) {
+  const socket = getSocket();
+  socket.emit("send_collaboration_message", {
+    collaboration_id: collaborationId,
+    content: content,
+    attachments: attachments,
+  });
+}
+
+export function markCollaborationMessagesRead(collaborationId: string, messageIds?: string[]) {
+  const socket = getSocket();
+  socket.emit("mark_messages_read", {
+    collaboration_id: collaborationId,
+    message_ids: messageIds,
+  });
 }
 
 export function onNewNotification(callback: (notification: NewNotificationEvent) => void) {
