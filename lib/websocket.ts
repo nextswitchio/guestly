@@ -138,7 +138,7 @@ export function getSocket() {
       ?.split('=')[1];
     
     socket = io(socketUrl, {
-      path: "/api/socket/io",
+      path: "/socket.io/",
       addTrailingSlash: false,
       transports: ["websocket", "polling"],
       reconnection: true,

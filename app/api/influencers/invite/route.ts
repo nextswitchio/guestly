@@ -31,13 +31,28 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
+    // Convert camelCase from frontend → snake_case for backend schema
+    const payload = {
+      event_id: body.eventId,
+      influencer_id: body.influencerId,
+      influencer_name: body.influencerName,
+      influencer_platform: body.influencerPlatform ?? null,
+      influencer_handle: body.influencerHandle ?? null,
+      compensation_type: body.compensationType,
+      compensation_amount: body.compensationAmount ?? null,
+      commission_rate: body.commissionRate ?? null,
+      free_ticket_count: body.freeTicketCount ?? null,
+      tracking_code: body.trackingCode ?? null,
+      promo_code: body.promoCode ?? null,
+    };
+
     const res = await fetch(`${BACKEND_URL}/api/v1/influencers/invite`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...getAuthHeaders(req),
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
       credentials: 'include',
     });
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
@@ -1504,6 +1504,124 @@ function MarketingTab({ id }: { id: string }) {
   );
 }
 
+// ─── Collab Message Modal (isolated to prevent re-renders on typing) ──────────
+
+function CollabMessageModal({
+  collab,
+  messages,
+  messagesLoading,
+  currentUserId,
+  myAvatar,
+  otherAvatar,
+  onClose,
+  onSend,
+}: {
+  collab: InfluencerCollab;
+  messages: Array<{ id: string; senderId: string; content: string; createdAt: string }>;
+  messagesLoading: boolean;
+  currentUserId: string | null;
+  myAvatar: string | null;
+  otherAvatar: string | null;
+  onClose: () => void;
+  onSend: (content: string) => Promise<void>;
+}) {
+  const [input, setInput] = useState('');
+  const [sending, setSending] = useState(false);
+  const msgEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    msgEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSend = async () => {
+    const content = input.trim();
+    if (!content) return;
+    setInput('');
+    setSending(true);
+    try {
+      await onSend(content);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <Modal open onClose={onClose} title={`Messages — ${collab.influencerName}`}>
+      {/* Chat thread */}
+      <div className="flex flex-col gap-2 max-h-[52vh] overflow-y-auto px-1 py-2 mb-3">
+        {messagesLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-lime border-t-transparent" />
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-sm text-neutral-400">No messages yet. Start the conversation.</p>
+          </div>
+        ) : (
+          messages.map(m => {
+            const isMine = currentUserId
+              ? m.senderId === currentUserId
+              : m.senderId === collab.organizerId;
+            const avatar = isMine ? myAvatar : otherAvatar;
+            const initials = isMine ? 'Me' : (collab.influencerName?.[0]?.toUpperCase() ?? '?');
+            return (
+              <div key={m.id} className={`flex items-end gap-2 ${isMine ? 'justify-end' : 'justify-start'}`}>
+                {/* Other person's avatar — left side */}
+                {!isMine && (
+                  avatar
+                    ? <img src={avatar} alt={collab.influencerName} className="h-7 w-7 rounded-full object-cover shrink-0 mb-0.5" />
+                    : <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-600 mb-0.5">
+                        {initials}
+                      </div>
+                )}
+                <div className={`max-w-[72%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                  isMine
+                    ? 'bg-lime text-dark rounded-br-sm'
+                    : 'bg-neutral-100 text-neutral-800 rounded-bl-sm'
+                }`}>
+                  {!isMine && (
+                    <p className="text-[10px] font-semibold text-neutral-500 mb-0.5">
+                      {collab.influencerName}
+                    </p>
+                  )}
+                  <p className="leading-relaxed">{m.content}</p>
+                  <p className={`text-[10px] mt-1 text-right ${isMine ? 'text-dark/40' : 'text-neutral-400'}`}>
+                    {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+                {/* My avatar — right side */}
+                {isMine && (
+                  avatar
+                    ? <img src={avatar} alt="You" className="h-7 w-7 rounded-full object-cover shrink-0 mb-0.5" />
+                    : <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-lime/20 text-[10px] font-bold text-lime mb-0.5">
+                        Me
+                      </div>
+                )}
+              </div>
+            );
+          })
+        )}
+        <div ref={msgEndRef} />
+      </div>
+
+      {/* Input row */}
+      <div className="flex gap-2 border-t border-neutral-100 pt-3">
+        <input
+          autoFocus
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+          placeholder="Write a message…"
+          className="flex-1 h-10 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
+        />
+        <Button onClick={handleSend} loading={sending} disabled={!input.trim()}>
+          Send
+        </Button>
+      </div>
+    </Modal>
+  );
+}
+
 // ─── Influencers Tab ───────────────────────────────────────────────────────
 
 interface DiscoveredUser {
@@ -1521,33 +1639,69 @@ interface DiscoveredUser {
   interests: string[];
 }
 
-function SocialLink({ href, label, icon }: { href: string | null; label: string; icon: React.ReactNode }) {
-  if (!href) return null;
-  const url = href.startsWith('http') ? href : `https://${href}`;
-  return (
-    <a href={url} target="_blank" rel="noopener noreferrer"
-      className="flex items-center gap-1 text-xs text-lime-700 hover:underline">
-      {icon}{label}
-    </a>
-  );
-}
+// ── Social platform SVG icons ─────────────────────────────────────────────────
+const InstagramIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current" aria-hidden="true">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+  </svg>
+);
+
+const TwitterXIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current" aria-hidden="true">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+
+const FacebookIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current" aria-hidden="true">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
+
+const LinkedInIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current" aria-hidden="true">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
+
+const SOCIAL_LINKS: Array<{
+  key: keyof Pick<DiscoveredUser, 'socialInstagram' | 'socialTwitter' | 'socialFacebook' | 'socialLinkedin'>;
+  label: string;
+  icon: React.ReactNode;
+  color: string;
+}> = [
+  { key: 'socialInstagram', label: 'Instagram', icon: <InstagramIcon />, color: 'text-pink-600 hover:text-pink-700 bg-pink-50 hover:bg-pink-100' },
+  { key: 'socialTwitter',   label: 'X',         icon: <TwitterXIcon />,  color: 'text-neutral-800 hover:text-black bg-neutral-100 hover:bg-neutral-200' },
+  { key: 'socialFacebook',  label: 'Facebook',  icon: <FacebookIcon />,  color: 'text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100' },
+  { key: 'socialLinkedin',  label: 'LinkedIn',  icon: <LinkedInIcon />,  color: 'text-sky-700 hover:text-sky-800 bg-sky-50 hover:bg-sky-100' },
+];
 
 function InfluencerCard({ user, onInvite, inviting }: { user: DiscoveredUser; onInvite: (u: DiscoveredUser) => void; inviting: boolean }) {
+  const socialCount = SOCIAL_LINKS.filter(s => !!user[s.key]).length + (user.website ? 1 : 0);
+
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4 flex flex-col gap-3">
+      {/* Avatar + name */}
       <div className="flex items-start gap-3">
         {user.avatar
           ? <img src={user.avatar} alt={user.displayName} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
           : <div className="w-12 h-12 rounded-full bg-lime-100 flex items-center justify-center flex-shrink-0 text-lime-700 font-bold text-lg">{user.displayName[0]?.toUpperCase()}</div>
         }
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="font-semibold text-sm text-neutral-900 truncate">{user.displayName}</p>
           {(user.locationCity || user.locationCountry) && (
-            <p className="text-xs text-neutral-500 mt-0.5">📍 {[user.locationCity, user.locationCountry].filter(Boolean).join(', ')}</p>
+            <p className="flex items-center gap-1 text-xs text-neutral-500 mt-0.5">
+              <MapPin className="w-3 h-3 shrink-0" />
+              {[user.locationCity, user.locationCountry].filter(Boolean).join(', ')}
+            </p>
           )}
         </div>
       </div>
-      {user.bio && <p className="text-xs text-neutral-600 line-clamp-2">{user.bio}</p>}
+
+      {/* Bio */}
+      {user.bio && <p className="text-xs text-neutral-600 line-clamp-2 leading-relaxed">{user.bio}</p>}
+
+      {/* Interests */}
       {user.interests.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {user.interests.slice(0, 4).map(i => (
@@ -1555,18 +1709,37 @@ function InfluencerCard({ user, onInvite, inviting }: { user: DiscoveredUser; on
           ))}
         </div>
       )}
-      <div className="flex flex-wrap gap-2">
-        <SocialLink href={user.socialInstagram} label="Instagram" icon={<span>📸</span>} />
-        <SocialLink href={user.socialTwitter} label="Twitter / X" icon={<span>🐦</span>} />
-        <SocialLink href={user.socialFacebook} label="Facebook" icon={<span>👤</span>} />
-        <SocialLink href={user.socialLinkedin} label="LinkedIn" icon={<span>💼</span>} />
-        {user.website && (
-          <a href={user.website.startsWith('http') ? user.website : `https://${user.website}`}
-            target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-1 text-xs text-lime-700 hover:underline">🌐 Website</a>
-        )}
-      </div>
-      <Button size="sm" loading={inviting} onClick={() => onInvite(user)} className="w-full mt-1">
+
+      {/* Social links */}
+      {socialCount > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {SOCIAL_LINKS.map(({ key, label, icon, color }) => {
+            const href = user[key];
+            if (!href) return null;
+            const url = href.startsWith('http') ? href : `https://${href}`;
+            return (
+              <a key={key} href={url} target="_blank" rel="noopener noreferrer"
+                title={label}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${color}`}>
+                {icon}
+                {label}
+              </a>
+            );
+          })}
+          {user.website && (() => {
+            const url = user.website.startsWith('http') ? user.website : `https://${user.website}`;
+            return (
+              <a href={url} target="_blank" rel="noopener noreferrer" title="Website"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-lime-700 hover:text-lime-800 bg-lime-50 hover:bg-lime-100 transition-colors">
+                <Globe className="w-3.5 h-3.5" />
+                Website
+              </a>
+            );
+          })()}
+        </div>
+      )}
+
+      <Button size="sm" loading={inviting} onClick={() => onInvite(user)} className="w-full mt-auto">
         Invite to Collaborate
       </Button>
     </div>
@@ -1578,8 +1751,10 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
   const [collabsLoading, setCollabsLoading] = useState(true);
   const [selectedCollab, setSelectedCollab] = useState<InfluencerCollab | null>(null);
   const [messages, setMessages] = useState<Array<{ id: string; senderId: string; content: string; createdAt: string }>>([]);
-  const [messageInput, setMessageInput] = useState('');
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [myAvatar, setMyAvatar] = useState<string | null>(null);
+  const [otherAvatar, setOtherAvatar] = useState<string | null>(null);
   const [discoverUsers, setDiscoverUsers] = useState<DiscoveredUser[]>([]);
   const [discoverLoading, setDiscoverLoading] = useState(false);
   const [discoverQuery, setDiscoverQuery] = useState('');
@@ -1608,6 +1783,17 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
     load();
   }, [id]);
 
+  // Fetch current user id + avatar for message alignment
+  useEffect(() => {
+    fetch('/api/profile')
+      .then(r => r.json())
+      .then(d => {
+        if (d?.profile?.id) setCurrentUserId(d.profile.id);
+        if (d?.profile?.avatar) setMyAvatar(d.profile.avatar);
+      })
+      .catch(() => {});
+  }, []);
+
   const discover = async (page = 1) => {
     setDiscoverLoading(true);
     try {
@@ -1615,16 +1801,24 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
       if (discoverQuery) qs.set('q', discoverQuery);
       if (discoverCity) qs.set('city', discoverCity);
       if (discoverCountry) qs.set('country', discoverCountry);
-      const res = await fetch(`/api/influencers/discover?${qs.toString()}`);
+      const res = await fetch(`/api/influencers/discover?${qs.toString()}`, {
+        credentials: 'include',
+      });
+      const d = await res.json().catch(() => ({}));
       if (res.ok) {
-        const d = await res.json();
         setDiscoverUsers(d.users || []);
         setDiscoverTotal(d.total || 0);
         setDiscoverPageCount(d.pageCount || 1);
         setDiscoverPage(page);
+      } else {
+        console.error('Discover failed:', res.status, d);
+        setDiscoverUsers([]);
+        setDiscoverTotal(0);
       }
-    } catch { /* best-effort */ }
-    finally { setDiscoverLoading(false); }
+    } catch (err) {
+      console.error('Discover error:', err);
+      setDiscoverUsers([]);
+    } finally { setDiscoverLoading(false); }
   };
 
   useEffect(() => { discover(1); }, []);
@@ -1668,14 +1862,23 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
 
   const openMessages = async (c: InfluencerCollab) => {
     setSelectedCollab(c);
+    setOtherAvatar(null); // reset while loading
     setMessagesLoading(true);
     try {
-      const res = await fetch(`/api/influencers/collaborations/${c.id}/messages`);
-      if (res.ok) {
-        const d = await res.json();
+      // Fetch messages + influencer avatar in parallel
+      const [msgRes, userRes] = await Promise.all([
+        fetch(`/api/influencers/collaborations/${c.id}/messages`),
+        fetch(`/api/users/${c.influencerId}`).catch(() => null),
+      ]);
+      if (msgRes.ok) {
+        const d = await msgRes.json();
         setMessages(Array.isArray(d.messages) ? d.messages : []);
       } else {
         setMessages([]);
+      }
+      if (userRes?.ok) {
+        const u = await userRes.json();
+        setOtherAvatar(u?.avatar ?? u?.profile?.avatar ?? null);
       }
     } catch {
       setMessages([]);
@@ -1687,26 +1890,30 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
   const closeMessages = () => {
     setSelectedCollab(null);
     setMessages([]);
-    setMessageInput('');
   };
 
-  const sendMessage = async () => {
-    if (!selectedCollab || !messageInput.trim()) return;
-    try {
-      const res = await fetch(`/api/influencers/collaborations/${selectedCollab.id}/messages`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: messageInput.trim() }),
+  const sendMessage = async (content: string) => {
+    if (!selectedCollab) return;
+    const res = await fetch(`/api/influencers/collaborations/${selectedCollab.id}/messages`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    if (res.ok) {
+      const d = await res.json();
+      const msg = d.message ?? d;
+      setMessages(prev => {
+        if (prev.some(m => m.id === msg.id)) return prev;
+        return [...prev, {
+          id: msg.id,
+          senderId: msg.senderId ?? msg.sender_id,
+          content: msg.content,
+          createdAt: msg.createdAt ?? msg.created_at,
+        }];
       });
-      if (res.ok) {
-        const d = await res.json();
-        setMessages(prev => [...prev, d.message]);
-        setMessageInput('');
-      } else {
-        const err = await res.json().catch(() => ({}));
-        addToast(err.error || 'Failed to send message', { type: 'error' });
-      }
-    } catch {
-      addToast('Network error', { type: 'error' });
+    } else {
+      const err = await res.json().catch(() => ({}));
+      addToast(err.error || 'Failed to send message', { type: 'error' });
+      throw new Error(err.error || 'Failed to send');
     }
   };
 
@@ -1729,6 +1936,19 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
     return map[s] ?? 'bg-neutral-100 text-neutral-600';
   };
 
+  // Load city/country options from platform catalog
+  const [cities, setCities] = useState<string[]>([]);
+  const [countries, setCountries] = useState<string[]>([]);
+  useEffect(() => {
+    fetch('/api/platform/catalog')
+      .then(r => r.json())
+      .then(d => {
+        setCities((d.cities ?? []).map((c: any) => c.name).sort());
+        setCountries((d.countries ?? []).map((c: any) => c.name).sort());
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* ── Discover Panel ── */}
@@ -1739,20 +1959,56 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
           <input className="h-10 flex-1 min-w-[160px] rounded-xl border border-neutral-200 px-3 text-sm"
             placeholder="Search by name or @handle…" value={discoverQuery}
             onChange={e => setDiscoverQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && discover(1)} />
-          <input className="h-10 w-36 rounded-xl border border-neutral-200 px-3 text-sm"
-            placeholder="City" value={discoverCity}
-            onChange={e => setDiscoverCity(e.target.value)} onKeyDown={e => e.key === 'Enter' && discover(1)} />
-          <input className="h-10 w-36 rounded-xl border border-neutral-200 px-3 text-sm"
-            placeholder="Country" value={discoverCountry}
-            onChange={e => setDiscoverCountry(e.target.value)} onKeyDown={e => e.key === 'Enter' && discover(1)} />
+          <select className="h-10 w-44 rounded-xl border border-neutral-200 px-3 text-sm bg-white"
+            value={discoverCountry} onChange={e => { setDiscoverCountry(e.target.value); setDiscoverCity(''); }}>
+            <option value="">All countries</option>
+            {countries.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <select className="h-10 w-44 rounded-xl border border-neutral-200 px-3 text-sm bg-white"
+            value={discoverCity} onChange={e => setDiscoverCity(e.target.value)}>
+            <option value="">All cities</option>
+            {cities.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
           <Button onClick={() => discover(1)} loading={discoverLoading} size="sm">Search</Button>
+          {(discoverQuery || discoverCity || discoverCountry) && (
+            <Button variant="outline" size="sm" onClick={() => {
+              setDiscoverQuery(''); setDiscoverCity(''); setDiscoverCountry('');
+              setTimeout(() => discover(1), 0);
+            }}>Clear</Button>
+          )}
         </div>
         {discoverLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => <div key={i} className="rounded-xl border border-neutral-100 bg-neutral-50 h-48 animate-pulse" />)}
           </div>
         ) : discoverUsers.length === 0 ? (
-          <p className="text-sm text-neutral-400 py-6 text-center">No users found. Try a different search or city.</p>
+          <div className="text-center py-8">
+            <p className="text-sm text-neutral-500 mb-3">
+              {discoverCity ? 
+                `No influencers found in ${discoverCity}${discoverCountry ? `, ${discoverCountry}` : ''}` :
+                'No influencers found with current filters'
+              }
+            </p>
+            {discoverCity && (
+              <div className="space-y-2">
+                <p className="text-xs text-neutral-400">Try expanding your search:</p>
+                <div className="flex justify-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => {
+                    setDiscoverCity('');
+                    setTimeout(() => discover(1), 0);
+                  }}>
+                    Search all of {discoverCountry || 'Nigeria'}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    setDiscoverCity(''); setDiscoverCountry('');
+                    setTimeout(() => discover(1), 0);
+                  }}>
+                    Search everywhere
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <p className="text-xs text-neutral-400 mb-3">{discoverTotal} user{discoverTotal !== 1 ? 's' : ''} found</p>
@@ -1771,32 +2027,103 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
           </>
         )}
       </div>
-      {selectedCollab && (
-        <Modal open={!!selectedCollab} onClose={closeMessages} title={`Messages — ${selectedCollab.influencerName}`}>
-          <div className="space-y-3 max-h-[60vh] overflow-auto">
-            {messagesLoading ? <div className="text-sm text-neutral-500">Loading...</div> : (
-              messages.length === 0 ? <div className="text-sm text-neutral-500">No messages yet.</div> : (
-                <div className="space-y-2">
-                  {messages.map(m => (
-                    <div key={m.id} className="p-2 rounded-lg bg-neutral-50 border border-neutral-100">
-                      <p className="text-xs text-neutral-500">{new Date(m.createdAt).toLocaleString()}</p>
-                      <p className="text-sm text-neutral-900">{m.content}</p>
-                    </div>
-                  ))}
+      {/* ── Active Collaborations ── */}
+      <div className="rounded-2xl border border-neutral-200 bg-white p-6">
+        <h3 className="font-semibold text-neutral-900 mb-3">Active Collaborations</h3>
+        {collabsLoading ? (
+          <div className="text-sm text-neutral-500">Loading…</div>
+        ) : collabs.length === 0 ? (
+          <p className="text-sm text-neutral-500">No collaborations yet. Invite someone from the panel above.</p>
+        ) : (
+          <div className="space-y-2">
+            {collabs.map(c => (
+              <div key={c.id} className="rounded-xl border border-neutral-100 p-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium text-sm text-neutral-900 truncate">
+                    {c.influencerName}
+                    {c.influencerHandle && <span className="text-xs text-neutral-400 ml-1">· {c.influencerHandle}</span>}
+                  </p>
+                  <span className={`inline-block mt-0.5 px-2 py-0.5 rounded-full text-xs font-medium ${statusBadge(c.status)}`}>{c.status}</span>
                 </div>
-              )
-            )}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button variant="outline" size="sm" onClick={() => openMessages(c)}>Messages</Button>
+                  <Button variant="outline" size="sm" onClick={async () => {
+                    const res = await fetch(`/api/influencers/collaborations/${c.id}/metrics`);
+                    if (res.ok) { const d = await res.json(); addToast(`Clicks: ${d.clicks} · Conversions: ${d.conversions}`, { type: 'info' }); }
+                  }}>Metrics</Button>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="mt-3">
-            <textarea value={messageInput} onChange={e => setMessageInput(e.target.value)} rows={3}
-              className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" placeholder="Write a message..." />
-            <div className="flex gap-2 mt-2">
-              <Button onClick={sendMessage}>Send</Button>
-              <Button variant="outline" onClick={() => { if (selectedCollab) acceptCollab(selectedCollab.id); }}>Accept</Button>
-              <Button variant="outline" onClick={() => { if (selectedCollab) declineCollab(selectedCollab.id); }}>Decline</Button>
+        )}
+      </div>
+
+      {/* ── Invite Compensation Modal ── */}
+      {inviteTarget && (
+        <Modal open={!!inviteTarget} onClose={() => setInviteTarget(null)} title={`Invite ${inviteTarget.displayName}`}>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 border border-neutral-100">
+              {inviteTarget.avatar
+                ? <img src={inviteTarget.avatar} alt={inviteTarget.displayName} className="w-10 h-10 rounded-full object-cover" />
+                : <div className="w-10 h-10 rounded-full bg-lime-100 flex items-center justify-center text-lime-700 font-bold">{inviteTarget.displayName[0]?.toUpperCase()}</div>
+              }
+              <div>
+                <p className="font-semibold text-sm text-neutral-900">{inviteTarget.displayName}</p>
+                {(inviteTarget.locationCity || inviteTarget.locationCountry) && (
+                  <p className="text-xs text-neutral-500">📍 {[inviteTarget.locationCity, inviteTarget.locationCountry].filter(Boolean).join(', ')}</p>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-neutral-700 mb-1">Compensation Type</label>
+              <select className="w-full h-10 rounded-xl border border-neutral-200 px-3 text-sm bg-white"
+                value={inviteForm.compensationType} onChange={e => setInviteForm(f => ({ ...f, compensationType: e.target.value }))}>
+                <option value="paid">Paid (fixed fee)</option>
+                <option value="commission">Commission (% of sales)</option>
+                <option value="free-ticket">Free Tickets</option>
+              </select>
+            </div>
+            {inviteForm.compensationType === 'paid' && (
+              <div>
+                <label className="block text-xs font-medium text-neutral-700 mb-1">Amount (₦)</label>
+                <input className="w-full h-10 rounded-xl border border-neutral-200 px-3 text-sm" type="number" min="0"
+                  placeholder="e.g. 50000" value={inviteForm.compensationAmount}
+                  onChange={e => setInviteForm(f => ({ ...f, compensationAmount: e.target.value }))} />
+              </div>
+            )}
+            {inviteForm.compensationType === 'commission' && (
+              <div>
+                <label className="block text-xs font-medium text-neutral-700 mb-1">Commission Rate (%)</label>
+                <input className="w-full h-10 rounded-xl border border-neutral-200 px-3 text-sm" type="number" min="0" max="100"
+                  placeholder="e.g. 10" value={inviteForm.commissionRate}
+                  onChange={e => setInviteForm(f => ({ ...f, commissionRate: e.target.value }))} />
+              </div>
+            )}
+            {inviteForm.compensationType === 'free-ticket' && (
+              <div>
+                <label className="block text-xs font-medium text-neutral-700 mb-1">Number of Free Tickets</label>
+                <input className="w-full h-10 rounded-xl border border-neutral-200 px-3 text-sm" type="number" min="1"
+                  placeholder="e.g. 2" value={inviteForm.freeTicketCount}
+                  onChange={e => setInviteForm(f => ({ ...f, freeTicketCount: e.target.value }))} />
+              </div>
+            )}
+            <div className="flex gap-2 pt-1">
+              <Button onClick={submitInvite} loading={invitingId === inviteTarget.id} className="flex-1">Send Invite</Button>
+              <Button variant="outline" onClick={() => setInviteTarget(null)} className="flex-1">Cancel</Button>
             </div>
           </div>
         </Modal>
+      )}
+
+      {selectedCollab && (
+        <CollabMessageModal
+          collab={selectedCollab}
+          messages={messages}
+          messagesLoading={messagesLoading}
+          currentUserId={currentUserId}
+          onClose={closeMessages}
+          onSend={sendMessage}
+        />
       )}
     </div>
   );
@@ -1932,7 +2259,7 @@ export default function ManageEventPage({ params }: { params: Promise<{ id: stri
     {
       id: 'influencers', label: 'Influencers', title: 'Influencers', icon: 'users',
       description: 'Invite and manage influencer collaborations',
-      content: <InfluencersTab id={id} />,
+      content: <InfluencersTab id={id} event={event} />,
     },
   ];
 
