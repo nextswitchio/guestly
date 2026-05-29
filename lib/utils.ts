@@ -52,3 +52,11 @@ export function generateReference(prefix = "ref") {
   const random = Math.random().toString(36).slice(2, 10);
   return `${prefix}-${timestamp}-${random}`;
 }
+
+export function formatNumber(num: number): string {
+  return num.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+export function formatPercentage(value: number, decimals: number = 1): string {
+  return `${(value * 100).toFixed(decimals)}%`;
+}

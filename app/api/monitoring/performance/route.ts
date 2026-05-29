@@ -14,19 +14,21 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/influencers/collaborations`, {
+    const { searchParams } = req.nextUrl;
+    const period = searchParams.get('period') || '24h';
+    
+    const res = await fetch(`${BACKEND_URL}/api/v1/monitoring/performance?period=${period}`, {
       headers: getAuthHeaders(req),
       credentials: 'include',
+      cache: 'no-store',
     });
     
-    const data = await res.json().catch(() => []);
-    const collaborations = Array.isArray(data) ? data : data.collaborations || [];
-    
-    return NextResponse.json({ invitations: collaborations }, { status: res.status });
+    const data = await res.json().catch(() => ({}));
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.error('Error listing invitations:', error);
+    console.error('Error fetching performance metrics:', error);
     return NextResponse.json(
-      { error: 'Failed to list invitations' },
+      { error: 'Failed to fetch performance metrics' },
       { status: 500 }
     );
   }

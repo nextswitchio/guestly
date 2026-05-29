@@ -1042,7 +1042,7 @@ export default function PremiumFeaturesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 md:text-4xl">Premium Features</h3>
+        <h1 className="text-3xl font-bold text-slate-900 md:text-4xl">Premium Features</h1>
         <p className="text-slate-500 mt-1">Unlock advanced capabilities for your events</p>
       </div>
 

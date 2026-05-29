@@ -14,19 +14,18 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/influencers/collaborations`, {
+    const res = await fetch(`${BACKEND_URL}/api/v1/monitoring/anomalies`, {
       headers: getAuthHeaders(req),
       credentials: 'include',
+      cache: 'no-store',
     });
     
     const data = await res.json().catch(() => []);
-    const collaborations = Array.isArray(data) ? data : data.collaborations || [];
-    
-    return NextResponse.json({ invitations: collaborations }, { status: res.status });
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.error('Error listing invitations:', error);
+    console.error('Error fetching anomalies:', error);
     return NextResponse.json(
-      { error: 'Failed to list invitations' },
+      { error: 'Failed to fetch anomalies' },
       { status: 500 }
     );
   }
