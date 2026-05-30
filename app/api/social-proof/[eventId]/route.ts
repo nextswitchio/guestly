@@ -42,8 +42,8 @@ export async function GET(
       }
       
       // Use event capacity if available, otherwise calculate from tickets
-      if (ev.capacity !== undefined) {
-        totalCapacity = ev.capacity ?? 0;
+      if (ev.capacity != null) {
+        totalCapacity = ev.capacity;
       } else if (ev.tickets) {
         for (const t of ev.tickets) {
           totalCapacity += t.total ?? t.available ?? 0;

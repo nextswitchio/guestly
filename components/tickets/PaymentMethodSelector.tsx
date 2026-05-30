@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useCurrency } from "@/lib/currency";
 
 type Method = "wallet" | "paystack" | "mobile_money";
 
@@ -23,6 +24,8 @@ export default function PaymentMethodSelector({
   const [loadingBalance, setLoadingBalance] = React.useState(true);
   const [mobileProvider, setMobileProvider] = React.useState<MobileMoneyProvider>("mpesa");
   const [phoneNumber, setPhoneNumber] = React.useState("");
+
+  const { formatAmount } = useCurrency();
 
   React.useEffect(() => {
     async function fetchBalance() {
@@ -67,7 +70,7 @@ export default function PaymentMethodSelector({
           <div className="flex-1">
             <p className="text-sm font-semibold text-dark">Promo credits available!</p>
             <p className="text-xs text-neutral-600 mt-0.5">
-              ₦{promoBalance.toLocaleString()} in promo credits will be automatically applied
+              {formatAmount(promoBalance)} in promo credits will be automatically applied
             </p>
           </div>
         </div>
@@ -104,7 +107,7 @@ export default function PaymentMethodSelector({
             <div>
               <p className="text-sm font-semibold text-warning-900">Low wallet balance</p>
               <p className="text-xs text-warning-700 mt-0.5">
-                You need ₦{balanceShortfall.toLocaleString()} more. Fund your wallet or use another method.
+                You need {formatAmount(balanceShortfall)} more. Fund your wallet or use another method.
               </p>
             </div>
             <button
@@ -130,7 +133,7 @@ export default function PaymentMethodSelector({
             loadingBalance
               ? "Loading balance..."
               : walletBalance !== null
-                ? `Balance: ₦${walletBalance.toLocaleString()}${!hasSufficientBalance && finalOrderTotal ? ` • Need ₦${balanceShortfall.toLocaleString()} more` : ""}`
+                ? `Balance: ${formatAmount(walletBalance)}${!hasSufficientBalance && finalOrderTotal ? ` • Need ${formatAmount(balanceShortfall)} more` : ""}`
                 : "Pay from your wallet balance"
           }
           badge={hasSufficientBalance ? "Fastest" : undefined}

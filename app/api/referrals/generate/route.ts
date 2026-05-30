@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
 
     const data = await req.json();
 
-    // Validate required fields
     if (!data.eventId) {
       return NextResponse.json(
         { error: 'Missing required field: eventId' },
@@ -22,7 +21,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const referralLink = generateReferralLink(userId, data.eventId);
+    const referralLink = generateReferralLink(userId, data.eventId, undefined, undefined, data.eventTitle);
 
     return NextResponse.json(referralLink, { status: 201 });
   } catch (error) {

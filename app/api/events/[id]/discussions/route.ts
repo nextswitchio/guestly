@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchBackendJson } from "@/lib/api/proxy";
 
+function snakeToCamel(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(snakeToCamel);
+  }
+  if (obj !== null && typeof obj === "object") {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [
+        key.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+        snakeToCamel(value),
+      ])
+    );
+  }
+  return obj;
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -8,7 +23,7 @@ export async function GET(
   const { id } = await params;
   const { data, status, ok } = await fetchBackendJson(req, `/api/v1/community/events/${id}/discussions`);
   if (!ok) return NextResponse.json(data, { status });
-  return NextResponse.json({ success: true, data });
+  return NextResponse.json({ success: true, data: snakeToCamel(data) });
 }
 
 export async function POST(
@@ -33,7 +48,7 @@ export async function POST(
       { method: "POST", body: JSON.stringify({ title: title.trim(), content: content.trim() }) },
     );
     if (!ok) return NextResponse.json(data, { status });
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ success: true, data: snakeToCamel(data) });
   } catch (error) {
     console.error("Error creating discussion thread:", error);
     return NextResponse.json(

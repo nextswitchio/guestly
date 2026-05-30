@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { useCurrency } from "@/lib/currency";
 
 type Item = { type: "General" | "VIP"; quantity: number; price: number; attendanceType?: "physical" | "virtual" };
 
@@ -11,6 +14,7 @@ interface OrderSummaryProps {
 }
 
 export default function OrderSummary({ items, total, showBreakdown = true, savingsApplied = 0, remainingSavings = 0 }: OrderSummaryProps) {
+  const { formatAmount } = useCurrency();
   // Calculate subtotal, fees, and taxes
   const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
   const serviceFee = subtotal * 0.05; // 5% service fee
@@ -44,11 +48,11 @@ export default function OrderSummary({ items, total, showBreakdown = true, savin
                 )}
               </div>
               <span className="text-xs text-[var(--foreground-subtle)]">
-                {it.quantity} {it.quantity === 1 ? 'ticket' : 'tickets'} × ${it.price.toFixed(2)}
+                {it.quantity} {it.quantity === 1 ? 'ticket' : 'tickets'} × {formatAmount(it.price)}
               </span>
             </div>
             <span className="font-semibold tabular-nums text-[var(--foreground)] text-sm">
-              ${(it.quantity * it.price).toFixed(2)}
+              {formatAmount(it.quantity * it.price)}
             </span>
           </div>
         ))}
@@ -59,7 +63,7 @@ export default function OrderSummary({ items, total, showBreakdown = true, savin
             <div className="flex items-center justify-between py-2 border-t border-[var(--surface-border)] pt-3">
               <span className="text-sm text-[var(--foreground-muted)]">Subtotal</span>
               <span className="text-sm font-medium tabular-nums text-[var(--foreground)]">
-                ${subtotal.toFixed(2)}
+                {formatAmount(subtotal)}
               </span>
             </div>
 
@@ -78,7 +82,7 @@ export default function OrderSummary({ items, total, showBreakdown = true, savin
                 </div>
               </div>
               <span className="text-sm font-medium tabular-nums text-[var(--foreground)]">
-                ${serviceFee.toFixed(2)}
+                {formatAmount(serviceFee)}
               </span>
             </div>
 
@@ -97,7 +101,7 @@ export default function OrderSummary({ items, total, showBreakdown = true, savin
                 </div>
               </div>
               <span className="text-sm font-medium tabular-nums text-[var(--foreground)]">
-                ${processingFee.toFixed(2)}
+                {formatAmount(processingFee)}
               </span>
             </div>
 
@@ -105,7 +109,7 @@ export default function OrderSummary({ items, total, showBreakdown = true, savin
             <div className="flex items-center justify-between py-1">
               <span className="text-sm text-[var(--foreground-muted)]">Tax (7.5%)</span>
               <span className="text-sm font-medium tabular-nums text-[var(--foreground)]">
-                ${tax.toFixed(2)}
+                {formatAmount(tax)}
               </span>
             </div>
             
@@ -122,13 +126,13 @@ export default function OrderSummary({ items, total, showBreakdown = true, savin
                     <span className="text-sm font-semibold text-success-900">Savings Applied</span>
                     {remainingSavings > 0 && (
                       <span className="text-xs text-success-700">
-                        ${remainingSavings.toFixed(2)} remaining after purchase
+                        {formatAmount(remainingSavings)} remaining after purchase
                       </span>
                     )}
                   </div>
                 </div>
                 <span className="text-sm font-bold tabular-nums text-success-700">
-                  -${savingsApplied.toFixed(2)}
+                  {formatAmount(-savingsApplied)}
                 </span>
               </div>
             )}
@@ -147,7 +151,7 @@ export default function OrderSummary({ items, total, showBreakdown = true, savin
           )}
         </div>
         <span className="text-xl font-extrabold tabular-nums text-primary-600">
-          ${(showBreakdown ? Math.max(0, calculatedTotal - savingsApplied) : total).toFixed(2)}
+          {formatAmount(showBreakdown ? Math.max(0, calculatedTotal - savingsApplied) : total)}
         </span>
       </div>
 

@@ -9,7 +9,7 @@ export default function QRDisplay({ value }: { value: string }) {
       </div>
       <div className="flex flex-col items-center gap-0.5">
         <span className="text-[10px] font-black uppercase tracking-widest text-navy-400">Pass Code</span>
-        <code className="rounded bg-white/10 px-3 py-1 text-xs font-bold tabular-nums tracking-wider text-white">
+        <code className="rounded bg-slate-100 px-3 py-1 text-xs font-bold tabular-nums tracking-wider text-slate-900">
           {value}
         </code>
       </div>

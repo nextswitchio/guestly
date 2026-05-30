@@ -51,7 +51,7 @@ export function SocialProofWidget({ eventId }: SocialProofWidgetProps) {
   const percentageSold = (data.ticketsSold / data.totalCapacity) * 100;
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {/* Tickets Sold Counter */}
       <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50">
         <div className="flex items-center justify-between">
@@ -79,27 +79,6 @@ export function SocialProofWidget({ eventId }: SocialProofWidgetProps) {
         </div>
       </Card>
 
-      {/* Reviews & Rating */}
-      {data.totalReviews > 0 && (
-        <Card className="p-4">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
-                <Icon
-                  key={i}
-                  name="star"
-                  className={i < Math.round(data.averageRating) ? 'text-yellow-400 w-4 h-4' : 'text-gray-300 w-4 h-4'}
-                />
-              ))}
-            </div>
-            <span className="font-semibold">{data.averageRating.toFixed(1)}</span>
-            <span className="text-sm text-gray-600">
-              ({data.totalReviews} reviews)
-            </span>
-          </div>
-        </Card>
-      )}
-
       {/* Organizer Credibility */}
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-2">
@@ -122,6 +101,27 @@ export function SocialProofWidget({ eventId }: SocialProofWidgetProps) {
           </div>
         </div>
       </Card>
+
+      {/* Reviews & Rating */}
+      {data.totalReviews > 0 && (
+        <Card className="p-4 sm:col-span-2">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center">
+              {[...Array(5)].map((_, i) => (
+                <Icon
+                  key={i}
+                  name="star"
+                  className={i < Math.round(data.averageRating) ? 'text-yellow-400 w-4 h-4' : 'text-gray-300 w-4 h-4'}
+                />
+              ))}
+            </div>
+            <span className="font-semibold">{data.averageRating.toFixed(1)}</span>
+            <span className="text-sm text-gray-600">
+              ({data.totalReviews} reviews)
+            </span>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

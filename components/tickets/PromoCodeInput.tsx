@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useCurrency } from '@/lib/currency';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
@@ -19,6 +20,7 @@ export function PromoCodeInput({
   appliedCode,
   appliedDiscount,
 }: PromoCodeInputProps) {
+  const { formatAmount } = useCurrency();
   const [code, setCode] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState('');
@@ -60,7 +62,7 @@ export function PromoCodeInput({
               Promo code applied: {appliedCode}
             </p>
             <p className="text-sm text-green-700">
-              You saved ₦{appliedDiscount?.toLocaleString()}
+              You saved {formatAmount(appliedDiscount ?? 0)}
             </p>
           </div>
           <button

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Icon from "@/components/ui/Icon";
 import { slugify } from "@/lib/utils";
+import { useCurrency } from "@/lib/currency";
 
 export type EventCardProps = {
   id: string;
@@ -34,8 +35,9 @@ export default function EventCard(props: EventCardProps) {
     year: "numeric",
   });
 
+  const { formatAmount } = useCurrency();
   const eventType = props.eventType ?? "physical";
-  const price = props.price != null ? (props.price === 0 || props.price === "0" ? "Free" : `₦${Number(props.price).toLocaleString()}`) : null;
+  const price = props.price != null ? (props.price === 0 || props.price === "0" ? "Free" : formatAmount(Number(props.price))) : null;
 
   return (
     <Link

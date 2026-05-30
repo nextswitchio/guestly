@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCurrency } from "@/lib/currency";
 
 type ReferralStats = {
   totalReferrals: number;
@@ -29,6 +30,7 @@ type ReferralLink = {
 
 export default function ReferralsPage() {
   const router = useRouter();
+  const { formatAmount } = useCurrency();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [links, setLinks] = useState<ReferralLink[]>([]);
@@ -66,7 +68,7 @@ export default function ReferralsPage() {
       const res = await fetch("/api/events?page=1&pageSize=50");
       if (res.ok) {
         const data = await res.json();
-        setEvents(data.data || []);
+        setEvents(data.events || []);
       }
     } catch (err) {
       console.error("Failed to load events:", err);
@@ -79,10 +81,11 @@ export default function ReferralsPage() {
     if (!selectedEvent) return;
     setGenerating(true);
     try {
+      const selectedEv = events.find(e => e.id === selectedEvent);
       const res = await fetch("/api/referrals/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eventId: selectedEvent }),
+        body: JSON.stringify({ eventId: selectedEvent, eventTitle: selectedEv?.title || "" }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -157,7 +160,7 @@ export default function ReferralsPage() {
         </div>
         <div className="rounded-2xl border border-neutral-200 bg-white p-5">
           <p className="text-sm text-neutral-500">Total Earned</p>
-          <p className="mt-1 text-2xl font-bold text-green-600">${s.totalEarned.toFixed(2)}</p>
+          <p className="mt-1 text-2xl font-bold text-green-600">{formatAmount(s.totalEarned, { noConvert: true })}</p>
         </div>
       </div>
 
@@ -259,7 +262,7 @@ export default function ReferralsPage() {
                   <div className="mt-1 flex gap-4 text-xs text-neutral-500">
                     <span>{link.clicks} clicks</span>
                     <span>{link.conversions} conversions</span>
-                    <span className="text-green-600 font-medium">${link.earnedRewards.toFixed(2)} earned</span>
+                    <span className="text-green-600 font-medium">{formatAmount(link.earnedRewards, { noConvert: true })} earned</span>
                   </div>
                 </div>
                 <button
@@ -278,7 +281,7 @@ export default function ReferralsPage() {
       {s.pendingRewards > 0 && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
           <h3 className="text-lg font-semibold mb-2">Pending Rewards</h3>
-          <p className="text-3xl font-bold text-amber-600">${s.pendingRewards.toFixed(2)}</p>
+          <p className="text-3xl font-bold text-amber-600">{formatAmount(s.pendingRewards, { noConvert: true })}</p>
           <p className="mt-1 text-sm text-amber-700">Rewards will be credited to your wallet once conversions are confirmed</p>
         </div>
       )}

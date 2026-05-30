@@ -17,13 +17,30 @@ export function getPrimaryCurrency() {
   return _primaryCurrency;
 }
 
-export function formatCurrency(amount: number, currency?: string, _locale?: string) {
+const DEFAULT_CURRENCY_LOCALE = "en-US";
+
+export function formatCurrency(amount: number, currency?: string, locale?: string) {
   if (amount == null || isNaN(amount)) amount = 0;
   const cur = currency || _primaryCurrency || "NGN";
   const meta = _currencies[cur];
-  const decimals = currency === "USDT" ? 2 : (meta?.decimals ?? (cur === "NGN" ? 0 : 2));
-  const sym = meta?.symbol || (cur === "NGN" ? "₦" : "$");
-  return `${sym}${Math.abs(amount).toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`;
+  const decimals = cur === "USDT" ? 2 : (meta?.decimals ?? (cur === "NGN" ? 0 : 2));
+  const activeLocale = locale || DEFAULT_CURRENCY_LOCALE;
+
+  try {
+    return new Intl.NumberFormat(activeLocale, {
+      style: "currency",
+      currency: cur,
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    }).format(amount);
+  } catch {
+    const symbol = meta?.symbol || (cur === "NGN" ? "₦" : "$" );
+    const formatted = Math.abs(amount).toLocaleString("en-US", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+    return amount < 0 ? `-${symbol}${formatted}` : `${symbol}${formatted}`;
+  }
 }
 
 export function formatDate(timestamp: number | string | Date, locale = "en-NG") {

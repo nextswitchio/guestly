@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchBackendJson } from "@/lib/api/proxy";
 
+function snakeToCamel(obj: any): any {
+  if (Array.isArray(obj)) return obj.map(snakeToCamel);
+  if (obj && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([k, v]) => [
+        k.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+        snakeToCamel(v),
+      ])
+    );
+  }
+  return obj;
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; threadId: string }> }
@@ -16,6 +29,9 @@ export async function GET(
 
   return NextResponse.json({ 
     success: true, 
-    data: { thread: threadResult.data, replies: repliesResult.data } 
+    data: { 
+      thread: snakeToCamel(threadResult.data), 
+      replies: snakeToCamel(repliesResult.data) 
+    } 
   });
 }

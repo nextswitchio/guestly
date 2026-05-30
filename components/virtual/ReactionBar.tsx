@@ -9,8 +9,9 @@ import { Icon } from "@/components/ui/Icon";
 interface ReactionBarProps {
   eventId: string;
   userId?: string;
-  variant?: 'default' | 'compact'; // Add variant support
-  showLabel?: boolean; // Option to show/hide label
+  variant?: 'default' | 'compact';
+  showLabel?: boolean;
+  apiBasePath?: string;
 }
 
 const REACTION_TYPES: Reaction["type"][] = ['clap', 'heart', 'fire', 'party', 'thumbs-up'];
@@ -23,7 +24,7 @@ const REACTION_CONFIG: Record<Reaction["type"], { icon: string; label: string }>
   'thumbs-up': { icon: 'thumbs-up', label: 'Like' },
 };
 
-export default function ReactionBar({ eventId, userId, variant = 'default', showLabel = true }: ReactionBarProps) {
+export default function ReactionBar({ eventId, userId, variant = 'default', showLabel = true, apiBasePath }: ReactionBarProps) {
   const [counts, setCounts] = useState<Record<Reaction["type"], number>>({
     'clap': 0,
     'heart': 0,
@@ -35,41 +36,39 @@ export default function ReactionBar({ eventId, userId, variant = 'default', show
   const [animatingReaction, setAnimatingReaction] = useState<Reaction["type"] | null>(null);
   const [clickedReaction, setClickedReaction] = useState<Reaction["type"] | null>(null);
 
+  const baseUrl = apiBasePath || `/api/events/${eventId}`;
+
   useEffect(() => {
     fetchCounts();
-    const interval = setInterval(fetchCounts, 30000); // Refresh every 30 seconds
+    const interval = setInterval(fetchCounts, 30000);
 
-    // Set up WebSocket listener for real-time reactions
-    const socket = getSocket();
-    
-    socket.emit("join-event", { eventId, userId: userId || "guest", userName: "User" });
+    if (!apiBasePath) {
+      const socket = getSocket();
+      socket.emit("join-event", { eventId, userId: userId || "guest", userName: "User" });
 
-    const handleReaction = (data: ReactionEvent) => {
-      const { reaction } = data;
-      
-      // Update counts
-      setCounts((prev) => ({ ...prev, [reaction.type]: prev[reaction.type] + 1 }));
-      
-      // Add floating animation
-      setRecentReactions((prev) => [...prev, reaction]);
-      
-      // Remove after animation
-      setTimeout(() => {
-        setRecentReactions((prev) => prev.filter((r) => r.id !== reaction.id));
-      }, 2000);
-    };
+      const handleReaction = (data: ReactionEvent) => {
+        const { reaction } = data;
+        setCounts((prev) => ({ ...prev, [reaction.type]: prev[reaction.type] + 1 }));
+        setRecentReactions((prev) => [...prev, reaction]);
+        setTimeout(() => {
+          setRecentReactions((prev) => prev.filter((r) => r.id !== reaction.id));
+        }, 2000);
+      };
 
-    socket.on("reaction", handleReaction);
+      socket.on("reaction", handleReaction);
 
-    return () => {
-      clearInterval(interval);
-      socket.off("reaction", handleReaction);
-    };
-  }, [eventId, userId]);
+      return () => {
+        clearInterval(interval);
+        socket.off("reaction", handleReaction);
+      };
+    }
+
+    return () => clearInterval(interval);
+  }, [eventId, userId, apiBasePath]);
 
   const fetchCounts = async () => {
     try {
-      const res = await fetch(`/api/events/${eventId}/reactions?type=counts`);
+      const res = await fetch(`${baseUrl}/reactions?type=counts`);
       const data = await res.json();
       if (data.success) {
         setCounts(data.data);
@@ -85,12 +84,10 @@ export default function ReactionBar({ eventId, userId, variant = 'default', show
       return;
     }
 
-    // Optimistic update with animation
     setCounts((prev) => ({ ...prev, [type]: prev[type] + 1 }));
     setAnimatingReaction(type);
     setClickedReaction(type);
 
-    // Add floating animation
     const floatingReaction: Reaction = {
       id: `temp-${Date.now()}`,
       eventId,
@@ -100,13 +97,12 @@ export default function ReactionBar({ eventId, userId, variant = 'default', show
     };
     setRecentReactions((prev) => [...prev, floatingReaction]);
 
-    // Remove after animation
     setTimeout(() => {
       setRecentReactions((prev) => prev.filter((r) => r.id !== floatingReaction.id));
     }, 2000);
 
     try {
-      const res = await fetch(`/api/events/${eventId}/reactions`, {
+      const res = await fetch(`${baseUrl}/reactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type }),
@@ -114,12 +110,10 @@ export default function ReactionBar({ eventId, userId, variant = 'default', show
 
       const data = await res.json();
       if (!data.success) {
-        // Revert optimistic update on error
         setCounts((prev) => ({ ...prev, [type]: Math.max(0, prev[type] - 1) }));
       }
     } catch (error) {
       console.error("Failed to send reaction:", error);
-      // Revert optimistic update on error
       setCounts((prev) => ({ ...prev, [type]: Math.max(0, prev[type] - 1) }));
     } finally {
       setTimeout(() => {

@@ -24,9 +24,6 @@ export async function GET(
         avatar: null,
         bio: null,
         is_verified: false,
-        followerCount: 0,
-        totalEvents: 0,
-        totalAttendees: 0,
       });
     }
 
@@ -38,9 +35,6 @@ export async function GET(
       avatar: data.avatar,
       bio: data.bio,
       is_verified: data.is_verified ?? false,
-      followerCount: 0,
-      totalEvents: 0,
-      totalAttendees: 0,
     });
   } catch (error) {
     console.error("Error fetching organizer:", error);

@@ -15,6 +15,17 @@ export interface CurrencyConfig {
   rates: Record<string, number>;
 }
 
+export interface UserLocation {
+  country?: string;
+  countryCode?: string;
+  region?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+  currency?: string;
+}
+
 const DEFAULT_CONFIG: CurrencyConfig = {
   primaryCurrency: "NGN",
   currencies: {
@@ -115,6 +126,7 @@ export function formatAmountValue(
 interface CurrencyContextValue {
   config: CurrencyConfig;
   userCurrency: string;
+  userLocation?: UserLocation | null;
   formatAmount: (amount: number, opts?: { currency?: string; fromCurrency?: string; decimals?: number; noConvert?: boolean }) => string;
   convertAmount: (amount: number, toCurrency?: string) => number;
   loading: boolean;
@@ -131,6 +143,7 @@ const CurrencyContext = createContext<CurrencyContextValue>({
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [config, setConfig] = useState<CurrencyConfig>(DEFAULT_CONFIG);
   const [userCurrency, setUserCurrency] = useState(detectUserCurrency);
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [loading, setLoading] = useState(true);
   const configRef = useRef(config);
 
@@ -153,6 +166,122 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+  }, []);
+
+  // Detect user location: try Geolocation API then fall back to IP lookup.
+  useEffect(() => {
+    let canceled = false;
+
+    async function postLocation(loc: UserLocation | null) {
+      try {
+        const res = await fetch('/api/users/location', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ location: loc }),
+        });
+        if (!res.ok) return;
+      } catch {
+        // ignore network errors
+      }
+    }
+
+    async function ipLookup() {
+      try {
+        const res = await fetch('/api/geolocation');
+        if (!res.ok) return null;
+        const d = await res.json();
+        return {
+          country: d.country_name,
+          countryCode: d.country_code,
+          region: d.region,
+          city: d.city,
+          latitude: d.latitude ? Number(d.latitude) : undefined,
+          longitude: d.longitude ? Number(d.longitude) : undefined,
+          timezone: d.timezone,
+          currency: d.currency,
+        } as UserLocation;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveAndApply(loc: UserLocation | null) {
+      if (canceled) return;
+      setUserLocation(loc);
+      if (loc?.currency) {
+        setUserCurrency((prev) => loc.currency || prev);
+      } else if (loc?.countryCode) {
+        // Map country code to currency if possible
+        const map: Record<string, string> = {
+          NG: 'NGN', US: 'USD', GB: 'GBP', GH: 'GHS', KE: 'KES', ZA: 'ZAR', CI: 'XOF', SN: 'XOF', RW: 'RWF', UG: 'UGX', TZ: 'TZS', FR: 'EUR', DE: 'EUR', ES: 'EUR', IT: 'EUR'
+        };
+        const cc = loc.countryCode.toUpperCase();
+        if (map[cc]) setUserCurrency(map[cc]);
+      }
+      try {
+        localStorage.setItem('userLocation', JSON.stringify(loc || {}));
+      } catch {}
+      postLocation(loc);
+    }
+
+    // First, try navigator geolocation for precise coords (user must grant permission)
+    if (typeof window !== 'undefined' && 'navigator' in window && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          // Reverse-geocode via Nominatim (no API key) - best-effort
+          try {
+            const rev = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+            if (rev.ok) {
+              const data = await rev.json();
+              const loc = {
+                country: data.address?.country,
+                countryCode: data.address?.country_code?.toUpperCase(),
+                region: data.address?.state || data.address?.region,
+                city: data.address?.city || data.address?.town || data.address?.village,
+                latitude: lat,
+                longitude: lon,
+                timezone: data.address?.timezone,
+              } as UserLocation;
+              // Try to fetch currency via ip fallback to get currency code
+              const ipInfo = await ipLookup();
+              if (ipInfo?.currency) loc.currency = ipInfo.currency;
+              saveAndApply(loc);
+              return;
+            }
+          } catch {
+            // ignore and fall back to IP
+          }
+          const ipinfo = await ipLookup();
+          saveAndApply(ipinfo);
+        },
+        async () => {
+          const ipinfo = await ipLookup();
+          saveAndApply(ipinfo);
+        },
+        { maximumAge: 1000 * 60 * 60, timeout: 5000 }
+      );
+    } else {
+      // No geolocation support, fallback to IP lookup
+      ipLookup().then((loc) => saveAndApply(loc));
+    }
+
+    // Try to hydrate from localStorage quickly
+    try {
+      const stored = localStorage.getItem('userLocation');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && !userLocation) {
+          setUserLocation(parsed);
+        }
+      }
+    } catch {}
+
+    return () => {
+      canceled = true;
+    };
   }, []);
 
   const convertAmountFn = useCallback(
@@ -181,7 +310,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CurrencyContext.Provider
-      value={{ config, userCurrency, formatAmount, convertAmount: convertAmountFn, loading }}
+      value={{ config, userCurrency, userLocation, formatAmount, convertAmount: convertAmountFn, loading }}
     >
       {children}
     </CurrencyContext.Provider>

@@ -7,7 +7,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import EmptyState from "@/components/ui/EmptyState";
-import { formatCurrency } from "@/lib/utils";
+import { useCurrency } from "@/lib/currency";
 
 type Order = {
   id: string;
@@ -30,6 +30,7 @@ function statusVariant(status: Order["status"]) {
 const statusLabel = { pending: "Pending", paid: "Completed", refunded: "Refunded" };
 
 export default function AttendeeOrdersPage() {
+  const { formatAmount } = useCurrency();
   const [orders, setOrders] = React.useState<Order[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [refunding, setRefunding] = React.useState<string | null>(null);
@@ -68,7 +69,7 @@ export default function AttendeeOrdersPage() {
           )
         );
         addToast(
-          `Refund processed! ${formatCurrency(data.data.refundAmount)} has been added to your wallet.`,
+          `Refund processed! ${formatAmount(data.data.refundAmount)} has been added to your wallet.`,
           {
             type: "success",
             duration: 5000,
@@ -161,7 +162,7 @@ export default function AttendeeOrdersPage() {
                       <div className="mt-3 space-y-1">
                         {order.items.map((item, idx) => (
                           <p key={idx} className="text-sm text-neutral-600">
-                            {item.quantity}x {item.type} Ticket &middot; {formatCurrency(item.price)}
+                            {item.quantity}x {item.type} Ticket &middot; {formatAmount(item.price)}
                           </p>
                         ))}
                       </div>
@@ -170,7 +171,7 @@ export default function AttendeeOrdersPage() {
                   <div className="text-right shrink-0">
                     <p className="text-xs font-medium text-neutral-500">Total</p>
                     <p className="text-2xl font-bold text-neutral-900">
-                      {formatCurrency(order.total)}
+                      {formatAmount(order.total)}
                     </p>
                   </div>
                 </div>
@@ -190,7 +191,7 @@ export default function AttendeeOrdersPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      href={`/confirmation?orderId=${order.id}`}
+                      href={`/confirmation/${order.id}`}
                     >
                       <Icon name="eye" size={14} />
                       View Tickets

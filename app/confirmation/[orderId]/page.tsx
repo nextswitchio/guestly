@@ -6,7 +6,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import QRDisplay from "@/components/tickets/QRDisplay";
 import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
+import { useCurrency } from "@/lib/currency";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useParams, useSearchParams } from 'next/navigation';
 
 // Confetti animation component using framer-motion
 function Confetti() {
@@ -50,9 +52,11 @@ interface ConfirmationContentProps {
     items: Array<{ type: string; quantity: number; price: number; attendanceType?: "physical" | "virtual" }>;
     total: number;
   };
+  passCode?: string | null;
 }
 
-function ConfirmationContent({ order }: ConfirmationContentProps) {
+function ConfirmationContent({ order, passCode }: ConfirmationContentProps) {
+  const { formatAmount } = useCurrency();
   const [showConfetti, setShowConfetti] = React.useState(true);
 
   React.useEffect(() => {
@@ -79,9 +83,9 @@ function ConfirmationContent({ order }: ConfirmationContentProps) {
         }}
         className="w-full max-w-lg relative z-10"
       >
-        <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-navy-900/50 backdrop-blur-2xl p-8 sm:p-12 shadow-3xl text-center">
+        <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-dark/50 backdrop-blur-2xl p-8 sm:p-12 shadow-3xl text-center">
           {/* Animated Success Icon */}
-          <motion.div 
+            <motion.div 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ 
@@ -101,8 +105,8 @@ function ConfirmationContent({ order }: ConfirmationContentProps) {
               }}
               className="absolute inset-0 rounded-full bg-success-500/10" 
             />
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success-500 shadow-xl shadow-success-500/40">
-              <Icon name="check" size={32} className="text-white" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success-700 shadow-xl shadow-success-700/40">
+              <Icon name="check" size={32} className="text-white" stroke="#ffffff" fill="#ffffff" />
             </div>
           </motion.div>
 
@@ -116,7 +120,7 @@ function ConfirmationContent({ order }: ConfirmationContentProps) {
                 damping: 20,
                 stiffness: 300
               }}
-              className="text-3xl font-black text-white"
+              className="text-3xl font-black text-primary-400"
             >
               Order Confirmed!
             </motion.h1>
@@ -144,26 +148,26 @@ function ConfirmationContent({ order }: ConfirmationContentProps) {
           >
             <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/5">
               <span className="text-[10px] font-black uppercase tracking-widest text-navy-400">Order Reference</span>
-              <span className="font-mono text-xs text-primary-400 font-bold">{order.id.split('_')[1]?.toUpperCase() || order.id.slice(0, 8).toUpperCase()}</span>
+              <span className="font-mono text-xs text-lime font-bold">{order.id.split('_')[1]?.toUpperCase() || order.id.slice(0, 8).toUpperCase()}</span>
             </div>
             
             <div className="space-y-3">
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex justify-between items-center">
                   <div>
-                    <p className="text-sm font-bold text-white">{item.type} Ticket</p>
+                    <p className="text-sm font-bold text-neutral-900">{item.type} Ticket</p>
                     <p className="text-[10px] font-black uppercase tracking-widest text-navy-400">
                       {item.attendanceType || 'Physical'} • {item.quantity} Unit{item.quantity > 1 ? 's' : ''}
                     </p>
                   </div>
-                  <span className="text-sm font-bold text-white">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="text-sm font-bold text-neutral-900">{formatAmount(item.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
 
             <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
-              <span className="text-sm font-black text-white">Total Amount</span>
-              <span className="text-xl font-black text-primary-400">${order.total.toFixed(2)}</span>
+              <span className="text-sm font-black text-neutral-900">Total Amount</span>
+              <span className="text-xl font-black text-primary-400">{formatAmount(order.total)}</span>
             </div>
           </motion.div>
 
@@ -175,9 +179,9 @@ function ConfirmationContent({ order }: ConfirmationContentProps) {
             className="bg-white rounded-[2rem] p-8 mb-8 shadow-2xl shadow-black/20"
           >
             <div className="mx-auto w-full max-w-[200px]">
-              <QRDisplay value={order.id} />
+              <QRDisplay value={passCode || order.id} />
             </div>
-            <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-navy-400">
+            <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-neutral-700">
               Scan at the venue entrance
             </p>
           </motion.div>
@@ -193,10 +197,10 @@ function ConfirmationContent({ order }: ConfirmationContentProps) {
               Go to My Tickets
             </Button>
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" size="lg" className="border-white/10 bg-white/5 text-white hover:bg-white/10">
+              <Button variant="outline" size="lg" className="border-white/10 bg-white/5 text-neutral-900 hover:bg-white/10">
                 <Icon name="share" size={16} className="mr-2" /> Share
               </Button>
-              <Button href={`/receipt/${order.id}`} variant="outline" size="lg" className="border-white/10 bg-white/5 text-white hover:bg-white/10">
+              <Button href={`/receipt/${order.id}`} variant="outline" size="lg" className="border-white/10 bg-white/5 text-neutral-900 hover:bg-white/10">
                 <Icon name="download" size={16} className="mr-2" /> Receipt
               </Button>
             </div>
@@ -218,17 +222,24 @@ function ConfirmationContent({ order }: ConfirmationContentProps) {
   );
 }
 
-export default function ConfirmationPage({ params }: { params: Promise<{ orderId: string }> }) {
+export default function ConfirmationPage() {
   const [order, setOrder] = React.useState<any>(null);
+  const [passCode, setPassCode] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [orderId, setOrderId] = React.useState<string>("");
+  const params = useParams();
+  const searchParams = useSearchParams();
 
   React.useEffect(() => {
-    params.then(({ orderId }) => setOrderId(orderId));
-  }, [params]);
+    // Handle both path parameter (/confirmation/123) and query parameter (/confirmation?orderId=123)
+    const pathId = (params as any)?.orderid || (params as any)?.orderId;
+    const queryId = searchParams?.get ? searchParams.get('orderId') : undefined;
+    setOrderId(pathId || queryId || "");
+  }, [params, searchParams]);
 
   React.useEffect(() => {
     if (!orderId) return;
+
     async function load() {
       try {
         const res = await fetch(`/api/orders?id=${orderId}`);
@@ -242,7 +253,22 @@ export default function ConfirmationPage({ params }: { params: Promise<{ orderId
         setLoading(false);
       }
     }
+
+    async function loadPassCode() {
+      try {
+        const res = await fetch(`/api/orders/${orderId}/pass-codes`);
+        const data = await res.json();
+        if (res.ok && Array.isArray(data.pass_codes) && data.pass_codes.length > 0) {
+          const active = data.pass_codes.find((pc: any) => pc.status === "active") || data.pass_codes[0];
+          setPassCode(active?.code ?? null);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     load();
+    loadPassCode();
   }, [orderId]);
 
   if (loading) {
@@ -274,7 +300,7 @@ export default function ConfirmationPage({ params }: { params: Promise<{ orderId
 
   return (
     <ProtectedRoute>
-      <ConfirmationContent order={order} />
+      <ConfirmationContent order={order} passCode={passCode} />
     </ProtectedRoute>
   );
 }

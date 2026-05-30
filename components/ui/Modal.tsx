@@ -42,6 +42,12 @@ function Modal({
 
   React.useEffect(() => { setMounted(true); }, []);
 
+  // Keep refs for callbacks so the focus-trap effect doesn't depend on them
+  const onCloseRef = React.useRef(onClose);
+  const closeOnEscapeRef = React.useRef(closeOnEscape);
+  onCloseRef.current = onClose;
+  closeOnEscapeRef.current = closeOnEscape;
+
   // Focus trap and keyboard handling
   React.useEffect(() => {
     if (!open) return;
@@ -61,9 +67,9 @@ function Modal({
 
     function onKeyDown(e: KeyboardEvent) {
       // Escape key handling
-      if (e.key === "Escape" && closeOnEscape) { 
+      if (e.key === "Escape" && closeOnEscapeRef.current) { 
         e.preventDefault(); 
-        onClose?.(); 
+        onCloseRef.current?.(); 
       }
       // Tab key handling for focus trap
       else if (e.key === "Tab") {
@@ -81,7 +87,7 @@ function Modal({
     
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose, closeOnEscape]);
+  }, [open]);
 
   // Body scroll lock
   React.useEffect(() => {

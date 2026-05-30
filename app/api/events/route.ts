@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { BACKEND_URL } from "@/lib/api/client";
 
 export async function GET(req: NextRequest) {
+  const token = req.cookies.get("access_token")?.value;
   const { searchParams } = req.nextUrl;
   const params = new URLSearchParams();
 
@@ -19,7 +20,9 @@ export async function GET(req: NextRequest) {
   const url = `${BACKEND_URL}/api/v1/events/${query ? `?${query}` : ""}`;
 
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
+    });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
   } catch {

@@ -34,6 +34,20 @@ interface EventUpdate {
   tags?: string[];
 }
 
+function getInitial(name: string | undefined | null): string {
+  if (name && typeof name === 'string' && name.length > 0) {
+    return name[0].toUpperCase();
+  }
+  return 'A';
+}
+
+function formatDate(date: number | string | undefined | null): string {
+  if (date == null) return '';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleString();
+}
+
 export default function EventCommunityPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
@@ -47,6 +61,7 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
   const [postError, setPostError] = useState('');
   const [posting, setPosting] = useState(false);
   const [userId, setUserId] = useState<string>('');
+  const [liking, setLiking] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const cookies = document.cookie.split(';');
@@ -57,6 +72,12 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
   }, []);
 
   useEffect(() => {
+    const cookies = document.cookie.split(';');
+    const hasAuth = cookies.some((c) => c.trim().startsWith('user_id=') || c.trim().startsWith('access_token='));
+    if (!hasAuth) {
+      router.push('/login');
+      return;
+    }
     fetchEvent();
     fetchDiscussions();
     fetchEventUpdates();
@@ -74,12 +95,25 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
     }
   };
 
+  function snakeToCamel(obj: any): any {
+    if (Array.isArray(obj)) return obj.map(snakeToCamel);
+    if (obj && typeof obj === 'object') {
+      return Object.fromEntries(
+        Object.entries(obj).map(([k, v]) => [
+          k.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+          snakeToCamel(v),
+        ])
+      );
+    }
+    return obj;
+  }
+
   const fetchDiscussions = async () => {
     try {
       const response = await fetch(`/api/events/${id}/discussions`);
       if (response.ok) {
         const data = await response.json();
-        setDiscussions(data.data || []);
+        setDiscussions(snakeToCamel(data.data || []));
       }
     } catch (error) {
       console.error('Failed to fetch discussions:', error);
@@ -107,6 +141,26 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
       }
     } catch (error) {
       console.error('Failed to fetch event updates:', error);
+    }
+  };
+
+  const handleLike = async (discussionId: string) => {
+    if (liking[discussionId]) return;
+    setLiking((prev) => ({ ...prev, [discussionId]: true }));
+    try {
+      const res = await fetch(`/api/events/${id}/discussions/${discussionId}/like`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data) {
+          setDiscussions((prev) =>
+            prev.map((d) => (d.id === discussionId ? { ...d, likes: data.data.likes } : d))
+          );
+        }
+      }
+    } catch (err) {
+      console.error('Failed to like discussion:', err);
+    } finally {
+      setLiking((prev) => ({ ...prev, [discussionId]: false }));
     }
   };
 
@@ -266,13 +320,13 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
               <Card key={discussion.id} className="p-4 sm:p-6">
                 <div className="flex items-start gap-3 sm:gap-4">
                   <div className="w-10 h-10 rounded-full bg-lime/20 flex items-center justify-center text-dark font-semibold shrink-0">
-                    {discussion.authorName.charAt(0).toUpperCase()}
+                    {getInitial(discussion?.authorName)}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold">{discussion.authorName}</span>
+                      <span className="font-semibold">{discussion.authorName || 'Anonymous'}</span>
                       <span className="text-sm text-gray-500">
-                        {new Date(discussion.createdAt).toLocaleDateString()}
+                        {formatDate(discussion.createdAt)}
                       </span>
                     </div>
                     {discussion.title && (
@@ -280,12 +334,19 @@ export default function EventCommunityPage({ params }: { params: Promise<{ id: s
                     )}
                     <p className="text-gray-900 dark:text-white mb-3">{discussion.content}</p>
                     <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                      <button className="flex items-center gap-1 hover:text-lime">
+                      <Link
+                        href={`/events/${id}/discussions/${discussion.id}`}
+                        className="flex items-center gap-1 hover:text-lime transition-colors"
+                      >
                         <Icon name="message-circle" className="w-4 h-4" />
                         {discussion.replyCount} replies
-                      </button>
-                      <button className="flex items-center gap-1 hover:text-lime">
-                        <Icon name="heart" className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => handleLike(discussion.id)}
+                        disabled={liking[discussion.id]}
+                        className="flex items-center gap-1 hover:text-red-500 transition-colors"
+                      >
+                        <Icon name="heart" className={`w-4 h-4 ${liking[discussion.id] ? 'opacity-50' : ''}`} />
                         {discussion.likes || 0} likes
                       </button>
                     </div>

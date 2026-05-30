@@ -66,7 +66,7 @@ function Confetti() {
 
 function SummaryCard({ title, children, total }: { title: string; children: React.ReactNode; total: number }) {
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-navy-900/50 p-6 backdrop-blur-xl shadow-2xl">
+    <div className="rounded-[2rem] border border-white/10 bg-dark/50 p-6 backdrop-blur-xl shadow-2xl">
       <h3 className="text-sm font-black uppercase tracking-widest text-white mb-4">{title}</h3>
       <div className="space-y-4">
         {children}
@@ -397,7 +397,7 @@ function CheckoutContent() {
 
   return (
     <ProtectedRoute allowRoles={["attendee"]}>
-      <div className="min-h-screen bg-navy-950 dark:bg-[var(--surface-bg)] py-12 relative overflow-hidden">
+      <div className="min-h-screen bg-navy-950 py-12 relative overflow-hidden">
         {showConfetti && <Confetti />}
         
         {/* Background Glows */}
@@ -453,7 +453,7 @@ function CheckoutContent() {
                 }}
                 className="flex flex-col items-center justify-center py-12"
               >
-                <div className="w-full max-w-lg overflow-hidden rounded-[2.5rem] border border-white/10 bg-navy-900/50 backdrop-blur-2xl p-8 sm:p-12 shadow-3xl text-center">
+                <div className="w-full max-w-lg overflow-hidden rounded-[2.5rem] border border-white/10 bg-dark/50 backdrop-blur-2xl p-8 sm:p-12 shadow-3xl text-center">
                   {/* Animated Success Icon */}
                   <motion.div 
                     initial={{ scale: 0 }}
@@ -604,14 +604,14 @@ function CheckoutContent() {
                     >
                       {/* Shipping */}
                       {needsShipping && (
-                        <div className="rounded-[2rem] border border-white/10 bg-navy-900/50 p-8 backdrop-blur-xl shadow-2xl">
+                        <div className="rounded-[2rem] border border-white/10 bg-dark/50 p-8 backdrop-blur-xl shadow-2xl">
                           <h2 className="text-xl font-black text-white mb-6">Shipping Address</h2>
                           <ShippingAddressForm value={shippingAddress} onChange={setShippingAddress} errors={shippingErrors} />
                         </div>
                       )}
 
                       {/* Payment Method */}
-                      <div className="rounded-[2rem] border border-white/10 bg-navy-900/50 p-8 backdrop-blur-xl shadow-2xl">
+                      <div className="rounded-[2rem] border border-white/10 bg-dark/50 p-8 backdrop-blur-xl shadow-2xl">
                         <h2 className="text-xl font-black text-white mb-6">Payment Method</h2>
                         
                         {/* Trust Signals */}

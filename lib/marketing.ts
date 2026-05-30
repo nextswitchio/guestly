@@ -164,6 +164,7 @@ export interface ReferralLink {
   id: string;
   userId: string;
   eventId: string;
+  eventTitle?: string;
   code: string;
   url: string;
   rewardType: ReferralRewardType;
@@ -1754,7 +1755,7 @@ export function isReferralProgramEnabled(eventId: string): boolean {
   return settings ? settings.enabled : true; // Default to enabled if not configured
 }
 
-export function generateReferralLink(userId: string, eventId: string, rewardType?: ReferralRewardType, rewardValue?: number): ReferralLink {
+export function generateReferralLink(userId: string, eventId: string, rewardType?: ReferralRewardType, rewardValue?: number, eventTitle?: string): ReferralLink {
   // Check if referral program is enabled for this event (Requirement 7.8)
   const settings = getReferralProgramSettings(eventId);
   if (settings && !settings.enabled) {
@@ -1775,6 +1776,7 @@ export function generateReferralLink(userId: string, eventId: string, rewardType
     id: id('referral'),
     userId,
     eventId,
+    eventTitle,
     code,
     url,
     rewardType: finalRewardType,

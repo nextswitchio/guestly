@@ -321,7 +321,8 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
     return rootReplies;
   };
 
-  const timeAgo = (timestamp: number) => {
+  const timeAgo = (timestamp: number | undefined | null) => {
+    if (timestamp == null || isNaN(timestamp)) return '';
     const seconds = Math.floor((Date.now() - timestamp) / 1000);
     if (seconds < 60) return `${seconds}s ago`;
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
@@ -345,7 +346,7 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-full bg-success-100 flex items-center justify-center shrink-0">
             <span className="text-xs font-bold text-success-700">
-              {reply.authorName.charAt(0)}
+              {(reply.authorName || 'A').charAt(0)}
             </span>
           </div>
           <div className="flex-1 min-w-0">
@@ -509,7 +510,7 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
                 {/* Author avatar */}
                 <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
                   <span className="text-sm font-bold text-primary-700">
-                    {thread.authorName.charAt(0)}
+                    {(thread.authorName || 'A').charAt(0)}
                   </span>
                 </div>
 
@@ -681,7 +682,7 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
                 <span className="flex items-center gap-1">
                   <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center">
                     <span className="text-xs font-bold text-primary-700">
-                      {selectedThread.authorName.charAt(0)}
+                      {(selectedThread.authorName || 'A').charAt(0)}
                     </span>
                   </div>
                   {selectedThread.authorName}
@@ -694,13 +695,13 @@ export default function DiscussionBoard({ eventId, eventDate, eventTitle }: Disc
                 {selectedThread.content}
               </p>
 
-              {/* Reactions for the thread */}
               <div className="mt-4 pt-4 border-t border-slate-200">
-                <ReactionBar 
-                  eventId={`discussion-${selectedThread.id}`} 
+                <ReactionBar
+                  eventId={selectedThread.id}
                   userId={getUserInfo()?.userId}
                   variant="compact"
                   showLabel={false}
+                  apiBasePath={`/api/community/discussions/${selectedThread.id}`}
                 />
               </div>
             </div>

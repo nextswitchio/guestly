@@ -4,6 +4,7 @@ import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import ToastProvider from "@/components/ui/ToastProvider";
 import { CartProvider } from "@/features/merchandise/CartProvider";
+import { CurrencyProvider } from "@/lib/currency";
 
 const aeonikPro = localFont({
   src: [
@@ -46,9 +47,11 @@ export default function RootLayout({
         className={`${aeonikPro.variable} ${plusJakartaSans.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
-        <ToastProvider>
-          <CartProvider>{children}</CartProvider>
-        </ToastProvider>
+        <CurrencyProvider>
+          <ToastProvider>
+            <CartProvider>{children}</CartProvider>
+          </ToastProvider>
+        </CurrencyProvider>
       </body>
     </html>
   );
