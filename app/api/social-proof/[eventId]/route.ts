@@ -29,16 +29,34 @@ export async function GET(
 
     let ticketsSold = 0;
     let totalCapacity = 0;
+    let organizerStats: any = { totalEvents: 0, totalAttendees: 0, verified: false };
     let reviews: any[] = [];
 
     if (eventRes.ok) {
       const eventData = await eventRes.json();
       const ev = eventData.data ?? eventData;
+      
+      // Use backend's tickets_sold if available
+      if (ev.tickets_sold !== undefined) {
+        ticketsSold = ev.tickets_sold ?? 0;
+      }
+      
+      // Calculate capacity from tickets
       if (ev.tickets) {
         for (const t of ev.tickets) {
           totalCapacity += t.total ?? t.available ?? 0;
-          ticketsSold += (t.total ?? 0) - (t.available ?? 0);
         }
+      }
+      
+      // Use organizer stats from backend if available
+      if (ev.organizer_total_attendees !== undefined) {
+        organizerStats.totalAttendees = ev.organizer_total_attendees ?? 0;
+      }
+      if (ev.organizer_total_events !== undefined) {
+        organizerStats.totalEvents = ev.organizer_total_events ?? 0;
+      }
+      if (ev.organizer_verified !== undefined) {
+        organizerStats.verified = ev.organizer_verified ?? false;
       }
     }
 
@@ -66,11 +84,11 @@ export async function GET(
       averageRating: Math.round(averageRating * 10) / 10,
       totalReviews: reviews.length,
       organizerStats: {
-        totalEvents: 0,
-        totalAttendees: 0,
+        totalEvents: organizerStats.totalEvents,
+        totalAttendees: organizerStats.totalAttendees,
         averageRating,
         yearsActive: 0,
-        verified: false,
+        verified: organizerStats.verified,
       },
       scarcityLevel: totalCapacity > 0
         ? (percentageSold >= 90 ? 'high' : percentageSold >= 70 ? 'medium' : percentageSold > 0 ? 'low' : 'none')
