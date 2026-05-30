@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import CryptoPaymentUI from "@/components/wallet/CryptoPaymentUI";
 import { formatCurrency } from "@/lib/utils";
 
-type PaymentMethod = "virtual_account" | "card" | "bank_transfer" | "mobile_money" | "crypto";
+type PaymentMethod = "virtual_account" | "card" | "mobile_money" | "crypto";
 type MobileMoneyProvider = "mpesa" | "mtn" | "airtel";
 
 export default function AddFundsForm() {
@@ -118,7 +118,7 @@ export default function AddFundsForm() {
       label: "Bank Account",
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+          <path d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
         </svg>
       ),
     },
@@ -128,15 +128,6 @@ export default function AddFundsForm() {
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-        </svg>
-      ),
-    },
-    {
-      value: "bank_transfer",
-      label: "Bank",
-      icon: (
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
         </svg>
       ),
     },
@@ -304,29 +295,6 @@ export default function AddFundsForm() {
             </div>
           )}
 
-          {/* Bank Transfer */}
-          {paymentMethod === "bank_transfer" && (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-6">
-              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Bank Transfer Details</h3>
-              <div className="space-y-3">
-                {[
-                  { label: "Bank Name", value: "Guestly Bank" },
-                  { label: "Account Name", value: "Guestly Wallet Services" },
-                  { label: "Account Number", value: "1234567890" },
-                  { label: "Reference", value: `${role?.toUpperCase()}-USER` },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between rounded-xl bg-neutral-50 px-4 py-3">
-                    <span className="text-sm text-neutral-500">{item.label}</span>
-                    <span className="text-sm font-semibold text-neutral-900 font-mono">{item.value}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 rounded-xl bg-lime/10 border border-lime/20 p-4 text-sm text-dark">
-                <strong>Important:</strong> Use the reference code above when making your transfer. Funds will be credited within 24 hours.
-              </div>
-            </div>
-          )}
-
           {/* Mobile Money */}
           {paymentMethod === "mobile_money" && (
             <div className="rounded-2xl border border-neutral-200 bg-white p-6">
@@ -451,10 +419,10 @@ export default function AddFundsForm() {
             <button
               type="button"
               onClick={submit}
-              disabled={loading || (!amount && paymentMethod !== "bank_transfer")}
+              disabled={loading || !amount}
               className="w-full h-14 rounded-xl bg-lime text-dark text-lg font-bold hover:bg-lime-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? "Processing…" : paymentMethod === "bank_transfer" ? "I've Sent the Funds" : `Add ${formatCurrency(Number(amount) || 0)} to Wallet`}
+              {loading ? "Processing…" : `Add ${formatCurrency(Number(amount) || 0)} to Wallet`}
             </button>
           )}
         </div>

@@ -121,6 +121,8 @@ export function AuditLogViewer({ className }: AuditLogViewerProps) {
 
   useEffect(() => {
     fetchLogs();
+    const interval = setInterval(fetchLogs, 30000);
+    return () => clearInterval(interval);
   }, [pagination?.page, filters]);
 
   const handleFilterChange = (key: string, value: string) => {

@@ -26,9 +26,14 @@ const icons = {
       <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
     </svg>
   ),
-  barChart: (
+   barChart: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
       <line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>
+    </svg>
+  ),
+  activity: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
     </svg>
   ),
   wallet: (
@@ -185,6 +190,7 @@ const NAV: NavSection[] = [
     items: [
       { href: "/admin/settlements", label: "Settlements", icon: "wallet" },
       { href: "/admin/commissions", label: "Commissions", icon: "creditCard" },
+      { href: "/admin/revenue", label: "Revenue", icon: "barChart" },
       { href: "/admin/disputes", label: "Disputes", icon: "alertTriangle" },
     ],
   },
@@ -193,6 +199,7 @@ const NAV: NavSection[] = [
     abbr: "C",
     items: [
       { href: "/admin/blog", label: "Blog", icon: "blog" },
+      { href: "/admin/blog/categories", label: "Blog Categories", icon: "package" },
       { href: "/admin/announcements", label: "Announcements", icon: "megaphone" },
       { href: "/admin/notifications", label: "Notifications", icon: "bell" },
       { href: "/admin/seo", label: "SEO", icon: "search" },
@@ -222,6 +229,7 @@ const NAV: NavSection[] = [
     title: "System",
     abbr: "SY",
     items: [
+      { href: "/admin/monitoring", label: "Monitoring", icon: "activity" },
       { href: "/admin/settings", label: "Settings", icon: "settings" },
     ],
   },

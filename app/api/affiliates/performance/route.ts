@@ -1,54 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { BACKEND_URL } from '@/lib/api/client';
 
 export async function GET(req: NextRequest) {
   try {
+    const token = req.cookies.get('access_token')?.value;
     const userId = req.cookies.get('user_id')?.value;
-    if (!userId) {
+    if (!token || !userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const range = req.nextUrl.searchParams.get('range') || '30d';
 
-    // Generate mock performance data based on range
-    const days = range === '7d' ? 7 : range === '30d' ? 30 : range === '90d' ? 90 : 365;
-    const clicksByDay = Array.from({ length: days }, (_, i) => ({
-      date: new Date(Date.now() - (days - i - 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      clicks: Math.floor(Math.random() * 50) + 5,
-    }));
+    const response = await fetch(
+      `${BACKEND_URL}/api/v1/affiliates/performance?user_id=${userId}&range=${range}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      }
+    );
 
-    const conversionsByDay = clicksByDay.map(d => ({
-      date: d.date,
-      conversions: Math.floor(d.clicks * 0.1),
-    }));
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: 'Failed to fetch affiliate performance' },
+        { status: response.status }
+      );
+    }
 
-    const totalClicks = clicksByDay.reduce((sum, d) => sum + d.clicks, 0);
-    const totalConversions = conversionsByDay.reduce((sum, d) => sum + d.conversions, 0);
-    const totalRevenue = totalConversions * 5000;
-    const totalCommission = Math.floor(totalRevenue * 0.1);
-
-    return NextResponse.json({
-      performance: {
-        totalClicks,
-        totalConversions,
-        totalRevenue,
-        totalCommission,
-        conversionRate: totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0,
-        clicksByDay,
-        conversionsByDay,
-        topEvents: [
-          { eventId: 'evt_1', eventName: 'Lagos Music Festival', clicks: 234, conversions: 23, revenue: 115000, commission: 11500 },
-          { eventId: 'evt_2', eventName: 'Tech Conference 2026', clicks: 189, conversions: 18, revenue: 90000, commission: 9000 },
-          { eventId: 'evt_3', eventName: 'Art Exhibition', clicks: 145, conversions: 14, revenue: 70000, commission: 7000 },
-        ],
-        topPlatforms: [
-          { platform: 'Instagram', clicks: 320, conversions: 32 },
-          { platform: 'Twitter', clicks: 210, conversions: 21 },
-          { platform: 'WhatsApp', clicks: 150, conversions: 15 },
-          { platform: 'Email', clicks: 80, conversions: 8 },
-        ],
-      },
-    });
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch performance' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Affiliate performance service unavailable' },
+      { status: 503 }
+    );
   }
 }

@@ -625,7 +625,7 @@ function ApiKeyCard({
         <Button size="sm" onClick={() => onRegenerate(keyData)}>
           <Icon name="refresh-cw" size={14} /> Regenerate
         </Button>
-        <Button size="sm" variant="red" onClick={() => onRevoke(keyData)}>
+        <Button size="sm" variant="danger" onClick={() => onRevoke(keyData)}>
           <Icon name="trash-2" size={14} /> Revoke
         </Button>
       </div>
@@ -1427,7 +1427,7 @@ export default function DeveloperDashboardPage() {
                         </Button>
                         <Button
                           size="sm"
-                          variant="red"
+                          variant="danger"
                           onClick={() => handleDeleteApplication(app)}
                         >
                           <Icon name="trash-2" size={14} /> Delete

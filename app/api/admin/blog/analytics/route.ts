@@ -7,10 +7,11 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const queryString = searchParams.toString();
     
+    const token = request.cookies.get('access_token')?.value;
     const response = await fetch(`${BACKEND_URL}/api/v1/admin/blog/analytics?${queryString}`, {
       headers: {
         'Cookie': request.headers.get('cookie') || '',
-        'Authorization': request.headers.get('authorization') || '',
+        'Authorization': token ? `Bearer ${token}` : '',
       },
       credentials: 'include',
     });

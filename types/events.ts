@@ -66,6 +66,7 @@ export type Event = {
     VIP?: { price: number; available: number };
   };
   organizerId?: string;
+  ticketsSold?: number;
 };
 
 export type EventDraft = {

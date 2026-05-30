@@ -23,7 +23,7 @@ export function useSidebar() {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
@@ -33,7 +33,8 @@ function useIsMobile(breakpoint = 768) {
     return () => mql.removeEventListener("change", onChange);
   }, [breakpoint]);
 
-  return isMobile;
+  // Return false during SSR and hydration to prevent mismatch
+  return isMobile ?? false;
 }
 
 // ── Provider ─────────────────────────────────────────────────────────────────

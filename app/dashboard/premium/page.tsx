@@ -551,7 +551,7 @@ function FeatureCard({
               {inWishlist ? (
                 <Button
                   size="sm"
-                  variant="red"
+                  variant="danger"
                   onClick={() => onRemoveFromWishlist(feature)}
                 >
                   <Icon name="heart" size={16} className="fill-current" />
@@ -778,7 +778,7 @@ function Wishlist({
                 </Button>
                 <Button
                   size="sm"
-                  variant="red"
+                  variant="danger"
                   onClick={() => onRemove(item)}
                 >
                   <Icon name="trash-2" size={14} />
@@ -868,6 +868,8 @@ export default function PremiumFeaturesPage() {
   const [selectedCategory, setSelectedCategory] = useState<FeatureCategory | null>(null);
   const [activeTab, setActiveTab] = useState("catalog");
   const [showCheckout, setShowCheckout] = useState<PremiumFeature | PremiumPackage | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("wallet");
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const categories = Object.keys(CATEGORY_LABELS) as FeatureCategory[];
 
@@ -985,8 +987,10 @@ export default function PremiumFeaturesPage() {
     }
   };
 
-  const handleRemoveFromWishlist = async (item: WishlistItem) => {
+  const handleRemoveFromWishlist = async (feature: PremiumFeature) => {
     try {
+      const item = wishlist.find(i => i.feature_id === feature.id);
+      if (!item) return;
       const response = await fetch(`/api/premium-features/wishlist/${item.id}`, {
         method: "DELETE",
       });
@@ -998,27 +1002,61 @@ export default function PremiumFeaturesPage() {
     }
   };
 
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
   const handleCheckout = async () => {
     if (!showCheckout) return;
 
+    // Only wallet payments are currently supported
+    if (selectedPaymentMethod !== "wallet") {
+      setCheckoutError("Only wallet payments are currently supported. Please select Wallet Balance.");
+      return;
+    }
+
     try {
+      setCheckoutLoading(true);
+      setCheckoutError(null);
+
       const isPackage = "included_feature_ids" in showCheckout;
-      const endpoint = isPackage ? "/api/premium-features/packages" : "/api/premium-features/features";
+      const endpoint = isPackage 
+        ? `/api/premium-features/packages/${showCheckout.id}/purchase`
+        : `/api/premium-features/features/${showCheckout.id}/purchase`;
       
-      const response = await fetch(`${endpoint}/${showCheckout.id}/purchase`, {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          payment_method: "wallet", // Default to wallet
+          payment_method: selectedPaymentMethod,
+          auto_renew: isPackage ? false : (showCheckout.billing_cycle !== "one-time"),
         }),
       });
 
-      if (response.ok) {
-        setShowCheckout(null);
-        // Refresh data
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || data.message || "Purchase failed");
       }
-    } catch (error) {
+
+      // Refresh user's purchases
+      const purchasesRes = await fetch("/api/premium-features/my-purchases");
+      if (purchasesRes.ok) {
+        const purchasesData = await purchasesRes.json();
+        setPurchases(purchasesData.purchases || []);
+      }
+
+      // Refresh wallet balance (to show updated balance)
+      // This would ideally trigger a wallet balance refresh in the parent component
+      
+      // Show success message
+      alert("Purchase successful! Feature activated.");
+      setShowCheckout(null);
+      setActiveTab("purchases"); // Switch to purchases tab to see the new purchase
+
+    } catch (error: any) {
       console.error("Failed to complete purchase:", error);
+      setCheckoutError(error.message || "Purchase failed. Please try again.");
+    } finally {
+      setCheckoutLoading(false);
     }
   };
 
@@ -1169,7 +1207,10 @@ export default function PremiumFeaturesPage() {
             items={wishlist}
             features={features}
             onPurchase={handlePurchase}
-            onRemove={handleRemoveFromWishlist}
+            onRemove={(item) => {
+              const feature = features.find(f => f.id === item.feature_id);
+              if (feature) handleRemoveFromWishlist(feature);
+            }}
           />
         </div>
       )}
@@ -1191,6 +1232,13 @@ export default function PremiumFeaturesPage() {
             </div>
 
             <div className="space-y-6">
+              {checkoutError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3 text-red-700">
+                  <Icon name="alert-circle" size={20} className="flex-shrink-0" />
+                  <span className="text-sm">{checkoutError}</span>
+                </div>
+              )}
+              
               <Card className="p-4">
                 <div className="flex items-center gap-4">
                   <Icon 
@@ -1230,45 +1278,99 @@ export default function PremiumFeaturesPage() {
               <div>
                 <h4 className="font-semibold text-neutral-900 mb-3">Payment Method</h4>
                 <div className="grid gap-2">
-                  <button className="w-full p-4 text-left border border-neutral-300 rounded-lg bg-neutral-50">
+                  <button
+                    onClick={() => setSelectedPaymentMethod("wallet")}
+                    className={`w-full p-4 text-left border-2 rounded-lg transition-colors ${
+                      selectedPaymentMethod === "wallet"
+                        ? "border-primary-500 bg-primary-50"
+                        : "border-neutral-300 hover:border-neutral-400 bg-white"
+                    }`}
+                  >
                     <div className="flex items-center gap-3">
-                      <Icon name="credit-card" size={20} className="text-primary-600" />
+                      <Icon name="credit-card" size={20} className={selectedPaymentMethod === "wallet" ? "text-primary-600" : "text-neutral-400"} />
                       <div>
                         <h4 className="font-medium text-neutral-900">Wallet Balance</h4>
                         <p className="text-sm text-neutral-500">Pay from your Guestly wallet</p>
                       </div>
+                      {selectedPaymentMethod === "wallet" && (
+                        <div className="ml-auto w-6 h-6 rounded-full bg-primary-600 flex items-center justify-center">
+                          <Icon name="check" size={14} className="text-white" />
+                        </div>
+                      )}
                     </div>
                   </button>
                   
-                  <button className="w-full p-4 text-left border border-neutral-300 rounded-lg hover:border-neutral-400">
+                  <button
+                    onClick={() => setSelectedPaymentMethod("card")}
+                    className={`w-full p-4 text-left border-2 rounded-lg transition-colors ${
+                      selectedPaymentMethod === "card"
+                        ? "border-primary-500 bg-primary-50"
+                        : "border-neutral-300 hover:border-neutral-400 bg-white"
+                    }`}
+                  >
                     <div className="flex items-center gap-3">
-                      <Icon name="credit-card" size={20} className="text-neutral-400" />
+                      <Icon name="credit-card" size={20} className={selectedPaymentMethod === "card" ? "text-primary-600" : "text-neutral-400"} />
                       <div>
                         <h4 className="font-medium text-neutral-900">Credit/Debit Card</h4>
                         <p className="text-sm text-neutral-500">Visa, Mastercard, Verve</p>
                       </div>
+                      {selectedPaymentMethod === "card" && (
+                        <div className="ml-auto w-6 h-6 rounded-full bg-primary-600 flex items-center justify-center">
+                          <Icon name="check" size={14} className="text-white" />
+                        </div>
+                      )}
                     </div>
                   </button>
                   
-                  <button className="w-full p-4 text-left border border-neutral-300 rounded-lg hover:border-neutral-400">
+                  <button
+                    onClick={() => setSelectedPaymentMethod("bank_transfer")}
+                    className={`w-full p-4 text-left border-2 rounded-lg transition-colors ${
+                      selectedPaymentMethod === "bank_transfer"
+                        ? "border-primary-500 bg-primary-50"
+                        : "border-neutral-300 hover:border-neutral-400 bg-white"
+                    }`}
+                  >
                     <div className="flex items-center gap-3">
-                      <Icon name="bank" size={20} className="text-neutral-400" />
+                      <Icon name="bank" size={20} className={selectedPaymentMethod === "bank_transfer" ? "text-primary-600" : "text-neutral-400"} />
                       <div>
                         <h4 className="font-medium text-neutral-900">Bank Transfer</h4>
                         <p className="text-sm text-neutral-500">Direct bank payment</p>
                       </div>
+                      {selectedPaymentMethod === "bank_transfer" && (
+                        <div className="ml-auto w-6 h-6 rounded-full bg-primary-600 flex items-center justify-center">
+                          <Icon name="check" size={14} className="text-white" />
+                        </div>
+                      )}
                     </div>
                   </button>
                 </div>
               </div>
 
+              {selectedPaymentMethod === "card" && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-700">
+                  <Icon name="alert-triangle" size={16} className="inline mr-2" />
+                  Card payment processing will be available soon. Currently, only wallet payments are fully integrated.
+                </div>
+              )}
+
+              {selectedPaymentMethod === "bank_transfer" && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-700">
+                  <Icon name="alert-triangle" size={16} className="inline mr-2" />
+                  Bank transfer processing will be available soon. Currently, only wallet payments are fully integrated.
+                </div>
+              )}
+
               <div className="flex gap-4 justify-end pt-4">
-                <Button variant="secondary" onClick={() => setShowCheckout(null)}>
+                <Button variant="secondary" onClick={() => setShowCheckout(null)} disabled={checkoutLoading}>
                   Cancel
                 </Button>
-                <Button onClick={handleCheckout}>
+                <Button 
+                  onClick={handleCheckout} 
+                  loading={checkoutLoading}
+                  disabled={checkoutLoading}
+                >
                   <Icon name="dollar-sign" size={16} />
-                  Complete Purchase
+                  {checkoutLoading ? "Processing..." : "Complete Purchase"}
                 </Button>
               </div>
             </div>

@@ -2,6 +2,11 @@ import React from "react";
 
 export type IconName =
   | "building-2"
+  | "building"
+  | "code"
+  | "grid"
+  | "headphones"
+  | "shield-check"
   | "bar-chart-2"
   | "calendar"
   | "ticket"
@@ -139,7 +144,9 @@ export type IconName =
   | "mail-heart"
   | "starburst"
   | "justice"
-  | "world-2";
+  | "world-2"
+  | "layers"
+  | "book-open";
 
 interface IconProps {
   name: string | IconName;
@@ -770,6 +777,34 @@ const icons: Record<IconName, (props: React.SVGProps<SVGSVGElement>) => React.JS
       <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0A24.226 24.226 0 0 1 12 3c-6.928 0-13.077 2.792-17.36 7.257m0 0h7.25m-7.25 0v5.711m0 0h.008v.008h-.008v-.008Zm8.288 0h8.359m-8.359 0a24.226 24.226 0 0 1 5.36-7.257m-5.36 7.257v5.039" />
     </svg>
   ),
+  building: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 21V7.5a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 .75.75V21M9 21V12.75m6 8.25V12.75M7.5 9.75h1.5m6 0h1.5m-9 4.5h1.5m6 0h1.5m-9 4.5h1.5m6 0h1.5" />
+    </svg>
+  ),
+  code: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5 3.75 12l4.5 7.5M15.75 4.5l4.5 7.5-4.5 7.5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 7.5h1.5v9h-1.5v-9Z" />
+    </svg>
+  ),
+  grid: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 4.5h6v6h-6v-6Zm0 9h6v6h-6v-6Zm9-9h6v6h-6v-6Zm0 9h6v6h-6v-6Z" />
+    </svg>
+  ),
+  headphones: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12a7.5 7.5 0 0 1 15 0v4.5a3 3 0 0 1-3 3H6.75a3 3 0 0 1-3-3V12Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 16.5h1.5V18A1.5 1.5 0 0 1 6 19.5H4.5V16.5H6Zm13.5 0h1.5V18A1.5 1.5 0 0 1 18 19.5h-1.5V16.5H18Z" />
+    </svg>
+  ),
+  "shield-check": (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c-1.14 0-2.261.14-3.336.417-1.041.266-2.089.678-3.06 1.224a.75.75 0 0 0-.334.634V11.25c0 5.25 3.75 8.25 7.5 9 3.75-.75 7.5-3.75 7.5-9V5.275a.75.75 0 0 0-.335-.633 13.104 13.104 0 0 0-3.059-1.225A11.112 11.112 0 0 0 12 3Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75l1.5 1.5 4.5-4.5" />
+    </svg>
+  ),
   "bar-chart-2": (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
@@ -845,6 +880,16 @@ const icons: Record<IconName, (props: React.SVGProps<SVGSVGElement>) => React.JS
       <path d="M29.6 18.9334C40.2591 18.8621 50.5839 22.651 58.6667 29.6M32 32C29.2525 35.6931 25.7755 38.7822 21.7846 41.0758C17.7937 43.3694 13.3742 44.8186 8.80004 45.3334M32 32C36.5658 32.5452 40.9744 34.0073 44.9611 36.2985C48.9478 38.5897 52.4304 41.6628 55.2 45.3334M32 32C28.5311 23.4496 28.5311 13.8838 32 5.33337M44.8 36.2667C39.5061 45.6366 30.971 52.7492 20.8 56.2667M32 5.33337C17.2724 5.33337 5.33337 17.2724 5.33337 32C5.33337 46.7276 17.2724 58.6667 32 58.6667C46.7276 58.6667 58.6667 46.7276 58.6667 32C58.6667 17.2724 46.7276 5.33337 32 5.33337ZM16.8 10.1334C14.7143 20.6318 16.5149 31.5304 21.8667 40.8" />
     </svg>
   ),
+  layers: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+    </svg>
+  ),
+  "book-open": (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+    </svg>
+  ),
 };
 
 function Icon({ name, className = "", size = 20 }: IconProps) {
@@ -852,6 +897,7 @@ function Icon({ name, className = "", size = 20 }: IconProps) {
   const aliasMap: Record<string, string> = {
     "building-2": "store",
     "bar-chart-2": "bar-chart",
+    "bar-chart-3": "bar-chart",
   };
 
   const key = typeof name === "string" ? (aliasMap[name] ?? name) : name;

@@ -23,6 +23,9 @@ interface AdminUser {
   totalSpent?: number;
   walletBalance?: number;
   profileCompleteness?: number;
+  hasVirtualAccount?: boolean;
+  virtualAccountNumber?: string;
+  isVerified?: boolean;
   location?: {
     city: string;
     country: string;
@@ -36,6 +39,7 @@ interface EnhancedUserManagementTableProps {
   onBulkUpdate?: (userIds: string[], updates: { role?: string; status?: string }) => void;
   onUserDelete?: (userId: string) => void;
   onBulkDelete?: (userIds: string[]) => void;
+  onGenerateVirtualAccount?: (userId: string) => void;
 }
 
 export function EnhancedUserManagementTable({ 
@@ -44,7 +48,8 @@ export function EnhancedUserManagementTable({
   onUserUpdate,
   onBulkUpdate,
   onUserDelete,
-  onBulkDelete
+  onBulkDelete,
+  onGenerateVirtualAccount
 }: EnhancedUserManagementTableProps) {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
@@ -236,7 +241,35 @@ export function EnhancedUserManagementTable({
       ),
       exportRender: (value) => value && typeof value === 'number' ? `${value}%` : '—',
     },
-  ], [onUserUpdate]);
+    {
+      key: 'hasVirtualAccount',
+      header: 'Virtual Account',
+      sortable: false,
+      align: 'center',
+      render: (value, row) => (
+        <div className="text-sm text-center">
+          {row.hasVirtualAccount ? (
+            <span className="text-lime-600 font-medium">✓ Yes</span>
+          ) : row.isVerified ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (window.confirm(`Generate virtual bank account for ${row.displayName || row.email}?`)) {
+                  onGenerateVirtualAccount?.(row.id);
+                }
+              }}
+              className="text-sm bg-lime/10 text-lime-700 px-2 py-1 rounded-md hover:bg-lime/20 transition-colors"
+            >
+              Generate
+            </button>
+          ) : (
+            <span className="text-neutral-400 text-xs">Requires Verification</span>
+          )}
+        </div>
+      ),
+      exportRender: (value, row) => row.hasVirtualAccount ? 'Yes' : 'No',
+    },
+  ], [onUserUpdate, onGenerateVirtualAccount]);
 
   // Define row actions
   const actions: DataTableAction<AdminUser>[] = useMemo(() => [

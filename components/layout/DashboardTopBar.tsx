@@ -97,6 +97,16 @@ export default function DashboardTopBar() {
       </div>
       <div className="flex h-14 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
+          {/* Mobile sidebar toggle button */}
+          <button
+            onClick={() => sidebar?.setOpenMobile(true)}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-100 md:hidden"
+            aria-label="Open sidebar"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
           <span className="hidden text-sm font-semibold text-neutral-900 md:inline">My Task</span>
         </div>
 

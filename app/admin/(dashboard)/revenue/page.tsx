@@ -420,11 +420,11 @@ export default function PlatformRevenueDashboardPage() {
               data={data.trends.total.map((t) => ({
                 label: t.label,
                 value: t.value,
-                date: t.date,
               }))}
-              categories={["Revenue"]}
-              colors={["var(--color-primary-500)"]}
-              className="h-64"
+              height={200}
+              color="var(--color-primary-500)"
+              animated
+              gradient
             />
           </Card>
 
@@ -432,27 +432,33 @@ export default function PlatformRevenueDashboardPage() {
           <div className="grid gap-6 lg:grid-cols-2">
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-neutral-900 mb-4">Revenue by Stream</h2>
-              <DonutChart
-                data={data.streams.map((s) => ({
-                  label: s.displayName,
-                  value: s.total,
-                  color: s.color,
-                }))}
-                className="h-64"
-              />
+              <div className="h-64">
+                <DonutChart
+                  data={data.streams.map((s) => ({
+                    name: s.displayName,
+                    value: s.total,
+                  }))}
+                  dataKey="value"
+                  nameKey="name"
+                  colors={["#84CC16", "#22C55E", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6"]}
+                />
+              </div>
             </Card>
 
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-neutral-900 mb-4">This Period</h2>
-              <BarChart
-                data={data.streams.map((s) => ({
-                  label: s.displayName,
-                  value: s.periodTotal,
-                  color: s.color,
-                }))}
-                categories={["Amount"]}
-                className="h-64"
-              />
+              <div className="h-64">
+                <BarChart
+                  data={data.streams.map((s) => ({
+                    label: s.displayName,
+                    value: s.periodTotal,
+                    color: s.color,
+                  }))}
+                  height={200}
+                  animated
+                  gradient
+                />
+              </div>
             </Card>
           </div>
 
@@ -516,7 +522,7 @@ export default function PlatformRevenueDashboardPage() {
               <Card key={stream.type} className="p-6">
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-xl`} style={{ backgroundColor: `${stream.color}20` }}>
-                    <Icon name={stream.icon as any} size={24} style={{ color: stream.color }} />
+                    <span style={{ color: stream.color }}><Icon name={stream.icon as any} size={24} /></span>
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-neutral-900">{stream.displayName}</h3>

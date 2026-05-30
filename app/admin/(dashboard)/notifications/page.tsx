@@ -28,7 +28,7 @@ export default function AdminNotificationsPage() {
       const res = await fetch("/api/admin/announcements");
       if (res.ok) {
         const data = await res.json();
-        const items = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
+        const items = data?.data?.announcements ?? (Array.isArray(data) ? data : []);
         setNotifications(items.map((a: any) => ({ id: a.id, title: a.title, message: a.content, type: "info", sentAt: a.created_at, recipients: 0 })));
       }
     } catch (e) {
@@ -42,7 +42,7 @@ export default function AdminNotificationsPage() {
       await fetch("/api/admin/announcements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newNotification.title, content: newNotification.message, status: "published" }),
+        body: JSON.stringify({ title: newNotification.title, content: newNotification.message, targetType: "all", priority: "medium" }),
       });
       setNewNotification({ title: "", message: "", type: "info" });
       setShowForm(false);

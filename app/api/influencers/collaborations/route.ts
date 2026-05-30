@@ -12,15 +12,35 @@ function normalizeCollab(raw: any) {
     eventId: raw.event_id,
     organizerId: raw.organizer_id,
     influencerId: raw.influencer_id,
-    influencerName: raw.influencer_name,
-    influencerPlatform: raw.influencer_platform,
-    influencerHandle: raw.influencer_handle,
-    compensationType: raw.compensation_type,
-    compensationAmount: raw.compensation_amount,
-    commissionRate: raw.commission_rate,
-    freeTicketCount: raw.free_ticket_count,
-    trackingCode: raw.tracking_code,
-    promoCode: raw.promo_code,
+    influencerName: raw.influencer_name ?? raw.influencerName ?? '',
+    influencerPlatform: raw.influencer_platform ?? raw.influencerPlatform ?? 'instagram',
+    influencerHandle: raw.influencer_handle ?? raw.influencerHandle ?? '',
+    influencerEmail: raw.influencer_email ?? raw.influencerEmail ?? '',
+    influencerAvatar: raw.influencer_avatar ?? raw.influencerAvatar ?? '',
+    eventName: raw.event_name ?? raw.eventName ?? 'Unknown Event',
+    compensationType: raw.compensation_type ?? raw.compensationType ?? 'fixed-payment',
+    compensationValue:
+      raw.compensation_value ??
+      raw.compensationValue ??
+      raw.compensation_amount ??
+      raw.free_ticket_count ??
+      raw.commission_rate ??
+      '',
+    deliverables: Array.isArray(raw.deliverables) ? raw.deliverables : [],
+    completedDeliverables: Array.isArray(raw.completed_deliverables)
+      ? raw.completed_deliverables
+      : Array.isArray(raw.completedDeliverables)
+      ? raw.completedDeliverables
+      : [],
+    deadline: raw.deadline ?? raw.deadline_date ?? '',
+    trackingLink: raw.tracking_link ?? raw.trackingLink ?? '',
+    promoCode: raw.promo_code ?? raw.promoCode ?? '',
+    metrics: {
+      reach: raw.metrics?.reach ?? 0,
+      clicks: raw.metrics?.clicks ?? 0,
+      conversions: raw.metrics?.conversions ?? 0,
+      revenue: raw.metrics?.revenue ?? 0,
+    },
     status: raw.status === 'invited' ? 'pending' : raw.status === 'declined' ? 'rejected' : raw.status,
     invitedAt: raw.invited_at,
     acceptedAt: raw.accepted_at,

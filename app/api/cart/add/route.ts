@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const { type, productId, quantity, variant } = body;
     
     const cartItem = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
       type,
       productId,
       quantity,

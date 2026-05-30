@@ -22,7 +22,28 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await res.json();
-    return NextResponse.json({ success: true, orders: data.orders || [], total: data.total, page: data.page, page_count: data.page_count });
+    
+    // Map backend snake_case fields to frontend camelCase
+    const mappedOrders = (data.orders || []).map((order: any) => ({
+      id: order.id,
+      eventId: order.event_id,
+      items: order.items || [],
+      total: order.total,
+      status: order.status,
+      createdAt: new Date(order.created_at).getTime(),
+      user_id: order.user_id,
+      payment_method: order.payment_method,
+      payment_reference: order.payment_reference,
+      updated_at: order.updated_at,
+    }));
+
+    return NextResponse.json({ 
+      success: true, 
+      orders: mappedOrders, 
+      total: data.total, 
+      page: data.page, 
+      page_count: data.page_count 
+    });
   } catch {
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
   }

@@ -48,6 +48,7 @@ export default function EventHeatMap({ events, city, onNeighborhoodClick }: Even
   // Calculate event density by neighborhood
   const heatData = React.useMemo(() => {
     const neighborhoods = NEIGHBORHOODS[city];
+    if (!neighborhoods) return [];
     const densityMap = new Map<string, number>();
 
     // Initialize all neighborhoods with 0
@@ -120,7 +121,7 @@ export default function EventHeatMap({ events, city, onNeighborhoodClick }: Even
 
   const mapCenter = CITY_COORDS[city];
 
-  if (!isClient || !heatReady) {
+  if (!isClient || !heatReady || !mapCenter) {
     return (
       <div className="h-[500px] w-full rounded-xl bg-[var(--surface-card)] border border-[var(--surface-border)] flex items-center justify-center">
         <div className="text-center">

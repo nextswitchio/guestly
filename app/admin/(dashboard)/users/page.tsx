@@ -211,6 +211,27 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleGenerateVirtualAccount = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/generate-virtual-account`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        // Refresh the users list
+        fetchUsers();
+      } else {
+        console.error('Failed to generate virtual account:', data.error);
+        alert(data.error || 'Failed to generate virtual account');
+      }
+    } catch (error) {
+      console.error('Error generating virtual account:', error);
+      alert('Error generating virtual account');
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -253,6 +274,7 @@ export default function AdminUsersPage() {
           onBulkUpdate={handleBulkUpdate}
           onUserDelete={handleUserDelete}
           onBulkDelete={handleBulkDelete}
+          onGenerateVirtualAccount={handleGenerateVirtualAccount}
         />
         
         {totalPages > 1 && (

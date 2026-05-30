@@ -18,6 +18,7 @@ export function getPrimaryCurrency() {
 }
 
 export function formatCurrency(amount: number, currency?: string, _locale?: string) {
+  if (amount == null || isNaN(amount)) amount = 0;
   const cur = currency || _primaryCurrency || "NGN";
   const meta = _currencies[cur];
   const decimals = currency === "USDT" ? 2 : (meta?.decimals ?? (cur === "NGN" ? 0 : 2));
@@ -54,9 +55,11 @@ export function generateReference(prefix = "ref") {
 }
 
 export function formatNumber(num: number): string {
+  if (num == null || isNaN(num)) num = 0;
   return num.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 export function formatPercentage(value: number, decimals: number = 1): string {
+  if (value == null || isNaN(value)) value = 0;
   return `${(value * 100).toFixed(decimals)}%`;
 }

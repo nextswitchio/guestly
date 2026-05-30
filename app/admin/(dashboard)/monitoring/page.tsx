@@ -5,7 +5,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { LineChart, BarChart, PieChart, DonutChart } from '@/components/charts';
-import { formatCurrency, formatDate, formatNumber, formatPercentage } from '@/lib/utils';
+import * as utils from '@/lib/utils';
+const { formatCurrency, formatDate, formatNumber, formatPercentage } = utils;
 
 // Types for Monitoring Data
 type Period = "24h" | "7d" | "30d" | "90d";
@@ -163,7 +164,7 @@ function StatusBadge({ status }: { status: StatusType }) {
     healthy: 'check-circle',
     degraded: 'alert-triangle',
     unhealthy: 'x-circle',
-    unknown: 'question-circle',
+    unknown: 'help-circle',
   };
   
   return (
@@ -284,108 +285,32 @@ export default function PlatformMonitoringDashboardPage() {
     }
   };
 
-  // Mock data for demonstration (replace with real API calls)
-  const mockData: MonitoringReport = {
-    generated_at: new Date().toISOString(),
-    period: period,
-    health: {
-      status: "healthy",
-      timestamp: new Date().toISOString(),
-      services: {
-        api: { status: "healthy", endpoints_checked: 50, endpoints_up: 50 },
-        payment_gateway: { status: "healthy", last_check: new Date().toISOString() },
-        email_service: { status: "healthy", last_check: new Date().toISOString() },
-      },
-      database: {
-        status: "healthy",
-        response_time: 25.5,
-      },
-    },
-    performance: {
-      period: period,
-      start_time: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      end_time: new Date().toISOString(),
-      users: {
-        new: 125,
-        active: 2450,
-        total: 45800,
-      },
-      orders: {
-        new: 850,
-        paid: 780,
-        total: 158000,
-      },
-      revenue: {
-        total: 12500000,
-        platform_fees: 937500,
-        net_revenue: 11562500,
-      },
-      events: {
-        new: 45,
-        active: 280,
-        total: 12500,
-      },
-    },
-    revenue: {
-      period: period,
-      start_time: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      end_time: new Date().toISOString(),
-      total_revenue: 937500,
-      total_transactions: 12500,
-      by_transaction_type: [
-        { transaction_type: "ticket_sale", count: 8500, total: 425000, average: 50 },
-        { transaction_type: "featured_placement", count: 120, total: 240000, average: 2000 },
-        { transaction_type: "ad_campaign", count: 850, total: 153000, average: 180 },
-        { transaction_type: "verification", count: 320, total: 64000, average: 200 },
-        { transaction_type: "api_access", count: 180, total: 54000, average: 300 },
-      ],
-      time_series: [
-        { date: new Date().toISOString(), count: 1250, total: 150000 },
-        { date: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), count: 980, total: 120000 },
-        { date: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(), count: 1120, total: 135000 },
-      ],
-    },
-    activity: {
-      period: period,
-      start_time: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      end_time: new Date().toISOString(),
-      active_users: 2450,
-      new_users: 125,
-      total_users: 45800,
-      users_by_role: {
-        organiser: 8500,
-        attendee: 32000,
-        vendor: 2800,
-        affiliate: 1200,
-        admin: 5,
-      },
-      sessions: 15800,
-      average_session_duration: 450,
-    },
-    anomalies: [],
-    summary: {
-      status: "healthy",
-      total_revenue: 937500,
-      active_users: 2450,
-      new_users: 125,
-      anomaly_count: 0,
-    },
-  };
+  const displayData = data;
 
-  const displayData = data || mockData;
+  // Safe accessors for potentially missing nested fields
+  const perf = displayData?.performance ?? {};
+  const perfRevenue = perf.revenue ?? {};
+  const perfUsers = perf.users ?? {};
+  const perfOrders = perf.orders ?? {};
+  const perfEvents = perf.events ?? {};
+  const rev = displayData?.revenue ?? {};
+  const act = displayData?.activity ?? {};
+  const summary = displayData?.summary ?? {};
+  const health = displayData?.health ?? {};
+  const anomalies = displayData?.anomalies ?? [];
 
   // Chart data
-  const revenueByTypeData = displayData.revenue.by_transaction_type?.map((item: any) => ({
+  const revenueByTypeData = (displayData?.revenue?.by_transaction_type ?? []).map((item: any) => ({
     label: item.transaction_type.replace('_', ' '),
     value: item.total,
-  })) || [];
+  }));
 
-  const revenueTimeSeriesData = displayData.revenue.time_series?.map((item: any) => ({
+  const revenueTimeSeriesData = (displayData?.revenue?.time_series ?? []).map((item: any) => ({
     label: new Date(item.date).toLocaleDateString(),
     value: item.total,
-  })) || [];
+  }));
 
-  const usersByRoleData = Object.entries(displayData.activity.users_by_role || {}).map(([role, count]) => ({
+  const usersByRoleData = Object.entries(displayData?.activity?.users_by_role ?? {}).map(([role, count]) => ({
     name: role.charAt(0).toUpperCase() + role.slice(1),
     value: count,
   }));
@@ -402,6 +327,28 @@ export default function PlatformMonitoringDashboardPage() {
             <div key={i} className="h-32 bg-neutral-200 rounded-xl animate-pulse"></div>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (!displayData) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-neutral-900">Platform Monitoring</h1>
+            <p className="text-neutral-500 mt-1">Real-time platform health and performance tracking</p>
+          </div>
+        </div>
+        <Card className="p-12 text-center">
+          <Icon name="alert-circle" className="w-16 h-16 mx-auto mb-4 text-red-400" />
+          <h2 className="text-xl font-semibold text-neutral-900 mb-2">No Data Available</h2>
+          <p className="text-neutral-500 mb-6">Failed to load monitoring data from the server.</p>
+          <Button onClick={refreshData}>
+            <Icon name="refresh-cw" className="w-4 h-4 mr-2" />
+            Retry
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -453,13 +400,13 @@ export default function PlatformMonitoringDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <MetricCard
               title="Platform Status"
-              value={displayData.summary.status.charAt(0).toUpperCase() + displayData.summary.status.slice(1)}
+              value={(summary.status ?? 'unknown').charAt(0).toUpperCase() + (summary.status ?? 'unknown').slice(1)}
               icon="activity"
-              color={displayData.summary.status === 'healthy' ? 'success' : displayData.summary.status === 'degraded' ? 'warning' : 'danger'}
+              color={(summary.status ?? 'unknown') === 'healthy' ? 'success' : (summary.status ?? 'unknown') === 'degraded' ? 'warning' : 'danger'}
             />
             <MetricCard
               title="Total Revenue"
-              value={formatCurrency(displayData.summary.total_revenue, 'NGN')}
+              value={formatCurrency(summary.total_revenue ?? 0, 'NGN')}
               icon="dollar-sign"
               color="primary"
               trend={12.5}
@@ -467,7 +414,7 @@ export default function PlatformMonitoringDashboardPage() {
             />
             <MetricCard
               title="Active Users"
-              value={formatNumber(displayData.summary.active_users)}
+              value={formatNumber(summary.active_users ?? 0)}
               icon="users"
               color="success"
               trend={8.3}
@@ -475,7 +422,7 @@ export default function PlatformMonitoringDashboardPage() {
             />
             <MetricCard
               title="New Users"
-              value={formatNumber(displayData.summary.new_users)}
+              value={formatNumber(summary.new_users ?? 0)}
               icon="user-plus"
               color="primary"
               trend={15.2}
@@ -487,22 +434,22 @@ export default function PlatformMonitoringDashboardPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-neutral-900">Platform Health</h2>
-              <StatusBadge status={displayData.health.status} />
+              <StatusBadge status={health.status} />
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <ServiceHealthCard
                 name="Database"
-                status={displayData.health.database.status}
-                details={{ response_time: `${displayData.health.database.response_time}ms` }}
+                status={health.database.status}
+                details={{ response_time: `${health.database.response_time}ms` }}
               />
               <ServiceHealthCard
                 name="API Service"
-                status={displayData.health.services.api.status}
-                details={displayData.health.services.api}
+                status={health.services.api.status}
+                details={health.services.api}
               />
               <ServiceHealthCard
                 name="Payment Gateway"
-                status={displayData.health.services.payment_gateway.status}
+                status={health.services.payment_gateway.status}
               />
             </div>
           </Card>
@@ -514,15 +461,15 @@ export default function PlatformMonitoringDashboardPage() {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Total Revenue</span>
-                  <span className="font-semibold text-neutral-900">{formatCurrency(displayData.performance.revenue.total, 'NGN')}</span>
+                  <span className="font-semibold text-neutral-900">{formatCurrency(displayData.performance?.revenue?.total ?? 0, 'NGN')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Platform Fees</span>
-                  <span className="font-semibold text-neutral-900">{formatCurrency(displayData.performance.revenue.platform_fees, 'NGN')}</span>
+                  <span className="font-semibold text-neutral-900">{formatCurrency(displayData.performance?.revenue?.platform_fees ?? 0, 'NGN')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Net Revenue</span>
-                  <span className="font-semibold text-neutral-900">{formatCurrency(displayData.performance.revenue.net_revenue, 'NGN')}</span>
+                  <span className="font-semibold text-neutral-900">{formatCurrency(perfRevenue.net_revenue ?? 0, 'NGN')}</span>
                 </div>
               </div>
             </Card>
@@ -532,15 +479,15 @@ export default function PlatformMonitoringDashboardPage() {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Total Users</span>
-                  <span className="font-semibold text-neutral-900">{formatNumber(displayData.performance.users.total)}</span>
+                  <span className="font-semibold text-neutral-900">{formatNumber(perfUsers.total ?? 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Active Users</span>
-                  <span className="font-semibold text-neutral-900">{formatNumber(displayData.performance.users.active)}</span>
+                  <span className="font-semibold text-neutral-900">{formatNumber(perfUsers.active ?? 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500">New Users</span>
-                  <span className="font-semibold text-neutral-900">{formatNumber(displayData.performance.users.new)}</span>
+                  <span className="font-semibold text-neutral-900">{formatNumber(perfUsers.new ?? 0)}</span>
                 </div>
               </div>
             </Card>
@@ -550,15 +497,15 @@ export default function PlatformMonitoringDashboardPage() {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Total Events</span>
-                  <span className="font-semibold text-neutral-900">{formatNumber(displayData.performance.events.total)}</span>
+                  <span className="font-semibold text-neutral-900">{formatNumber(perfEvents.total ?? 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Active Events</span>
-                  <span className="font-semibold text-neutral-900">{formatNumber(displayData.performance.events.active)}</span>
+                  <span className="font-semibold text-neutral-900">{formatNumber(perfEvents.active ?? 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500">New Events</span>
-                  <span className="font-semibold text-neutral-900">{formatNumber(displayData.performance.events.new)}</span>
+                  <span className="font-semibold text-neutral-900">{formatNumber(perfEvents.new ?? 0)}</span>
                 </div>
               </div>
             </Card>
@@ -586,7 +533,7 @@ export default function PlatformMonitoringDashboardPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <MetricCard
               title="Total Orders"
-              value={formatNumber(displayData.performance.orders.total)}
+              value={formatNumber(perfOrders.total ?? 0)}
               icon="shopping-bag"
               color="primary"
               trend={5.2}
@@ -594,7 +541,7 @@ export default function PlatformMonitoringDashboardPage() {
             />
             <MetricCard
               title="Paid Orders"
-              value={formatNumber(displayData.performance.orders.paid)}
+              value={formatNumber(perfOrders.paid ?? 0)}
               icon="credit-card"
               color="success"
               trend={7.8}
@@ -602,7 +549,7 @@ export default function PlatformMonitoringDashboardPage() {
             />
             <MetricCard
               title="New Orders"
-              value={formatNumber(displayData.performance.orders.new)}
+              value={formatNumber(perfOrders.new ?? 0)}
               icon="package"
               color="warning"
               trend={12.3}
@@ -648,21 +595,21 @@ export default function PlatformMonitoringDashboardPage() {
             <div className="grid gap-4 md:grid-cols-4">
               <div className="text-center p-4 border border-neutral-200 rounded-lg">
                 <p className="text-sm text-neutral-500 mb-1">Total Revenue</p>
-                <p className="text-2xl font-bold text-neutral-900">{formatCurrency(displayData.revenue.total_revenue, 'NGN')}</p>
+                <p className="text-2xl font-bold text-neutral-900">{formatCurrency(rev.total_revenue ?? 0, 'NGN')}</p>
               </div>
               <div className="text-center p-4 border border-neutral-200 rounded-lg">
                 <p className="text-sm text-neutral-500 mb-1">Transactions</p>
-                <p className="text-2xl font-bold text-neutral-900">{formatNumber(displayData.revenue.total_transactions)}</p>
+                <p className="text-2xl font-bold text-neutral-900">{formatNumber(rev.total_transactions ?? 0)}</p>
               </div>
               <div className="text-center p-4 border border-neutral-200 rounded-lg">
                 <p className="text-sm text-neutral-500 mb-1">Avg Transaction</p>
                 <p className="text-2xl font-bold text-neutral-900">
-                  {formatCurrency(displayData.revenue.total_revenue / Math.max(1, displayData.revenue.total_transactions), 'NGN')}
+                  {formatCurrency((rev.total_revenue ?? 0) / Math.max(1, rev.total_transactions ?? 1), 'NGN')}
                 </p>
               </div>
               <div className="text-center p-4 border border-neutral-200 rounded-lg">
                 <p className="text-sm text-neutral-500 mb-1">Period</p>
-                <p className="text-lg font-semibold text-neutral-900">{displayData.revenue.period}</p>
+                <p className="text-lg font-semibold text-neutral-900">{rev.period ?? '-'}</p>
               </div>
             </div>
           </Card>
@@ -682,8 +629,8 @@ export default function PlatformMonitoringDashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {displayData.revenue.by_transaction_type?.map((item: any, index: number) => {
-                    const percentage = (item.total / Math.max(1, displayData.revenue.total_revenue)) * 100;
+                  {rev.by_transaction_type?.map((item: any, index: number) => {
+                    const percentage = (item.total / Math.max(1, rev.total_revenue ?? 0)) * 100;
                     return (
                       <tr key={index} className="border-b border-neutral-100">
                         <td className="py-3 px-4 text-neutral-900">
@@ -717,13 +664,13 @@ export default function PlatformMonitoringDashboardPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <MetricCard
               title="Total Users"
-              value={formatNumber(displayData.activity.total_users)}
+              value={formatNumber(act.total_users ?? 0)}
               icon="users"
               color="primary"
             />
             <MetricCard
               title="Active Users"
-              value={formatNumber(displayData.activity.active_users)}
+              value={formatNumber(act.active_users ?? 0)}
               icon="activity"
               color="success"
               trend={8.3}
@@ -731,7 +678,7 @@ export default function PlatformMonitoringDashboardPage() {
             />
             <MetricCard
               title="New Users"
-              value={formatNumber(displayData.activity.new_users)}
+              value={formatNumber(act.new_users ?? 0)}
               icon="user-plus"
               color="warning"
               trend={15.2}
@@ -743,14 +690,14 @@ export default function PlatformMonitoringDashboardPage() {
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-neutral-900 mb-4">Users by Role</h3>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {Object.entries(displayData.activity.users_by_role || {}).map(([role, count]) => (
+              {Object.entries(act.users_by_role ?? {}).map(([role, count]) => (
                 <div key={role} className="bg-neutral-50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-neutral-900">
                       {role.charAt(0).toUpperCase() + role.slice(1)}
                     </span>
                     <span className="text-sm text-neutral-500">
-                      {formatPercentage((count / Math.max(1, displayData.activity.total_users)) * 100, 1)}
+                      {formatPercentage((count / Math.max(1, act.total_users ?? 0)) * 100, 1)}
                     </span>
                   </div>
                   <div className="flex items-baseline gap-2">
@@ -760,7 +707,7 @@ export default function PlatformMonitoringDashboardPage() {
                   <div className="w-full bg-neutral-200 rounded-full h-2 mt-3">
                     <div
                       className="bg-lime h-2 rounded-full"
-                      style={{ width: `${(count / Math.max(1, displayData.activity.total_users)) * 100}%` }}
+                      style={{ width: `${(count / Math.max(1, act.total_users ?? 0)) * 100}%` }}
                     ></div>
                   </div>
                 </div>
@@ -775,11 +722,11 @@ export default function PlatformMonitoringDashboardPage() {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Total Sessions</span>
-                  <span className="font-semibold text-neutral-900">{formatNumber(displayData.activity.sessions)}</span>
+                  <span className="font-semibold text-neutral-900">{formatNumber(act.sessions ?? 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Avg Session Duration</span>
-                  <span className="font-semibold text-neutral-900">{Math.round(displayData.activity.average_session_duration / 60)} minutes</span>
+                  <span className="font-semibold text-neutral-900">{Math.round(act.average_session_duration ?? 0 / 60)} minutes</span>
                 </div>
               </div>
             </Card>
@@ -793,16 +740,16 @@ export default function PlatformMonitoringDashboardPage() {
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-neutral-900 mb-4">System Health Overview</h3>
             <div className="flex items-center gap-4 mb-6">
-              <StatusBadge status={displayData.health.status} />
-              <span className="text-neutral-500">Last checked: {formatDate(displayData.health.timestamp)}</span>
+              <StatusBadge status={health.status} />
+              <span className="text-neutral-500">Last checked: {formatDate(health.timestamp)}</span>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <h4 className="font-medium text-neutral-900 mb-3">Database</h4>
                 <ServiceHealthCard
                   name="Database Connection"
-                  status={displayData.health.database.status}
-                  details={{ response_time: `${displayData.health.database.response_time}ms` }}
+                  status={health.database.status}
+                  details={{ response_time: `${health.database.response_time}ms` }}
                 />
               </div>
               <div>
@@ -810,15 +757,15 @@ export default function PlatformMonitoringDashboardPage() {
                 <div className="space-y-3">
                   <ServiceHealthCard
                     name="API Service"
-                    status={displayData.health.services.api.status}
+                    status={health.services.api.status}
                   />
                   <ServiceHealthCard
                     name="Payment Gateway"
-                    status={displayData.health.services.payment_gateway.status}
+                    status={health.services.payment_gateway.status}
                   />
                   <ServiceHealthCard
                     name="Email Service"
-                    status={displayData.health.services.email_service.status}
+                    status={health.services.email_service.status}
                   />
                 </div>
               </div>
@@ -833,10 +780,10 @@ export default function PlatformMonitoringDashboardPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-neutral-900">Platform Anomalies</h3>
-              <StatusBadge status={displayData.anomalies.length > 0 ? 'degraded' : 'healthy'} />
+              <StatusBadge status={anomalies.length > 0 ? 'degraded' : 'healthy'} />
             </div>
             
-            {displayData.anomalies.length === 0 ? (
+            {anomalies.length === 0 ? (
               <div className="text-center py-12">
                 <Icon name="check-circle" className="w-16 h-16 mx-auto mb-4 text-green-500" />
                 <p className="text-lg font-semibold text-green-600">No anomalies detected</p>
@@ -845,10 +792,10 @@ export default function PlatformMonitoringDashboardPage() {
             ) : (
               <div className="space-y-4">
                 <p className="text-sm text-neutral-500 mb-4">
-                  {displayData.anomalies.length} anomaly{displayData.anomalies.length !== 1 ? 'ies' : ''} detected
+                  {anomalies.length} anomaly{anomalies.length !== 1 ? 'ies' : ''} detected
                 </p>
                 <div className="space-y-3">
-                  {displayData.anomalies.map((anomaly, index) => (
+                  {anomalies.map((anomaly, index) => (
                     <AnomalyCard key={index} anomaly={anomaly} />
                   ))}
                 </div>
@@ -877,29 +824,29 @@ export default function PlatformMonitoringDashboardPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-neutral-500">Report Period</span>
-                      <span className="font-medium text-neutral-900">{displayData.period}</span>
+                      <span className="font-medium text-neutral-900">{displayData?.period ?? '-'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-neutral-500">Generated At</span>
-                      <span className="font-medium text-neutral-900">{formatDate(displayData.generated_at)}</span>
+                      <span className="font-medium text-neutral-900">{formatDate(displayData?.generated_at ?? Date.now())}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-neutral-500">Anomalies Found</span>
-                      <span className="font-medium text-neutral-900">{displayData.anomalies.length}</span>
+                      <span className="font-medium text-neutral-900">{anomalies.length}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-neutral-500">Total Revenue</span>
-                      <span className="font-medium text-neutral-900">{formatCurrency(displayData.summary.total_revenue, 'NGN')}</span>
+                      <span className="font-medium text-neutral-900">{formatCurrency(summary.total_revenue ?? 0, 'NGN')}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-neutral-500">Active Users</span>
-                      <span className="font-medium text-neutral-900">{formatNumber(displayData.summary.active_users)}</span>
+                      <span className="font-medium text-neutral-900">{formatNumber(summary.active_users ?? 0)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-neutral-500">New Users</span>
-                      <span className="font-medium text-neutral-900">{formatNumber(displayData.summary.new_users)}</span>
+                      <span className="font-medium text-neutral-900">{formatNumber(summary.new_users ?? 0)}</span>
                     </div>
                   </div>
                 </div>

@@ -54,7 +54,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
         </Pie>
         {legend && <Legend />}
         <Tooltip
-          formatter={(value: number, name: string) => [`${value.toLocaleString()}`, name]}
+          formatter={((value: number | string, name: string) => [`${typeof value === 'number' ? value.toLocaleString() : value ?? ''}`, name]) as any}
         />
       </PieChart>
     </ResponsiveContainer>

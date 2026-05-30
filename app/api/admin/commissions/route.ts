@@ -13,13 +13,24 @@ function requireAdmin(request: NextRequest) {
   return request.cookies.get("role")?.value === "admin" && request.cookies.get("access_token")?.value;
 }
 
-async function proxyToBackend(request: NextRequest, path: string, init?: RequestInit) {
+async function fetchBackend(request: NextRequest, path: string, init?: RequestInit) {
   const res = await fetch(`${BACKEND_URL}${path}`, {
     headers: authHeaders(request),
     ...init,
   });
   const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  return { data, status: res.status, ok: res.ok };
+}
+
+function wrapSuccess(payload: unknown) {
+  return NextResponse.json({ success: true, data: payload });
+}
+
+function wrapError(data: { detail?: string } | unknown, status: number) {
+  const detail = data && typeof data === 'object' && 'detail' in data
+    ? (data as { detail: string }).detail
+    : 'Request failed';
+  return NextResponse.json({ success: false, error: { code: 'BACKEND_ERROR', message: detail } }, { status });
 }
 
 export async function GET(request: NextRequest) {
@@ -36,19 +47,25 @@ export async function GET(request: NextRequest) {
 
   try {
     if (action === 'summary') {
-      return await proxyToBackend(request, '/api/v1/admin/commissions/summary');
+      const { data, status: httpStatus, ok } = await fetchBackend(request, '/api/v1/admin/commissions/summary');
+      if (!ok) return wrapError(data, httpStatus);
+      return wrapSuccess(data);
     }
 
     if (action === 'trends') {
       const months = searchParams.get('months') || '6';
-      return await proxyToBackend(request, `/api/v1/admin/commissions/trends?months=${months}`);
+      const { data, status: httpStatus, ok } = await fetchBackend(request, `/api/v1/admin/commissions/trends?months=${months}`);
+      if (!ok) return wrapError(data, httpStatus);
+      return wrapSuccess(data);
     }
 
     const params = new URLSearchParams();
     if (status) params.set('status_filter', status);
 
     const qs = params.size ? `?${params}` : '';
-    return await proxyToBackend(request, `/api/v1/admin/commissions${qs}`);
+    const { data, status: httpStatus, ok } = await fetchBackend(request, `/api/v1/admin/commissions${qs}`);
+    if (!ok) return wrapError(data, httpStatus);
+    return wrapSuccess({ commissions: data });
   } catch (error) {
     console.error('Error fetching commissions:', error);
     return NextResponse.json(
@@ -71,18 +88,23 @@ export async function POST(request: NextRequest) {
     const { action, commissionId, ...data } = body;
 
     if (action === 'settle' && commissionId) {
-      return await proxyToBackend(request, `/api/v1/admin/commissions/${commissionId}/settle`, {
-        method: 'POST',
-        headers: authHeaders(request),
-      });
+      const { data: resData, status, ok } = await fetchBackend(
+        request,
+        `/api/v1/admin/commissions/${commissionId}/settle`,
+        { method: 'POST' },
+      );
+      if (!ok) return wrapError(resData, status);
+      return wrapSuccess(resData);
     }
 
     if (action === 'generate_report') {
-      return await proxyToBackend(request, '/api/v1/admin/commissions/report', {
-        method: 'POST',
-        headers: authHeaders(request),
-        body: JSON.stringify(data),
-      });
+      const { data: resData, status, ok } = await fetchBackend(
+        request,
+        '/api/v1/admin/commissions/report',
+        { method: 'POST', body: JSON.stringify(data) },
+      );
+      if (!ok) return wrapError(resData, status);
+      return wrapSuccess(resData);
     }
 
     return NextResponse.json(

@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { 
   createCommissionSettlement,
   getAllSettlements,
-  updateSettlementStatus
+  getSettlement,
+  eventCommissions,
+  updateSettlementStatus,
+  vendors
 } from '@/lib/store';
 
 export async function GET(request: NextRequest) {
@@ -18,9 +21,30 @@ export async function GET(request: NextRequest) {
 
     const settlements = getAllSettlements();
 
+    // Transform CommissionSettlement to the format expected by the page
+    const transformedSettlements = settlements.map(settlement => {
+      // Get all commissions in this settlement
+      const commissions = settlement.commissionIds.map(id => eventCommissions[id]).filter(Boolean);
+      
+      // For simplicity, use the first commission's organizer as the vendor
+      // and use the settlement's totalAmount as the amount
+      const firstCommission = commissions[0];
+      const vendor = firstCommission ? vendors[firstCommission.organizerId] : null;
+
+      return {
+        id: settlement.id,
+        vendorId: firstCommission?.organizerId || 'unknown',
+        vendorName: vendor?.name || firstCommission?.eventTitle || 'Unknown Vendor',
+        amount: settlement.totalAmount,
+        status: settlement.status,
+        initiatedAt: settlement.initiatedAt,
+        completedAt: settlement.completedAt,
+        transactionRef: settlement.settlementDetails?.transactionReference || settlement.id
+      };
+    });
+
     return NextResponse.json({
-      success: true,
-      data: settlements
+      settlements: transformedSettlements
     });
   } catch (error) {
     console.error('Error fetching settlements:', error);

@@ -44,6 +44,7 @@ function mapApiEvent(raw: any): Event | null {
     organizerFollowerCount: raw.organizer_follower_count ?? raw.organizerFollowerCount,
     organizerTotalEvents: raw.organizer_total_events ?? raw.organizerTotalEvents,
     organizerTotalAttendees: raw.organizer_total_attendees ?? raw.organizerTotalAttendees,
+    ticketsSold: raw.tickets_sold ?? raw.ticketsSold,
   };
 }
 

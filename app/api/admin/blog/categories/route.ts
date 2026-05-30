@@ -7,10 +7,11 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const queryString = searchParams.toString();
     
+    const token = request.cookies.get('access_token')?.value;
     const response = await fetch(`${BACKEND_URL}/api/v1/admin/blog/categories?${queryString}`, {
       headers: {
         'Cookie': request.headers.get('cookie') || '',
-        'Authorization': request.headers.get('authorization') || '',
+        'Authorization': token ? `Bearer ${token}` : '',
       },
       credentials: 'include',
     });
@@ -29,12 +30,13 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
+    const token = request.cookies.get('access_token')?.value;
     const response = await fetch(`${BACKEND_URL}/api/v1/admin/blog/categories`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Cookie': request.headers.get('cookie') || '',
-        'Authorization': request.headers.get('authorization') || '',
+        'Authorization': token ? `Bearer ${token}` : '',
       },
       credentials: 'include',
       body: JSON.stringify(body),

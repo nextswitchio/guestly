@@ -125,8 +125,8 @@ function CreateCampaignForm({
     daily_budget: null,
     bidding_type: "cpm",
     bid_amount: 500,
-    start_date: formatDate(new Date().toISOString(), true),
-    end_date: formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), true),
+    start_date: formatDate(new Date().toISOString()),
+    end_date: formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()),
     targeting_type: "all",
     target_categories: [],
     target_locations: [],
@@ -501,7 +501,7 @@ function AdCampaignCard({
           </Button>
         )}
         {(!isActive && !isPaused && !isCompleted) && (
-          <Button size="sm" variant="red" onClick={() => onDelete(campaign)}>
+          <Button size="sm" variant="danger" onClick={() => onDelete(campaign)}>
             <Icon name="trash-2" size={14} /> Delete
           </Button>
         )}
@@ -602,32 +602,28 @@ function CampaignDetailsModal({
         <div className="grid gap-6 lg:grid-cols-2 mb-8">
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-neutral-900 mb-4">Impressions & Clicks</h3>
-            <LineChart
-              data={performance.map((p) => ({
-                label: p.label,
-                value: p.impressions,
-                date: p.date,
-                name: "Impressions",
-              }))}
-              categories={["Impressions"]}
-              colors={["var(--color-primary-500)"]}
-              className="h-48"
-            />
+            <div className="h-48">
+              <LineChart
+                data={performance.map((p) => ({
+                  label: p.label,
+                  value: p.impressions,
+                }))}
+                color="var(--color-primary-500)"
+              />
+            </div>
           </Card>
 
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-neutral-900 mb-4">Spend Over Time</h3>
-            <LineChart
-              data={performance.map((p) => ({
-                label: p.label,
-                value: p.spent,
-                date: p.date,
-                name: "Spend",
-              }))}
-              categories={["Spend"]}
-              colors={["var(--color-green-500)"]}
-              className="h-48"
-            />
+            <div className="h-48">
+              <LineChart
+                data={performance.map((p) => ({
+                  label: p.label,
+                  value: p.spent,
+                }))}
+                color="var(--color-green-500)"
+              />
+            </div>
           </Card>
         </div>
 
@@ -950,32 +946,27 @@ export default function AdvertisingDashboardPage() {
             <div className="grid gap-6 lg:grid-cols-2">
               <Card className="p-6">
                 <h3 className="text-lg font-semibold text-neutral-900 mb-4">Performance Over Time</h3>
-                <LineChart
-                  data={performance.map((p) => ({
-                    label: p.label,
-                    value: p.impressions,
-                    date: p.date,
-                    name: "Impressions",
-                  }))}
-                  categories={["Impressions"]}
-                  colors={["var(--color-primary-500)"]}
-                  className="h-64"
-                />
+                <div className="h-64">
+                  <LineChart
+                    data={performance.map((p) => ({
+                      label: p.label,
+                      value: p.impressions,
+                    }))}
+                    color="var(--color-primary-500)"
+                  />
+                </div>
               </Card>
 
               <Card className="p-6">
                 <h3 className="text-lg font-semibold text-neutral-900 mb-4">Click-Through Rate</h3>
-                <BarChart
-                  data={performance.map((p) => ({
-                    label: p.label,
-                    value: p.clicks > 0 && p.impressions > 0 ? (p.clicks / p.impressions) * 100 : 0,
-                    date: p.date,
-                    name: "CTR %",
-                  }))}
-                  categories={["CTR %"]}
-                  colors={["var(--color-green-500)"]}
-                  className="h-64"
-                />
+                <div className="h-64">
+                  <BarChart
+                    data={performance.map((p) => ({
+                      label: p.label,
+                      value: p.clicks > 0 && p.impressions > 0 ? (p.clicks / p.impressions) * 100 : 0,
+                    }))}
+                  />
+                </div>
               </Card>
             </div>
           )}

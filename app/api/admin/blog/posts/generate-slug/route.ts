@@ -6,12 +6,13 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
+    const token = request.cookies.get('access_token')?.value;
     const response = await fetch(`${BACKEND_URL}/api/v1/admin/blog/posts/generate-slug`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Cookie': request.headers.get('cookie') || '',
-        'Authorization': request.headers.get('authorization') || '',
+        'Authorization': token ? `Bearer ${token}` : '',
       },
       credentials: 'include',
       body: JSON.stringify(body),

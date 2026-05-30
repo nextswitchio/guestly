@@ -59,46 +59,57 @@ export default function DashboardPage() {
     return `₦${n.toLocaleString()}`;
   };
 
+  const formatNumber = (n: number | null | undefined) => {
+    const num = Number(n) || 0;
+    return num.toLocaleString();
+  };
+
   const stats = data
     ? [
-        { label: "Total Revenue", value: formatMoney(data.totalRevenue), iconName: "money" as const },
-        { label: "Tickets Sold", value: data.ticketsSold.toLocaleString(), iconName: "ticket" as const },
-        { label: "Total Events", value: String(data.totalEvents), change: `${data.upcomingEvents} upcoming`, iconName: "calendar" as const },
-        { label: "Wallet Balance", value: formatMoney(data.walletBalance), iconName: "wallet" as const },
+        { label: "Total Revenue", value: formatMoney(data.totalRevenue || 0), iconName: "money" as const },
+        { label: "Tickets Sold", value: formatNumber(data.ticketsSold), iconName: "ticket" as const },
+        { label: "Total Events", value: String(data.totalEvents || 0), change: `${data.upcomingEvents || 0} upcoming`, iconName: "calendar" as const },
+        { label: "Wallet Balance", value: formatMoney(data.walletBalance || 0), iconName: "wallet" as const },
       ]
     : [];
 
   const revenueWidgetData = (data?.monthlyRevenueTrend ?? []).map((m) => ({
-    month: m.label,
+    month: m.label || "",
     pct: 0,
-    val: formatMoney(m.value),
+    val: formatMoney(m.value || 0),
   }));
 
   // Normalise pct relative to max value for the bar chart
-  const maxVal = Math.max(...(data?.monthlyRevenueTrend ?? []).map((m) => m.value), 1);
+  const monthlyValues = (data?.monthlyRevenueTrend ?? []).map((m) => m.value || 0);
+  const maxVal = Math.max(...monthlyValues, 1);
   revenueWidgetData.forEach((m, i) => {
-    m.pct = Math.round(((data?.monthlyRevenueTrend[i]?.value ?? 0) / maxVal) * 100);
+    const value = monthlyValues[i] || 0;
+    m.pct = Math.round((value / maxVal) * 100);
   });
 
   const liveFeedItems = (data?.recentOrders ?? []).map((o) => ({
-    name: o.name,
+    name: o.name || "Unknown",
     ticket: "",
-    event: o.event,
+    event: o.event || "Unknown Event",
     time: o.createdAt
       ? (() => {
-          const diff = Math.floor((Date.now() - new Date(o.createdAt).getTime()) / 60000);
-          return diff < 60 ? `${diff}m ago` : `${Math.floor(diff / 60)}h ago`;
+          try {
+            const diff = Math.floor((Date.now() - new Date(o.createdAt).getTime()) / 60000);
+            return diff < 60 ? `${diff}m ago` : `${Math.floor(diff / 60)}h ago`;
+          } catch {
+            return "recently";
+          }
         })()
       : "",
   }));
 
   const settlementData = data
     ? {
-        totalEarned: formatMoney(data.totalRevenue),
-        pending: formatMoney(data.pendingSettlement),
-        settled: formatMoney(data.totalSettled),
+        totalEarned: formatMoney(data.totalRevenue || 0),
+        pending: formatMoney(data.pendingSettlement || 0),
+        settled: formatMoney(data.totalSettled || 0),
         settlementPercentage:
-          data.totalRevenue > 0 ? Math.round((data.totalSettled / data.totalRevenue) * 100) : 0,
+          (data.totalRevenue || 0) > 0 ? Math.round(((data.totalSettled || 0) / (data.totalRevenue || 1)) * 100) : 0,
       }
     : { totalEarned: "₦0", pending: "₦0", settled: "₦0", settlementPercentage: 0 };
 
@@ -207,22 +218,28 @@ export default function DashboardPage() {
                     <div key={ev.id} className="flex items-center gap-4 rounded-xl p-3 transition-all hover:bg-neutral-50 group">
                       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-neutral-200 group-hover:ring-lime transition-all">
                         {ev.image && (
-                          <Image src={ev.image} alt={ev.title} width={56} height={56} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                          <Image src={ev.image} alt={ev.title || "Event"} width={56} height={56} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-neutral-900 group-hover:text-lime-600 transition-colors">{ev.title}</p>
+                        <p className="truncate text-sm font-semibold text-neutral-900 group-hover:text-lime-600 transition-colors">{ev.title || "Untitled Event"}</p>
                         <div className="mt-1 flex items-center gap-2 text-xs text-neutral-500">
                           {ev.date && (
                             <span className="flex items-center gap-1">
                               <Icon name="calendar" size={12} />
-                              {new Date(ev.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                              {(() => {
+                                try {
+                                  return new Date(ev.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+                                } catch {
+                                  return ev.date;
+                                }
+                              })()}
                             </span>
                           )}
                           {ev.city && <><span>•</span><span className="flex items-center gap-1"><Icon name="location" size={12} />{ev.city}</span></>}
                         </div>
                       </div>
-                      <StatusIndicator status={ev.status === "published" ? "active" : "inactive"} />
+                      <StatusIndicator status={(ev.status === "published" || ev.status === "ongoing") ? "active" : "inactive"} />
                       <Link
                         href={`/dashboard/events/${ev.id}/manage`}
                         className="shrink-0 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-xs font-semibold text-neutral-700 transition-all hover:border-lime hover:bg-lime/10 hover:text-lime-700"
@@ -243,7 +260,7 @@ export default function DashboardPage() {
                   <p className="text-sm text-neutral-500">All time</p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-3xl font-bold text-neutral-900">{(data?.ticketsSold ?? 0).toLocaleString()}</p>
+                  <p className="text-3xl font-bold text-neutral-900">{formatNumber(data?.ticketsSold)}</p>
                   <p className="text-sm text-neutral-500">across {data?.totalEvents ?? 0} event{(data?.totalEvents ?? 0) !== 1 ? "s" : ""}</p>
                 </div>
                 {revenueWidgetData.length > 0 && (

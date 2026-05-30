@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from '@/components/ui/Icon';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
@@ -8,7 +9,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   iconPosition?: 'left' | 'right';
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  variant?: 'primary' | 'white' | 'secondary' | 'outline' | 'teal' | 'teal-outline' | 'ghost' | 'success' | 'danger' | 'default';
+  variant?: 'primary' | 'white' | 'secondary' | 'outline' | 'teal' | 'teal-outline' | 'ghost' | 'success' | 'danger' | 'default' | 'amber';
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   height?: string;
   glow?: boolean;
@@ -73,6 +74,8 @@ const Button: React.FC<ButtonProps> = ({
       "bg-green-600 text-white border border-green-600 cursor-pointer hover:bg-green-700",
     danger:
       "bg-red-600 text-white border border-red-600 cursor-pointer hover:bg-red-700",
+    amber:
+      "bg-amber-500 text-white border border-amber-500 cursor-pointer hover:bg-amber-600",
   };
 
   const variantClass = activeVariantClasses[variant] ?? activeVariantClasses.primary;
@@ -91,13 +94,13 @@ const Button: React.FC<ButtonProps> = ({
       )}
       {!loading && resolvedLeftIcon && (
         <span className="flex items-center justify-center">
-          {typeof resolvedLeftIcon === "string" ? <img src={resolvedLeftIcon} alt="" /> : resolvedLeftIcon}
+          {typeof resolvedLeftIcon === "string" ? <Icon name={resolvedLeftIcon} size={16} /> : resolvedLeftIcon}
         </span>
       )}
       {children && <span className="inline-flex items-center gap-1.5">{children}</span>}
       {!loading && resolvedRightIcon && (
         <span className="flex items-center justify-center">
-          {typeof resolvedRightIcon === "string" ? <img src={resolvedRightIcon} alt="" /> : resolvedRightIcon}
+          {typeof resolvedRightIcon === "string" ? <Icon name={resolvedRightIcon} size={16} /> : resolvedRightIcon}
         </span>
       )}
     </>

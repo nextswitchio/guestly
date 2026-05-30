@@ -1561,7 +1561,7 @@ function CollabMessageModal({
           messages.map(m => {
             const isMine = currentUserId
               ? m.senderId === currentUserId
-              : m.senderId === collab.organizerId;
+              : false;
             const avatar = isMine ? myAvatar : otherAvatar;
             const initials = isMine ? 'Me' : (collab.influencerName?.[0]?.toUpperCase() ?? '?');
             return (
@@ -2121,6 +2121,8 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
           messages={messages}
           messagesLoading={messagesLoading}
           currentUserId={currentUserId}
+          myAvatar={myAvatar}
+          otherAvatar={otherAvatar}
           onClose={closeMessages}
           onSend={sendMessage}
         />

@@ -26,6 +26,9 @@ export async function GET(request: NextRequest) {
       headers: authHeaders(request),
       cache: "no-store",
     });
+    if (res.status === 404) {
+      return NextResponse.json({ success: true, data: [] });
+    }
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
   } catch {

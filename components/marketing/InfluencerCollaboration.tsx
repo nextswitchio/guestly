@@ -50,7 +50,26 @@ export function InfluencerCollaboration({ organizerId }: InfluencerCollaboration
       const response = await fetch('/api/influencers/collaborations');
       if (response.ok) {
         const data = await response.json();
-        setCollaborations(data.collaborations || []);
+        const collaborations = (data.collaborations || []).map((collab: any) => ({
+          ...collab,
+          deliverables: Array.isArray(collab.deliverables) ? collab.deliverables : [],
+          completedDeliverables: Array.isArray(collab.completedDeliverables)
+            ? collab.completedDeliverables
+            : [],
+          metrics: {
+            reach: collab.metrics?.reach ?? 0,
+            clicks: collab.metrics?.clicks ?? 0,
+            conversions: collab.metrics?.conversions ?? 0,
+            revenue: collab.metrics?.revenue ?? 0,
+          },
+          influencerEmail: collab.influencerEmail ?? '',
+          influencerAvatar: collab.influencerAvatar ?? '',
+          eventName: collab.eventName ?? 'Unknown Event',
+          deadline: collab.deadline ?? '',
+          trackingLink: collab.trackingLink ?? '',
+          promoCode: collab.promoCode ?? '',
+        }));
+        setCollaborations(collaborations);
       }
     } catch (error) {
       console.error('Failed to fetch collaborations:', error);
@@ -105,8 +124,10 @@ export function InfluencerCollaboration({ organizerId }: InfluencerCollaboration
   });
 
   const getCompletionPercentage = (collab: Collaboration) => {
-    if (collab.deliverables.length === 0) return 0;
-    return (collab.completedDeliverables.length / collab.deliverables.length) * 100;
+    const total = collab.deliverables?.length ?? 0;
+    const completed = collab.completedDeliverables?.length ?? 0;
+    if (total === 0) return 0;
+    return (completed / total) * 100;
   };
 
   if (loading) {
@@ -204,7 +225,7 @@ export function InfluencerCollaboration({ organizerId }: InfluencerCollaboration
                       <div className="flex items-center justify-between text-sm mb-1">
                         <span className="text-neutral-500">Deliverables Progress</span>
                         <span className="font-medium text-neutral-900">
-                          {collab.completedDeliverables.length} / {collab.deliverables.length}
+                          {(collab.completedDeliverables?.length ?? 0)} / {(collab.deliverables?.length ?? 0)}
                         </span>
                       </div>
                       <div className="w-full bg-neutral-200 rounded-full h-2">
@@ -377,16 +398,16 @@ export function InfluencerCollaboration({ organizerId }: InfluencerCollaboration
                 <div>
                   <h4 className="text-sm font-semibold text-neutral-900 mb-3">Deliverables</h4>
                   <div className="space-y-2">
-                    {selectedCollab.deliverables.map((deliverable, index) => (
+                    {(selectedCollab.deliverables || []).map((deliverable, index) => (
                       <div key={index} className="flex items-center gap-2">
                         <Icon
                           name={
-                            selectedCollab.completedDeliverables.includes(deliverable)
+                            (selectedCollab.completedDeliverables || []).includes(deliverable)
                               ? 'check'
                               : 'plus'
                           }
                           className={`w-5 h-5 ${
-                            selectedCollab.completedDeliverables.includes(deliverable)
+                            (selectedCollab.completedDeliverables || []).includes(deliverable)
                               ? 'text-green-500'
                               : 'text-neutral-300'
                           }`}

@@ -36,9 +36,8 @@ export async function GET(
         });
         densityMap.set(closest.name, (densityMap.get(closest.name) ?? 0) + 1);
       } else {
-        // Spread evenly if no coordinates
-        const n = neighborhoods[Math.floor(Math.random() * neighborhoods.length)];
-        densityMap.set(n.name, (densityMap.get(n.name) ?? 0) + 1);
+        // Distribute among neighborhoods with event count as-is (no coordinates available)
+        // Events without coordinates still count toward the total but aren't mapped to a specific neighborhood
       }
     });
 

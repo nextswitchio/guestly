@@ -344,8 +344,8 @@ function DocumentRequirements({
   verificationType: VerificationType | null;
   onDocumentsReady: (ready: boolean) => void;
 }) {
-  const [files, setFiles] = useState<Record<DocumentType, File | null>>({});
-  const [uploadedDocuments, setUploadedDocuments] = useState<Record<DocumentType, VerificationDocument | null>>({});
+  const [files, setFiles] = useState<Record<DocumentType, File | null>>({} as Record<DocumentType, File | null>);
+  const [uploadedDocuments, setUploadedDocuments] = useState<Record<DocumentType, VerificationDocument | null>>({} as Record<DocumentType, VerificationDocument | null>);
 
   const type = VERIFICATION_TYPES.find((t) => t.type === verificationType);
   
@@ -941,7 +941,7 @@ export default function VerificationPage() {
               <Button onClick={() => setStep("select")}>
                 Submit Another Request
               </Button>
-              <Link href="/dashboard">
+              <Link href={typeof window !== "undefined" && window.location.pathname.startsWith("/attendee") ? "/attendee" : "/dashboard"}>
                 <Button variant="secondary">
                   Return to Dashboard
                 </Button>
