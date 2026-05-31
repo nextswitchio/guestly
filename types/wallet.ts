@@ -14,15 +14,49 @@ export type Wallet = {
   cryptoBalances?: CryptoBalance[];
 };
 
-export type TransactionType = "credit" | "debit";
+export type TransactionType = "credit" | "debit" | "pending";
 
 export type Transaction = {
   id: string;
   userId: string;
+  walletId: string;
   amount: number;
   type: TransactionType;
   description: string;
+  reference?: string | null;
+  paymentMethod?: string | null;
   createdAt: number;
+};
+
+// ── Transaction Receipt Types ──────────────────────────────────────────────
+
+export type ReceiptStatus = "generated" | "sent" | "viewed";
+
+export type ReceiptParty = "sender" | "receiver";
+
+export type TransactionReceipt = {
+  id: string;
+  transactionId: string;
+  userId: string;
+  party: ReceiptParty; // 'sender' or 'receiver'
+  amount: number; // Actual amount for this party (can be negative for sender)
+  netAmount: number; // Net amount after fees
+  fee: number; // Fee amount (0 for receiver)
+  description: string;
+  reference?: string | null;
+  transactionType: TransactionType;
+  status: ReceiptStatus;
+  metaData?: Record<string, any> | null;
+  createdAt: number;
+  sentAt?: number | null;
+  viewedAt?: number | null;
+};
+
+export type ReceiptListResponse = {
+  receipts: TransactionReceipt[];
+  total: number;
+  page: number;
+  pageCount: number;
 };
 
 export type SavingsTarget = {

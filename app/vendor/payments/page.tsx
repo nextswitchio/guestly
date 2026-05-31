@@ -110,7 +110,15 @@ export default function VendorPaymentsPage() {
           <h1 className="text-3xl font-bold text-dark">Payments</h1>
           <p className="text-gray-500 mt-1">Track your earnings and payment requests</p>
         </div>
-        <Button onClick={() => setShowForm(true)}><Plus className="w-4 h-4 mr-2" />Request Payment</Button>
+        <div className="flex items-center gap-3">
+          <Button onClick={() => setShowForm(true)}><Plus className="w-4 h-4 mr-2" />Request Payment</Button>
+          <Button variant="outline" asChild>
+            <a href="/vendor/wallet/receipts">
+              <Receipt className="w-4 h-4 mr-2" />
+              View Receipts
+            </a>
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -178,6 +186,14 @@ export default function VendorPaymentsPage() {
                   {p.confirmed_at && <span className="text-gray-400">Confirmed: <span className="text-gray-600">{fmtDate(p.confirmed_at)}</span></span>}
                   {p.payment_method && <span className="text-gray-400">Method: <span className="text-gray-600 capitalize">{p.payment_method.replace("_", " ")}</span></span>}
                   {p.transaction_reference && <span className="text-gray-400">Ref: <span className="text-gray-600 font-mono text-xs">{p.transaction_reference}</span></span>}
+                {p.transaction_reference && p.payment_method === "wallet" && (
+                  <a href="/vendor/wallet/receipts" className="text-gray-400 hover:text-dark">
+                    <span className="text-lime-600 font-medium text-xs flex items-center gap-1">
+                      <Receipt className="w-3 h-3" />
+                      View Receipts
+                    </span>
+                  </a>
+                )}
                 </div>
                 {/* Partial payment progress bar */}
                 {(p.amount_paid || 0) > 0 && (

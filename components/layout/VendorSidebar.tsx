@@ -12,6 +12,15 @@ function LayoutDashboard({ className = "h-4 w-4" }: { className?: string }) {
     </svg>
   );
 }
+
+function ReceiptIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M4 4h16v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z" />
+      <polyline points="22,6 12,13 2,6" />
+    </svg>
+  );
+}
 function MailIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -90,6 +99,7 @@ const mainLinks: NavLink[] = [
   { href: "/vendor/service-profiles", label: "Service Profiles", icon: PackageIcon },
   { href: "/vendor/reviews", label: "Reviews", icon: Star },
   { href: "/vendor/notifications", label: "Notifications", icon: BellIcon },
+  { href: "/vendor/wallet/receipts", label: "Receipts", icon: ReceiptIcon },
 ];
 
 const systemLinks: NavLink[] = [

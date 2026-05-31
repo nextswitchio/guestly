@@ -14,10 +14,11 @@ type VendorPayment = {
   organizerUserId: string;
   amount: number;
   status: "pending" | "processing" | "paid" | "cancelled";
-  paymentMethod?: "bank_transfer" | "mobile_money" | "crypto";
-  requestedAt: number;
-  processedAt?: number;
-  paidAt?: number;
+  paymentMethod?: "wallet" | "bank_transfer" | "mobile_money" | "crypto";
+  requestedAt: number | string;
+  processedAt?: number | string;
+  paidAt?: number | string;
+  createdAt?: number | string;
   notes?: string;
   transactionReference?: string;
 };
@@ -41,7 +42,7 @@ export function VendorPaymentsTab({ eventId }: VendorPaymentsTabProps) {
   const [loading, setLoading] = useState(true);
   const [selectedPayment, setSelectedPayment] = useState<VendorPayment | null>(null);
   const [showProcessModal, setShowProcessModal] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"bank_transfer" | "mobile_money" | "crypto">("bank_transfer");
+  const [paymentMethod, setPaymentMethod] = useState<"wallet" | "bank_transfer" | "mobile_money" | "crypto">("wallet");
   const [transactionRef, setTransactionRef] = useState("");
   const [processing, setProcessing] = useState(false);
 
@@ -55,11 +56,29 @@ export function VendorPaymentsTab({ eventId }: VendorPaymentsTabProps) {
       const data = await res.json();
       
       if (data.success) {
-        setPayments(data.data.payments);
-        setSummary(data.data.summary);
+        // Backend returns array of payments directly in data.data
+        const payments = Array.isArray(data.data) ? data.data : (data.data?.payments || []);
+        setPayments(payments);
+        // For now, calculate summary from payments since backend doesn't return it
+        const totalAmount = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+        const paidAmount = payments.filter(p => p.status === 'paid' || p.status === 'confirmed').reduce((sum, p) => sum + (p.amount || 0), 0);
+        const pendingAmount = payments.filter(p => p.status === 'pending' || p.status === 'partial').reduce((sum, p) => sum + (p.amount || 0), 0);
+        setSummary({
+          totalAmount,
+          paidAmount,
+          pendingAmount,
+          totalPayments: payments.length,
+          paidPayments: payments.filter(p => p.status === 'paid' || p.status === 'confirmed').length,
+          pendingPayments: payments.filter(p => p.status === 'pending' || p.status === 'partial').length
+        });
+      } else {
+        setPayments([]);
+        setSummary(null);
       }
     } catch (error) {
       console.error("Failed to fetch vendor payments:", error);
+      setPayments([]);
+      setSummary(null);
     } finally {
       setLoading(false);
     }
@@ -126,8 +145,11 @@ export function VendorPaymentsTab({ eventId }: VendorPaymentsTabProps) {
     }).format(amount);
   };
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString("en-US", {
+  const formatDate = (timestamp: number | string | Date) => {
+    if (!timestamp) return "—";
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return "Invalid date";
+    return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -188,13 +210,13 @@ export function VendorPaymentsTab({ eventId }: VendorPaymentsTabProps) {
       <Card className="p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Payment Requests</h3>
         
-        {payments.length === 0 ? (
+        {(payments || []).length === 0 ? (
           <div className="text-center py-12">
             <p className="text-foreground-muted">No vendor payment requests yet</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {payments.map((payment) => (
+            {(payments || []).map((payment) => (
               <div
                 key={payment.id}
                 className="border border-surface-border rounded-lg p-4"
@@ -216,7 +238,7 @@ export function VendorPaymentsTab({ eventId }: VendorPaymentsTabProps) {
                       <div>
                         <span className="text-foreground-muted">Requested:</span>
                         <span className="ml-2 text-foreground">
-                          {formatDate(payment.requestedAt)}
+                          {formatDate(payment.createdAt || payment.requestedAt)}
                         </span>
                       </div>
                       
@@ -323,6 +345,7 @@ export function VendorPaymentsTab({ eventId }: VendorPaymentsTabProps) {
                 onChange={(e) => setPaymentMethod(e.target.value as any)}
                 className="w-full px-3 py-2 border border-surface-border rounded-lg bg-surface-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
+                <option value="wallet">Wallet</option>
                 <option value="bank_transfer">Bank Transfer</option>
                 <option value="mobile_money">Mobile Money</option>
                 <option value="crypto">Cryptocurrency</option>

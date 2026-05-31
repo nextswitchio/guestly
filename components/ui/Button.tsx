@@ -15,6 +15,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   glow?: boolean;
   fullWidth?: boolean;
   href?: string;
+  asChild?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -32,6 +33,7 @@ const Button: React.FC<ButtonProps> = ({
   fullWidth,
   href,
   className = "",
+  asChild,
   ...rest
 }) => {
   const isDisabled = disabled || loading;
@@ -115,6 +117,18 @@ const Button: React.FC<ButtonProps> = ({
         {content}
       </a>
     );
+  }
+
+  // Handle asChild pattern - render child element with button props
+  if (asChild && children) {
+    const child = React.Children.only(children) as React.ReactElement;
+    // Filter out Button-specific props that shouldn't be passed to the child
+    const { asChild: _, leftIcon: __1, rightIcon: __2, icon: __3, iconPosition: __4, loading: __5, variant: __6, size: __7, height: __8, glow: __9, fullWidth: __10, ...buttonProps } = rest;
+    return React.cloneElement(child, {
+      disabled: isDisabled,
+      className: `${baseClasses} ${isDisabled ? disabledClasses : variantClass} ${child.props.className || ''} ${className}`,
+      ...buttonProps,
+    });
   }
 
   return (

@@ -50,6 +50,7 @@ interface VerificationRequirement {
   name: string;
   description: string;
   required_documents: DocumentType[];
+  min_required?: number; // Minimum number of documents required (default: all)
   fee: number;
   validity_period_days: number;
   benefits: string[];
@@ -66,8 +67,9 @@ const VERIFICATION_TYPES: VerificationRequirement[] = [
   {
     type: "identity",
     name: "Identity Verification",
-    description: "Verify your identity to unlock basic premium features",
+    description: "Verify your identity by uploading one government-issued ID",
     required_documents: ["passport", "driver_license", "national_id"],
+    min_required: 1, // User must upload at least one of the required documents
     fee: 2000,
     validity_period_days: 365,
     benefits: [
@@ -128,8 +130,8 @@ const DOCUMENT_TYPE_DESCRIPTIONS: Record<DocumentType, string> = {
 
 const DOCUMENT_TYPE_ICONS: Record<DocumentType, string> = {
   passport: "book-open",
-  driver_license: "car",
-  national_id: "id-card",
+  driver_license: "document",
+  national_id: "document",
   business_registration: "file-text",
   utility_bill: "file",
 };
@@ -153,10 +155,10 @@ const STATUS_ICONS: Record<VerificationStatus, string> = {
 };
 
 const PAYMENT_OPTIONS: PaymentOption[] = [
-  { id: "wallet", name: "Wallet Balance", icon: "credit-card", description: "Pay from your Guestly wallet" },
+  { id: "wallet", name: "Wallet Balance", icon: "wallet", description: "Pay from your Guestly wallet" },
   { id: "card", name: "Credit/Debit Card", icon: "credit-card", description: "Visa, Mastercard, Verve" },
-  { id: "bank_transfer", name: "Bank Transfer", icon: "bank", description: "Direct bank transfer" },
-  { id: "mobile_money", name: "Mobile Money", icon: "phone", description: "MTN, Airtel, Glo, 9mobile" },
+  { id: "bank_transfer", name: "Bank Transfer", icon: "credit-card", description: "Direct bank transfer" },
+  { id: "mobile_money", name: "Mobile Money", icon: "smartphone", description: "MTN, Airtel, Glo, 9mobile" },
 ];
 
 // File Upload Component
@@ -167,7 +169,7 @@ function DocumentUpload({
   disabled
 }: { 
   documentType: DocumentType;
-  onUpload: (file: File) => void;
+  onUpload: (file: File | null) => void;
   uploadedFile: VerificationDocument | null;
   disabled: boolean;
 }) {
@@ -176,6 +178,11 @@ function DocumentUpload({
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
+    
+    if (!file) {
+      setError("No file selected");
+      return;
+    }
     
     // Validate file
     const maxSize = 5 * 1024 * 1024; // 5MB
@@ -339,12 +346,15 @@ function VerificationTypeSelection({
 // Document Requirements Component
 function DocumentRequirements({ 
   verificationType,
-  onDocumentsReady
+  onDocumentsReady,
+  files,
+  setFiles
 }: { 
   verificationType: VerificationType | null;
   onDocumentsReady: (ready: boolean) => void;
+  files: Record<DocumentType, File | null>;
+  setFiles: React.Dispatch<React.SetStateAction<Record<DocumentType, File | null>>>;
 }) {
-  const [files, setFiles] = useState<Record<DocumentType, File | null>>({} as Record<DocumentType, File | null>);
   const [uploadedDocuments, setUploadedDocuments] = useState<Record<DocumentType, VerificationDocument | null>>({} as Record<DocumentType, VerificationDocument | null>);
 
   const type = VERIFICATION_TYPES.find((t) => t.type === verificationType);
@@ -365,9 +375,13 @@ function DocumentRequirements({
     }
   };
 
-  const allRequiredUploaded = type.required_documents.every(
-    (docType) => files[docType] !== undefined
-  );
+  // Check if enough documents are uploaded
+  // If min_required is set, use that; otherwise require all
+  const uploadedCount = type.required_documents.filter(
+    (docType) => files[docType] !== undefined && files[docType] !== null
+  ).length;
+  const minRequired = type.min_required || type.required_documents.length;
+  const allRequiredUploaded = uploadedCount >= minRequired;
 
   useEffect(() => {
     onDocumentsReady(allRequiredUploaded);
@@ -377,7 +391,12 @@ function DocumentRequirements({
     <div className="space-y-6">
       <div>
         <h3 className="text-xl font-semibold text-neutral-900">Required Documents</h3>
-        <p className="text-neutral-500">Upload the following documents to complete your verification</p>
+        <p className="text-neutral-500">
+          {type.min_required && type.min_required < type.required_documents.length
+            ? `Upload at least ${type.min_required} of the following documents`
+            : "Upload the following documents"}
+          to complete your verification
+        </p>
       </div>
 
       <div className="grid gap-4">
@@ -641,6 +660,7 @@ export default function VerificationPage() {
   const [step, setStep] = useState<"select" | "documents" | "payment" | "complete">("select");
   const [selectedType, setSelectedType] = useState<VerificationType | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<VerificationRequest | null>(null);
+  const [files, setFiles] = useState<Record<DocumentType, File | null>>({} as Record<DocumentType, File | null>);
   const [isDocumentsReady, setIsDocumentsReady] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -696,23 +716,103 @@ export default function VerificationPage() {
   };
 
   const handlePaymentSuccess = async () => {
-    // Submit verification request
+    // Submit verification request with documents and process payment
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/verification/request", {
+      const type = VERIFICATION_TYPES.find((t) => t.type === selectedType);
+      if (!type) throw new Error("Verification type not found");
+      
+      // Collect uploaded files
+      const uploadedFiles = type.required_documents
+        .filter((docType) => files[docType] !== undefined && files[docType] !== null)
+        .map((docType) => ({ type: docType, file: files[docType] }));
+      
+      if (uploadedFiles.length === 0) {
+        throw new Error("No documents uploaded");
+      }
+      
+      // Map frontend type to backend type
+      const backendTypeMap: Record<VerificationType, string> = {
+        identity: "INDIVIDUAL",
+        business: "BUSINESS",
+        premium: "INFLUENCER",
+      };
+      const backendLevelMap: Record<VerificationType, string> = {
+        identity: "BASIC",
+        business: "STANDARD",
+        premium: "PREMIUM",
+      };
+      // Map frontend document types to backend document types
+      const backendDocTypeMap: Record<DocumentType, string> = {
+        passport: "PASSPORT",
+        driver_license: "DRIVERS_LICENSE",
+        national_id: "GOVERNMENT_ID",
+        business_registration: "CAC",
+        utility_bill: "UTILITY_BILL",
+      };
+      
+      // Step 1: Create verification request (without documents first)
+      const createResponse = await fetch("/api/verification/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          verification_type: selectedType,
-          // Documents would be uploaded separately
+          verification_type: backendTypeMap[selectedType] || selectedType.toUpperCase(),
+          verification_level: backendLevelMap[selectedType] || "BASIC",
+          payment_method: "wallet",
         }),
       });
-      if (response.ok) {
-        setStep("complete");
-        // Refresh requests
+      
+      if (!createResponse.ok) {
+        const errorData = await createResponse.json();
+        throw new Error(errorData.error || "Failed to create verification request");
+      }
+      
+      const requestData = await createResponse.json();
+      const requestId = requestData.id;
+      
+      // Step 2: Upload documents with the request ID
+      const documentUploadPromises = uploadedFiles.map(async ({ type: docType, file }) => {
+        const formData = new FormData();
+        formData.append("request_id", requestId);
+        formData.append("document_type", backendDocTypeMap[docType] || docType.toUpperCase());
+        formData.append("file", file);
+        
+        const uploadResponse = await fetch("/api/verification/documents/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json().catch(() => ({}));
+          throw new Error(`Failed to upload ${DOCUMENT_TYPE_LABELS[docType]}: ${errorData.error || "Unknown error"}`);
+        }
+        
+        return uploadResponse.json();
+      });
+      
+      await Promise.all(documentUploadPromises);
+      
+      // Step 3: Submit the verification request (mark as submitted)
+      const submitResponse = await fetch(`/api/verification/requests/${requestId}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      
+      if (!submitResponse.ok) {
+        const errorData = await submitResponse.json();
+        throw new Error(errorData.error || "Failed to submit verification");
+      }
+      
+      setStep("complete");
+      // Refresh requests
+      const requestsResponse = await fetch("/api/verification/my-requests");
+      if (requestsResponse.ok) {
+        const data = await requestsResponse.json();
+        setVerificationRequests(data.requests || []);
       }
     } catch (error) {
       console.error("Failed to submit verification request:", error);
+      alert(error instanceof Error ? error.message : "Failed to submit verification");
     } finally {
       setIsSubmitting(false);
     }
@@ -841,6 +941,8 @@ export default function VerificationPage() {
             <DocumentRequirements
               verificationType={selectedType}
               onDocumentsReady={handleDocumentsReady}
+              files={files}
+              setFiles={setFiles}
             />
 
             <div className="flex gap-4 justify-end">

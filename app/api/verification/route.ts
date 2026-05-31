@@ -61,24 +61,37 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json();
-    const { searchParams } = new URL(request.url);
+    const { searchParams, pathname } = new URL(request.url);
     const sub = searchParams.get('sub');
     
-    let endpoint = `${BACKEND_URL}/api/v1/verification/request`;
+    let endpoint = `${BACKEND_URL}/api/v1/verification/requests`;
     
-    if (sub === 'documents') {
+    // Handle documents/upload endpoint
+    if (pathname.includes('/verification/documents/upload') || sub === 'upload') {
+      endpoint = `${BACKEND_URL}/api/v1/verification/documents`;
+    } else if (sub === 'documents') {
       const request_id = searchParams.get('request_id');
       endpoint = `${BACKEND_URL}/api/v1/verification/requests/${request_id}/documents`;
+    }
+
+    // For file uploads, we need to forward the FormData as-is
+    const contentType = request.headers.get('content-type');
+    const isFormData = contentType && contentType.includes('multipart/form-data');
+    
+    let bodyData;
+    if (isFormData) {
+      bodyData = await request.formData();
+    } else {
+      bodyData = await request.json();
     }
 
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       },
-      body: JSON.stringify(body),
+      body: isFormData ? bodyData : JSON.stringify(bodyData),
     });
 
     if (!response.ok) {

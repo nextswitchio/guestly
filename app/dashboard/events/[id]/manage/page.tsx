@@ -16,6 +16,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import MobileTabs from '@/components/ui/MobileTabs';
 import { useToast } from '@/components/ui/ToastProvider';
+import { VendorPaymentsTab } from '@/components/vendors/VendorPaymentsTab';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -2237,6 +2238,11 @@ export default function ManageEventPage({ params }: { params: Promise<{ id: stri
       id: 'vendors', label: 'Vendors', title: 'Vendors', icon: 'store',
       description: 'Source and invite vendors',
       content: <VendorsTab event={event} id={id} />,
+    },
+    {
+      id: 'vendor-payments', label: 'Payments', title: 'Vendor Payments', icon: 'dollar-sign',
+      description: 'Pay vendors for their services',
+      content: <VendorPaymentsTab eventId={id} />,
     },
     {
       id: 'attendees', label: 'Attendees', title: 'Attendees', icon: 'users',
