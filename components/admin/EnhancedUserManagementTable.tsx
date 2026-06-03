@@ -152,11 +152,11 @@ export function EnhancedUserManagementTable({
       render: (value) => (
         <div className="text-sm">
           <div className="text-slate-900">
-            {value && typeof value !== 'object' ? DataTableFormatters.date(value) : '-'}
+            {value && typeof value === 'number' ? DataTableFormatters.date(value) : '-'}
           </div>
         </div>
       ),
-      exportRender: (value) => value && typeof value !== 'object' ? DataTableFormatters.date(value) : '-',
+      exportRender: (value) => value && typeof value === 'number' ? DataTableFormatters.date(value) : '-',
     },
     {
       key: 'lastActivityAt',
@@ -164,10 +164,10 @@ export function EnhancedUserManagementTable({
       sortable: true,
       render: (value) => (
         <div className="text-sm text-slate-500">
-          {value && typeof value !== 'object' ? DataTableFormatters.date(value) : 'Never'}
+          {value && typeof value === 'number' ? DataTableFormatters.date(value) : 'Never'}
         </div>
       ),
-      exportRender: (value) => value && typeof value !== 'object' ? DataTableFormatters.date(value) : 'Never',
+      exportRender: (value) => value && typeof value === 'number' ? DataTableFormatters.date(value) : 'Never',
     },
     {
       key: 'eventsCreated',
