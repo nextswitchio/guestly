@@ -89,8 +89,8 @@ export async function GET(request: NextRequest) {
   
   // Compute summary for the component
   const totalEvents = events.length;
-  const totalRevenue = events.reduce((sum, e) => sum + (e.revenue || 0), 0);
-  const totalTicketsSold = events.reduce((sum, e) => sum + (e.ticketsSold || 0), 0);
+  const totalRevenue = events.reduce((sum: number, e: any) => sum + (e.revenue || 0), 0);
+  const totalTicketsSold = events.reduce((sum: number, e: any) => sum + (e.ticketsSold || 0), 0);
   const summary = {
     totalEvents,
     totalRevenue,

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-export default function ConfirmationQueryPage({ searchParams }: { searchParams: { orderId?: string } }) {
-  const orderId = searchParams?.orderId || searchParams?.orderid || searchParams?.id;
+export default function ConfirmationQueryPage({ searchParams }: { searchParams: { orderId?: string; id?: string } }) {
+  const orderId = searchParams?.orderId || searchParams?.id;
   if (orderId) {
     redirect(`/confirmation/${orderId}`);
   }

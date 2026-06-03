@@ -38,7 +38,7 @@ export default function ReceiptsPage() {
     }
   };
 
-  const getStatusBadge = (status: string, viewedAt: number | null) => {
+  const getStatusBadge = (status: string, viewedAt: number | null | undefined) => {
     const isViewed = status === "viewed" || viewedAt;
     if (isViewed) {
       return (

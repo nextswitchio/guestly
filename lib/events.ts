@@ -44,6 +44,7 @@ export type Event = {
   organizerFollowerCount?: number;
   organizerTotalEvents?: number;
   organizerTotalAttendees?: number;
+  ticketsSold?: number;
 };
 
 // ---------------------------------------------------------------------------

@@ -88,6 +88,14 @@ interface Anomaly {
   timestamp: string;
 }
 
+interface MonitoringSummary {
+  status: string;
+  total_revenue: number;
+  active_users: number;
+  new_users: number;
+  anomaly_count: number;
+}
+
 interface MonitoringReport {
   generated_at: string;
   period: string;
@@ -96,13 +104,7 @@ interface MonitoringReport {
   revenue: RevenueAnalytics;
   activity: UserActivity;
   anomalies: Anomaly[];
-  summary: {
-    status: string;
-    total_revenue: number;
-    active_users: number;
-    new_users: number;
-    anomaly_count: number;
-  };
+  summary: MonitoringSummary;
 }
 
 interface MetricCardProps {
@@ -288,15 +290,15 @@ export default function PlatformMonitoringDashboardPage() {
   const displayData = data;
 
   // Safe accessors for potentially missing nested fields
-  const perf = displayData?.performance ?? {};
-  const perfRevenue = perf.revenue ?? {};
-  const perfUsers = perf.users ?? {};
-  const perfOrders = perf.orders ?? {};
-  const perfEvents = perf.events ?? {};
-  const rev = displayData?.revenue ?? {};
-  const act = displayData?.activity ?? {};
-  const summary = displayData?.summary ?? {};
-  const health = displayData?.health ?? {};
+  const perf = displayData?.performance ?? ({} as PerformanceMetrics);
+  const perfRevenue = (perf as PerformanceMetrics).revenue ?? {};
+  const perfUsers = (perf as PerformanceMetrics).users ?? {};
+  const perfOrders = (perf as PerformanceMetrics).orders ?? {};
+  const perfEvents = (perf as PerformanceMetrics).events ?? {};
+  const rev = displayData?.revenue ?? ({} as RevenueAnalytics);
+  const act = displayData?.activity ?? ({} as UserActivity);
+  const summary = displayData?.summary ?? ({} as MonitoringSummary);
+  const health = displayData?.health ?? ({} as SystemHealth);
   const anomalies = displayData?.anomalies ?? [];
 
   // Chart data

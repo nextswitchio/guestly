@@ -106,7 +106,7 @@ function ConfirmationContent({ order, passCode }: ConfirmationContentProps) {
               className="absolute inset-0 rounded-full bg-success-500/10" 
             />
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success-700 shadow-xl shadow-success-700/40">
-              <Icon name="check" size={32} className="text-white" stroke="#ffffff" fill="#ffffff" />
+              <Icon name="check" size={32} className="text-white" />
             </div>
           </motion.div>
 

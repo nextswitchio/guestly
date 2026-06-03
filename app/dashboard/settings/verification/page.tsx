@@ -725,7 +725,7 @@ export default function VerificationPage() {
       // Collect uploaded files
       const uploadedFiles = type.required_documents
         .filter((docType) => files[docType] !== undefined && files[docType] !== null)
-        .map((docType) => ({ type: docType, file: files[docType] }));
+        .map((docType) => ({ type: docType, file: files[docType]! }));
       
       if (uploadedFiles.length === 0) {
         throw new Error("No documents uploaded");
@@ -756,8 +756,8 @@ export default function VerificationPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          verification_type: backendTypeMap[selectedType] || selectedType.toUpperCase(),
-          verification_level: backendLevelMap[selectedType] || "BASIC",
+          verification_type: selectedType ? (backendTypeMap[selectedType] || selectedType.toUpperCase()) : "",
+          verification_level: selectedType ? (backendLevelMap[selectedType] || "BASIC") : "BASIC",
           payment_method: "wallet",
         }),
       });

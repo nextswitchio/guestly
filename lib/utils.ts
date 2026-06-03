@@ -51,6 +51,17 @@ export function formatDate(timestamp: number | string | Date, locale = "en-NG") 
   }).format(new Date(timestamp));
 }
 
+export function formatDateTime(timestamp: number | string | Date, locale = "en-NG") {
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(new Date(timestamp));
+}
+
 export function truncateText(text: string, maxLength: number) {
   if (text.length <= maxLength) return text;
   return `${text.slice(0, Math.max(0, maxLength)).trimEnd()}...`;
