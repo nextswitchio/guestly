@@ -128,7 +128,7 @@ const Button: React.FC<ButtonProps> = ({
       disabled: isDisabled,
       className: `${baseClasses} ${isDisabled ? disabledClasses : variantClass} ${child.props.className || ''} ${className}`,
       ...rest,
-    });
+    } as any);
   }
 
   return (
