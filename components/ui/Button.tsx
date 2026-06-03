@@ -123,7 +123,7 @@ const Button: React.FC<ButtonProps> = ({
   if (asChild && children) {
     const child = React.Children.only(children) as React.ReactElement;
     // Filter out Button-specific props that shouldn't be passed to the child
-    const { asChild: _, leftIcon: __1, rightIcon: __2, icon: __3, iconPosition: __4, loading: __5, variant: __6, size: __7, height: __8, glow: __9, fullWidth: __10, ...buttonProps } = rest;
+    const { leftIcon: _1, rightIcon: _2, icon: _3, iconPosition: _4, loading: _5, variant: _6, size: _7, height: _8, glow: _9, fullWidth: _10, ...buttonProps } = rest;
     return React.cloneElement(child, {
       disabled: isDisabled,
       className: `${baseClasses} ${isDisabled ? disabledClasses : variantClass} ${child.props.className || ''} ${className}`,
