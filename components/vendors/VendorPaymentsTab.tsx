@@ -60,16 +60,16 @@ export function VendorPaymentsTab({ eventId }: VendorPaymentsTabProps) {
         const payments = Array.isArray(data.data) ? data.data : (data.data?.payments || []);
         setPayments(payments);
         // For now, calculate summary from payments since backend doesn't return it
-        const totalAmount = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-        const paidAmount = payments.filter(p => p.status === 'paid' || p.status === 'confirmed').reduce((sum, p) => sum + (p.amount || 0), 0);
-        const pendingAmount = payments.filter(p => p.status === 'pending' || p.status === 'partial').reduce((sum, p) => sum + (p.amount || 0), 0);
+        const totalAmount = payments.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+        const paidAmount = payments.filter((p: any) => p.status === 'paid' || p.status === 'confirmed').reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+        const pendingAmount = payments.filter((p: any) => p.status === 'pending' || p.status === 'partial').reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
         setSummary({
           totalAmount,
           paidAmount,
           pendingAmount,
           totalPayments: payments.length,
-          paidPayments: payments.filter(p => p.status === 'paid' || p.status === 'confirmed').length,
-          pendingPayments: payments.filter(p => p.status === 'pending' || p.status === 'partial').length
+          paidPayments: payments.filter((p: any) => p.status === 'paid' || p.status === 'confirmed').length,
+          pendingPayments: payments.filter((p: any) => p.status === 'pending' || p.status === 'partial').length
         });
       } else {
         setPayments([]);

@@ -121,14 +121,14 @@ const Button: React.FC<ButtonProps> = ({
 
   // Handle asChild pattern - render child element with button props
   if (asChild && children) {
-    const child = React.Children.only(children) as React.ReactElement;
+    const child = React.Children.only(children) as React.ReactElement<{ className?: string; disabled?: boolean }>;
     // Filter out Button-specific props that shouldn't be passed to the child
     // (leftIcon, rightIcon, icon, iconPosition, loading, variant, size, height, glow, fullWidth, asChild are already destructured above)
     return React.cloneElement(child, {
       disabled: isDisabled,
       className: `${baseClasses} ${isDisabled ? disabledClasses : variantClass} ${child.props.className || ''} ${className}`,
       ...rest,
-    } as any);
+    });
   }
 
   return (

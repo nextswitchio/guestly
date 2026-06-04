@@ -27,8 +27,8 @@ if (typeof window === 'undefined') {
  * @param options - DOMPurify configuration options
  * @returns Sanitized HTML string
  */
-export function sanitizeHtml(html: string, options: DOMPurify.Config = {}): string {
-  const defaultOptions: DOMPurify.Config = {
+export function sanitizeHtml(html: string, options: any = {}): string {
+  const defaultOptions = {
     ALLOWED_TAGS: [
       'b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li',
       'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'span', 'blockquote',
@@ -46,7 +46,8 @@ export function sanitizeHtml(html: string, options: DOMPurify.Config = {}): stri
     ...options
   };
 
-  return DOMPurify.sanitize(html, defaultOptions);
+  const sanitized = DOMPurify.sanitize(html, defaultOptions);
+  return typeof sanitized === 'string' ? sanitized : String(sanitized);
 }
 
 /**
