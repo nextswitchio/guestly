@@ -10,7 +10,8 @@ function redirectForRole(role: string | undefined, router: ReturnType<typeof use
   else if (role === "vendor") router.replace("/vendor/dashboard");
   else if (role === "affiliate") router.replace("/affiliate/dashboard");
   else if (role === "admin") router.replace("/admin");
-  else router.replace("/attendee");
+  else if (role === "attendee") router.replace("/attendee");
+  else router.replace("/dashboard");
 }
 
 function LoginContent() {
@@ -21,12 +22,12 @@ function LoginContent() {
 
   const handleLogin = async (data: { email: string; password: string }) => {
     setLoading(true);
-    const role = searchParams.get("role") || "attendee";
+    const urlRole = searchParams.get("role") || "attendee";
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.email, password: data.password, role }),
+        body: JSON.stringify({ email: data.email, password: data.password, role: urlRole }),
       });
       const result = await res.json();
       if (!res.ok || !result.ok) {
@@ -34,7 +35,7 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      redirectForRole(result.role, router);
+      redirectForRole(result.role || urlRole, router);
     } catch {
       addToast("Something went wrong. Please try again.", { type: "error" });
       setLoading(false);
