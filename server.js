@@ -276,9 +276,10 @@ app.prepare().then(() => {
   });
 
   const PORT = process.env.PORT || 3000;
-  server.listen(PORT, (err) => {
+  const HOST = process.env.HOST || '0.0.0.0';
+  server.listen(PORT, HOST, (err) => {
     if (err) throw err;
-    console.log(`> Ready on http://localhost:${PORT}`);
+    console.log(`> Ready on http://${HOST}:${PORT}`);
     console.log('> WebSocket server initialized');
   });
 });
