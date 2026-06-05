@@ -35,7 +35,8 @@ export async function GET(req: NextRequest) {
     }
 
     const user = await res.json();
-    const response = NextResponse.json({ ok: true, user });
+    const role = user?.role;
+    const response = NextResponse.json({ ok: true, user, role });
     response.cookies.set("access_token", token, {
       httpOnly: true,
       sameSite: "lax",
