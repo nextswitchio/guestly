@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, Banknote, Check, Users, X, XCircle } from 'lucide-react';
+import { ArrowLeft, Banknote, Building2, Check, Heart, PartyPopper, Users, X, XCircle } from 'lucide-react';
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -141,7 +141,7 @@ export default function GroupWalletDetailPage() {
         </h3>
         <Link
           href="/wallet/groups"
-          className="inline-block mt-4 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+          className="inline-block mt-4 px-6 py-3 bg-lime text-dark rounded-lg hover:bg-lime-hover transition-colors font-medium"
         >
           Back to Group Wallets
         </Link>
@@ -171,16 +171,16 @@ export default function GroupWalletDetailPage() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-3xl font-bold text-neutral-900">{groupWallet.name}</h1>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+              <span className={`px-3 py-1 rounded-full text-sm font-medium inline-flex items-center gap-1.5 ${
                 groupWallet.groupType === 'friends'
                   ? 'bg-primary-100 text-primary-700'
                   : groupWallet.groupType === 'family'
                   ? 'bg-emerald-100 text-emerald-700'
                   : 'bg-amber-100 text-amber-700'
               }`}>
-                {groupWallet.groupType === 'friends' && '<Users className="h-4 w-4 inline-block" /> Friends'}
-                {groupWallet.groupType === 'family' && '👨‍👩‍👧‍👦 Family'}
-                {groupWallet.groupType === 'corporate' && '🏢 Corporate'}
+                {groupWallet.groupType === 'friends' && <><Users className="h-3.5 w-3.5" /> Friends</>}
+                {groupWallet.groupType === 'family' && <><Heart className="h-3.5 w-3.5" /> Family</>}
+                {groupWallet.groupType === 'corporate' && <><Building2 className="h-3.5 w-3.5" /> Corporate</>}
               </span>
             </div>
             <p className="text-neutral-500">
@@ -212,7 +212,7 @@ export default function GroupWalletDetailPage() {
         </div>
 
         {currentMember && !isCancelled && (
-          <button onClick={() => setShowContributeModal(true)} className="w-full px-6 py-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-lg">
+          <button onClick={() => setShowContributeModal(true)} className="w-full px-6 py-4 bg-lime text-dark rounded-lg hover:bg-lime-hover transition-colors font-medium text-lg">
             Contribute to Group
           </button>
         )}
@@ -481,7 +481,7 @@ export default function GroupWalletDetailPage() {
                           <span className="font-bold text-emerald-600">${contribution.amount.toFixed(2)}</span>
                         </p>
                         {isMilestone && (
-                          <p className="text-sm text-emerald-700 mt-1 flex items-center gap-1">🎉 Milestone reached!</p>
+                          <p className="text-sm text-emerald-700 mt-1 flex items-center gap-1"><PartyPopper className="h-4 w-4" /> Milestone reached!</p>
                         )}
                       </div>
                       <span className="text-sm text-neutral-500 whitespace-nowrap">{getRelativeTime(contribution.timestamp)}</span>

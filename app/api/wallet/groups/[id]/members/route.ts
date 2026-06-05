@@ -13,9 +13,9 @@ export async function POST(
 
     const { id } = await params;
     const body = await req.json();
-    const { user_id, name, target_amount } = body;
+    const { user_id, target_amount } = body;
 
-    if (!user_id || !name || typeof target_amount !== "number") {
+    if (!user_id || typeof target_amount !== "number" || target_amount <= 0) {
       return NextResponse.json({ error: "Invalid member data" }, { status: 400 });
     }
 
@@ -25,7 +25,7 @@ export async function POST(
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ user_id, name, target_amount }),
+      body: JSON.stringify({ user_id, target_amount }),
     });
 
     if (!res.ok) {
