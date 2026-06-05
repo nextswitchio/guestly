@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       )
     );
 
-    const memberErrors = memberResults.filter((r) => r && !r.ok);
+    const memberErrors = memberResults.filter((r): r is Response => r !== null && !r.ok);
     if (memberErrors.length > 0) {
       const error = await memberErrors[0].json().catch(() => ({ detail: "Failed to add some members" }));
       return NextResponse.json({ error: error.detail }, { status: memberErrors[0].status });
