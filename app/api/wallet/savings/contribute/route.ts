@@ -9,7 +9,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { target_id, amount, recurring, frequency } = body;
+    const { targetId, amount, recurring, frequency } = body;
+    const target_id = targetId;
 
     if (!target_id) {
       return NextResponse.json({ error: "Target ID is required" }, { status: 400 });

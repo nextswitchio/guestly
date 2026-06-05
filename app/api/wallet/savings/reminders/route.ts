@@ -33,15 +33,16 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { savings_target_id } = body;
+    const { savingsTargetId } = body;
+    const savings_target_id = savingsTargetId || undefined;
 
-    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/savings/reminders`, {
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/savings/reminders?savings_target_id=${savings_target_id}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ savings_target_id }),
+      body: JSON.stringify({}),
     });
 
     if (!res.ok) {

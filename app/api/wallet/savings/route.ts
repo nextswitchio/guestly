@@ -32,7 +32,9 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { event_id, goal_amount, target_date } = body;
+    const { goalAmount, targetDate } = body;
+    const goal_amount = goalAmount;
+    const target_date = targetDate || undefined;
 
     if (!goal_amount || goal_amount <= 0) {
       return NextResponse.json({ error: "Goal amount must be greater than 0" }, { status: 400 });
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ event_id, goal_amount, target_date }),
+      body: JSON.stringify({ goal_amount, target_date }),
     });
 
     if (!res.ok) {

@@ -9,15 +9,16 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { reminder_id, process_all } = body;
+    const { reminderId } = body;
+    const params = new URLSearchParams();
+    if (reminderId) params.set("reminder_id", reminderId);
+    params.set("process_all", "false");
 
-    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/savings/reminders/process`, {
+    const res = await fetch(`${BACKEND_URL}/api/v1/wallet/savings/reminders/process?${params.toString()}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ reminder_id, process_all }),
     });
 
     if (!res.ok) {
