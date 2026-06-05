@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSidebar } from "@/components/ui/sidebar";
+import { clearAllCookies } from "@/lib/clearCookies";
 
 // ── Icons ─────────────────────────────────────────────────────────────────
 const icons = {
@@ -384,7 +385,10 @@ export default function AdminSidebar() {
         {/* Sign out */}
         <button
           onClick={async () => {
-            await fetch("/api/auth/logout", { method: "POST" });
+            try {
+              await fetch("/api/auth/logout", { method: "POST" });
+            } catch {}
+            clearAllCookies();
             window.location.href = "/admin/login";
           }}
           title={collapsed ? "Sign Out" : undefined}

@@ -2,6 +2,7 @@
 import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { clearAllCookies } from "@/lib/clearCookies";
 
 // ── Page title map ─────────────────────────────────────────────────────────
 const PAGE_TITLES: Record<string, string> = {
@@ -71,7 +72,10 @@ export default function AdminTopBar() {
   }, []);
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+    clearAllCookies();
     window.location.href = "/admin/login";
   }
 

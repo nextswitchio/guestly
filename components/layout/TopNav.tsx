@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import { getImageSrc } from "@/utils/imageUtils";
+import { clearAllCookies } from "@/lib/clearCookies";
 import { MenuIcon } from "@/utils/icons";
 
 const navLinks = [
@@ -62,8 +63,9 @@ export default function TopNav() {
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     } catch {}
+    clearAllCookies();
     setUser(null);
-    window.location.href = "/";
+    window.location.href = "/login";
   };
 
   const getDashboardLink = () => {

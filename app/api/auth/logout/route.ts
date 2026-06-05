@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 export async function POST() {
   const response = NextResponse.json({ ok: true });
-  const opts = { httpOnly: true, sameSite: "lax" as const, path: "/", maxAge: 0 };
-  response.cookies.set("access_token", "", opts);
-  response.cookies.set("refresh_token", "", opts);
-  response.cookies.set("role", "", opts);
-  response.cookies.set("user_role", "", opts);
-  response.cookies.set("user_id", "", opts);
+  const past = new Date(0);
+  const opts = { httpOnly: true, sameSite: "lax" as const, path: "/", expires: past, maxAge: 0 };
+  const cookies = ["access_token", "refresh_token", "role", "user_role", "user_id"];
+  for (const name of cookies) {
+    response.cookies.set(name, "", opts);
+  }
   return response;
 }

@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSidebar } from "@/components/ui/sidebar";
+import { clearAllCookies } from "@/lib/clearCookies";
 
 function LayoutIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -168,8 +169,11 @@ export default function AttendeeSidebar() {
         <div className="border-t border-white/5 p-2">
           <button
             onClick={async () => {
-              await fetch("/api/auth/logout", { method: "POST" });
-              window.location.href = "/";
+              try {
+                await fetch("/api/auth/logout", { method: "POST" });
+              } catch {}
+              clearAllCookies();
+              window.location.href = "/login";
             }}
             title={collapsed ? "Sign Out" : undefined}
             className={`group relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-150 min-h-[44px] w-full ${

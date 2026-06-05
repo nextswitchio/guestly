@@ -3,6 +3,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { useSidebar, SidebarTrigger } from "@/components/ui/sidebar";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import { clearAllCookies } from "@/lib/clearCookies";
 
 export default function VendorTopBar() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function VendorTopBar() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } catch {}
+    clearAllCookies();
     window.location.href = "/vendor-auth/login";
   }
 

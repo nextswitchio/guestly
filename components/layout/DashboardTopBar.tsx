@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Avatar from "@/components/ui/Avatar";
 import { useSidebar } from "@/components/ui/sidebar";
+import { clearAllCookies } from "@/lib/clearCookies";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 function SearchIcon({ className = "h-5 w-5" }: { className?: string }) {
@@ -83,7 +84,10 @@ export default function DashboardTopBar() {
   }, [profileOpen]);
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+    clearAllCookies();
     setRole(null);
     setProfileOpen(false);
     window.location.href = "/login";
