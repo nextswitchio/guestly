@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { BACKEND_URL } from "@/lib/api/client";
 
 function getAuthHeaders(req: NextRequest): Record<string, string> {
-  const token = req.cookies.get("access_token")?.value;
+  // Support both cookie-based and Bearer token authentication
+  let token = req.cookies.get("access_token")?.value;
+  if (!token) {
+    const authHeader = req.headers.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      token = authHeader.substring(7);
+    }
+  }
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
