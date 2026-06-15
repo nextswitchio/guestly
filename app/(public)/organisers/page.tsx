@@ -1,6 +1,6 @@
-"use client";
-import OrganiserPage from "@/components/organiser/OrganiserPage";
+import { redirect } from "next/navigation";
 
+// Redirect old /organisers URL to /organizer
 export default function OrganisersPage() {
-  return <OrganiserPage />;
+  redirect("/organizer");
 }

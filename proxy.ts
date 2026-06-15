@@ -8,6 +8,7 @@ const PROTECTED_ROUTES = [
   "/affiliate",
   "/admin",
   "/organiser",
+  "/organizer",
   "/wallet",
   "/payment",
 ];
@@ -18,6 +19,7 @@ const ADMIN_PUBLIC_ROUTES = ["/admin/login", "/admin/forgot-password"];
 const ADMIN_ROUTES = ["/admin"];
 const VENDOR_ROUTES = ["/vendor"];
 const AFFILIATE_ROUTES = ["/affiliate"];
+const ORGANIZER_ROUTES = ["/organizer", "/organiser"];
 
 const AUTH_REDIRECT_MAP: Record<string, string> = {
   "/login": "/attendee",
@@ -25,32 +27,60 @@ const AUTH_REDIRECT_MAP: Record<string, string> = {
   "/signup": "/attendee",
 };
 
+function getRoleDashboardPath(role: string): string {
+  switch (role) {
+    case "organizer":
+    case "organiser":
+      return "/organizer/dashboard";
+    case "vendor":
+      return "/vendor/dashboard";
+    case "affiliate":
+      return "/affiliate/dashboard";
+    case "admin":
+      return "/admin";
+    default:
+      return "/attendee";
+  }
+}
+
 const ROLE_REDIRECT_MAP: Record<string, Record<string, string>> = {
   attendee: {
     "/admin": "/attendee",
     "/vendor": "/attendee",
     "/affiliate": "/attendee",
     "/organiser": "/attendee",
+    "/organizer": "/attendee",
   },
   organiser: {
-    "/admin": "/dashboard",
-    "/vendor": "/dashboard",
-    "/affiliate": "/dashboard",
+    "/admin": "/organizer/dashboard",
+    "/vendor": "/organizer/dashboard",
+    "/affiliate": "/organizer/dashboard",
+    "/attendee": "/organizer/dashboard",
+  },
+  organizer: {
+    "/admin": "/organizer/dashboard",
+    "/vendor": "/organizer/dashboard",
+    "/affiliate": "/organizer/dashboard",
+    "/attendee": "/organizer/dashboard",
+    "/organiser": "/organizer/dashboard",
   },
   vendor: {
     "/admin": "/vendor",
     "/affiliate": "/vendor",
     "/organiser": "/vendor",
+    "/organizer": "/vendor",
   },
   affiliate: {
     "/admin": "/affiliate",
     "/vendor": "/affiliate",
     "/organiser": "/affiliate",
+    "/organizer": "/affiliate",
   },
   admin: {
     "/vendor": "/admin",
     "/affiliate": "/admin",
     "/organiser": "/admin",
+    "/organizer": "/admin",
   },
 };
 
@@ -82,6 +112,13 @@ function isVendorRoute(pathname: string): boolean {
 function isAffiliateRoute(pathname: string): boolean {
   const nextChar = pathname["/affiliate".length];
   return pathname.startsWith("/affiliate") && (nextChar === "/" || nextChar === undefined);
+}
+
+function isOrganizerRoute(pathname: string): boolean {
+  const nextCharOrganizer = pathname["/organizer".length];
+  const nextCharOrganiser = pathname["/organiser".length];
+  return (pathname.startsWith("/organizer") && (nextCharOrganizer === "/" || nextCharOrganizer === undefined)) ||
+         (pathname.startsWith("/organiser") && (nextCharOrganiser === "/" || nextCharOrganiser === undefined));
 }
 
 export function proxy(request: NextRequest) {
@@ -128,7 +165,7 @@ export function proxy(request: NextRequest) {
 
   // If trying to access auth pages while authenticated, redirect to appropriate dashboard
   if (isAuthRoute(pathname) && isAuthenticated) {
-    const redirectPath = AUTH_REDIRECT_MAP[pathname] || "/attendee";
+    const redirectPath = getRoleDashboardPath(role);
     return NextResponse.redirect(new URL(redirectPath, request.url));
   }
 
@@ -142,6 +179,9 @@ export function proxy(request: NextRequest) {
     }
     if (isAffiliateRoute(pathname)) {
       return NextResponse.redirect(new URL("/affiliate-auth/login", request.url));
+    }
+    if (isOrganizerRoute(pathname)) {
+      return NextResponse.redirect(new URL("/login?role=organiser", request.url));
     }
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -181,6 +221,12 @@ export function proxy(request: NextRequest) {
   const affiliateNext = pathname["/affiliate".length];
   if (pathname.startsWith("/affiliate") && (affiliateNext === "/" || affiliateNext === undefined) && isAuthenticated && role !== "affiliate") {
     return NextResponse.redirect(new URL("/attendee", request.url));
+  }
+
+  // Organizer route protection
+  if (isOrganizerRoute(pathname) && isAuthenticated && role !== "organizer" && role !== "organiser") {
+    const roleDashboard = getRoleDashboardPath(role);
+    return NextResponse.redirect(new URL(roleDashboard, request.url));
   }
 
   return NextResponse.next();

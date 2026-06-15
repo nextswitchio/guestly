@@ -1,6 +1,6 @@
 // ── Core Platform Types ──────────────────────────────────────────────────────
 
-export type UserRole = "attendee" | "organiser" | "vendor" | "admin" | "affiliate";
+export type UserRole = "attendee" | "organiser" | "organizer" | "vendor" | "admin" | "affiliate";
 
 export type User = {
   id: string;

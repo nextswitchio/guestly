@@ -79,7 +79,7 @@ export default function SignupPage() {
       }
       const actualRole = loginData.role || role;
       if (actualRole === "organiser" || actualRole === "organizer") {
-        router.replace("/dashboard");
+        router.replace("/organizer/dashboard");
       } else if (actualRole === "vendor") {
         router.replace("/vendor/dashboard");
       } else if (actualRole === "affiliate") {

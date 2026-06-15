@@ -15,7 +15,7 @@ export default function CryptoDepositPage() {
       .catch(() => setRole(null));
   }, []);
 
-  const backHref = role === "organiser" ? "/dashboard/wallet" : "/wallet";
+  const backHref = role === "organiser" ? "/organizer/dashboard/wallet" : "/wallet";
 
   return (
     <ProtectedRoute allowRoles={["attendee", "organiser"]}>
