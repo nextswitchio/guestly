@@ -46,7 +46,7 @@ export default function AdminCachePage() {
     setLoading(true);
     setMessage(null);
     try {
-      const res = await fetch("/api/admin/cache/stats");
+      const res = await fetch("/api/admin/cache/stats", { credentials: 'include' });
       if (res.ok) {
         const data: ApiResponse = await res.json();
         if (data.ok) {
@@ -71,7 +71,7 @@ export default function AdminCachePage() {
     setClearing(true);
     setMessage(null);
     try {
-      const res = await fetch("/api/admin/cache/cleanup", { method: "POST" });
+      const res = await fetch("/api/admin/cache/cleanup", { method: "POST", credentials: 'include' });
       const data: ApiResponse = await res.json();
       if (data.ok) {
         setMessage({ text: data.message || "Cache cleaned successfully", type: "success" });
@@ -89,7 +89,7 @@ export default function AdminCachePage() {
     setClearing(true);
     setMessage(null);
     try {
-      const res = await fetch("/api/admin/cache/stats?all=true", { method: "DELETE" });
+      const res = await fetch("/api/admin/cache/stats?all=true", { method: "DELETE", credentials: 'include' });
       const data: ApiResponse = await res.json();
       if (data.ok) {
         setMessage({ text: data.message || "All cache cleared", type: "success" });
@@ -104,7 +104,7 @@ export default function AdminCachePage() {
 
   const deleteKey = async (key: string) => {
     try {
-      const res = await fetch(`/api/admin/cache/stats?key=${encodeURIComponent(key)}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/cache/stats?key=${encodeURIComponent(key)}`, { method: "DELETE", credentials: 'include' });
       const data: ApiResponse = await res.json();
       if (data.ok) {
         setEntries(prev => prev.filter(e => e.key !== key));
