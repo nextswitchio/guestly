@@ -20,7 +20,7 @@ export default function AdminVendorSubscriptionsPage() {
   const fetchVendors = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/vendors");
+      const res = await fetch("/api/admin/vendors", { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         const list = Array.isArray(data) ? data 
@@ -94,27 +94,27 @@ export default function AdminVendorSubscriptionsPage() {
               <tbody>
                 {vendors.map((v) => (
                   <tr key={v.id} className="border-b border-neutral-200 hover:bg-neutral-50">
-                    <td className="py-3 px-4 font-medium text-slate-900">{v.name}</td>
-                    <td className="py-3 px-4 text-slate-500">{v.category}</td>
+                    <td className="py-3 px-4 font-medium text-slate-900">{v.vendorName || v.display_name || v.email || "Unknown"}</td>
+                    <td className="py-3 px-4 text-slate-500">{v.vendorCategory || "-"}</td>
                     <td className="py-3 px-4 text-slate-900">
-                      {v.subscription?.plan ? (
+                      {v.subscriptionPlan ? (
                         <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                          {v.subscription.plan.toUpperCase()}
+                          {v.subscriptionPlan.toUpperCase()}
                         </span>
                       ) : (
                         <span className="text-slate-500">None</span>
                       )}
                     </td>
                     <td className="py-3 px-4 text-slate-900">
-                      {v.subscription?.expiresAt ? (
-                        new Date(v.subscription.expiresAt).toLocaleDateString()
+                      {v.subscriptionExpiresAt ? (
+                        new Date(v.subscriptionExpiresAt).toLocaleDateString()
                       ) : (
                         <span className="text-slate-500">N/A</span>
                       )}
                     </td>
                     <td className="py-3 px-4">
                       <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                        {v.status === "approved" ? "Active" : v.status}
+                        {v.vendorStatus === "approved" ? "Active" : v.vendorStatus || "Pending"}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
