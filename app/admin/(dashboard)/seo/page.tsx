@@ -29,6 +29,7 @@ export default function AdminSeoPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "seo", settings }),
+        credentials: 'include',
       });
     } catch (e) {
       console.error(e);

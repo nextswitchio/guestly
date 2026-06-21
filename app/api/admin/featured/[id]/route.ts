@@ -44,6 +44,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const response = await fetch(`${BACKEND_URL}/api/v1/admin/featured`, {
     headers: authHeaders(request),
     cache: "no-store",
+    credentials: 'include',
   });
   const data = await response.json();
   const placement = Array.isArray(data) ? data.find((item: { id: string }) => item.id === id) : null;
@@ -64,6 +65,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       method: "PUT",
       headers: authHeaders(request),
       body: JSON.stringify(toBackendPayload(body)),
+      credentials: 'include',
     });
     const data = await response.json();
     return NextResponse.json({ success: response.ok, data, error: response.ok ? undefined : data }, { status: response.status });
@@ -88,6 +90,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     method: "PUT",
     headers: authHeaders(request),
     body: JSON.stringify({ status: "cancelled", rejection_reason: reason }),
+    credentials: 'include',
   });
   const data = await response.json();
   return NextResponse.json({ success: response.ok, data, error: response.ok ? undefined : data }, { status: response.status });

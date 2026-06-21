@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
 
     const response = await fetch(`${BACKEND_URL}/api/v1/admin/analytics?period=${period}`, {
       headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     });
     const analytics = await response.json().catch(() => ({}));
 

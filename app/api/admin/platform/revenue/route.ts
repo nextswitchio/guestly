@@ -57,6 +57,7 @@ export async function GET(request: NextRequest) {
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/platform/revenue/dashboard`, {
       headers: authHeaders(request),
       cache: "no-store",
+      credentials: 'include',
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));

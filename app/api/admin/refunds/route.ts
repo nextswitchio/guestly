@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/withdrawals${status ? `?status_filter=${status}` : ""}`, {
       headers: authHeaders(req),
       cache: "no-store",
+      credentials: 'include',
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
       {
         method: "POST",
         headers: authHeaders(req),
+        credentials: 'include',
       }
     );
     const data = await res.json();

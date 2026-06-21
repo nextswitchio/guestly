@@ -29,7 +29,7 @@ export default function AdminSupportPage() {
 
   const fetchTickets = async () => {
     try {
-      const response = await fetch('/api/admin/support/tickets');
+      const response = await fetch('/api/admin/support/tickets', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setTickets(data.tickets || []);

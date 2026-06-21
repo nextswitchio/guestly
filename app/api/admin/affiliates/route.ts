@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     if (searchParams.get("stats") === "true") {
       const response = await fetch(`${BACKEND_URL}/api/v1/admin/affiliates/stats`, {
         headers: authHeaders(request),
+        credentials: 'include',
       });
       const data = await response.json().catch(() => ({}));
 
@@ -45,6 +46,7 @@ export async function GET(request: NextRequest) {
 
     const response = await fetch(`${BACKEND_URL}/api/v1/admin/affiliates?${backendParams}`, {
       headers: authHeaders(request),
+      credentials: 'include',
     });
     const data = await response.json().catch(() => ({}));
 

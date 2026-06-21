@@ -26,6 +26,7 @@ export async function PATCH(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
+      credentials: 'include',
     });
     const data = await response.json().catch(() => ({}));
 

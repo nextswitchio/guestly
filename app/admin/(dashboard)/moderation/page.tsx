@@ -32,7 +32,7 @@ export default function ModerationPage() {
   const fetchReports = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/moderation');
+      const response = await fetch('/api/admin/moderation', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setReports(data.reports || []);
@@ -54,6 +54,7 @@ export default function ModerationPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, moderatorNotes: moderatorNote }),
+        credentials: 'include',
       });
       setReports(prev =>
         prev.map(r => (r.id === reportId ? { ...r, status: status as ReportedContent['status'], moderatorNotes: moderatorNote } : r))

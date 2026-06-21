@@ -16,6 +16,7 @@ export async function POST(
       {
         method: 'POST',
         headers,
+        credentials: 'include',
       }
     );
 

@@ -25,7 +25,7 @@ export default function AdminNotificationsPage() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch("/api/admin/announcements");
+      const res = await fetch("/api/admin/announcements", { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         const items = data?.data?.announcements ?? (Array.isArray(data) ? data : []);
@@ -43,6 +43,7 @@ export default function AdminNotificationsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: newNotification.title, content: newNotification.message, targetType: "all", priority: "medium" }),
+        credentials: 'include',
       });
       setNewNotification({ title: "", message: "", type: "info" });
       setShowForm(false);

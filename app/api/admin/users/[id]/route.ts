@@ -14,6 +14,7 @@ export async function GET(
     const { id: userId } = await params;
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/users/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     });
 
     if (!res.ok) {
@@ -48,6 +49,7 @@ export async function PATCH(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
+      credentials: 'include',
     });
 
     if (!res.ok) {

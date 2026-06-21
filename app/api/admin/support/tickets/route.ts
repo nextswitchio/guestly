@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/support/tickets`, {
       headers: authHeaders(request),
       cache: "no-store",
+      credentials: 'include',
     });
     if (res.status === 404) {
       return NextResponse.json({ success: true, data: [] });
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: authHeaders(request),
       body: JSON.stringify({ action, ticket_id: ticketId, message }),
+      credentials: 'include',
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });

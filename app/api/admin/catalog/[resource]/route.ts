@@ -26,6 +26,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ reso
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/catalog/${resource}`, {
       headers: authHeaders(req),
       cache: "no-store",
+      credentials: 'include',
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ res
       method: "POST",
       headers: authHeaders(req),
       body: JSON.stringify(toSnakeCatalogPayload(body)),
+      credentials: 'include',
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });

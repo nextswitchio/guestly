@@ -50,6 +50,7 @@ export async function GET(request: NextRequest) {
   
   const backendResponse = await fetch(`${BACKEND_URL}/api/v1/admin/events?${params}`, {
     headers,
+    credentials: 'include',
   });
   
   if (!backendResponse.ok) {

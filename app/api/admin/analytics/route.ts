@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
 
     const response = await fetch(`${backendPath}?${backendParams}`, {
       headers: authHeaders(request),
+      credentials: 'include',
     });
 
     if (exportReport && format === "csv") {

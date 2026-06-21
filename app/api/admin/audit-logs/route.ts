@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
       const response = await fetch(`${BACKEND_URL}/api/v1/admin/audit-logs/stats?period=${period}`, {
         headers: { Authorization: `Bearer ${token}` },
         cache: 'no-store',
+        credentials: 'include',
       });
       if (!response.ok) {
         return NextResponse.json(
@@ -46,6 +47,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(`${BACKEND_URL}/api/v1/admin/audit-logs?${params}`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store',
+      credentials: 'include',
     });
 
     if (!response.ok) {

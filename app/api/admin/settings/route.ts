@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/settings`, {
       headers: authHeaders(request),
       cache: "no-store",
+      credentials: 'include',
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
@@ -50,6 +51,7 @@ export async function PUT(request: NextRequest) {
       method: "PUT",
       headers: authHeaders(request),
       body: JSON.stringify(body),
+      credentials: 'include',
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });

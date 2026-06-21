@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     const response = await fetch(
       `${BACKEND_URL}/api/v1/admin/users?${backendParams}`,
-      { headers: getAuthHeaders(request) }
+      { headers: getAuthHeaders(request), credentials: 'include' }
     );
     const data = await response.json();
 
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
       const profilePageSize = Math.max(100, users.length + 50);
       const profileRes = await fetch(
         `${BACKEND_URL}/vendors/?page=1&page_size=${profilePageSize}`,
-        { headers: getAuthHeaders(request) }
+        { headers: getAuthHeaders(request), credentials: 'include' }
       );
       if (profileRes.ok) {
         const profileData = await profileRes.json();

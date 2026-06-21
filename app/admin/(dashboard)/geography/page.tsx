@@ -56,8 +56,8 @@ export default function AdminGeographyPage() {
     setError("");
     try {
       const [countriesRes, citiesRes] = await Promise.all([
-        fetch("/api/admin/catalog/countries", { cache: "no-store" }),
-        fetch("/api/admin/catalog/cities", { cache: "no-store" }),
+        fetch("/api/admin/catalog/countries", { cache: "no-store", credentials: 'include' }),
+        fetch("/api/admin/catalog/cities", { cache: "no-store", credentials: 'include' }),
       ]);
       if (countriesRes.ok && citiesRes.ok) {
         const nextCountries = (await countriesRes.json()).map(toCamelCountry);
@@ -159,7 +159,7 @@ export default function AdminGeographyPage() {
     if (!id) return;
     setSaving(true);
     try {
-      await fetch(`/api/admin/catalog/${resource}/${id}`, { method: "DELETE" });
+      await fetch(`/api/admin/catalog/${resource}/${id}`, { method: "DELETE", credentials: 'include' });
       addToast(`${resource === 'countries' ? 'Country' : 'City'} deleted successfully!`, { type: 'success' });
       await load();
     } finally {
@@ -175,6 +175,7 @@ export default function AdminGeographyPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...city, isFeatured: !city.isFeatured }),
+        credentials: 'include',
       });
       addToast(city.isFeatured ? 'City unfeatured!' : 'City featured!', { type: 'success' });
       await load();

@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     if (action === "stats") {
       const res = await fetch(`${BACKEND_URL}/api/v1/admin/fraud/stats`, {
         headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
       const data = res.ok ? await res.json() : {};
       return NextResponse.json({ success: true, data });
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
       const res = await fetch(`${BACKEND_URL}/api/v1/admin/fraud/detect`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
       const data = res.ok ? await res.json() : {};
       return NextResponse.json({ success: true, data });
@@ -41,6 +43,7 @@ export async function GET(request: NextRequest) {
 
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/fraud?${params.toString()}`, {
       headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     });
 
     if (!res.ok) {

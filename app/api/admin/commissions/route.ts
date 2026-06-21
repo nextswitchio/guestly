@@ -16,6 +16,7 @@ function requireAdmin(request: NextRequest) {
 async function fetchBackend(request: NextRequest, path: string, init?: RequestInit) {
   const res = await fetch(`${BACKEND_URL}${path}`, {
     headers: authHeaders(request),
+    credentials: 'include',
     ...init,
   });
   const data = await res.json();

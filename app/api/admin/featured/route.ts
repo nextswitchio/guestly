@@ -34,6 +34,7 @@ async function proxyToBackend(request: NextRequest, path: string, init?: Request
   const res = await fetch(`${BACKEND_URL}${path}`, {
     headers: authHeaders(request),
     cache: "no-store",
+    credentials: 'include',
     ...init,
   });
   const data = await res.json();
@@ -96,6 +97,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: authHeaders(request),
       body: JSON.stringify(toBackendPayload(body)),
+      credentials: 'include',
     });
     const data = await response.json();
     return NextResponse.json({ success: response.ok, data, error: response.ok ? undefined : data }, { status: response.status });
@@ -124,6 +126,7 @@ export async function PUT(request: NextRequest) {
         fee_per_hour: body.feePerHour ?? body.fee_per_hour,
         currency: body.currency || "NGN",
       }),
+      credentials: 'include',
     });
     const data = await response.json();
     return NextResponse.json({ success: response.ok, data, error: response.ok ? undefined : data }, { status: response.status });

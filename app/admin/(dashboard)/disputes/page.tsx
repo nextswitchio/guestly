@@ -77,7 +77,7 @@ export default function DisputesPage() {
       if (filters.reason) params.append('reason', filters.reason);
       if (filters.search) params.append('search', filters.search);
 
-      const response = await fetch(`/api/admin/disputes?${params}`);
+      const response = await fetch(`/api/admin/disputes?${params}`, { credentials: 'include' });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       setDisputes(normalizeDisputesResponse(data));
@@ -90,7 +90,7 @@ export default function DisputesPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/admin/disputes/stats');
+      const response = await fetch('/api/admin/disputes/stats', { credentials: 'include' });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
       const statsData = (data as any).data ?? (data as any).stats ?? data;

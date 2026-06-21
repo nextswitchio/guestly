@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/${subPath}`, {
       headers: getAuthHeaders(req),
+      credentials: 'include',
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify(body),
+      credentials: 'include',
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
@@ -57,6 +59,7 @@ export async function PUT(req: NextRequest) {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify(body),
+      credentials: 'include',
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });

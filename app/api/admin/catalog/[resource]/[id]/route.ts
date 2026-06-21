@@ -28,6 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ reso
       method: "PUT",
       headers: authHeaders(req),
       body: JSON.stringify(toSnakeCatalogPayload(body)),
+      credentials: 'include',
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
@@ -44,6 +45,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ r
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/catalog/${values.resource}/${values.id}`, {
       method: "DELETE",
       headers: authHeaders(req),
+      credentials: 'include',
     });
     return new NextResponse(null, { status: res.status });
   } catch {
