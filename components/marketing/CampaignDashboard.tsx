@@ -79,7 +79,7 @@ export default function CampaignDashboard({ organizerId }: CampaignDashboardProp
               Manage and track your marketing campaigns across all channels
             </p>
           </div>
-          <Button href="/dashboard/marketing/campaigns/new" className="flex items-center gap-2">
+          <Button href="/organizer/dashboard/marketing/campaigns/new" className="flex items-center gap-2">
             <Icon name="plus" className="w-5 h-5" />
             Create Campaign
           </Button>
@@ -212,7 +212,7 @@ export default function CampaignDashboard({ organizerId }: CampaignDashboardProp
                 <p className="text-neutral-500 mb-4">
                   Create your first campaign to start promoting your events
                 </p>
-                <Button href="/dashboard/marketing/campaigns/new">Create Campaign</Button>
+                <Button href="/organizer/dashboard/marketing/campaigns/new">Create Campaign</Button>
               </Card>
             ) : (
               filteredCampaigns.map((campaign) => (

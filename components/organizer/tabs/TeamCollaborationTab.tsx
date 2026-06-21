@@ -1,8 +1,8 @@
 "use client";
 
-import TeamMemberList from "@/components/organiser/TeamMemberList";
-import InviteTeamMemberForm from "@/components/organiser/InviteTeamMemberForm";
-import ActivityFeed from "@/components/organiser/ActivityFeed";
+import TeamMemberList from "@/components/organizer/TeamMemberList";
+import InviteTeamMemberForm from "@/components/organizer/InviteTeamMemberForm";
+import ActivityFeed from "@/components/organizer/ActivityFeed";
 import Card from "@/components/ui/Card";
 import Tabs from "@/components/ui/Tabs";
 

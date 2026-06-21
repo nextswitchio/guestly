@@ -8,7 +8,7 @@ import Textarea from "@/components/ui/Textarea";
 import Select from "@/components/ui/Select";
 import Icon from "@/components/ui/Icon";
 import EmptyState from "@/components/ui/EmptyState";
-import DeadlineReminders from "@/components/organiser/DeadlineReminders";
+import DeadlineReminders from "@/components/organizer/DeadlineReminders";
 
 type Task = { 
   id: string; 

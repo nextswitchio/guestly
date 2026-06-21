@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import Accordion from "@/components/ui/Accordion";
 import Image from "next/image";
-import AIInsightsPanel from "@/components/organiser/AIInsightsPanel";
+import AIInsightsPanel from "@/components/organizer/AIInsightsPanel";
 import Link from "next/link";
 
 export default function OverviewTab({ eventId }: { eventId: string }) {

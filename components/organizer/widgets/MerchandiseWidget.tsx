@@ -39,7 +39,7 @@ export function MerchandiseWidget({
           </p>
         </div>
         <Link
-          href="/dashboard/merch"
+          href="/organizer/dashboard/merch"
           className="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors"
         >
           View all<ArrowRight className="h-4 w-4 inline" />
@@ -105,7 +105,7 @@ export function MerchandiseWidget({
             No merchandise sales yet
           </p>
           <Link
-            href="/dashboard/merch"
+            href="/organizer/dashboard/merch"
             className="inline-block mt-2 text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors"
           >
             Add products to your store

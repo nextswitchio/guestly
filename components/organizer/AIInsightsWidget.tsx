@@ -31,7 +31,7 @@ const insights = [
         title: "Attendance forecast",
         body: "Based on current sales velocity, you are on track to sell 94% of capacity 5 days before the event.",
         action: "View analytics",
-        href: "/dashboard/analytics",
+        href: "/organizer/dashboard/analytics",
         badge: "Forecast",
         badgeVariant: "warning" as const,
     },

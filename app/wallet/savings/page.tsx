@@ -275,7 +275,7 @@ export default function WalletSavings() {
   const hasRecurring = currentTarget?.recurringAmount && currentTarget?.recurringFrequency;
 
   return (
-    <ProtectedRoute allowRoles={["attendee"]}>
+    <ProtectedRoute allowRoles={["attendee", "organiser", "organizer"]}>
       <div>
         <nav className="mb-6 flex items-center gap-1.5 text-xs text-neutral-400">
           <Link href="/wallet" className="hover:text-neutral-600">Wallet</Link>

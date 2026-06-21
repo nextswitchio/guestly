@@ -21,7 +21,7 @@ export function SettlementWidget({
   data, 
   title = "Settlement Tracker", 
   subtitle = "Your earnings and payout status",
-  walletLink = "/dashboard/wallet"
+  walletLink = "/organizer/dashboard/wallet"
 }: SettlementWidgetProps) {
   return (
     <div className="rounded-2xl bg-dark p-6 shadow-lg hover:shadow-xl transition-shadow">

@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
-  allowRoles?: Array<"attendee" | "organiser" | "vendor" | "admin">;
+  allowRoles?: Array<"attendee" | "organiser" | "organizer" | "vendor" | "admin" | "affiliate">;
 }
 
 export function ProtectedRoute({ children, allowRoles }: Props) {
@@ -31,7 +31,7 @@ export function ProtectedRoute({ children, allowRoles }: Props) {
           else router.replace("/login");
           return;
         }
-        const data = (await res.json()) as { ok: boolean; role?: "attendee" | "organiser" | "vendor" | "admin" };
+        const data = (await res.json()) as { ok: boolean; role?: "attendee" | "organiser" | "organizer" | "vendor" | "admin" | "affiliate" };
         if (!data.ok) {
           if (allowRoles?.includes("admin")) router.replace("/admin/login");
           else if (allowRoles?.includes("vendor")) router.replace("/vendor-auth/login");
@@ -40,7 +40,7 @@ export function ProtectedRoute({ children, allowRoles }: Props) {
         }
         if (allowRoles && data.role && !allowRoles.includes(data.role)) {
           if (data.role === "admin") router.replace("/admin");
-          else if (data.role === "organiser") router.replace("/dashboard");
+          else if (data.role === "organiser" || data.role === "organizer") router.replace("/organizer/dashboard");
           else if (data.role === "vendor") router.replace("/vendor/dashboard");
           else router.replace("/attendee");
           return;

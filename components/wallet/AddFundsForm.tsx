@@ -10,7 +10,7 @@ type MobileMoneyProvider = "mpesa" | "mtn" | "airtel";
 
 export default function AddFundsForm() {
   const router = useRouter();
-  const [role, setRole] = React.useState<"attendee" | "organiser" | "vendor" | null>(null);
+  const [role, setRole] = React.useState<"attendee" | "organiser" | "organizer" | "vendor" | null>(null);
   const [balance, setBalance] = React.useState<number | null>(null);
   const [amount, setAmount] = React.useState<string>("");
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>("card");
@@ -110,7 +110,7 @@ export default function AddFundsForm() {
     }
   }
 
-  const backHref = role === "organiser" ? "/dashboard/wallet" : "/wallet";
+  const backHref = role === "organizer" || role === "organiser" ? "/organizer/dashboard/wallet" : "/wallet";
 
   const methods: { value: PaymentMethod; label: string; icon: React.ReactNode }[] = [
     {
@@ -360,7 +360,7 @@ export default function AddFundsForm() {
                       Verify your identity to get a unique bank account number for funding your wallet. Transfers to this account are credited automatically.
                     </p>
                   </div>
-                  <Link href="/dashboard/settings" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-amber-800 ring-1 ring-amber-200 hover:bg-amber-100">
+                  <Link href="/organizer/dashboard/settings" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-amber-800 ring-1 ring-amber-200 hover:bg-amber-100">
                     Verify Identity
                   </Link>
                 </div>

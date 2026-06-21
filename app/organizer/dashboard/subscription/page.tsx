@@ -82,8 +82,8 @@ export default function OrganiserSubscriptionPage() {
   useEffect(() => {
     async function load() {
       const [subRes, priceRes, balRes] = await Promise.all([
-        fetch("/api/organiser/subscription"),
-        fetch("/api/organiser/subscription-plans"),
+        fetch("/api/organizer/subscription"),
+        fetch("/api/organizer/subscription-plans"),
         fetch("/api/wallet/balance").then(r => r.json()).catch(() => ({})),
       ]);
       const subData = await subRes.json();
@@ -114,7 +114,7 @@ export default function OrganiserSubscriptionPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/organiser/subscription/activate", {
+      const res = await fetch("/api/organizer/subscription/activate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
@@ -157,7 +157,7 @@ export default function OrganiserSubscriptionPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-700 mb-4">
+        <Link href="/organizer/dashboard" className="inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-700 mb-4">
           <Icon name="arrow-left" size={16} />
           Back to Dashboard
         </Link>

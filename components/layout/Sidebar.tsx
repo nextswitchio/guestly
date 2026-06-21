@@ -95,27 +95,27 @@ type NavLink = {
 };
 
 const mainLinks: NavLink[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutIcon, exact: true },
-  { href: "/dashboard/events", label: "Events", icon: CalendarIcon },
-  { href: "/dashboard/marketing", label: "Marketing", icon: StarIcon },
-  { href: "/dashboard/analytics", label: "Analytics", icon: BarChartIcon },
-  { href: "/dashboard/featured", label: "Featured", icon: StarIcon },
-  { href: "/dashboard/community", label: "Community", icon: UsersIcon },
-  { href: "/dashboard/merch", label: "Merchandise", icon: ShoppingBagIcon },
-  { href: "/dashboard/premium", label: "Premium Features", icon: StarIcon },
-  { href: "/dashboard/reviews", label: "Reviews", icon: StarIcon },
-  { href: "/dashboard/ai-assistant", label: "AI Assistant", icon: StarIcon, badge: "New" },
+  { href: "/organizer/dashboard", label: "Dashboard", icon: LayoutIcon, exact: true },
+  { href: "/organizer/dashboard/events", label: "Events", icon: CalendarIcon },
+  { href: "/organizer/dashboard/marketing", label: "Marketing", icon: StarIcon },
+  { href: "/organizer/dashboard/analytics", label: "Analytics", icon: BarChartIcon },
+  { href: "/organizer/dashboard/featured", label: "Featured", icon: StarIcon },
+  { href: "/organizer/dashboard/community", label: "Community", icon: UsersIcon },
+  { href: "/organizer/dashboard/merch", label: "Merchandise", icon: ShoppingBagIcon },
+  { href: "/organizer/dashboard/premium", label: "Premium Features", icon: StarIcon },
+  { href: "/organizer/dashboard/reviews", label: "Reviews", icon: StarIcon },
+  { href: "/organizer/dashboard/ai-assistant", label: "AI Assistant", icon: StarIcon, badge: "New" },
 ];
 
 const paymentsLinks: NavLink[] = [
-  { href: "/dashboard/wallet", label: "Wallet", icon: WalletIcon },
-  { href: "/dashboard/wallet/receipts", label: "Receipts", icon: ReceiptIcon },
+  { href: "/organizer/dashboard/wallet", label: "Wallet", icon: WalletIcon },
+  { href: "/organizer/dashboard/wallet/receipts", label: "Receipts", icon: ReceiptIcon },
 ];
 
 const systemLinks: NavLink[] = [
-  { href: "/dashboard/developer", label: "Developer", icon: SettingsIcon },
-  { href: "/dashboard/subscription", label: "Subscription", icon: StarIcon },
-  { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon },
+  { href: "/organizer/dashboard/developer", label: "Developer", icon: SettingsIcon },
+  { href: "/organizer/dashboard/subscription", label: "Subscription", icon: StarIcon },
+  { href: "/organizer/dashboard/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 function NavItem({ link }: { link: NavLink }) {
@@ -125,7 +125,6 @@ function NavItem({ link }: { link: NavLink }) {
 
   function isActive(href: string, exact?: boolean) {
     if (exact) return pathname === href;
-    if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
   }
 

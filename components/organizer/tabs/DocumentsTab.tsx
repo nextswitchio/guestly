@@ -9,8 +9,8 @@ import Modal from "@/components/ui/Modal";
 import Tabs from "@/components/ui/Tabs";
 import Icon from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/ToastProvider";
-import RundownBuilder from "@/components/organiser/RundownBuilder";
-import TimelineVisualization from "@/components/organiser/TimelineVisualization";
+import RundownBuilder from "@/components/organizer/RundownBuilder";
+import TimelineVisualization from "@/components/organizer/TimelineVisualization";
 
 type RundownItem = {
   id: string;

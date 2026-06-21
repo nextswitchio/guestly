@@ -5,7 +5,7 @@ const RESOURCE_TYPES = new Set(["auto", "image", "video", "raw"]);
 
 function getAuthToken(req: NextRequest): string | null {
   // Support both cookie-based and Bearer token authentication
-  let accessToken = req.cookies.get("access_token")?.value;
+  let accessToken = req.cookies.get("access_token")?.value ?? null;
   if (!accessToken) {
     const authHeader = req.headers.get("authorization");
     if (authHeader?.startsWith("Bearer ")) {
@@ -61,10 +61,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function OPTIONS() {
-  return NextResponse.json({}, { status: 200 })
-    .headers.set('Access-Control-Allow-Origin', '*')
-    .headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    .headers.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  const response = NextResponse.json({}, { status: 200 });
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  return response;
 }
 
 export async function POST(req: NextRequest) {

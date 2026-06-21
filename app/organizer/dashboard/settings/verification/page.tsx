@@ -1043,7 +1043,7 @@ export default function VerificationPage() {
               <Button onClick={() => setStep("select")}>
                 Submit Another Request
               </Button>
-              <Link href={typeof window !== "undefined" && window.location.pathname.startsWith("/attendee") ? "/attendee" : "/dashboard"}>
+              <Link href={typeof window !== "undefined" && window.location.pathname.startsWith("/attendee") ? "/attendee" : "/organizer/dashboard"}>
                 <Button variant="secondary">
                   Return to Dashboard
                 </Button>

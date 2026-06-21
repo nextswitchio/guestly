@@ -30,7 +30,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   React.useEffect(() => {
-    fetch("/api/organiser/subscription")
+    fetch("/api/organizer/subscription")
       .then((r) => r.json())
       .then((d) => {
         const active = d?.subscription && d.subscription.expiresAt > Date.now();

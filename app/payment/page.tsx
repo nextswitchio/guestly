@@ -71,7 +71,7 @@ function PaymentContent() {
   }
 
   return (
-    <ProtectedRoute allowRoles={["attendee"]}>
+    <ProtectedRoute allowRoles={["attendee", "organiser", "organizer"]}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center py-16">
         <div className="w-full max-w-sm">
           {/* Card */}

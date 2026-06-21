@@ -82,8 +82,8 @@ export default function OrganiserSubscriptionPage() {
   useEffect(() => {
     async function load() {
       const [subRes, priceRes, balRes] = await Promise.all([
-        fetch("/api/organiser/subscription"),
-        fetch("/api/organiser/subscription-plans"),
+        fetch("/api/organizer/subscription"),
+        fetch("/api/organizer/subscription-plans"),
         fetch("/api/wallet/balance").then(r => r.json()).catch(() => ({})),
       ]);
       const subData = await subRes.json();
@@ -114,7 +114,7 @@ export default function OrganiserSubscriptionPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/organiser/subscription/activate", {
+      const res = await fetch("/api/organizer/subscription/activate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),

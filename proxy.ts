@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const PROTECTED_ROUTES = [
-  "/dashboard",
+  "/organizer/dashboard",
   "/attendee",
   "/vendor",
   "/affiliate",
@@ -181,7 +181,7 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/affiliate-auth/login", request.url));
     }
     if (isOrganizerRoute(pathname)) {
-      return NextResponse.redirect(new URL("/login?role=organiser", request.url));
+      return NextResponse.redirect(new URL("/login?role=organizer", request.url));
     }
     return NextResponse.redirect(new URL("/login", request.url));
   }

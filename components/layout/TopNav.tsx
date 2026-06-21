@@ -72,7 +72,8 @@ export default function TopNav() {
     if (!user) return "/";
     switch (user.role) {
       case "admin": return "/admin";
-      case "organiser": return "/dashboard";
+      case "organiser":
+      case "organizer": return "/organizer/dashboard";
       case "vendor": return "/vendor/dashboard";
       case "affiliate": return "/affiliate/dashboard";
       default: return "/attendee";

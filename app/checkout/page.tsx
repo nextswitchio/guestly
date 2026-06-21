@@ -396,7 +396,7 @@ function CheckoutContent() {
   ];
 
   return (
-    <ProtectedRoute allowRoles={["attendee"]}>
+    <ProtectedRoute allowRoles={["attendee", "organiser", "organizer"]}>
       <div className="min-h-screen bg-navy-950 py-12 relative overflow-hidden">
         {showConfetti && <Confetti />}
         

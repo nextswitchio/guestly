@@ -108,7 +108,7 @@ export default function AttendeePage() {
   const lastSaved = savedEvents.length > 0 ? savedEvents[savedEvents.length - 1] : null;
 
   return (
-    <ProtectedRoute allowRoles={["attendee"]}>
+    <ProtectedRoute allowRoles={["attendee", "organiser", "organizer"]}>
       <div className="flex flex-col gap-6 sm:gap-8">
         {/* Welcome Header */}
         <div className="relative overflow-hidden rounded-2xl bg-dark p-6 sm:p-8 text-white shadow-lg">

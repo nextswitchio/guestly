@@ -1,7 +1,7 @@
 "use client";
 import { Zap } from 'lucide-react';
 import React from "react";
-import AIAssistant from "@/components/organiser/AIAssistant";
+import AIAssistant from "@/components/organizer/AIAssistant";
 import Icon from "@/components/ui/Icon";
 
 export default function AIAssistantPage() {

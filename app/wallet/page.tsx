@@ -132,7 +132,7 @@ export default function WalletOverview() {
   }, []);
 
   return (
-    <ProtectedRoute allowRoles={["attendee"]}>
+    <ProtectedRoute allowRoles={["attendee", "organiser", "organizer"]}>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-900 md:text-4xl">My Wallet</h1>
         <p className="mt-2 text-neutral-500">Manage your balance, savings, and transactions</p>

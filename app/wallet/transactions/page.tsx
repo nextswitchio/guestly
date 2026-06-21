@@ -128,7 +128,7 @@ export default function TransactionsPage() {
   };
 
   return (
-    <ProtectedRoute allowRoles={["attendee"]}>
+    <ProtectedRoute allowRoles={["attendee", "organiser", "organizer"]}>
       <div>
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">

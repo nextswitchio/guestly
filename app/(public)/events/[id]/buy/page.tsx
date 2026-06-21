@@ -42,7 +42,7 @@ export default function BuyTickets({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <ProtectedRoute allowRoles={["attendee"]}>
+    <ProtectedRoute allowRoles={["attendee", "organiser", "organizer"]}>
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-12">
         <nav className="mb-6 flex items-center gap-2 text-xs text-neutral-400">
           <Link href="/" className="hover:text-dark transition-colors">Home</Link>

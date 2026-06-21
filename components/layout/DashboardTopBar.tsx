@@ -146,16 +146,16 @@ export default function DashboardTopBar() {
                 aria-controls={menuId}
                 aria-label="Profile menu"
               >
-                <Avatar name={role === "organiser" ? "Organiser" : role === "vendor" ? "Vendor" : "Attendee"} size={28} />
+                <Avatar name={role === "organiser" || role === "organizer" ? "Organiser" : role === "vendor" ? "Vendor" : "Attendee"} size={28} />
                 <ChevronDownIcon className={`h-3.5 w-3.5 text-neutral-500 transition-transform ${profileOpen ? "rotate-180" : ""}`} />
               </button>
               {profileOpen && (
                 <div id={menuId} role="menu" className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg">
                   <div className="border-b border-neutral-100 px-3 py-2">
-                    <div className="text-sm font-medium text-neutral-900">{role === "organiser" ? "Organiser" : role === "vendor" ? "Vendor" : "Attendee"}</div>
+                    <div className="text-sm font-medium text-neutral-900">{role === "organiser" || role === "organizer" ? "Organiser" : role === "vendor" ? "Vendor" : "Attendee"}</div>
                     <div className="text-xs text-neutral-500">Logged in</div>
                   </div>
-                  <Link role="menuitem" href={role === "organiser" ? "/dashboard" : role === "vendor" ? "/vendor/dashboard" : "/attendee"} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
+                  <Link role="menuitem" href={role === "organiser" || role === "organizer" ? "/organizer/dashboard" : role === "vendor" ? "/vendor/dashboard" : "/attendee"} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
                     Dashboard
                   </Link>
                   <Link role="menuitem" href="/wallet" className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50" onClick={() => setProfileOpen(false)}>
