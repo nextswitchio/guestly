@@ -89,8 +89,9 @@ export async function GET(request: NextRequest) {
       displayName: u.display_name ?? u.displayName,
       role: u.role,
       status: u.status,
-      createdAt: u.created_at ?? u.createdAt,
-      lastActivityAt: u.last_activity_at ?? u.lastActivityAt,
+      // Convert ISO date strings to timestamps for consistent handling
+      createdAt: u.created_at || u.createdAt ? new Date(u.created_at || u.createdAt).getTime() : undefined,
+      lastActivityAt: u.last_activity_at || u.lastActivityAt ? new Date(u.last_activity_at || u.lastActivityAt).getTime() : undefined,
       eventsCreated: u.events_created ?? u.eventsCreated,
       eventsAttended: u.events_attended ?? u.eventsAttended,
       totalSpent: u.total_spent ?? u.totalSpent,
