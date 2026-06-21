@@ -8,6 +8,7 @@ import Select from "@/components/ui/Select";
 import Icon from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/ToastProvider";
 import { formatCurrency } from "@/lib/utils";
+import { adminApiFetch } from "@/lib/api/admin";
 
 type AffiliateStatus = "pending" | "approved" | "suspended";
 type CommissionType = "percentage" | "fixed" | "hybrid";
@@ -87,7 +88,7 @@ const attributionOptions = [
 ];
 
 async function fetchStats(): Promise<AffiliateStats | null> {
-  const response = await fetch("/api/admin/affiliates?stats=true");
+  const response = await adminApiFetch("/api/admin/affiliates?stats=true");
   const data = await response.json();
   return data.success ? data.data : null;
 }
@@ -109,7 +110,7 @@ async function fetchAffiliates({
   if (search) params.set("search", search);
   if (status && status !== "all") params.set("status", status);
 
-  const response = await fetch(`/api/admin/affiliates?${params}`);
+  const response = await adminApiFetch(`/api/admin/affiliates?${params}`);
   const data = await response.json();
   return data.success ? data.data : null;
 }
@@ -255,7 +256,7 @@ export default function AdminAffiliatesPage() {
     setSaving(true);
     setError(null);
     try {
-      const response = await fetch(`/api/admin/affiliates/${selectedAffiliate.id}`, {
+      const response = await adminApiFetch(`/api/admin/affiliates/${selectedAffiliate.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
