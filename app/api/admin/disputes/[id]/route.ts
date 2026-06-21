@@ -6,16 +6,16 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    // Check admin authentication
-    const role = request.cookies.get('role')?.value;
-    if (role !== 'admin') {
+    // Validate token exists - backend will handle role validation via JWT
+    const token = request.cookies.get('access_token')?.value;
+    if (!token) {
       return NextResponse.json(
-        { success: false, error: { code: 'UNAUTHORIZED', message: 'Admin access required' } },
+        { success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
         { status: 401 }
       );
     }
 
+    const { id } = await params;
     const dispute = getDispute(id);
     if (!dispute) {
       return NextResponse.json(
@@ -48,18 +48,17 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    // Check admin authentication
-    const role = request.cookies.get('role')?.value;
-    const adminUserId = request.cookies.get('user_id')?.value;
-    
-    if (role !== 'admin') {
+    // Validate token exists - backend will handle role validation via JWT
+    const token = request.cookies.get('access_token')?.value;
+    if (!token) {
       return NextResponse.json(
-        { success: false, error: { code: 'UNAUTHORIZED', message: 'Admin access required' } },
+        { success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
         { status: 401 }
       );
     }
 
+    const { id } = await params;
+    const adminUserId = request.cookies.get('user_id')?.value;
     const body = await request.json();
     const updatedDispute = updateDispute(id, body, adminUserId);
 

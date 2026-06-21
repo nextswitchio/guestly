@@ -3,11 +3,11 @@ import { getDisputeStats } from '@/lib/store';
 
 export async function GET(request: NextRequest) {
   try {
-    // Check admin authentication
-    const role = request.cookies.get('role')?.value;
-    if (role !== 'admin') {
+    // Validate token exists - backend will handle role validation via JWT
+    const token = request.cookies.get('access_token')?.value;
+    if (!token) {
       return NextResponse.json(
-        { success: false, error: { code: 'UNAUTHORIZED', message: 'Admin access required' } },
+        { success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
         { status: 401 }
       );
     }

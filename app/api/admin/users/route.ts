@@ -16,14 +16,15 @@ function backendRole(role: string | null): string | null {
 }
 
 export async function GET(request: NextRequest) {
-  // Accept role via cookie or header (`x-role`) to support client-side auth flows
-  const role = request.cookies.get("role")?.value || request.headers.get("x-role") || request.headers.get("x-user-role");
-  const token = request.cookies.get("access_token")?.value || request.headers.get("authorization") || request.headers.get("Authorization");
+  // Validate we have a token - backend will handle role validation via JWT
+  const token = request.cookies.get("access_token")?.value ||
+               request.headers.get("authorization") ||
+               request.headers.get("Authorization");
 
-  if (role !== "admin" || !token) {
+  if (!token) {
     return NextResponse.json(
-      { success: false, error: { code: "UNAUTHORIZED", message: "Admin access required" } },
-      { status: 403 }
+      { success: false, error: { code: "UNAUTHORIZED", message: "Authentication required" } },
+      { status: 401 }
     );
   }
 

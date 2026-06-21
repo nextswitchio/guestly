@@ -7,13 +7,13 @@ function authHeaders(request: NextRequest): Record<string, string> {
 }
 
 export async function GET(request: NextRequest) {
-  const role = request.cookies.get("role")?.value;
+  // Validate token exists - backend will handle role validation via JWT
   const token = request.cookies.get("access_token")?.value;
 
-  if (role !== "admin" || !token) {
+  if (!token) {
     return NextResponse.json(
-      { success: false, error: { code: "UNAUTHORIZED", message: "Admin access required" } },
-      { status: 403 }
+      { success: false, error: { code: "UNAUTHORIZED", message: "Authentication required" } },
+      { status: 401 }
     );
   }
 
