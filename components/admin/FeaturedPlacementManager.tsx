@@ -66,9 +66,9 @@ export default function FeaturedPlacementManager() {
     setError('');
     try {
       const [settingsRes, statsRes, placementsRes] = await Promise.all([
-        fetch('/api/admin/featured?action=settings', { cache: 'no-store' }),
-        fetch('/api/admin/featured?action=stats', { cache: 'no-store' }),
-        fetch(`/api/admin/featured${filter !== 'all' ? `?status=${filter}` : ''}`, { cache: 'no-store' }),
+        fetch('/api/admin/featured?action=settings', { cache: 'no-store', credentials: 'include' }),
+        fetch('/api/admin/featured?action=stats', { cache: 'no-store', credentials: 'include' }),
+        fetch(`/api/admin/featured${filter !== 'all' ? `?status=${filter}` : ''}`, { cache: 'no-store', credentials: 'include' }),
       ]);
 
       if (settingsRes.ok) {
@@ -118,6 +118,7 @@ export default function FeaturedPlacementManager() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ feePerHour: Number(feePerHour), currency }),
+        credentials: 'include',
       });
       const data = await response.json();
       if (!data.success) throw new Error(data.error?.detail || data.error?.message || 'Unable to update fee.');
@@ -137,6 +138,7 @@ export default function FeaturedPlacementManager() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        credentials: 'include',
       });
       const data = await response.json();
       if (!data.success) throw new Error(data.error?.detail || data.error?.message || 'Unable to update placement.');
