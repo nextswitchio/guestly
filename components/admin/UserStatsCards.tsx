@@ -18,6 +18,7 @@ interface UserStatsCardsProps {
 
 export function UserStatsCards({ stats }: UserStatsCardsProps) {
   const total = stats?.totalUsers || 1; // avoid division by zero
+  const total = stats?.totalUsers || 1;
   const statCards = [
     {
       title: "Total Users",
@@ -35,17 +36,24 @@ export function UserStatsCards({ stats }: UserStatsCardsProps) {
     },
     {
       title: "Organizers",
-      value: (stats?.usersByRole?.organizer || 0).toLocaleString(),
-      change: `${Math.round(((stats?.usersByRole?.organizer || 0) / total) * 100)}% of users`,
+      value: ((stats?.usersByRole?.organizer || 0) + (stats?.usersByRole?.organiser || 0)).toLocaleString(),
+      change: `${Math.round(((stats?.usersByRole?.organizer || 0) + (stats?.usersByRole?.organiser || 0)) / total * 100)}% of users`,
       icon: "calendar",
       variant: "purple" as const,
     },
     {
-      title: "Profile Completion",
-      value: `${stats?.averageProfileCompleteness ?? 0}%`,
-      change: "Average across all users",
-      icon: "user",
+      title: "Affiliates",
+      value: (stats?.usersByRole?.affiliate || 0).toLocaleString(),
+      change: `${Math.round(((stats?.usersByRole?.affiliate || 0) / total) * 100)}% of users`,
+      icon: "megaphone",
       variant: "orange" as const,
+    },
+    {
+      title: "Influencers",
+      value: (stats?.usersByRole?.influencer || 0).toLocaleString(),
+      change: `${Math.round(((stats?.usersByRole?.influencer || 0) / total) * 100)}% of users`,
+      icon: "star",
+      variant: "pink" as const,
     },
   ];
 
@@ -69,13 +77,14 @@ function StatCard({
   value: string; 
   change: string; 
   icon: string;
-  variant: 'blue' | 'green' | 'purple' | 'orange';
+  variant: 'blue' | 'green' | 'purple' | 'orange' | 'pink';
 }) {
-  const colors = {
+  const colors: Record<string, string> = {
     blue: 'bg-primary-50 text-primary-600',
     green: 'bg-success-50 text-success-600',
     purple: 'bg-purple-50 text-purple-600',
     orange: 'bg-orange-50 text-orange-600',
+    pink: 'bg-pink-50 text-pink-600',
   };
 
   return (

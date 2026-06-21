@@ -4,7 +4,7 @@ import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 
 interface UserRoleSelectorProps {
-  currentRole: 'attendee' | 'organizer' | 'vendor' | 'admin';
+  currentRole: 'attendee' | 'organizer' | 'organiser' | 'vendor' | 'admin' | 'affiliate' | 'influencer';
   userId: string;
   onRoleChange: (role: string) => void;
 }
@@ -18,6 +18,8 @@ export function UserRoleSelector({ currentRole, userId, onRoleChange }: UserRole
     { value: 'organizer', label: 'Organizer', color: 'bg-purple-100 text-purple-700' },
     { value: 'vendor', label: 'Vendor', color: 'bg-green-100 text-green-700' },
     { value: 'admin', label: 'Admin', color: 'bg-red-100 text-red-700' },
+    { value: 'affiliate', label: 'Affiliate', color: 'bg-orange-100 text-orange-700' },
+    { value: 'influencer', label: 'Influencer', color: 'bg-pink-100 text-pink-700' },
   ];
 
   const currentRoleData = roles.find(role => role.value === currentRole);

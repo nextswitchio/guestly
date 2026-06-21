@@ -19,6 +19,8 @@ export function UserFilters({ roleFilter, statusFilter, onFilterChange }: UserFi
     { value: 'organizer', label: 'Organizers' },
     { value: 'vendor', label: 'Vendors' },
     { value: 'admin', label: 'Admins' },
+    { value: 'affiliate', label: 'Affiliates' },
+    { value: 'influencer', label: 'Influencers' },
   ];
 
   const statuses = [

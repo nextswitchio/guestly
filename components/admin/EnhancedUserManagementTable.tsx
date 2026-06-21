@@ -14,7 +14,7 @@ interface AdminUser {
   id: string;
   email: string;
   displayName?: string;
-  role: 'attendee' | 'organizer' | 'vendor' | 'admin';
+  role: 'attendee' | 'organizer' | 'organiser' | 'vendor' | 'admin' | 'affiliate' | 'influencer';
   status: 'active' | 'suspended' | 'pending' | 'banned';
   createdAt: number;
   lastActivityAt?: number;
@@ -445,6 +445,8 @@ export function EnhancedUserManagementTable({
               <option value="attendee">Attendee</option>
               <option value="organizer">Organizer</option>
               <option value="vendor">Vendor</option>
+              <option value="affiliate">Affiliate</option>
+              <option value="influencer">Influencer</option>
             </select>
           </div>
           

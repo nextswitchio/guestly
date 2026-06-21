@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
-  allowRoles?: Array<"attendee" | "organiser" | "organizer" | "vendor" | "admin" | "affiliate">;
+  allowRoles?: Array<"attendee" | "organiser" | "organizer" | "vendor" | "admin" | "affiliate" | "influencer">;
 }
 
 export function ProtectedRoute({ children, allowRoles }: Props) {

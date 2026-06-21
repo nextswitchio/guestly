@@ -9778,7 +9778,7 @@ export function updateAllEventCommissions(): EventCommission[] {
 
 // ── User Management Types and Functions ──────────────────────────────────────
 
-export type UserRole = 'attendee' | 'organizer' | 'vendor' | 'admin';
+export type UserRole = 'attendee' | 'organizer' | 'organiser' | 'vendor' | 'admin' | 'affiliate' | 'influencer';
 
 export type UserStatus = 'active' | 'suspended' | 'pending' | 'banned';
 
