@@ -34,31 +34,36 @@ export async function POST(req: NextRequest) {
     if (data.tokens) {
       response.cookies.set("access_token", data.tokens.access_token, {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
+        secure: true,
         path: "/",
         maxAge: data.tokens.expires_in || 86400,
       });
       response.cookies.set("refresh_token", data.tokens.refresh_token, {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
+        secure: true,
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
       });
       response.cookies.set("role", data.user?.role || "attendee", {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
+        secure: true,
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
       });
       response.cookies.set("user_role", data.user?.role || "attendee", {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
+        secure: true,
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
       });
       response.cookies.set("user_id", data.user?.id || "", {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
+        secure: true,
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
       });

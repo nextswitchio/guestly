@@ -20,10 +20,10 @@ export async function POST(req: NextRequest) {
         { ok: false, error: data.detail || "Refresh failed" },
         { status: res.status }
       );
-      response.cookies.set("access_token", "", { maxAge: 0, path: "/" });
-      response.cookies.set("refresh_token", "", { maxAge: 0, path: "/" });
-      response.cookies.set("role", "", { maxAge: 0, path: "/" });
-      response.cookies.set("user_role", "", { maxAge: 0, path: "/" });
+      response.cookies.set("access_token", "", { maxAge: 0, path: "/", sameSite: "none", secure: true });
+      response.cookies.set("refresh_token", "", { maxAge: 0, path: "/", sameSite: "none", secure: true });
+      response.cookies.set("role", "", { maxAge: 0, path: "/", sameSite: "none", secure: true });
+      response.cookies.set("user_role", "", { maxAge: 0, path: "/", sameSite: "none", secure: true });
       return response;
     }
 
@@ -35,13 +35,15 @@ export async function POST(req: NextRequest) {
     });
     response.cookies.set("access_token", data.access_token, {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
+      secure: true,
       path: "/",
       maxAge: data.expires_in || 86400,
     });
     response.cookies.set("refresh_token", data.refresh_token, {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
+      secure: true,
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });

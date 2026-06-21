@@ -26,11 +26,11 @@ export async function GET(req: NextRequest) {
 
     if (!res.ok) {
       const response = NextResponse.json({ ok: false, error: res.status === 401 ? "Session expired" : "Token expired" }, { status: 401 });
-      response.cookies.set("access_token", "", { maxAge: 0, path: "/" });
-      response.cookies.set("refresh_token", "", { maxAge: 0, path: "/" });
-      response.cookies.set("role", "", { maxAge: 0, path: "/" });
-      response.cookies.set("user_role", "", { maxAge: 0, path: "/" });
-      response.cookies.set("user_id", "", { maxAge: 0, path: "/" });
+      response.cookies.set("access_token", "", { maxAge: 0, path: "/", sameSite: "none", secure: true });
+      response.cookies.set("refresh_token", "", { maxAge: 0, path: "/", sameSite: "none", secure: true });
+      response.cookies.set("role", "", { maxAge: 0, path: "/", sameSite: "none", secure: true });
+      response.cookies.set("user_role", "", { maxAge: 0, path: "/", sameSite: "none", secure: true });
+      response.cookies.set("user_id", "", { maxAge: 0, path: "/", sameSite: "none", secure: true });
       return response;
     }
 
@@ -39,7 +39,8 @@ export async function GET(req: NextRequest) {
     const response = NextResponse.json({ ok: true, user, role });
     response.cookies.set("access_token", token, {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
+      secure: true,
       path: "/",
       maxAge: 86400,
     });

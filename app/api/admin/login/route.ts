@@ -40,31 +40,36 @@ export async function POST(req: NextRequest) {
 
     response.cookies.set("access_token", data.tokens.access_token, {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
+      secure: true,
       path: "/",
       maxAge: data.tokens.expires_in || 1800,
     });
     response.cookies.set("refresh_token", data.tokens.refresh_token, {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
+      secure: true,
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
     response.cookies.set("role", "admin", {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
+      secure: true,
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
     response.cookies.set("user_id", data.user.id, {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
+      secure: true,
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
     response.cookies.set("admin_name", data.user.display_name || data.user.email || "Admin User", {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
+      secure: true,
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });

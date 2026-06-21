@@ -81,7 +81,8 @@ export async function PUT(
     if (token && token !== req.cookies.get("access_token")?.value) {
       response.cookies.set("access_token", token, {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
+        secure: true,
         path: "/",
         maxAge: 1800,
       });
