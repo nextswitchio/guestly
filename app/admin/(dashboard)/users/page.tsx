@@ -5,7 +5,6 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Icon from "@/components/ui/Icon";
 import { EnhancedUserManagementTable } from "@/components/admin/EnhancedUserManagementTable";
-import { getAuthHeaders } from "@/lib/api/client";
 import { UserStatsCards } from "@/components/admin/UserStatsCards";
 import { UserFilters } from "@/components/admin/UserFilters";
 
@@ -21,7 +20,7 @@ export default function AdminUsersPage() {
   const [totalPages, setTotalPages] = React.useState(1);
 
   async function loadStatsData() {
-    const response = await fetch('/api/admin/users?stats=true', { headers: getAuthHeaders() });
+    const response = await fetch('/api/admin/users?stats=true', { credentials: 'include' });
     const data = await response.json();
     return data.success ? data.data : null;
   }
@@ -46,7 +45,7 @@ export default function AdminUsersPage() {
     if (role) params.append('role', role);
     if (status) params.append('status', status);
 
-    const response = await fetch(`/api/admin/users?${params}`, { headers: getAuthHeaders() });
+    const response = await fetch(`/api/admin/users?${params}`, { credentials: 'include' });
     const data = await response.json();
 
     if (!data.success) return null;
@@ -142,8 +141,9 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'PATCH',
-        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -162,8 +162,9 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch('/api/admin/users/bulk', {
         method: 'PATCH',
-        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userIds, updates })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds, updates }),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -180,7 +181,7 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
-        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -197,8 +198,9 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch('/api/admin/users/bulk', {
         method: 'DELETE',
-        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userIds })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds }),
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -215,7 +217,7 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch(`/api/admin/users/${userId}/generate-virtual-account`, {
         method: 'POST',
-        headers: getAuthHeaders(),
+        credentials: 'include'
       });
 
       const data = await response.json();

@@ -5,7 +5,6 @@ import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import Input from "@/components/ui/Input";
 import Modal from "@/components/ui/Modal";
-import { getAuthHeaders } from "@/lib/api/client";
 
 interface Organizer {
   id: string;
@@ -50,7 +49,7 @@ export default function AdminOrganizersPage() {
       if (statusFilter !== "all") params.set("status", statusFilter);
 
       const res = await fetch(`/api/admin/users?${params}`, {
-        headers: getAuthHeaders(),
+        credentials: 'include',
       });
       if (res.ok) {
         const raw = await res.json();
@@ -435,8 +434,9 @@ export default function AdminOrganizersPage() {
                 onClick={async () => {
                   await fetch(`/api/admin/users/${selectedOrganizer.id}`, {
                     method: "PATCH",
-                    headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ is_active: !selectedOrganizer.is_active }),
+                    credentials: 'include',
                   });
                   fetchOrganizers();
                   setShowDetails(false);

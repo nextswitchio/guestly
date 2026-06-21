@@ -6,7 +6,6 @@ import Icon from "@/components/ui/Icon";
 import Input from "@/components/ui/Input";
 import Modal from "@/components/ui/Modal";
 import { formatCurrency } from "@/lib/utils";
-import { getAuthHeaders } from "@/lib/api/client";
 
 interface VendorUser {
   id: string;
@@ -73,7 +72,7 @@ export default function AdminVendorsPage() {
       if (statusFilter !== "all") params.set("status", statusFilter);
 
       const res = await fetch(`/api/admin/vendors?${params}`, {
-        headers: getAuthHeaders(),
+        credentials: 'include',
       });
       if (res.ok) {
         const data = await res.json();
@@ -580,8 +579,9 @@ export default function AdminVendorsPage() {
                   <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={async () => {
                     const res = await fetch(`/api/admin/users/${selectedVendor.id}`, {
                       method: "PATCH",
-                      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+                      headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ status: "approved" }),
+                      credentials: 'include',
                     });
                     if (res.ok) {
                       fetchVendors();
@@ -593,8 +593,9 @@ export default function AdminVendorsPage() {
                   <Button size="sm" variant="outline" className="text-red-600 border-red-200" onClick={async () => {
                     const res = await fetch(`/api/admin/users/${selectedVendor.id}`, {
                       method: "PATCH",
-                      headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+                      headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ status: "rejected" }),
+                      credentials: 'include',
                     });
                     if (res.ok) {
                       fetchVendors();
@@ -609,8 +610,9 @@ export default function AdminVendorsPage() {
                 <Button size="sm" variant="outline" className="text-red-600 border-red-200" onClick={async () => {
                   const res = await fetch(`/api/admin/users/${selectedVendor.id}`, {
                     method: "PATCH",
-                    headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ status: "suspended" }),
+                    credentials: 'include',
                   });
                   if (res.ok) {
                     fetchVendors();
@@ -624,8 +626,9 @@ export default function AdminVendorsPage() {
                 <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={async () => {
                   const res = await fetch(`/api/admin/users/${selectedVendor.id}`, {
                     method: "PATCH",
-                    headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ status: "approved" }),
+                    credentials: 'include',
                   });
                   if (res.ok) {
                     fetchVendors();

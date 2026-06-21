@@ -5,7 +5,6 @@ import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
-import { getAuthHeaders } from "@/lib/api/client";
 
 export default function AdminVendorSubscriptionsPage() {
   const [vendors, setVendors] = useState<any[]>([]);
@@ -49,8 +48,9 @@ export default function AdminVendorSubscriptionsPage() {
     try {
       const res = await fetch(`/api/admin/users/${selectedVendor.id}`, {
         method: "PATCH",
-        headers: { ...getAuthHeaders(), "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subscription: { plan: newPlan } }),
+        credentials: 'include',
       });
       if (res.ok) {
         await fetchVendors();
