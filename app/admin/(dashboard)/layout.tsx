@@ -4,14 +4,17 @@ import AdminSidebar from "@/components/layout/AdminSidebar";
 import AdminTopBar from "@/components/layout/AdminTopBar";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { CurrencyProvider } from "@/lib/currency";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <CurrencyProvider>
-      <SidebarProvider>
-        <AdminShell>{children}</AdminShell>
-      </SidebarProvider>
-    </CurrencyProvider>
+    <ProtectedRoute allowRoles={["admin"]}>
+      <CurrencyProvider>
+        <SidebarProvider>
+          <AdminShell>{children}</AdminShell>
+        </SidebarProvider>
+      </CurrencyProvider>
+    </ProtectedRoute>
   );
 }
 

@@ -54,11 +54,23 @@ export default function AdminTopBar() {
 
   React.useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r) => {
+        if (!r.ok) {
+          // Token expired or invalid - redirect to login
+          clearAllCookies();
+          window.location.href = "/admin/login";
+          return null;
+        }
+        return r.json();
+      })
       .then((d) => {
         if (d?.ok && d.user?.display_name) setAdminName(d.user.display_name);
       })
-      .catch(() => {});
+      .catch(() => {
+        // Network error - redirect to login
+        clearAllCookies();
+        window.location.href = "/admin/login";
+      });
   }, []);
 
   React.useEffect(() => {
