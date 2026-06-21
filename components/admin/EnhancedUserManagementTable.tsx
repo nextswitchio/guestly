@@ -549,7 +549,7 @@ function UserDetailsModal({
   React.useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await fetch(`/api/admin/users/${user.id}`);
+        const response = await fetch(`/api/admin/users/${user.id}`, { credentials: 'include' });
         const data = await response.json();
         if (data.success) {
           setActivityStats(data.data.activityStats || data.data);
