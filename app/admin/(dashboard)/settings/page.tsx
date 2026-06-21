@@ -161,7 +161,7 @@ export default function AdminSettingsPage() {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/settings');
+      const response = await fetch('/api/admin/settings', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
@@ -182,6 +182,7 @@ export default function AdminSettingsPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
+        credentials: 'include',
       });
       if (response.ok) {
         setSaved(true);
