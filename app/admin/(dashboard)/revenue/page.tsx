@@ -225,7 +225,7 @@ export default function PlatformRevenueDashboardPage() {
       setLoading(true);
       try {
         // Fetch platform revenue data
-        const response = await fetch(`/api/admin/platform/revenue?period=${period}`);
+        const response = await fetch(`/api/admin/platform/revenue?period=${period}`, { credentials: 'include' });
         if (response.ok) {
           const json = await response.json();
           setData(json);
@@ -253,6 +253,7 @@ export default function PlatformRevenueDashboardPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
+        credentials: 'include',
       });
       if (response.ok) {
         // Refresh data
@@ -267,6 +268,7 @@ export default function PlatformRevenueDashboardPage() {
     try {
       const response = await fetch(`/api/admin/platform/settlements/${settlementId}/settle`, {
         method: "POST",
+        credentials: 'include',
       });
       if (response.ok) {
         // Refresh data
