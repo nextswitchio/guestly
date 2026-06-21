@@ -27,7 +27,7 @@ export default function SettlementsPage() {
 
   const fetchSettlements = async () => {
     try {
-      const response = await fetch('/api/admin/settlements');
+      const response = await fetch('/api/admin/settlements', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setSettlements(data.settlements || []);
@@ -72,7 +72,7 @@ export default function SettlementsPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold">₦{s.amount.toLocaleString()}</p>
+                  <p className="text-xl font-bold">₦{(s.amount || 0).toLocaleString()}</p>
                   {s.completedAt && (
                     <p className="text-xs text-slate-400 mt-1">
                       Completed: {new Date(s.completedAt).toLocaleDateString()}
@@ -104,7 +104,7 @@ export default function SettlementsPage() {
                   <h3 className="font-semibold">{s.vendorName}</h3>
                   <p className="text-sm text-slate-500">Ref: {s.transactionRef}</p>
                 </div>
-                <p className="text-xl font-bold">₦{s.amount.toLocaleString()}</p>
+                <p className="text-xl font-bold">₦{(s.amount || 0).toLocaleString()}</p>
               </div>
             </Card>
           ))}
@@ -140,21 +140,21 @@ export default function SettlementsPage() {
             <ArrowDownLeft className="w-4 h-4" />
             <p className="text-sm text-slate-500">Pending</p>
           </div>
-          <p className="text-2xl font-bold">₦{totalPending.toLocaleString()}</p>
+          <p className="text-2xl font-bold">₦{(totalPending || 0).toLocaleString()}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 text-blue-600 mb-1">
             <RefreshCw className="w-4 h-4" />
             <p className="text-sm text-slate-500">Processing</p>
           </div>
-          <p className="text-2xl font-bold">₦{totalProcessing.toLocaleString()}</p>
+          <p className="text-2xl font-bold">₦{(totalProcessing || 0).toLocaleString()}</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 text-green-600 mb-1">
             <ArrowUpRight className="w-4 h-4" />
             <p className="text-sm text-slate-500">Completed</p>
           </div>
-          <p className="text-2xl font-bold">₦{totalCompleted.toLocaleString()}</p>
+          <p className="text-2xl font-bold">₦{(totalCompleted || 0).toLocaleString()}</p>
         </Card>
       </div>
 

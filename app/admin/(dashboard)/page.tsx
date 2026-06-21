@@ -46,7 +46,7 @@ export default function AdminDashboardPage() {
   React.useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const response = await fetch('/api/admin?sub=dashboard');
+        const response = await fetch('/api/admin?sub=dashboard', { credentials: 'include' });
         if (response.ok) {
           const data = await response.json();
           setMetrics(data);
@@ -58,7 +58,7 @@ export default function AdminDashboardPage() {
 
     const fetchFraudAlerts = async () => {
       try {
-        const response = await fetch('/api/admin?sub=fraud');
+        const response = await fetch('/api/admin?sub=fraud', { credentials: 'include' });
         if (response.ok) {
           const data = await response.json();
           setFraudAlerts(Array.isArray(data) ? data.slice(0, 5) : []);
@@ -105,7 +105,7 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-sm font-medium text-slate-500">Total Events</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {metrics.total_events.toLocaleString()}
+                  {(metrics.total_events || 0).toLocaleString()}
                 </p>
                 <p className="text-xs text-slate-500">
                   {metrics.published_events} published
@@ -122,7 +122,7 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-sm font-medium text-slate-500">Total Users</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {metrics.total_users.toLocaleString()}
+                  {(metrics.total_users || 0).toLocaleString()}
                 </p>
                 <p className="text-xs text-slate-500">
                   {metrics.active_users} active
@@ -139,7 +139,7 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-sm font-medium text-slate-500">Total Revenue</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  ₦{metrics.total_revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ₦{(metrics.total_revenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-slate-500">
                   {metrics.total_orders} orders
