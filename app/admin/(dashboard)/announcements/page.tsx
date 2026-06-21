@@ -56,7 +56,7 @@ export default function AnnouncementsPage() {
       if (filters.targetType) params.append('targetType', filters.targetType);
       if (filters.priority) params.append('priority', filters.priority);
 
-      const response = await fetch(`/api/admin/announcements?${params}`);
+      const response = await fetch(`/api/admin/announcements?${params}`, { credentials: 'include' });
       const data = await response.json();
 
       if (data.success) {
@@ -71,7 +71,7 @@ export default function AnnouncementsPage() {
 
   const fetchStats = React.useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/announcements?stats=true');
+      const response = await fetch('/api/admin/announcements?stats=true', { credentials: 'include' });
       const data = await response.json();
 
       if (data.success) {
@@ -93,6 +93,7 @@ export default function AnnouncementsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(announcementData),
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -115,6 +116,7 @@ export default function AnnouncementsPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -136,6 +138,7 @@ export default function AnnouncementsPage() {
     try {
       const response = await fetch(`/api/admin/announcements/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       const data = await response.json();
