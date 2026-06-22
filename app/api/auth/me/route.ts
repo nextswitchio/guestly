@@ -6,8 +6,10 @@ export async function GET(req: NextRequest) {
   const refreshToken = req.cookies.get("refresh_token")?.value;
 
   if (!token && refreshToken) {
-    const refreshRes = await fetch(`${BACKEND_URL}/api/v1/auth/refresh?token=${refreshToken}`, {
+    const refreshRes = await fetch(`${BACKEND_URL}/api/v1/auth/refresh`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: refreshToken }),
     });
     if (refreshRes.ok) {
       const refreshData = await refreshRes.json();
@@ -20,7 +22,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/users/me`, {
+    const res = await fetch(`${BACKEND_URL}/api/v1/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
