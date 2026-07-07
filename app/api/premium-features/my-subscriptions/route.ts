@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const qs = searchParams.toString();
   
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/subscriptions/my${qs ? `?${qs}` : ""}`, {
+    const res = await fetch(`${BACKEND_URL}/api/v1/premium-features/my-subscriptions${qs ? `?${qs}` : ""}`, {
       headers: getAuthHeaders(request),
     });
     const text = await res.text();
