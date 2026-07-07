@@ -115,7 +115,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <ProtectedRoute allowRoles={["organiser"]}>
+      <ProtectedRoute allowRoles={["organiser", "organizer"]}>
         <div className="space-y-8 animate-pulse">
           <div className="h-10 bg-neutral-100 rounded w-48" />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -128,7 +128,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <ProtectedRoute allowRoles={["organiser"]}>
+    <ProtectedRoute allowRoles={["organiser", "organizer"]}>
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

@@ -39,10 +39,13 @@ export function ProtectedRoute({ children, allowRoles }: Props) {
           return;
         }
         if (allowRoles && data.role && !allowRoles.includes(data.role)) {
-          if (data.role === "admin") router.replace("/admin");
-          else if (data.role === "organiser" || data.role === "organizer") router.replace("/organizer/dashboard");
-          else if (data.role === "vendor") router.replace("/vendor/dashboard");
-          else router.replace("/attendee");
+          let target = "/attendee";
+          if (data.role === "admin") target = "/admin";
+          else if (data.role === "organiser" || data.role === "organizer") target = "/organizer/dashboard";
+          else if (data.role === "vendor") target = "/vendor/dashboard";
+          // Avoid redirect loop if already on the target page
+          if (pathname !== target) router.replace(target);
+          else setAllowed(true);
           return;
         }
         setAllowed(true);
