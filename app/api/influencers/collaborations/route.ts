@@ -26,6 +26,9 @@ function normalizeCollab(raw: any) {
       raw.free_ticket_count ??
       raw.commission_rate ??
       '',
+    compensationAmount: raw.compensation_amount ?? raw.compensationAmount ?? null,
+    commissionRate: raw.commission_rate ?? raw.commissionRate ?? null,
+    freeTicketCount: raw.free_ticket_count ?? raw.freeTicketCount ?? null,
     deliverables: Array.isArray(raw.deliverables) ? raw.deliverables : [],
     completedDeliverables: Array.isArray(raw.completed_deliverables)
       ? raw.completed_deliverables
@@ -33,22 +36,48 @@ function normalizeCollab(raw: any) {
       ? raw.completedDeliverables
       : [],
     deadline: raw.deadline ?? raw.deadline_date ?? '',
-    trackingLink: raw.tracking_link ?? raw.trackingLink ?? '',
+    trackingCode: raw.tracking_code ?? raw.trackingCode ?? '',
     promoCode: raw.promo_code ?? raw.promoCode ?? '',
     metrics: {
       reach: raw.metrics?.reach ?? 0,
       clicks: raw.metrics?.clicks ?? 0,
       conversions: raw.metrics?.conversions ?? 0,
       revenue: raw.metrics?.revenue ?? 0,
+      commissionEarned: raw.metrics?.commissionEarned ?? 0,
+      sales: raw.metrics?.sales ?? 0,
     },
     status: raw.status === 'invited' ? 'pending' : raw.status === 'declined' ? 'rejected' : raw.status,
     invitedAt: raw.invited_at,
     acceptedAt: raw.accepted_at,
+    unreadCount: raw.unreadCount ?? raw.unread_count ?? 0,
   };
+}
+
+async function fetchUnreadCounts(token: string): Promise<Record<string, number>> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/influencers/collaborations`, {
+      method: 'GET',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    });
+    const raw = await res.json().catch(() => []);
+    const list = Array.isArray(raw) ? raw : raw.collaborations || [];
+    const unreadMap: Record<string, number> = {};
+    for (const collab of list) {
+      if (collab.unread_count && collab.unread_count > 0) {
+        unreadMap[collab.id] = collab.unread_count;
+      }
+    }
+    return unreadMap;
+  } catch {
+    return {};
+  }
 }
 
 export async function GET(req: NextRequest) {
   try {
+    const token = req.cookies.get('access_token')?.value;
+    const userId = req.cookies.get('user_id')?.value;
     const res = await fetch(`${BACKEND_URL}/api/v1/influencers/collaborations`, {
       method: 'GET',
       headers: getAuthHeaders(req),
@@ -56,7 +85,15 @@ export async function GET(req: NextRequest) {
     });
 
     const raw = await res.json().catch(() => []);
-    const collaborations = Array.isArray(raw) ? raw.map(normalizeCollab) : [];
+    const list = Array.isArray(raw) ? raw : raw.collaborations || [];
+    const collaborations = list.map(normalizeCollab);
+    const unreadCounts = await fetchUnreadCounts(token || '');
+
+    // Attach unread counts
+    for (const collab of collaborations) {
+      collab.unreadCount = unreadCounts[collab.id] || 0;
+    }
+
     return NextResponse.json({ collaborations }, { status: res.status });
   } catch (error) {
     console.error('Error listing collaborations:', error);

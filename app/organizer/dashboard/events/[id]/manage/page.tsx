@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use, useRef } from 'react';
+import { useState, useEffect, use, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
@@ -8,7 +8,8 @@ import {
   Megaphone, UserCheck, CheckCircle, AlertCircle,
   Clock, Ban, Play, ChevronDown, Plus, Trash2, Send, Star,
   MapPin, Calendar, Tag, Globe, Layers, Check, Handshake,
-  ClipboardList, Sparkles, Mail, Phone
+  ClipboardList, Sparkles, Mail, Phone, Copy, Wifi, WifiOff,
+  MessageCircle, Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
@@ -17,6 +18,10 @@ import { Input } from '@/components/ui/Input';
 import MobileTabs from '@/components/ui/MobileTabs';
 import { useToast } from '@/components/ui/ToastProvider';
 import { VendorPaymentsTab } from '@/components/vendors/VendorPaymentsTab';
+import {
+  getSocket, joinCollaboration, leaveCollaboration,
+  sendCollaborationMessage, type CollaborationMessage,
+} from '@/lib/websocket';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -144,6 +149,13 @@ interface InfluencerCollab {
   trackingCode?: string;
   promoCode?: string;
   invitedAt?: string | number;
+  unreadCount?: number;
+  metrics?: {
+    clicks: number;
+    conversions: number;
+    sales: number;
+    commissionEarned: number;
+  };
 }
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
@@ -1505,52 +1517,144 @@ function MarketingTab({ id }: { id: string }) {
   );
 }
 
-// ─── Collab Message Modal (isolated to prevent re-renders on typing) ──────────
+// ─── Collab Message Modal (socket.io powered) ─────────────────────────────────
+
+type SenderRole = 'organizer' | 'influencer';
+
+interface ChatMessage {
+  id: string;
+  senderId: string;
+  senderRole?: SenderRole;
+  content: string;
+  createdAt: number;
+}
 
 function CollabMessageModal({
   collab,
-  messages,
-  messagesLoading,
-  currentUserId,
-  myAvatar,
-  otherAvatar,
   onClose,
-  onSend,
+  onUnreadChange,
 }: {
   collab: InfluencerCollab;
-  messages: Array<{ id: string; senderId: string; content: string; createdAt: string }>;
-  messagesLoading: boolean;
-  currentUserId: string | null;
-  myAvatar: string | null;
-  otherAvatar: string | null;
   onClose: () => void;
-  onSend: (content: string) => Promise<void>;
+  onUnreadChange?: (collabId: string, count: number) => void;
 }) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(true);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(false);
   const msgEndRef = useRef<HTMLDivElement>(null);
+  const activeCollabRef = useRef(collab.id);
+
+  // Fetch messages
+  const fetchMessages = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/influencers/collaborations/${collab.id}/messages`);
+      if (res.ok) {
+        const d = await res.json();
+        const raw: any[] = Array.isArray(d.messages) ? d.messages : [];
+        setMessages(raw.map((m: any) => ({
+          id: m.id,
+          senderId: m.senderId ?? m.sender_id,
+          senderRole: m.senderRole ?? m.sender_role,
+          content: m.content,
+          createdAt: m.createdAt ?? new Date(m.created_at ?? 0).getTime(),
+        })));
+      }
+    } catch { /* best-effort */ }
+    finally { setLoading(false); }
+  }, [collab.id]);
+
+  useEffect(() => {
+    fetchMessages();
+    joinCollaboration(collab.id);
+
+    const interval = setInterval(fetchMessages, 5000);
+
+    // Socket.IO
+    const socket = getSocket();
+    const onConnect = () => setSocketConnected(true);
+    const onDisconnect = () => setSocketConnected(false);
+    const onMessage = (data: CollaborationMessage) => {
+      if (data.collaboration_id !== activeCollabRef.current) return;
+      setMessages(prev => {
+        if (prev.some(m => m.id === data.id)) return prev;
+        return [...prev, {
+          id: data.id,
+          senderId: data.sender_id,
+          senderRole: data.sender_role,
+          content: data.content,
+          createdAt: new Date(data.created_at).getTime(),
+        }];
+      });
+    };
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('collaboration_message', onMessage);
+    if (socket.connected) setSocketConnected(true);
+
+    return () => {
+      clearInterval(interval);
+      leaveCollaboration(collab.id);
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('collaboration_message', onMessage);
+    };
+  }, [collab.id, fetchMessages]);
 
   useEffect(() => {
     msgEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = async () => {
+  const sendMessage = async () => {
     const content = input.trim();
     if (!content) return;
     setInput('');
     setSending(true);
-    try {
-      await onSend(content);
-    } finally {
+
+    if (socketConnected) {
+      sendCollaborationMessage(collab.id, content);
       setSending(false);
+    } else {
+      try {
+        const res = await fetch(`/api/influencers/collaborations/${collab.id}/messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content }),
+        });
+        if (res.ok) {
+          const d = await res.json();
+          const m = d.message ?? d;
+          setMessages(prev => [...prev, {
+            id: m.id,
+            senderId: m.senderId ?? m.sender_id,
+            senderRole: 'organizer' as SenderRole,
+            content: m.content,
+            createdAt: m.createdAt ?? new Date(m.created_at ?? 0).getTime(),
+          }]);
+        }
+      } catch { /* best-effort */ }
+      finally { setSending(false); }
     }
   };
 
   return (
     <Modal open onClose={onClose} title={`Messages — ${collab.influencerName}`}>
+      {/* Live indicator */}
+      <div className="flex items-center gap-2 mb-3">
+        <span className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
+          socketConnected ? 'bg-green-100 text-green-700' : 'bg-neutral-100 text-neutral-500'
+        }`}>
+          {socketConnected
+            ? <><Wifi className="h-3 w-3" /> Live</>
+            : <><WifiOff className="h-3 w-3" /> Offline</>
+          }
+        </span>
+      </div>
       {/* Chat thread */}
       <div className="flex flex-col gap-2 max-h-[52vh] overflow-y-auto px-1 py-2 mb-3">
-        {messagesLoading ? (
+        {loading ? (
           <div className="flex items-center justify-center py-8">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-lime border-t-transparent" />
           </div>
@@ -1560,20 +1664,13 @@ function CollabMessageModal({
           </div>
         ) : (
           messages.map(m => {
-            const isMine = currentUserId
-              ? m.senderId === currentUserId
-              : false;
-            const avatar = isMine ? myAvatar : otherAvatar;
-            const initials = isMine ? 'Me' : (collab.influencerName?.[0]?.toUpperCase() ?? '?');
+            const isMine = m.senderRole === 'organizer';
             return (
               <div key={m.id} className={`flex items-end gap-2 ${isMine ? 'justify-end' : 'justify-start'}`}>
-                {/* Other person's avatar — left side */}
                 {!isMine && (
-                  avatar
-                    ? <img src={avatar} alt={collab.influencerName} className="h-7 w-7 rounded-full object-cover shrink-0 mb-0.5" />
-                    : <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-600 mb-0.5">
-                        {initials}
-                      </div>
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-600 mb-0.5">
+                    {collab.influencerName?.[0]?.toUpperCase() ?? '?'}
+                  </div>
                 )}
                 <div className={`max-w-[72%] rounded-2xl px-3.5 py-2.5 text-sm ${
                   isMine
@@ -1590,14 +1687,6 @@ function CollabMessageModal({
                     {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
-                {/* My avatar — right side */}
-                {isMine && (
-                  avatar
-                    ? <img src={avatar} alt="You" className="h-7 w-7 rounded-full object-cover shrink-0 mb-0.5" />
-                    : <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-lime/20 text-[10px] font-bold text-lime mb-0.5">
-                        Me
-                      </div>
-                )}
               </div>
             );
           })
@@ -1611,13 +1700,152 @@ function CollabMessageModal({
           autoFocus
           value={input}
           onChange={e => setInput(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+          onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
           placeholder="Write a message…"
           className="flex-1 h-10 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
         />
-        <Button onClick={handleSend} loading={sending} disabled={!input.trim()}>
-          Send
-        </Button>
+        <button onClick={sendMessage} disabled={!input.trim() || sending}
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-dark hover:bg-lime-hover transition-colors disabled:opacity-50">
+          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
+// ─── Metrics Modal ──────────────────────────────────────────────────────────
+
+function MetricsModal({
+  collab,
+  onClose,
+}: {
+  collab: InfluencerCollab;
+  onClose: () => void;
+}) {
+  const [metrics, setMetrics] = useState<{
+    clicks: number;
+    conversions: number;
+    sales: number;
+    commissionEarned: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState<'7d' | '30d' | 'all'>('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const fetchMetrics = useCallback(async () => {
+    setLoading(true);
+    try {
+      const qs = new URLSearchParams({ period });
+      if (startDate) qs.set('start_date', startDate);
+      if (endDate) qs.set('end_date', endDate);
+      const res = await fetch(`/api/influencers/collaborations/${collab.id}/metrics?${qs}`);
+      if (res.ok) {
+        const d = await res.json();
+        setMetrics(d);
+      }
+    } catch { /* best-effort */ }
+    finally { setLoading(false); }
+  }, [collab.id, period, startDate, endDate]);
+
+  useEffect(() => { fetchMetrics(); }, [fetchMetrics]);
+
+  const shareCode = collab.trackingCode || collab.promoCode;
+
+  return (
+    <Modal open onClose={onClose} title={`Metrics — ${collab.influencerName}`}>
+      <div className="space-y-4">
+        {/* Tracking / Promo code */}
+        {shareCode && (
+          <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-3">
+            <p className="text-xs font-medium text-neutral-500 mb-1">
+              {collab.trackingCode ? 'Tracking Code' : 'Promo Code'}
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="text-sm font-mono font-bold text-lime-700 bg-lime-50 px-2 py-1 rounded-lg">{shareCode}</code>
+              <button
+                onClick={() => { navigator.clipboard.writeText(shareCode); }}
+                className="text-neutral-400 hover:text-neutral-600 transition-colors"
+                title="Copy"
+              >
+                <Copy className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Compensation info */}
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-3">
+            <p className="text-xs text-neutral-500">Compensation</p>
+            <p className="font-semibold text-neutral-900 capitalize">{collab.compensationType}</p>
+          </div>
+          {collab.compensationAmount != null && (
+            <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-3">
+              <p className="text-xs text-neutral-500">Amount</p>
+              <p className="font-semibold text-neutral-900">₦{collab.compensationAmount.toLocaleString()}</p>
+            </div>
+          )}
+          {collab.commissionRate != null && (
+            <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-3">
+              <p className="text-xs text-neutral-500">Commission Rate</p>
+              <p className="font-semibold text-neutral-900">{collab.commissionRate}%</p>
+            </div>
+          )}
+          {collab.freeTicketCount != null && (
+            <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-3">
+              <p className="text-xs text-neutral-500">Free Tickets</p>
+              <p className="font-semibold text-neutral-900">{collab.freeTicketCount}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Period filter */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-neutral-500">Period:</span>
+          {(['7d', '30d', 'all'] as const).map(p => (
+            <button key={p} onClick={() => setPeriod(p)}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                period === p ? 'bg-lime text-dark' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+              }`}>{p === 'all' ? 'All time' : p}</button>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
+            className="flex-1 h-8 rounded-lg border border-neutral-200 px-2 text-xs" />
+          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
+            className="flex-1 h-8 rounded-lg border border-neutral-200 px-2 text-xs" />
+        </div>
+
+        {/* Metrics grid */}
+        {loading ? (
+          <div className="grid grid-cols-2 gap-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-20 rounded-xl bg-neutral-100 animate-pulse" />
+            ))}
+          </div>
+        ) : metrics ? (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-lime/10 border border-lime/20 p-3">
+              <p className="text-xs text-lime-700 font-medium">Clicks</p>
+              <p className="text-2xl font-bold text-dark">{metrics.clicks}</p>
+            </div>
+            <div className="rounded-xl bg-blue-50 border border-blue-200 p-3">
+              <p className="text-xs text-blue-700 font-medium">Conversions</p>
+              <p className="text-2xl font-bold text-blue-900">{metrics.conversions}</p>
+            </div>
+            <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+              <p className="text-xs text-amber-700 font-medium">Sales</p>
+              <p className="text-2xl font-bold text-amber-900">{metrics.sales}</p>
+            </div>
+            <div className="rounded-xl bg-green-50 border border-green-200 p-3">
+              <p className="text-xs text-green-700 font-medium">Commission Earned</p>
+              <p className="text-2xl font-bold text-green-900">₦{metrics.commissionEarned.toLocaleString()}</p>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-neutral-500 text-center py-4">No metrics available yet.</p>
+        )}
       </div>
     </Modal>
   );
@@ -1751,11 +1979,7 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
   const [collabs, setCollabs] = useState<InfluencerCollab[]>([]);
   const [collabsLoading, setCollabsLoading] = useState(true);
   const [selectedCollab, setSelectedCollab] = useState<InfluencerCollab | null>(null);
-  const [messages, setMessages] = useState<Array<{ id: string; senderId: string; content: string; createdAt: string }>>([]);
-  const [messagesLoading, setMessagesLoading] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [myAvatar, setMyAvatar] = useState<string | null>(null);
-  const [otherAvatar, setOtherAvatar] = useState<string | null>(null);
+  const [metricsCollab, setMetricsCollab] = useState<InfluencerCollab | null>(null);
   const [discoverUsers, setDiscoverUsers] = useState<DiscoveredUser[]>([]);
   const [discoverLoading, setDiscoverLoading] = useState(false);
   const [discoverQuery, setDiscoverQuery] = useState('');
@@ -1783,17 +2007,6 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
     };
     load();
   }, [id]);
-
-  // Fetch current user id + avatar for message alignment
-  useEffect(() => {
-    fetch('/api/profile')
-      .then(r => r.json())
-      .then(d => {
-        if (d?.profile?.id) setCurrentUserId(d.profile.id);
-        if (d?.profile?.avatar) setMyAvatar(d.profile.avatar);
-      })
-      .catch(() => {});
-  }, []);
 
   const discover = async (page = 1) => {
     setDiscoverLoading(true);
@@ -1861,61 +2074,12 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
     finally { setInvitingId(null); }
   };
 
-  const openMessages = async (c: InfluencerCollab) => {
+  const openMessages = (c: InfluencerCollab) => {
     setSelectedCollab(c);
-    setOtherAvatar(null); // reset while loading
-    setMessagesLoading(true);
-    try {
-      // Fetch messages + influencer avatar in parallel
-      const [msgRes, userRes] = await Promise.all([
-        fetch(`/api/influencers/collaborations/${c.id}/messages`),
-        fetch(`/api/users/${c.influencerId}`).catch(() => null),
-      ]);
-      if (msgRes.ok) {
-        const d = await msgRes.json();
-        setMessages(Array.isArray(d.messages) ? d.messages : []);
-      } else {
-        setMessages([]);
-      }
-      if (userRes?.ok) {
-        const u = await userRes.json();
-        setOtherAvatar(u?.avatar ?? u?.profile?.avatar ?? null);
-      }
-    } catch {
-      setMessages([]);
-    } finally {
-      setMessagesLoading(false);
-    }
   };
 
   const closeMessages = () => {
     setSelectedCollab(null);
-    setMessages([]);
-  };
-
-  const sendMessage = async (content: string) => {
-    if (!selectedCollab) return;
-    const res = await fetch(`/api/influencers/collaborations/${selectedCollab.id}/messages`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
-    });
-    if (res.ok) {
-      const d = await res.json();
-      const msg = d.message ?? d;
-      setMessages(prev => {
-        if (prev.some(m => m.id === msg.id)) return prev;
-        return [...prev, {
-          id: msg.id,
-          senderId: msg.senderId ?? msg.sender_id,
-          content: msg.content,
-          createdAt: msg.createdAt ?? msg.created_at,
-        }];
-      });
-    } else {
-      const err = await res.json().catch(() => ({}));
-      addToast(err.error || 'Failed to send message', { type: 'error' });
-      throw new Error(err.error || 'Failed to send');
-    }
   };
 
   const acceptCollab = async (collabId: string) => {
@@ -2047,11 +2211,15 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
                   <span className={`inline-block mt-0.5 px-2 py-0.5 rounded-full text-xs font-medium ${statusBadge(c.status)}`}>{c.status}</span>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <Button variant="outline" size="sm" onClick={() => openMessages(c)}>Messages</Button>
-                  <Button variant="outline" size="sm" onClick={async () => {
-                    const res = await fetch(`/api/influencers/collaborations/${c.id}/metrics`);
-                    if (res.ok) { const d = await res.json(); addToast(`Clicks: ${d.clicks} · Conversions: ${d.conversions}`, { type: 'info' }); }
-                  }}>Metrics</Button>
+                  <Button variant="outline" size="sm" onClick={() => openMessages(c)} className="relative">
+                    Messages
+                    {(c.unreadCount ?? 0) > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-red-500 text-white text-[10px] font-bold px-1 leading-none">
+                        {c.unreadCount}
+                      </span>
+                    )}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setMetricsCollab(c)}>Metrics</Button>
                 </div>
               </div>
             ))}
@@ -2119,13 +2287,14 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
       {selectedCollab && (
         <CollabMessageModal
           collab={selectedCollab}
-          messages={messages}
-          messagesLoading={messagesLoading}
-          currentUserId={currentUserId}
-          myAvatar={myAvatar}
-          otherAvatar={otherAvatar}
           onClose={closeMessages}
-          onSend={sendMessage}
+        />
+      )}
+
+      {metricsCollab && (
+        <MetricsModal
+          collab={metricsCollab}
+          onClose={() => setMetricsCollab(null)}
         />
       )}
     </div>
