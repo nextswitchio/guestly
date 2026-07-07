@@ -15,7 +15,7 @@ export default function AdminSeoPage() {
     { key: "site_title", value: "Guestly — Discover & Organise Events" },
     { key: "site_description", value: "Discover, attend, and organise unforgettable events across Africa." },
     { key: "og_image", value: "/og-image.jpg" },
-    { key: "canonical_url", value: "https://guestly.app" },
+    { key: "canonical_url", value: "https://guestly.com" },
     { key: "robots_txt", value: "User-agent: *\nAllow: /" },
   ]);
 

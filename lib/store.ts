@@ -3956,7 +3956,7 @@ export function generateVirtualAccess(
   eventDate: string
 ): VirtualAccess {
   const accessId = id("vaccess");
-  const joinLink = `${process.env.NEXT_PUBLIC_BASE_URL || "https://guestly.app"}/events/${eventId}/virtual?token=${accessId}`;
+  const joinLink = `${process.env.NEXT_PUBLIC_BASE_URL || "https://guestly.com"}/events/${eventId}/virtual?token=${accessId}`;
   
   const expiresAt = calculateAccessExpiration(eventDate);
   

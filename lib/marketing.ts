@@ -1769,7 +1769,7 @@ export function generateReferralLink(userId: string, eventId: string, rewardType
   // Generate unique referral code (Requirement 7.1)
   // Generate unique referral code (Requirement 7.1)
   const code = `${userId.slice(0, 6)}_${eventId.slice(0, 6)}_${Math.random().toString(36).slice(2, 8)}`.toUpperCase();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com';
   const url = `${baseUrl}/events/${eventId}?ref=${code}`;
   
   const referralLink: ReferralLink = {
@@ -1982,7 +1982,7 @@ export function generateAffiliateLink(affiliateId: string, eventId: string): Aff
   if (!affiliate) throw new Error('Affiliate not found');
   
   const code = `AFF_${affiliateId.slice(0, 6)}_${eventId.slice(0, 6)}_${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com';
   const url = `${baseUrl}/events/${eventId}?aff=${code}`;
   
   const link: AffiliateLink = {
@@ -5550,7 +5550,7 @@ export function createRetargetingCampaign(
     description: `You viewed this event. Get your tickets now before they sell out!`,
     callToAction: 'Get Tickets',
     mediaUrls: [eventData.image],
-    landingUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app'}/events/${eventId}`,
+    landingUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com'}/events/${eventId}`,
     active: true,
   };
 
@@ -5692,7 +5692,7 @@ export function getRetargetingAudience(audienceId: string): { audience: Retarget
  * Optimized for search engines and social media sharing
  */
 export function generateSEOMetadata(eventId: string, eventData: { title: string; description: string; image: string; date: string; venue: string; city: string; country: string }): SEOMetadata {
-  const canonicalUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app'}/events/${eventId}`;
+  const canonicalUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com'}/events/${eventId}`;
   
   // Format date for title (e.g., "Mar 12, 2026")
   const eventDate = new Date(eventData.date);
@@ -5859,7 +5859,7 @@ export function generateStructuredData(eventId: string, eventData: {
   organizerName: string;
   organizerUrl?: string;
 }): StructuredData {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com';
   const eventUrl = `${baseUrl}/events/${eventId}`;
   
   // Ensure images array has at least one image
@@ -6425,13 +6425,13 @@ export async function distributeBlogPost(
             <div style="color: #333; font-size: 14px; line-height: 1.8; margin-bottom: 30px;">
               ${post.content.substring(0, 500)}...
             </div>
-            <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app'}/blog/${post.slug}" 
+            <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com'}/blog/${post.slug}" 
                style="display: inline-block; background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
               Read Full Article
             </a>
           </div>
         `,
-        textContent: `${post.title}\n\n${post.excerpt}\n\n${post.content.substring(0, 500)}...\n\nRead more: ${process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app'}/blog/${post.slug}`,
+        textContent: `${post.title}\n\n${post.excerpt}\n\n${post.content.substring(0, 500)}...\n\nRead more: ${process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com'}/blog/${post.slug}`,
         design: {
           blocks: [],
           styles: {},
@@ -6450,7 +6450,7 @@ export async function distributeBlogPost(
         templateId: emailTemplate.id,
         subject: post.title,
         fromName: 'Guestly',
-        fromEmail: 'newsletter@guestly.app',
+        fromEmail: 'newsletter@guestly.com',
         recipients: [], // Would be populated with subscriber list in real implementation
         status: 'draft',
       });
@@ -6489,7 +6489,7 @@ export async function distributeBlogPost(
       for (const platform of socialPlatforms) {
         try {
           // Create social post content
-          const postUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app'}/blog/${post.slug}`;
+          const postUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com'}/blog/${post.slug}`;
           const socialContent = {
             eventId: post.eventId || '',
             text: `${post.title}\n\n${post.excerpt}\n\nRead more: ${postUrl}`,
@@ -7983,7 +7983,7 @@ export function generateShareLink(
     referralLink = generateReferralLink(userId, eventId);
   }
   
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com';
   const eventUrl = `${baseUrl}/events/${eventId}`;
   
   // Append referral code and platform tracking
@@ -8025,7 +8025,7 @@ export function generateShareCard(eventId: string, platform: 'whatsapp' | 'faceb
   
   if (!event) return null;
   
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com';
   const eventUrl = `${baseUrl}/events/${eventId}`;
   
   // Platform-specific optimizations
@@ -8079,7 +8079,7 @@ export function trackShare(
   platform: 'whatsapp' | 'facebook' | 'twitter' | 'linkedin' | 'email' | 'sms',
   referralCode: string
 ): ShareEvent {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guestly.com';
   const shareUrl = `${baseUrl}/events/${eventId}?ref=${referralCode}&utm_source=${platform}`;
   
   const share: ShareEvent = {
