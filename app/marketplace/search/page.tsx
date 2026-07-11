@@ -21,6 +21,7 @@ interface Provider {
   availability_status: string;
   is_verified: boolean;
   is_featured: boolean;
+  distance_km?: number;
 }
 
 const PROVIDER_TYPES = [
@@ -29,6 +30,11 @@ const PROVIDER_TYPES = [
   { value: "influencer", label: "Influencers" },
   { value: "organizer", label: "Organizers" },
 ];
+
+interface CityOption {
+  city: string;
+  count: number;
+}
 
 export default function MarketplaceSearch() {
   const searchParams = useSearchParams();
@@ -42,6 +48,42 @@ export default function MarketplaceSearch() {
   const [cityFilter, setCityFilter] = useState(searchParams.get("city") || "");
   const [sortBy, setSortBy] = useState(searchParams.get("sort_by") || "rating");
   const [page, setPage] = useState(1);
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [nearMe, setNearMe] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/marketplace/cities")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: CityOption[]) => setCities(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
+
+  function handleNearMe() {
+    if (nearMe) {
+      setNearMe(false);
+      setUserLocation(null);
+      setSortBy("rating");
+      setPage(1);
+      return;
+    }
+    if (!navigator.geolocation) return;
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setNearMe(true);
+        setCityFilter("");
+        setSortBy("distance");
+        setPage(1);
+        setLocationLoading(false);
+      },
+      () => {
+        setLocationLoading(false);
+      }
+    );
+  }
 
   const fetchProviders = useCallback(async () => {
     setLoading(true);
@@ -50,6 +92,10 @@ export default function MarketplaceSearch() {
     if (typeFilter) params.set("type", typeFilter);
     if (categoryFilter) params.set("category", categoryFilter);
     if (cityFilter) params.set("city", cityFilter);
+    if (nearMe && userLocation) {
+      params.set("lat", userLocation.lat.toString());
+      params.set("lng", userLocation.lng.toString());
+    }
     params.set("sort_by", sortBy);
     params.set("page", page.toString());
     params.set("page_size", "20");
@@ -66,7 +112,7 @@ export default function MarketplaceSearch() {
     } finally {
       setLoading(false);
     }
-  }, [query, typeFilter, categoryFilter, cityFilter, sortBy, page]);
+  }, [query, typeFilter, categoryFilter, cityFilter, sortBy, page, nearMe, userLocation]);
 
   useEffect(() => {
     fetchProviders();
@@ -131,7 +177,7 @@ export default function MarketplaceSearch() {
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-semibold text-sm text-neutral-900">Filters</h3>
               <button
-                onClick={() => { setQuery(""); setTypeFilter(""); setCategoryFilter(""); setCityFilter(""); setSortBy("rating"); setPage(1); }}
+                onClick={() => { setQuery(""); setTypeFilter(""); setCategoryFilter(""); setCityFilter(""); setSortBy("rating"); setNearMe(false); setPage(1); }}
                 className="text-[11px] text-neutral-400 hover:text-dark transition-colors"
               >
                 Clear All
@@ -168,13 +214,37 @@ export default function MarketplaceSearch() {
             {/* City Filter */}
             <div className="mb-5">
               <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2 block">City</label>
-              <input
-                type="text"
+              <select
                 value={cityFilter}
-                onChange={(e) => setCityFilter(e.target.value)}
-                placeholder="e.g. Lagos, Nairobi"
-                className="w-full px-3 py-2.5 border border-neutral-200 rounded-xl text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-lime/20 focus:border-lime transition-all"
-              />
+                onChange={(e) => { setCityFilter(e.target.value); setNearMe(false); setPage(1); }}
+                disabled={nearMe}
+                className="w-full px-3 py-2.5 border border-neutral-200 rounded-xl text-sm text-neutral-900 bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 focus:border-lime transition-all disabled:opacity-50"
+              >
+                <option value="">All Cities</option>
+                {cities.map((c) => (
+                  <option key={c.city} value={c.city}>{c.city} ({c.count})</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Near Me */}
+            <div className="mb-5">
+              <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2 block">Location</label>
+              <button
+                onClick={handleNearMe}
+                disabled={locationLoading}
+                className={`w-full px-3 py-2.5 rounded-xl text-sm font-medium border transition-all flex items-center justify-center gap-2 ${
+                  nearMe
+                    ? "bg-dark text-white border-dark"
+                    : "bg-white text-neutral-700 border-neutral-200 hover:border-lime hover:text-dark"
+                } ${locationLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                </svg>
+                {locationLoading ? "Locating..." : nearMe ? "Near Me (Active)" : "Near Me"}
+              </button>
             </div>
 
             {/* Sort */}
@@ -182,12 +252,20 @@ export default function MarketplaceSearch() {
               <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2 block">Sort By</label>
               <select
                 value={sortBy}
-                onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSortBy(val);
+                  if (val === "distance" && !userLocation) {
+                    handleNearMe();
+                  }
+                  setPage(1);
+                }}
                 className="w-full px-3 py-2.5 border border-neutral-200 rounded-xl text-sm text-neutral-900 bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 focus:border-lime transition-all"
               >
                 <option value="rating">Highest Rated</option>
                 <option value="reviews">Most Reviews</option>
                 <option value="newest">Newest</option>
+                <option value="distance">Nearest</option>
               </select>
             </div>
           </div>
@@ -268,6 +346,11 @@ export default function MarketplaceSearch() {
                               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                             </svg>
                             {provider.location_city}
+                          </span>
+                        )}
+                        {provider.distance_km != null && (
+                          <span className="text-[11px] text-neutral-400">
+                            {provider.distance_km < 1 ? `${Math.round(provider.distance_km * 1000)}m` : `${provider.distance_km.toFixed(1)}km`}
                           </span>
                         )}
                       </div>
