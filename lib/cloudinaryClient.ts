@@ -48,6 +48,8 @@ export async function uploadToCloudinary(
   form.append("timestamp", signature.timestamp.toString());
   form.append("signature", signature.signature);
   form.append("folder", signature.folder);
+  form.append("resource_type", signature.resourceType);
+  form.append("upload_preset", "guestly_uploads");
 
   const uploadRes = await fetch(
     `https://api.cloudinary.com/v1_1/${signature.cloudName}/${signature.resourceType}/upload`,
