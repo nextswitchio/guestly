@@ -18,7 +18,6 @@ interface UserStatsCardsProps {
 
 export function UserStatsCards({ stats }: UserStatsCardsProps) {
   const total = stats?.totalUsers || 1; // avoid division by zero
-  const total = stats?.totalUsers || 1;
   const statCards = [
     {
       title: "Total Users",
