@@ -1,11 +1,28 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function MarketplaceLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [dashboardLink, setDashboardLink] = useState("/login");
+
+  useEffect(() => {
+    fetch("/api/auth/me", { credentials: "include", cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.ok && d.user?.role) {
+          const role = d.user.role;
+          if (role === "organiser" || role === "organizer") setDashboardLink("/organizer/dashboard");
+          else if (role === "vendor") setDashboardLink("/vendor/dashboard");
+          else if (role === "admin") setDashboardLink("/admin");
+          else if (role === "affiliate") setDashboardLink("/affiliate/dashboard");
+          else setDashboardLink("/attendee");
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const navLinks = [
     { href: "/marketplace", label: "Browse", exact: true },
@@ -42,7 +59,7 @@ export default function MarketplaceLayout({ children }: { children: React.ReactN
             </div>
             <div className="flex items-center gap-3">
               <Link
-                href="/attendee/dashboard"
+                href={dashboardLink}
                 className="text-sm text-white/60 hover:text-white transition-colors"
               >
                 Dashboard
