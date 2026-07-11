@@ -23,6 +23,13 @@ interface Provider {
   is_featured: boolean;
 }
 
+const PROVIDER_TYPES = [
+  { value: "", label: "All", icon: "🌐" },
+  { value: "vendor", label: "Vendors", icon: "🏪" },
+  { value: "influencer", label: "Influencers", icon: "📱" },
+  { value: "organizer", label: "Organizers", icon: "📋" },
+];
+
 export default function MarketplaceSearch() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -73,6 +80,24 @@ export default function MarketplaceSearch() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Provider Type Tabs */}
+      <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
+        {PROVIDER_TYPES.map((pt) => (
+          <button
+            key={pt.value}
+            onClick={() => { setTypeFilter(pt.value); setPage(1); }}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+              typeFilter === pt.value
+                ? "bg-blue-600 text-white shadow-md"
+                : "bg-white text-neutral-700 border border-neutral-200 hover:border-blue-300 hover:text-blue-600"
+            }`}
+          >
+            <span>{pt.icon}</span>
+            {pt.label}
+          </button>
+        ))}
+      </div>
+
       {/* Search Bar */}
       <form onSubmit={handleSearch} className="mb-8">
         <div className="flex gap-2">
@@ -80,7 +105,7 @@ export default function MarketplaceSearch() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search providers..."
+            placeholder="Search providers, services, categories..."
             className="flex-1 px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
           />
           <button
@@ -98,7 +123,7 @@ export default function MarketplaceSearch() {
           <div className="bg-white rounded-xl border border-neutral-200 p-6 sticky top-24">
             <h3 className="font-semibold text-neutral-900 mb-4">Filters</h3>
 
-            {/* Type Filter */}
+            {/* Type Filter (compact for sidebar) */}
             <div className="mb-6">
               <label className="text-sm font-medium text-neutral-700 mb-2 block">Provider Type</label>
               <select
@@ -163,7 +188,9 @@ export default function MarketplaceSearch() {
         {/* Results */}
         <div className="flex-1">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-neutral-500">{total} providers found</p>
+            <p className="text-sm text-neutral-500">
+              {total} {typeFilter ? PROVIDER_TYPES.find(t => t.value === typeFilter)?.label.toLowerCase() || "providers" : "providers"} found
+            </p>
           </div>
 
           {loading ? (
@@ -208,7 +235,12 @@ export default function MarketplaceSearch() {
                           <span className="text-yellow-500 text-xs" title="Featured">★</span>
                         )}
                       </div>
-                      <p className="text-sm text-neutral-500">{provider.category}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-full capitalize">
+                          {provider.provider_type}
+                        </span>
+                        <span className="text-sm text-neutral-500">{provider.category}</span>
+                      </div>
                       <div className="flex items-center gap-3 mt-1">
                         <span className="text-sm">★ {provider.rating?.toFixed(1)}</span>
                         <span className="text-xs text-neutral-400">({provider.review_count})</span>
