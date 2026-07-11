@@ -38,7 +38,7 @@ export default function TopNav() {
 
   useEffect(() => {
     setMounted(true);
-    fetch("/api/auth/me", { credentials: "include" })
+    fetch("/api/auth/me", { credentials: "include", cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
         if (d.ok && d.user) {

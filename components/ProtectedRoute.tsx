@@ -24,7 +24,7 @@ export function ProtectedRoute({ children, allowRoles }: Props) {
 
     async function check() {
       try {
-        const res = await fetch("/api/auth/me", { method: "GET", credentials: "include" });
+        const res = await fetch("/api/auth/me", { method: "GET", credentials: "include", cache: "no-store" });
         if (!res.ok) {
           if (allowRoles?.includes("admin")) router.replace("/admin/login");
           else if (allowRoles?.includes("vendor")) router.replace("/vendor-auth/login");

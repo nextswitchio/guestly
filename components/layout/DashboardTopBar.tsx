@@ -52,14 +52,7 @@ export default function DashboardTopBar() {
   }, []);
 
   React.useEffect(() => {
-    fetch("/api/auth/me", { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { setRole(d?.ok ? d.user?.role : null); })
-      .catch(() => { });
-  }, []);
-
-  React.useEffect(() => {
-    fetch("/api/auth/me", { credentials: "include" })
+    fetch("/api/auth/me", { credentials: "include", cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => { setRole(d?.ok ? d.user?.role : null); })
       .catch(() => { });

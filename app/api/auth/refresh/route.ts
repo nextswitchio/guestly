@@ -33,6 +33,8 @@ export async function POST(req: NextRequest) {
       refresh_token: data.refresh_token,
       expires_in: data.expires_in,
     });
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    response.headers.set("Pragma", "no-cache");
     response.cookies.set("access_token", data.access_token, {
       httpOnly: true,
       sameSite: "none",

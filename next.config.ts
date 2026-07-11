@@ -72,11 +72,19 @@ const nextConfig: NextConfig = {
         ]
       },
       {
-        source: '/api/(.*)',
+        source: '/api/auth/(.*)',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=300, stale-while-revalidate=60'
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate'
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache'
+          },
+          {
+            key: 'X-Accel-Expires',
+            value: '0'
           }
         ]
       },

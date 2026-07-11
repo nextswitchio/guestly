@@ -30,6 +30,8 @@ export async function POST(req: NextRequest) {
       user: data.user,
       role: data.user?.role,
     });
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    response.headers.set("Pragma", "no-cache");
 
     if (data.tokens) {
       response.cookies.set("access_token", data.tokens.access_token, {

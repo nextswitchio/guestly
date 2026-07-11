@@ -6,12 +6,12 @@ import { SigninForm } from "@/components/auth/SignInForm";
 import { useToast } from "@/components/ui/ToastProvider";
 
 function redirectForRole(role: string | undefined, router: ReturnType<typeof useRouter>) {
-  if (role === "organiser" || role === "organizer") router.replace("/organizer/dashboard");
-  else if (role === "vendor") router.replace("/vendor/dashboard");
-  else if (role === "affiliate") router.replace("/affiliate/dashboard");
-  else if (role === "admin") router.replace("/admin");
-  else if (role === "attendee") router.replace("/attendee");
-  else router.replace("/organizer/dashboard");
+  if (role === "organiser" || role === "organizer") window.location.href = "/organizer/dashboard";
+  else if (role === "vendor") window.location.href = "/vendor/dashboard";
+  else if (role === "affiliate") window.location.href = "/affiliate/dashboard";
+  else if (role === "admin") window.location.href = "/admin";
+  else if (role === "attendee") window.location.href = "/attendee";
+  else window.location.href = "/organizer/dashboard";
 }
 
 function LoginContent() {

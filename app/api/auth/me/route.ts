@@ -18,7 +18,10 @@ export async function GET(req: NextRequest) {
   }
 
   if (!token) {
-    return NextResponse.json({ ok: false, error: "Not authenticated" }, { status: 401 });
+    const response = NextResponse.json({ ok: false, error: "Not authenticated" }, { status: 401 });
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    response.headers.set("Pragma", "no-cache");
+    return response;
   }
 
   try {
@@ -39,6 +42,8 @@ export async function GET(req: NextRequest) {
     const user = await res.json();
     const role = user?.role;
     const response = NextResponse.json({ ok: true, user, role });
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    response.headers.set("Pragma", "no-cache");
     response.cookies.set("access_token", token, {
       httpOnly: true,
       sameSite: "none",
