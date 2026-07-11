@@ -30,11 +30,10 @@ export async function GET(req: NextRequest) {
       : "auto";
     const timestamp = Math.round(Date.now() / 1000);
     
-    // Cloudinary excludes file, api_key, and signature from verification
+    // Cloudinary excludes file, api_key, signature, and resource_type from verification
     const signature = signCloudinaryParams({
       folder,
       timestamp,
-      resource_type: resourceType,
       upload_preset: 'guestly_uploads'
     }, apiSecret);
 
@@ -80,11 +79,10 @@ export async function POST(req: NextRequest) {
     const folder = normalizeCloudinaryFolder(body.folder);
     const resourceType = RESOURCE_TYPES.has(body.resourceType) ? body.resourceType : "auto";
     
-    // Cloudinary excludes file, api_key, and signature from verification
+    // Cloudinary excludes file, api_key, signature, and resource_type from verification
     const signature = signCloudinaryParams({
       folder,
       timestamp,
-      resource_type: resourceType,
       upload_preset: 'guestly_uploads'
     }, apiSecret);
 
