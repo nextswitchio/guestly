@@ -241,7 +241,7 @@ export default function DashboardPage() {
                       </div>
                       <StatusIndicator status={(ev.status === "published" || ev.status === "ongoing") ? "active" : "inactive"} />
                       <Link
-                        href={`/dashboard/events/${ev.id}/manage`}
+                        href={`/organizer/dashboard/events/${ev.id}/manage`}
                         className="shrink-0 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-xs font-semibold text-neutral-700 transition-all hover:border-lime hover:bg-lime/10 hover:text-lime-700"
                       >
                         Manage

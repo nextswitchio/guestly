@@ -104,7 +104,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
         setSaved(true);
         addToast('Event updated successfully!', { type: 'success' });
         setTimeout(() => {
-          router.push(`/dashboard/events/${id}/manage`);
+          router.push(`/organizer/dashboard/events/${id}/manage`);
         }, 1500);
       } else {
         const data = await response.json();
@@ -216,7 +216,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push(`/dashboard/events/${id}/manage`)}
+                onClick={() => router.push(`/organizer/dashboard/events/${id}/manage`)}
               >
                 Cancel
               </Button>

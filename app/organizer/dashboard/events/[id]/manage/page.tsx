@@ -451,7 +451,7 @@ function OverviewTab({ event, id, onStatusChange, statusChanging }: {
 
       {/* Quick actions */}
       <div className="flex flex-wrap gap-3">
-        <Button onClick={() => router.push(`/dashboard/events/${id}/edit`)}>
+        <Button onClick={() => router.push(`/organizer/dashboard/events/${id}/edit`)}>
           <Edit className="w-4 h-4 mr-2" />Edit Event
         </Button>
         <Button variant="outline" onClick={() => router.push(`/events/${id}`)}>
@@ -489,7 +489,7 @@ function TicketsTab({ event, id, onRefresh }: { event: Event; id: string; onRefr
       <div className="rounded-2xl border border-neutral-200 bg-white divide-y divide-neutral-100">
         <div className="flex items-center justify-between p-4">
           <h3 className="font-semibold text-neutral-900">Ticket Types</h3>
-          <Button size="sm" onClick={() => router.push(`/dashboard/events/${id}/tickets`)}>
+          <Button size="sm" onClick={() => router.push(`/organizer/dashboard/events/${id}/tickets`)}>
             <Plus className="w-4 h-4 mr-1" />Manage
           </Button>
         </div>
@@ -1343,7 +1343,7 @@ function AttendeesTab({ id }: { id: string }) {
     <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-4">
       <h3 className="font-semibold text-neutral-900">Attendee Management</h3>
       <p className="text-sm text-neutral-500">View check-in status, export attendee lists, and manage registrations.</p>
-      <Button onClick={() => router.push(`/dashboard/events/${id}/attendees`)}>
+      <Button onClick={() => router.push(`/organizer/dashboard/events/${id}/attendees`)}>
         <Users className="w-4 h-4 mr-2" />View Attendees
       </Button>
     </div>
@@ -1481,7 +1481,7 @@ function InsightsTab({ id }: { id: string }) {
       <div className="rounded-2xl border border-neutral-200 bg-white p-6 text-center space-y-3">
         <BarChart2 className="w-10 h-10 text-neutral-300 mx-auto" />
         <p className="text-sm text-neutral-500">Full analytics including revenue trends, conversion rates, and attendee demographics.</p>
-        <Button variant="outline" onClick={() => router.push(`/dashboard/events/${id}/insights`)}>
+        <Button variant="outline" onClick={() => router.push(`/organizer/dashboard/events/${id}/insights`)}>
           <BarChart2 className="w-4 h-4 mr-2" />View Full Insights
         </Button>
       </div>

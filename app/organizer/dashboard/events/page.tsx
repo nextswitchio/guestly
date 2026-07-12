@@ -138,7 +138,7 @@ export default function MyEventsPage() {
                     <Link href={`/events/${ev.id}`} className="flex-1 rounded-xl border border-neutral-200 bg-white py-1.5 text-center text-xs font-medium text-neutral-700 transition hover:bg-neutral-50">
                       Preview
                     </Link>
-                    <Link href={`/dashboard/events/${ev.id}/manage`} className="flex-1 rounded-xl bg-lime py-1.5 text-center text-xs font-semibold text-dark transition hover:bg-lime-hover">
+                    <Link href={`/organizer/dashboard/events/${ev.id}/manage`} className="flex-1 rounded-xl bg-lime py-1.5 text-center text-xs font-semibold text-dark transition hover:bg-lime-hover">
                       Manage
                     </Link>
                   </div>
