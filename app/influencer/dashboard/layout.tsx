@@ -15,7 +15,9 @@ const NAV_ITEMS = [
 
 function InfluencerSidebar() {
   const pathname = usePathname();
-  const { open, toggle } = useSidebar();
+  const sidebar = useSidebar();
+  const open = sidebar?.open ?? false;
+  const toggle = sidebar?.toggle ?? (() => {});
   const router = useRouter();
 
   return (
