@@ -1,16 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/components/ui/Icon';
 import Button from '@/components/ui/Button';
 import CloudinaryUploadField from '@/components/ui/CloudinaryUploadField';
 import { useToast } from '@/components/ui/ToastProvider';
 
+interface EventOption {
+  id: string;
+  name: string;
+  date?: string;
+}
+
 export default function NewMerchProductPage() {
   const router = useRouter();
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [events, setEvents] = useState<EventOption[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -19,6 +27,21 @@ export default function NewMerchProductPage() {
     imageUrl: '',
     eventId: '',
   });
+
+  useEffect(() => {
+    fetch('/api/events/my')
+      .then((r) => r.json())
+      .then((d) => {
+        const list = (d.events || []).map((e: any) => ({
+          id: e.id,
+          name: e.name,
+          date: e.date,
+        }));
+        setEvents(list);
+      })
+      .catch(() => {})
+      .finally(() => setEventsLoading(false));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,14 +156,29 @@ export default function NewMerchProductPage() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Event ID (Optional)</label>
-            <input
-              type="text"
-              value={formData.eventId}
-              onChange={(e) => setFormData({ ...formData, eventId: e.target.value })}
-              placeholder="Link to a specific event"
-              className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
-            />
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Associated Event</label>
+            {eventsLoading ? (
+              <div className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 flex items-center">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-lime border-t-transparent" />
+              </div>
+            ) : events.length === 0 ? (
+              <div className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 flex items-center text-sm text-neutral-400">
+                No events found. Create an event first.
+              </div>
+            ) : (
+              <select
+                value={formData.eventId}
+                onChange={(e) => setFormData({ ...formData, eventId: e.target.value })}
+                className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all appearance-none"
+              >
+                <option value="">Select an event</option>
+                {events.map((event) => (
+                  <option key={event.id} value={event.id}>
+                    {event.name}{event.date ? ` — ${new Date(event.date).toLocaleDateString()}` : ''}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4">
