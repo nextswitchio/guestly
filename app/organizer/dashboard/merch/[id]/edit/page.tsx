@@ -14,7 +14,9 @@ interface Product {
   price: number;
   stock: number;
   imageUrl: string;
+  image?: string;
   eventId?: string;
+  event_id?: string;
 }
 
 export default function EditMerchPage({ params }: { params: Promise<{ id: string }> }) {
@@ -42,7 +44,12 @@ export default function EditMerchPage({ params }: { params: Promise<{ id: string
       const response = await fetch(`/api/merch/${id}`);
       if (response.ok) {
         const data = await response.json();
-        setForm(data.product || data);
+        const p = data.product || data;
+        setForm({
+          ...p,
+          imageUrl: p.imageUrl || p.image || '',
+          eventId: p.eventId || p.event_id || '',
+        });
       }
     } catch (error) {
       console.error('Failed to fetch product:', error);
@@ -60,12 +67,15 @@ export default function EditMerchPage({ params }: { params: Promise<{ id: string
       const response = await fetch(`/api/merch/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          image: form.imageUrl || form.image || '',
+        }),
       });
 
       if (response.ok) {
         addToast('Product updated successfully!', { type: 'success' });
-        router.push('/dashboard/merch');
+        router.push('/organizer/dashboard/merch');
       } else {
         const data = await response.json();
         const msg = data.error || 'Failed to update product';
@@ -159,7 +169,7 @@ export default function EditMerchPage({ params }: { params: Promise<{ id: string
               </Button>
               <button
                 type="button"
-                onClick={() => router.push('/dashboard/merch')}
+                onClick={() => router.push('/organizer/dashboard/merch')}
                 className="rounded-xl border border-neutral-200 bg-white px-6 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
               >
                 Cancel

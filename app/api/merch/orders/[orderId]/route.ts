@@ -12,7 +12,7 @@ export async function GET(
     }
 
     const { orderId } = await params;
-    const res = await fetch(`${BACKEND_URL}/api/v1/merch/orders/${orderId}`, {
+    const res = await fetch(`${BACKEND_URL}/api/v1/merchandise/orders/${orderId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 

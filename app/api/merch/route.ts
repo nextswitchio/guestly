@@ -11,24 +11,60 @@ export async function GET(req: NextRequest) {
   const eventId = searchParams.get("eventId");
   const ids = searchParams.get("ids");
   const stats = searchParams.get("stats");
+  const singleId = searchParams.get("id");
 
   if (stats) {
-    return NextResponse.json({
-      totalProducts: 0,
-      unitsSold: 0,
-      revenue: 0,
-      bestSellers: [],
-    });
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/v1/merchandise/my-products`, {
+        headers: getAuthHeaders(req),
+      });
+      if (!res.ok) {
+        return NextResponse.json({ totalProducts: 0, unitsSold: 0, revenue: 0, bestSellers: [] });
+      }
+      const data = await res.json();
+      const products = data.products || [];
+      const totalProducts = products.length;
+      const unitsSold = products.reduce((sum: number, p: any) => sum + (p.sold || 0), 0);
+      const revenue = products.reduce((sum: number, p: any) => sum + (p.price || 0) * (p.sold || 0), 0);
+      return NextResponse.json({ totalProducts, unitsSold, revenue, bestSellers: products.slice(0, 5) });
+    } catch {
+      return NextResponse.json({ totalProducts: 0, unitsSold: 0, revenue: 0, bestSellers: [] });
+    }
   }
 
   if (ids) {
-    return NextResponse.json({ success: true, products: [] });
+    const productIds = ids.split(",");
+    const products = await Promise.all(
+      productIds.map(async (id) => {
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/v1/merchandise/products/${id}`);
+          return res.ok ? res.json() : null;
+        } catch {
+          return null;
+        }
+      })
+    );
+    return NextResponse.json({ success: true, products: products.filter(Boolean) });
+  }
+
+  if (singleId) {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/v1/merchandise/products/${singleId}`);
+      if (!res.ok) {
+        return NextResponse.json({ product: null }, { status: res.status });
+      }
+      const data = await res.json();
+      return NextResponse.json({ product: data });
+    } catch {
+      return NextResponse.json({ product: null }, { status: 503 });
+    }
   }
 
   if (eventId) {
     try {
       const res = await fetch(
-        `${BACKEND_URL}/api/v1/merchandise/events/${eventId}/products?page=${searchParams.get("page") || 1}&page_size=${searchParams.get("page_size") || 20}`
+        `${BACKEND_URL}/api/v1/merchandise/events/${eventId}/products?page=${searchParams.get("page") || 1}&page_size=${searchParams.get("page_size") || 20}`,
+        { headers: getAuthHeaders(req) }
       );
       if (!res.ok) {
         return NextResponse.json({ products: [], total: 0, page: 1, page_count: 1 });
@@ -40,7 +76,18 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ products: [], total: 0, page: 1, page_count: 1 });
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/v1/merchandise/my-products`, {
+      headers: getAuthHeaders(req),
+    });
+    if (!res.ok) {
+      return NextResponse.json({ products: [], total: 0, page: 1, page_count: 1 });
+    }
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json({ products: [], total: 0, page: 1, page_count: 1 });
+  }
 }
 
 export async function POST(req: NextRequest) {

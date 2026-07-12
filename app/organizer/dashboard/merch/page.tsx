@@ -13,7 +13,9 @@ interface MerchProduct {
   stock: number;
   sold: number;
   imageUrl: string;
+  image?: string;
   eventId?: string;
+  event_id?: string;
 }
 
 export default function MerchDashboardPage() {
@@ -30,7 +32,12 @@ export default function MerchDashboardPage() {
       const response = await fetch('/api/merch');
       if (response.ok) {
         const data = await response.json();
-        setProducts(data.products || []);
+        const raw = data.products || [];
+        setProducts(raw.map((p: any) => ({
+          ...p,
+          imageUrl: p.imageUrl || p.image || '',
+          eventId: p.eventId || p.event_id || '',
+        })));
       }
     } catch (error) {
       console.error('Failed to fetch products:', error);
@@ -58,7 +65,7 @@ export default function MerchDashboardPage() {
           </p>
         </div>
         <button
-          onClick={() => router.push('/dashboard/merch/new')}
+            onClick={() => router.push('/organizer/dashboard/merch/new')}
           className="flex items-center gap-2 rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors"
         >
           <Icon name="plus" size={18} />
@@ -105,7 +112,7 @@ export default function MerchDashboardPage() {
             Start selling merchandise for your events
           </p>
           <button
-            onClick={() => router.push('/dashboard/merch/new')}
+          onClick={() => router.push('/organizer/dashboard/merch/new')}
             className="rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors"
           >
             Add Your First Product
@@ -152,13 +159,13 @@ export default function MerchDashboardPage() {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => router.push(`/dashboard/merch/${product.id}/edit`)}
+                    onClick={() => router.push(`/organizer/dashboard/merch/${product.id}/edit`)}
                     className="flex-1 rounded-xl border border-neutral-200 bg-white py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
                   >
                     Edit
                   </button>
                   <button
-                    onClick={() => router.push(`/dashboard/merch/${product.id}/orders`)}
+                    onClick={() => router.push(`/organizer/dashboard/merch/${product.id}/orders`)}
                     className="flex-1 rounded-xl border border-neutral-200 bg-white py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
                   >
                     Orders

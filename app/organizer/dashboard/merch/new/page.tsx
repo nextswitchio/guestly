@@ -37,7 +37,7 @@ export default function NewMerchProductPage() {
 
       if (response.ok) {
         addToast('Product created successfully!', { type: 'success' });
-        router.push('/dashboard/merch');
+        router.push('/organizer/dashboard/merch');
       } else {
         const error = await response.json();
         addToast(error.error || 'Failed to create product', { type: 'error' });
