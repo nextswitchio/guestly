@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, LogOut, LayoutDashboard, User } from "lucide-react";
 import Link from "next/link";
@@ -259,118 +260,121 @@ export default function TopNav() {
         </div>
       </div>
 
-      {/* Mobile Menu - Full-screen overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
-              onClick={() => setIsOpen(false)}
-            />
-            {/* Panel */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-[#0B1D2E] z-50 md:hidden flex flex-col shadow-2xl"
-            >
-              {/* Close button */}
-              <div className="flex justify-end p-4">
-                <button onClick={() => setIsOpen(false)} className="text-white/60 hover:text-white transition-colors">
-                  <X size={24} />
-                </button>
-              </div>
+      {/* Mobile Menu - Portal to body to escape sticky/transform parent */}
+      {typeof window !== "undefined" && createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] md:hidden"
+                onClick={() => setIsOpen(false)}
+              />
+              {/* Panel */}
+              <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-[#0B1D2E] z-[9999] md:hidden flex flex-col shadow-2xl"
+              >
+                {/* Close button */}
+                <div className="flex justify-end p-4">
+                  <button onClick={() => setIsOpen(false)} className="text-white/60 hover:text-white transition-colors">
+                    <X size={24} />
+                  </button>
+                </div>
 
-              {/* Nav links */}
-              <div className="flex-1 px-6 space-y-1 overflow-y-auto">
-                {navLinks.map((link, index) => {
-                  const active = isActive(link.href);
-                  return (
-                    <motion.div
-                      key={link.label}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.05 * index + 0.1 }}
-                    >
+                {/* Nav links */}
+                <div className="flex-1 px-6 space-y-1 overflow-y-auto">
+                  {navLinks.map((link, index) => {
+                    const active = isActive(link.href);
+                    return (
+                      <motion.div
+                        key={link.label}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.05 * index + 0.1 }}
+                      >
+                        <Link
+                          href={link.href}
+                          className={`block text-lg font-medium py-3 px-4 rounded-xl transition-colors ${
+                            active
+                              ? "bg-[#D4FF00]/10 text-[#D4FF00]"
+                              : "text-gray-300 hover:text-white hover:bg-white/5"
+                          }`}
+                          onClick={() => setIsOpen(false)}
+                        >
+                          {link.label}
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                {/* Bottom section */}
+                <div className="p-6 border-t border-white/10">
+                  {loading ? (
+                    <div className="h-10 w-full animate-pulse rounded-xl bg-white/10" />
+                  ) : user ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 px-2">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-[#D4FF00] flex items-center justify-center text-dark text-sm font-bold">
+                            {initials}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-white truncate">{user.display_name || "User"}</p>
+                          <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                        </div>
+                      </div>
                       <Link
-                        href={link.href}
-                        className={`block text-lg font-medium py-3 px-4 rounded-xl transition-colors ${
-                          active
-                            ? "bg-[#D4FF00]/10 text-[#D4FF00]"
-                            : "text-gray-300 hover:text-white hover:bg-white/5"
-                        }`}
+                        href={getDashboardLink()}
+                        className="block w-full rounded-xl bg-[#D4FF00] text-dark font-semibold py-3 text-center text-sm"
                         onClick={() => setIsOpen(false)}
                       >
-                        {link.label}
+                        Dashboard
                       </Link>
-                    </motion.div>
-                  );
-                })}
-              </div>
-
-              {/* Bottom section */}
-              <div className="p-6 border-t border-white/10">
-                {loading ? (
-                  <div className="h-10 w-full animate-pulse rounded-xl bg-white/10" />
-                ) : user ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 px-2">
-                      {avatarUrl ? (
-                        <img src={avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-[#D4FF00] flex items-center justify-center text-dark text-sm font-bold">
-                          {initials}
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">{user.display_name || "User"}</p>
-                        <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                      <div className="flex gap-2">
+                        <Link
+                          href={getProfileLink()}
+                          className="flex-1 rounded-xl border border-white/20 text-white font-medium py-2.5 text-center text-sm hover:bg-white/10"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Profile
+                        </Link>
+                        <button
+                          onClick={() => { handleLogout(); setIsOpen(false); }}
+                          className="flex-1 rounded-xl border border-red-500/30 text-red-400 font-medium py-2.5 text-center text-sm hover:bg-red-500/10"
+                        >
+                          Logout
+                        </button>
                       </div>
                     </div>
-                    <Link
-                      href={getDashboardLink()}
-                      className="block w-full rounded-xl bg-[#D4FF00] text-dark font-semibold py-3 text-center text-sm"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                    <div className="flex gap-2">
-                      <Link
-                        href={getProfileLink()}
-                        className="flex-1 rounded-xl border border-white/20 text-white font-medium py-2.5 text-center text-sm hover:bg-white/10"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        Profile
-                      </Link>
-                      <button
-                        onClick={() => { handleLogout(); setIsOpen(false); }}
-                        className="flex-1 rounded-xl border border-red-500/30 text-red-400 font-medium py-2.5 text-center text-sm hover:bg-red-500/10"
-                      >
-                        Logout
-                      </button>
+                  ) : (
+                    <div className="flex gap-3">
+                      <Button onClick={() => { router.push("/signup"); setIsOpen(false); }} className="flex-1">
+                        Sign Up
+                      </Button>
+                      <Button onClick={() => { router.push("/login"); setIsOpen(false); }} variant="white" className="flex-1">
+                        Sign In
+                      </Button>
                     </div>
-                  </div>
-                ) : (
-                  <div className="flex gap-3">
-                    <Button onClick={() => { router.push("/signup"); setIsOpen(false); }} className="flex-1">
-                      Sign Up
-                    </Button>
-                    <Button onClick={() => { router.push("/login"); setIsOpen(false); }} variant="white" className="flex-1">
-                      Sign In
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+                  )}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </motion.nav>
   );
 }
