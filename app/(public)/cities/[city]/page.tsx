@@ -49,6 +49,10 @@ export default function CityHubPage({ params }: CityPageProps) {
         const cityNameFormatted = decodedCity.charAt(0).toUpperCase() + decodedCity.slice(1);
         setCityName(cityNameFormatted);
 
+        // Set default fallback image
+        const fallbackImage = `/cities/${decodedCity.toLowerCase()}.png`;
+        setCityImage(fallbackImage);
+
         // Fetch city details from catalog to get the image
         try {
           const catalogResponse = await fetch('/api/platform/catalog');
@@ -63,6 +67,7 @@ export default function CityHubPage({ params }: CityPageProps) {
           }
         } catch (error) {
           console.error("Error fetching city catalog:", error);
+          // Fallback image already set above
         }
 
         // Fetch city statistics
