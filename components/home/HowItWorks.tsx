@@ -78,7 +78,7 @@ function StepCard({ step, index }: { step: (typeof steps)[0]; index: number }) {
 
 export function HowItWorks() {
   return (
-    <section className="relative py-24 font-dm sm:py-32 bg-dark overflow-hidden">
+    <section className="relative py-24 font-aeonik sm:py-32 bg-dark overflow-hidden">
       {/* Decorative Blob - Top Right */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8, x: 100 }}

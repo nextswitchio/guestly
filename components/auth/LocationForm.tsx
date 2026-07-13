@@ -34,7 +34,7 @@ export function LocationForm({ onSubmit, loading }: { onSubmit: (data: any) => v
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="font-dm w-112.5 mx-auto"
+      className="font-aeonik w-112.5 mx-auto"
     >
       <h1 className="text-2xl sm:text-4xl font-medium text-dark leading-[100%] mb-2">
         Where are you?

@@ -85,7 +85,7 @@ function SearchContent() {
       <TopNav />
       <main className="flex-1">
         {/* Hero section */}
-        <div className="bg-[#001c24] -mt-[200px] pt-[200px] font-dm">
+        <div className="bg-[#001c24] -mt-[200px] pt-[200px] font-aeonik">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="py-16 md:py-20 text-center">
               <div className="max-w-2xl mx-auto">

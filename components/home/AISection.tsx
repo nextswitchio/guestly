@@ -53,7 +53,7 @@ const glowVariants: Variants = {
 
 const AISection = () => {
   return (
-    <div className="px-4 sm:px-6 lg:px-8 bg-white font-dm">
+    <div className="px-4 sm:px-6 lg:px-8 bg-white font-aeonik">
       <motion.section
         variants={containerVariants}
         initial="hidden"

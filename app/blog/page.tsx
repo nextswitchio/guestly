@@ -56,7 +56,7 @@ export default function BlogPage() {
   return (
     <div className="bg-white">
       {/* Hero — using PageHeader component, no buttons */}
-      <header className="relative bg-[#001c24] -mt-[200px] pt-[200px] font-dm selection:bg-lime selection:text-[#001C24]">
+      <header className="relative bg-[#001c24] -mt-[200px] pt-[200px] font-aeonik selection:bg-lime selection:text-[#001C24]">
         <div className="absolute inset-0">
           <div
             className="absolute inset-0 bg-cover bg-bottom bg-no-repeat"

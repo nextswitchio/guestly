@@ -122,7 +122,7 @@ export default function MapSection() {
                 closeButton={false}
                 className="custom-popup"
               >
-                <div className="text-center font-dm">
+                <div className="text-center font-aeonik">
                   <p className="font-bold text-slate-900 text-base">{city.name}</p>
                   <p className="text-xs text-slate-500">{city.country}</p>
                   <p className="mt-1 text-sm font-semibold text-lime">{city.events} events</p>

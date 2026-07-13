@@ -43,7 +43,7 @@ function VerifyContent() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="font-dm max-w-md mx-auto text-center"
+      className="font-aeonik max-w-md mx-auto text-center"
     >
       {status === "verifying" && (
         <div>
@@ -95,7 +95,7 @@ function VerifyContent() {
 export default function VerifyEmailPage() {
   return (
     <Suspense fallback={
-      <div className="font-dm max-w-md mx-auto text-center">
+      <div className="font-aeonik max-w-md mx-auto text-center">
         <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
           <svg className="animate-spin w-8 h-8 text-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

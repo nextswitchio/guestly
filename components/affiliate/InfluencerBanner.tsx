@@ -11,7 +11,7 @@ export function InfluencerBanner() {
   const bottomRow = [...bottomRowFaces, ...bottomRowFaces];
 
   return (
-    <section className="relative h-80 sm:h-96 lg:h-143.5 overflow-hidden font-dm">
+    <section className="relative h-80 sm:h-96 lg:h-143.5 overflow-hidden font-aeonik">
       {/* Image Grid with sliding rows */}
       <div className="absolute inset-0 flex flex-col">
         {/* Top row - slides LEFT */}

@@ -10,7 +10,7 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen bg-white flex w-full font-dm p-4 auth-light">
+    <div className="min-h-screen bg-white flex w-full font-aeonik p-4 auth-light">
       {/* Left Content */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}

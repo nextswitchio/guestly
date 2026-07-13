@@ -42,7 +42,7 @@ const itemVariants: Variants = {
 
 export function MediaKits() {
   return (
-    <section className="py-20 sm:py-28 bg-white font-dm">
+    <section className="py-20 sm:py-28 bg-white font-aeonik">
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
         <motion.div
           variants={containerVariants}

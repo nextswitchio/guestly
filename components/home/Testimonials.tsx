@@ -58,7 +58,7 @@ export function Testimonials() {
   };
 
   return (
-    <section className="pt-20 sm:pt-28 pb-20 sm:pb-28 bg-gray-50 font-dm overflow-hidden">
+    <section className="pt-20 sm:pt-28 pb-20 sm:pb-28 bg-gray-50 font-aeonik overflow-hidden">
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div

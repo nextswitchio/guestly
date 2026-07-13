@@ -146,7 +146,7 @@ export default function VendorOnboarding() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="font-dm max-w-112.5 mx-auto"
+        className="font-aeonik max-w-112.5 mx-auto"
       >
         <div className="flex items-center gap-2 mb-6">
           {[1, 2, 3].map(s => (

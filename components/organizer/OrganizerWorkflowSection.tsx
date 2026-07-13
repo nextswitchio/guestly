@@ -79,7 +79,7 @@ function StepCard({
 
 export function OrganizerWorkflowSection() {
   return (
-    <section className="relative py-20 sm:py-28 lg:py-32 font-dm bg-white">
+    <section className="relative py-20 sm:py-28 lg:py-32 font-aeonik bg-white">
       <div className="relative z-10 mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div

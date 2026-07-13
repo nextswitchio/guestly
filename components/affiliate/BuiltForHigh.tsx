@@ -6,7 +6,7 @@ import { setupfeatures } from "@/utils/constant";
 
 const BuiltForHigh = () => {
   return (
-    <section className="py-10 font-dm">
+    <section className="py-10 font-aeonik">
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div

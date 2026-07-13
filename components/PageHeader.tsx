@@ -60,7 +60,7 @@ export function PageHeader({
   pWidth,
 }: PageHeaderProps) {
   return (
-    <header className="min-h-screen text-white font-dm selection:bg-[#D4FF00] selection:text-dark">
+    <header className="min-h-screen text-white font-aeonik selection:bg-[#D4FF00] selection:text-dark">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <div
@@ -72,7 +72,7 @@ export function PageHeader({
       </div>
 
       {/* Content */}
-      <div className="relative max-w-360 mx-auto flex items-start overflow-hidden font-dm px-4 mb-0 sm:px-6 lg:px-8">
+      <div className="relative max-w-360 mx-auto flex items-start overflow-hidden font-aeonik px-4 mb-0 sm:px-6 lg:px-8">
         {/* Content */}
         <div className={`relative z-10 w-full ${width} pt-28 sm:pt-32 pb-12 sm:pb-10`}>
             <motion.div

@@ -136,7 +136,7 @@ export default function SignupPage() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.5 }}
-          className="font-dm max-w-112.5 mx-auto text-center"
+          className="font-aeonik max-w-112.5 mx-auto text-center"
         >
           <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blue-50 flex items-center justify-center">
             <Mail className="w-8 h-8 text-[#012E3B]" />

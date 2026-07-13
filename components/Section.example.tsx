@@ -49,7 +49,7 @@ export function DarkSectionExample() {
 // Example 4: Section with custom className
 export function CustomClassSectionExample() {
   return (
-    <Section className="py-10 sm:py-28 font-dm">
+    <Section className="py-10 sm:py-28 font-aeonik">
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-bold">Custom Styled Section</h2>
         <p className="mt-4">This section has custom padding and font.</p>

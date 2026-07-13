@@ -72,7 +72,7 @@ export default function Footer() {
   const hasAppLinks = appLinks.attendee.android || appLinks.attendee.ios || appLinks.influencer.android || appLinks.influencer.ios;
 
   return (
-    <footer className="bg-dark text-white overflow-hidden relative py-20 sm:py-28 font-dm">
+    <footer className="bg-dark text-white overflow-hidden relative py-20 sm:py-28 font-aeonik">
       <div className="absolute bg-[url(/herobg.jpg)]  inset-0 bg-cover bg-bottom bg-no-repeat" />
       <div className="absolute inset-0 bg-[#001C24E5]" />
       <div className="absolute inset-0 bg-linear-to-b from-[#03141900] to-[#03151A]" />
