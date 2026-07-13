@@ -209,28 +209,29 @@ export default function CityHubPage({ params }: CityPageProps) {
         className="mb-8 overflow-hidden rounded-2xl relative min-h-[400px]"
       >
         {/* Background Image */}
-        <div className="absolute inset-0">
-          {cityImage ? (
-            <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ 
-                backgroundImage: `url(${cityImage})`,
-              }}
-            />
-          ) : (
-            <div className="absolute inset-0 bg-dark" />
-          )}
-          {/* Dark overlay */}
-          <div className="absolute inset-0 bg-[#001C24]/80" />
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-dark/50 via-dark/70 to-dark" />
-          {/* Decorative gradient orbs */}
-          <div className="absolute top-0 right-0 h-72 w-72 bg-lime/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-          <div className="absolute bottom-0 left-0 h-64 w-64 bg-lime/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
-        </div>
+        {cityImage ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ 
+              backgroundImage: `url(${cityImage})`,
+            }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-dark" />
+        )}
+        
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-[#001C24]/80" />
+        
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-dark/50 via-dark/70 to-dark" />
+        
+        {/* Decorative gradient orbs */}
+        <div className="absolute top-0 right-0 h-72 w-72 bg-lime/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 h-64 w-64 bg-lime/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
         
         {/* Content */}
-        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between p-6 sm:p-8">
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between p-6 sm:p-8 z-10">
           <div>
             <h1 className="mb-2 text-3xl font-bold tracking-tight sm:text-4xl text-white">
               Events in {cityName}
