@@ -34,6 +34,12 @@ export const metadata: Metadata = {
   title: "Guestly — Discover & Organise Events",
   description:
     "Discover, attend, and organise unforgettable events across Africa.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+  },
 };
 
 export default function RootLayout({
