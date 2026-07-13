@@ -22,6 +22,7 @@ interface CityPageProps {
 
 export default function CityHubPage({ params }: CityPageProps) {
   const [cityName, setCityName] = React.useState<string>("");
+  const [cityImage, setCityImage] = React.useState<string>("");
   const [events, setEvents] = React.useState<Event[]>([]);
   const [stats, setStats] = React.useState<CityStats | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -45,7 +46,24 @@ export default function CityHubPage({ params }: CityPageProps) {
       try {
         const resolvedParams = await params;
         const decodedCity = decodeURIComponent(resolvedParams.city);
-        setCityName(decodedCity.charAt(0).toUpperCase() + decodedCity.slice(1));
+        const cityNameFormatted = decodedCity.charAt(0).toUpperCase() + decodedCity.slice(1);
+        setCityName(cityNameFormatted);
+
+        // Fetch city details from catalog to get the image
+        try {
+          const catalogResponse = await fetch('/api/platform/catalog');
+          if (catalogResponse.ok) {
+            const catalogData = await catalogResponse.json();
+            const cityData = catalogData.cities?.find(
+              (c: any) => c.name.toLowerCase() === decodedCity.toLowerCase() || c.slug.toLowerCase() === decodedCity.toLowerCase()
+            );
+            if (cityData?.image) {
+              setCityImage(cityData.image);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching city catalog:", error);
+        }
 
         // Fetch city statistics
         const statsResponse = await fetch(`/api/cities/${encodeURIComponent(decodedCity.toLowerCase())}/stats`);
@@ -183,14 +201,32 @@ export default function CityHubPage({ params }: CityPageProps) {
       {/* City Hero Section */}
       <div
         ref={headerRef}
-        className={`mb-8 overflow-hidden rounded-2xl relative transition-all duration-700 bg-dark ${
+        className={`mb-8 overflow-hidden rounded-2xl relative min-h-[400px] transition-all duration-700 ${
           headerVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
         }`}
       >
+        {/* Background Image */}
         <div className="absolute inset-0">
+          {cityImage ? (
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ 
+                backgroundImage: `url(${cityImage})`,
+              }}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-dark" />
+          )}
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-[#001C24]/80" />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-dark/50 via-dark/70 to-dark" />
+          {/* Decorative gradient orbs */}
           <div className="absolute top-0 right-0 h-72 w-72 bg-lime/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
           <div className="absolute bottom-0 left-0 h-64 w-64 bg-lime/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
         </div>
+        
+        {/* Content */}
         <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between p-6 sm:p-8">
           <div>
             <h1 className="mb-2 text-3xl font-bold tracking-tight sm:text-4xl text-white">
