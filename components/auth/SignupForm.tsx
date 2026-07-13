@@ -42,7 +42,7 @@ export function SignupForm({ onSubmit, loginHref = "/login", loading = false }: 
   const inputClasses = (field: string) =>
     `w-full p-3 rounded-lg border text-sm transition-all duration-200
      ${errors[field] ? "border-red-400 bg-red-50" : "border-[#E5E7EB] hover:border-gray-300 focus:border-dark "}
-     outline-none text-sm placeholder:text-[#9CA3AF] font-medium`;
+     outline-none text-sm placeholder:text-[#9CA3AF] font-medium text-dark`;
 
   return (
     <motion.div
