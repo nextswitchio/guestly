@@ -69,9 +69,7 @@ export default function AdminLoginPage() {
       >
         <div className="text-center mb-10">
           <Link href="/" className="inline-flex items-center gap-3 group mb-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-600 text-lg font-black text-white shadow-xl shadow-primary-500/20 transition-transform group-hover:scale-105">
-              G
-            </div>
+            <img src="/assets/favicon.svg" alt="Guestly" className="h-12 w-12" />
             <span className="text-2xl font-black tracking-tight text-[var(--foreground)] uppercase">Guestly Admin</span>
           </Link>
           <h1 className="text-3xl font-black text-[var(--foreground)] tracking-tight">System Control</h1>

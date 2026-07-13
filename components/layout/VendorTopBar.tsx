@@ -38,7 +38,7 @@ export default function VendorTopBar() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <span className="text-sm font-bold text-neutral-900">Guestly</span>
+          <img src="/assets/logo-dark.svg" alt="Guestly" className="h-4" />
         </div>
         <div className="flex items-center gap-3 ml-auto">
           <NotificationBell />

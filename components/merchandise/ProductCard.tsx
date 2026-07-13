@@ -6,6 +6,23 @@ import Button from "@/components/ui/Button";
 import FulfillmentBadge from "@/components/merchandise/FulfillmentBadge";
 import type { Product } from "@/types/merchandise";
 
+function isImageUrl(src: string) {
+  return /^https?:\/\//i.test(src);
+}
+
+function ProductImage({ src, alt }: { src: string; alt: string }) {
+  if (isImageUrl(src)) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className="h-full w-full object-cover"
+      />
+    );
+  }
+  return <>{src}</>;
+}
+
 /**
  * ProductCard Component
  * 
@@ -160,7 +177,7 @@ export default function ProductCard({
           href={`/events/${eventId}/store/${product.id}`}
           className="relative flex h-48 items-center justify-center overflow-hidden bg-gradient-to-br from-neutral-50 to-neutral-100 text-7xl transition-all duration-300 group-hover:scale-105"
         >
-          {product.image}
+          <ProductImage src={product.image} alt={product.name} />
           {isOutOfStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
               <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-neutral-900">
@@ -171,7 +188,7 @@ export default function ProductCard({
         </Link>
       ) : (
         <div className="relative flex h-48 items-center justify-center overflow-hidden bg-gradient-to-br from-neutral-50 to-neutral-100 text-7xl">
-          {product.image}
+          <ProductImage src={product.image} alt={product.name} />
           {isOutOfStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
               <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-neutral-900">

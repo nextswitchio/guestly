@@ -36,7 +36,9 @@ function InfluencerSidebar() {
         }`}
       >
         <div className="flex h-16 items-center gap-2 px-6 border-b border-gray-100">
-          <Link href="/" className="text-xl font-bold text-dark">Guestly.</Link>
+          <Link href="/" className="flex items-center">
+            <img src="/assets/logo-dark.svg" alt="Guestly" className="h-6" />
+          </Link>
           <span className="ml-2 rounded-full bg-lime/10 px-2.5 py-0.5 text-xs font-semibold text-dark">Influencer</span>
         </div>
 

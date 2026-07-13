@@ -35,8 +35,8 @@ export default function MarketplaceLayout({ children }: { children: React.ReactN
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-8">
-              <Link href="/marketplace" className="text-xl font-black text-white tracking-tight">
-                Guestly<span className="text-lime">.</span>
+              <Link href="/marketplace" className="flex items-center">
+                <img src="/assets/logo.svg" alt="Guestly" className="h-6" />
               </Link>
               <nav className="hidden md:flex items-center gap-1">
                 {navLinks.map((link) => {

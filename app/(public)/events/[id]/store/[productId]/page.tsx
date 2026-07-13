@@ -131,8 +131,12 @@ export default function ProductDetailPage() {
 
         <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-2">
           {/* Image */}
-          <div className="flex aspect-square items-center justify-center rounded-2xl border border-neutral-100 bg-white text-8xl shadow-sm">
-            {product.image}
+          <div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-neutral-100 bg-white text-8xl shadow-sm">
+            {/^https?:\/\//i.test(product.image) ? (
+              <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+            ) : (
+              product.image
+            )}
           </div>
 
           {/* Details */}

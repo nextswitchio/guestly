@@ -13,6 +13,7 @@ import { RecentPurchasePopup } from "@/components/events/RecentPurchasePopup";
 import { SocialShareButtons } from "@/components/events/SocialShareButtons";
 import { EventReviews } from "@/components/events/EventReviews";
 import FollowButton from "@/components/users/FollowButton";
+import { slugify } from "@/lib/utils";
 
 interface EventDetailClientProps {
   event: Event;
@@ -178,7 +179,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
           <SocialShareButtons
             eventId={event.id}
             eventTitle={event.title}
-            eventUrl={`${process.env.NEXT_PUBLIC_APP_URL || ""}/events/${event.id}`}
+            eventUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/events/${slugify(event.title)}`}
           />
         </div>
       </div>

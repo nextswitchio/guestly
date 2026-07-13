@@ -6,6 +6,64 @@
   --color-lime: #c7fd02;
   --color-lime-hover: #e0ff33;
 
+  --color-primary-50: #f9ffcc;
+  --color-primary-100: #f3ff99;
+  --color-primary-200: #e8ff33;
+  --color-primary-300: #c7fd02;
+  --color-primary-400: #a8cc30;
+  --color-primary-500: #c7fd02;
+  --color-primary-600: #86a320;
+  --color-primary-700: #637a14;
+  --color-primary-800: #3f500a;
+  --color-primary-900: #1a2005;
+  --color-primary-950: #0d1002;
+
+  --color-success-50: #edf7ee;
+  --color-success-100: #c9e9cb;
+  --color-success-200: #96d49a;
+  --color-success-300: #5eba63;
+  --color-success-400: #30a63b;
+  --color-success-500: #248232;
+  --color-success-600: #1c6e28;
+  --color-success-700: #155920;
+  --color-success-800: #0e4518;
+  --color-success-900: #083011;
+  --color-success-950: #041a09;
+
+  --color-danger-50: #fdeced;
+  --color-danger-100: #f9cdd0;
+  --color-danger-200: #f39ba0;
+  --color-danger-300: #ec676f;
+  --color-danger-400: #e64450;
+  --color-danger-500: #DF2935;
+  --color-danger-600: #c01f2a;
+  --color-danger-700: #9c1621;
+  --color-danger-800: #780f18;
+  --color-danger-900: #540a11;
+  --color-danger-950: #2d0508;
+
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+
+  --color-neutral-50: #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
+
   --font-inter: "Inter", sans-serif;
   --font-dm: "DM Sans", sans-serif;
 
