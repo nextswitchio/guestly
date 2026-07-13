@@ -9,6 +9,19 @@ import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import { formatCurrency } from "@/lib/utils";
 
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+function isImageUrl(src: string) {
+  return /^https?:\/\//i.test(src);
+}
+
+function CartItemImage({ image, className = "" }: { image: string; className?: string }) {
+  if (isImageUrl(image)) {
+    return <img src={image} alt="" className={`object-cover ${className}`} />;
+  }
+  return <span className="text-2xl">{image}</span>;
+}
+
 // ── Animations ──────────────────────────────────────────────────────────────
 
 const fadeUp = {
@@ -285,8 +298,8 @@ export default function CartPage() {
                                 className="flex items-center gap-4 rounded-2xl bg-white/5 border border-white/5 p-4"
                               >
                                 {/* Product image */}
-                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/5 text-2xl">
-                                  {item.image}
+                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/5">
+                                  <CartItemImage image={item.image} className="h-14 w-14 rounded-2xl" />
                                 </div>
 
                                 {/* Info */}
@@ -449,8 +462,8 @@ export default function CartPage() {
                                 className="flex justify-between items-center"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="h-10 w-10 rounded-2xl bg-white/5 flex items-center justify-center text-lg">
-                                    {item.image}
+                                  <div className="h-10 w-10 rounded-2xl bg-white/5 flex items-center justify-center">
+                                    <CartItemImage image={item.image} className="h-10 w-10 rounded-2xl" />
                                   </div>
                                   <div>
                                     <p className="text-sm font-bold text-white">
