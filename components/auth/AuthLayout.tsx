@@ -16,7 +16,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full flex h-auto items-center justify-center "
+        className="w-full flex h-auto items-start justify-center"
       >
         <div className="max-w-112.5 mx-auto w-full">
           {/* Logo */}
@@ -31,7 +31,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
               whileTap={{ scale: 0.95 }}
             >
               <Link href="/" className="flex items-center gap-1">
-                <img src={getImageSrc("logo-dark.svg")} alt="" />
+                <img src={getImageSrc("logo-dark.svg")} alt="" className="w-28" />
               </Link>
             </motion.div>
           </motion.div>

@@ -123,7 +123,7 @@ const AISection = () => {
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
             className="w-full sm:w-auto"
           >
-            <Link href="/dashboard/ai-assistant"><Button variant="primary">Try AI Assistant</Button></Link>
+            <Link href="/organizer/dashboard/ai-assistant"><Button variant="primary">Try AI Assistant</Button></Link>
           </motion.div>
 
           <motion.div

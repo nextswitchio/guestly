@@ -18,6 +18,17 @@ import QRDisplay from "@/components/tickets/QRDisplay";
 import type { ShippingAddress } from "@/types/merchandise";
 import { formatCurrency } from "@/lib/utils";
 
+function isImageUrl(src: string) {
+  return /^https?:\/\//i.test(src);
+}
+
+function CheckoutItemImage({ image, className = "" }: { image: string; className?: string }) {
+  if (isImageUrl(image)) {
+    return <img src={image} alt="" className={`object-cover ${className}`} />;
+  }
+  return <span className="text-2xl">{image}</span>;
+}
+
 type Order = {
   id: string;
   eventId: string;
@@ -721,7 +732,7 @@ function CheckoutContent() {
                             {cartItems.map((it, i) => (
                                 <div key={i} className="flex justify-between items-center">
                                   <div className="flex items-center gap-4">
-                                    <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center text-xl">{it.image}</div>
+                                    <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center overflow-hidden"><CheckoutItemImage image={it.image} className="h-12 w-12 rounded-2xl" /></div>
                                     <div>
                                       <p className="text-sm font-black text-white">{it.name}</p>
                                       <p className="text-[10px] font-black uppercase tracking-widest text-navy-400">{it.size || 'One Size'} • ×{it.quantity}</p>
@@ -735,7 +746,7 @@ function CheckoutContent() {
                           {!isCombined && isMerch && cartItems.map((it, i) => (
                             <div key={i} className="flex justify-between items-center">
                               <div className="flex items-center gap-4">
-                                <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center text-xl">{it.image}</div>
+                                <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center overflow-hidden"><CheckoutItemImage image={it.image} className="h-12 w-12 rounded-2xl" /></div>
                                 <div>
                                   <p className="text-sm font-black text-white">{it.name}</p>
                                   <p className="text-[10px] font-black uppercase tracking-widest text-navy-400">{it.size || 'One Size'} • ×{it.quantity}</p>
