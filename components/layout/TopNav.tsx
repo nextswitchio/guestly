@@ -11,8 +11,8 @@ import { clearAllCookies } from "@/lib/clearCookies";
 import { MenuIcon } from "@/utils/icons";
 
 const navLinks = [
-  { label: "Home", href: "/" },
   { label: "Discover Events", href: "/explore" },
+  { label: "Marketplace", href: "/marketplace" },
   { label: "Vendors", href: "/vendors" },
   { label: "Organisers", href: "/organisers" },
   { label: "Affiliate", href: "/affiliates" },
