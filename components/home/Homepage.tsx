@@ -1,6 +1,7 @@
 "use client";
 import { PageHeader } from "@/components/PageHeader";
 import AISection from "./AISection";
+import AppDownloadSection from "./AppDownloadSection";
 import { BrowseByCity } from "./BrowseByCity";
 import { ExploreByCategory } from "./ExploreByCategory";
 import { FeaturedEvents } from "./FeaturedEvent";
@@ -37,6 +38,7 @@ const Homepage = () => {
       <HowItWorks />
       <WhyChooseGuestly />
       <AISection />
+      <AppDownloadSection />
       <VirtualEvents />
       <Testimonials />
     </>

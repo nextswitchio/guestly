@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import Link from "next/link";
 import Button from "@/components/Button";
@@ -57,6 +57,20 @@ const linkVariants: Variants = {
 };
 
 export default function Footer() {
+  const [appLinks, setAppLinks] = useState({
+    attendee: { android: "", ios: "" },
+    influencer: { android: "", ios: "" },
+  });
+
+  useEffect(() => {
+    fetch("/api/public/app-links")
+      .then((r) => r.json())
+      .then(setAppLinks)
+      .catch(() => {});
+  }, []);
+
+  const hasAppLinks = appLinks.attendee.android || appLinks.attendee.ios || appLinks.influencer.android || appLinks.influencer.ios;
+
   return (
     <footer className="bg-dark text-white overflow-hidden relative py-20 sm:py-28 font-dm">
       <div className="absolute bg-[url(/herobg.jpg)]  inset-0 bg-cover bg-bottom bg-no-repeat" />
@@ -168,7 +182,7 @@ export default function Footer() {
             </motion.div>
 
             {/* Link Columns */}
-            <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
               {/* Discover */}
               <motion.div
                 variants={containerVariants}
@@ -249,6 +263,93 @@ export default function Footer() {
                   ))}
                 </ul>
               </motion.div>
+
+              {/* Get the App */}
+              {hasAppLinks && (
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
+                  <motion.h4
+                    variants={itemVariants}
+                    className="text-sm sm:text-base font-semibold text-white uppercase tracking-widest mb-4"
+                  >
+                    Get the App
+                  </motion.h4>
+                  <div className="space-y-3">
+                    {appLinks.attendee.android && (
+                      <motion.a
+                        variants={itemVariants}
+                        href={appLinks.attendee.android}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg px-3 py-2.5 transition-colors"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="currentColor">
+                          <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.302 1.33a1 1 0 0 1 0 1.722l-2.302 1.33-2.535-2.535 2.535-2.847zM5.864 2.658L16.8 9.09l-2.302 2.302L5.864 2.658z" />
+                        </svg>
+                        <div className="text-left">
+                          <p className="text-[10px] text-white/50 leading-none">Attendee on</p>
+                          <p className="text-xs font-medium text-white/85">Google Play</p>
+                        </div>
+                      </motion.a>
+                    )}
+                    {appLinks.attendee.ios && (
+                      <motion.a
+                        variants={itemVariants}
+                        href={appLinks.attendee.ios}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg px-3 py-2.5 transition-colors"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="currentColor">
+                          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                        </svg>
+                        <div className="text-left">
+                          <p className="text-[10px] text-white/50 leading-none">Attendee on</p>
+                          <p className="text-xs font-medium text-white/85">App Store</p>
+                        </div>
+                      </motion.a>
+                    )}
+                    {appLinks.influencer.android && (
+                      <motion.a
+                        variants={itemVariants}
+                        href={appLinks.influencer.android}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg px-3 py-2.5 transition-colors"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="currentColor">
+                          <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.302 1.33a1 1 0 0 1 0 1.722l-2.302 1.33-2.535-2.535 2.535-2.847zM5.864 2.658L16.8 9.09l-2.302 2.302L5.864 2.658z" />
+                        </svg>
+                        <div className="text-left">
+                          <p className="text-[10px] text-white/50 leading-none">Influencer on</p>
+                          <p className="text-xs font-medium text-white/85">Google Play</p>
+                        </div>
+                      </motion.a>
+                    )}
+                    {appLinks.influencer.ios && (
+                      <motion.a
+                        variants={itemVariants}
+                        href={appLinks.influencer.ios}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg px-3 py-2.5 transition-colors"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="currentColor">
+                          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                        </svg>
+                        <div className="text-left">
+                          <p className="text-[10px] text-white/50 leading-none">Influencer on</p>
+                          <p className="text-xs font-medium text-white/85">App Store</p>
+                        </div>
+                      </motion.a>
+                    )}
+                  </div>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>

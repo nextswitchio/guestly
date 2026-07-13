@@ -81,6 +81,12 @@ type PlatformSettings = {
   // Affiliate
   affiliateCommissionRate: string;
   affiliateMinPayout: string;
+
+  // App Downloads
+  appAttendeeAndroidUrl: string;
+  appAttendeeIosUrl: string;
+  appInfluencerAndroidUrl: string;
+  appInfluencerIosUrl: string;
 };
 
 const DEFAULT_SETTINGS: PlatformSettings = {
@@ -145,6 +151,11 @@ const DEFAULT_SETTINGS: PlatformSettings = {
 
   affiliateCommissionRate: '10',
   affiliateMinPayout: '2000',
+
+  appAttendeeAndroidUrl: '',
+  appAttendeeIosUrl: '',
+  appInfluencerAndroidUrl: '',
+  appInfluencerIosUrl: '',
 };
 
 export default function AdminSettingsPage() {
@@ -210,6 +221,7 @@ export default function AdminSettingsPage() {
     { id: 'affiliates', label: 'Affiliates', icon: 'megaphone' },
     { id: 'security', label: 'Security', icon: 'shield' },
     { id: 'maintenance', label: 'Maintenance', icon: 'alert-triangle' },
+    { id: 'appdownloads', label: 'App Downloads', icon: 'download' },
   ];
 
   if (loading) {
@@ -505,6 +517,27 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
             </Card>
+          )}
+
+          {activeSection === 'appdownloads' && (
+            <>
+              <Card className="p-6 sm:p-8">
+                <h2 className="text-xl font-semibold mb-2">Attendee App</h2>
+                <p className="text-sm text-slate-500 mb-6">Store links for the Attendee mobile app. Use deep links (e.g. <code className="text-xs bg-slate-100 px-1 py-0.5 rounded">guestly://</code>) or standard store URLs.</p>
+                <div className="space-y-5">
+                  <Input label="Google Play Store URL" type="url" value={settings.appAttendeeAndroidUrl} onChange={e => update('appAttendeeAndroidUrl', e.target.value)} placeholder="https://play.google.com/store/apps/details?id=com.guestly.attendee" />
+                  <Input label="Apple App Store URL" type="url" value={settings.appAttendeeIosUrl} onChange={e => update('appAttendeeIosUrl', e.target.value)} placeholder="https://apps.apple.com/app/guestly/id..." />
+                </div>
+              </Card>
+              <Card className="p-6 sm:p-8">
+                <h2 className="text-xl font-semibold mb-2">Influencer App</h2>
+                <p className="text-sm text-slate-500 mb-6">Store links for the Influencer mobile app.</p>
+                <div className="space-y-5">
+                  <Input label="Google Play Store URL" type="url" value={settings.appInfluencerAndroidUrl} onChange={e => update('appInfluencerAndroidUrl', e.target.value)} placeholder="https://play.google.com/store/apps/details?id=com.guestly.influencer" />
+                  <Input label="Apple App Store URL" type="url" value={settings.appInfluencerIosUrl} onChange={e => update('appInfluencerIosUrl', e.target.value)} placeholder="https://apps.apple.com/app/guestly-influencer/id..." />
+                </div>
+              </Card>
+            </>
           )}
         </div>
       </div>
