@@ -183,35 +183,32 @@ export default function CityHubPage({ params }: CityPageProps) {
       {/* City Hero Section */}
       <div
         ref={headerRef}
-        className={`mb-8 overflow-hidden rounded-2xl relative transition-all duration-700 ${
+        className={`mb-8 overflow-hidden rounded-2xl relative transition-all duration-700 bg-dark ${
           headerVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
         }`}
-        style={{
-          backgroundColor: '#001c24',
-        }}
       >
         <div className="absolute inset-0">
-          <div className="absolute top-0 right-0 h-72 w-72 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" style={{ backgroundColor: 'rgba(199, 253, 2, 0.1)' }} />
-          <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" style={{ backgroundColor: 'rgba(199, 253, 2, 0.1)' }} />
+          <div className="absolute top-0 right-0 h-72 w-72 bg-lime/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 h-64 w-64 bg-lime/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
         </div>
         <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between p-6 sm:p-8">
           <div>
-            <h1 className="mb-2 text-3xl font-bold tracking-tight sm:text-4xl" style={{ color: '#ffffff' }}>
+            <h1 className="mb-2 text-3xl font-bold tracking-tight sm:text-4xl text-white">
               Events in {cityName}
             </h1>
-            <p className="text-base sm:text-lg" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <p className="text-base sm:text-lg text-white/80">
               Discover amazing events happening in your city
             </p>
           </div>
           {stats && (
             <div className="flex gap-3 sm:gap-4">
-              <div className="rounded-lg px-4 py-3 backdrop-blur-sm border" style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
-                <div className="text-2xl font-bold" style={{ color: '#c7fd02' }}>{stats.upcomingEvents}</div>
-                <div className="text-xs sm:text-sm" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Upcoming</div>
+              <div className="rounded-lg px-4 py-3 backdrop-blur-sm border bg-white/15 border-white/10">
+                <div className="text-2xl font-bold text-lime">{stats.upcomingEvents}</div>
+                <div className="text-xs sm:text-sm text-white/70">Upcoming</div>
               </div>
-              <div className="rounded-lg px-4 py-3 backdrop-blur-sm border" style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
-                <div className="text-2xl font-bold" style={{ color: '#c7fd02' }}>{stats.totalEvents}</div>
-                <div className="text-xs sm:text-sm" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Total Events</div>
+              <div className="rounded-lg px-4 py-3 backdrop-blur-sm border bg-white/15 border-white/10">
+                <div className="text-2xl font-bold text-lime">{stats.totalEvents}</div>
+                <div className="text-xs sm:text-sm text-white/70">Total Events</div>
               </div>
             </div>
           )}
