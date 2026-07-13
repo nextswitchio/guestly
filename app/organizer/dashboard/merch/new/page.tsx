@@ -34,7 +34,7 @@ export default function NewMerchProductPage() {
       .then((d) => {
         const list = (d.events || []).map((e: any) => ({
           id: e.id,
-          name: e.name,
+          name: e.title || e.name,
           date: e.date,
         }));
         setEvents(list);
