@@ -206,9 +206,7 @@ export default function CityHubPage({ params }: CityPageProps) {
       {/* City Hero Section */}
       <div
         ref={headerRef}
-        className={`mb-8 overflow-hidden rounded-2xl relative min-h-[400px] transition-all duration-700 ${
-          headerVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-        }`}
+        className="mb-8 overflow-hidden rounded-2xl relative min-h-[400px]"
       >
         {/* Background Image */}
         <div className="absolute inset-0">
@@ -258,12 +256,7 @@ export default function CityHubPage({ params }: CityPageProps) {
 
       {/* City Statistics */}
       {stats && typeof stats.totalAttendees === "number" && (
-        <div
-          ref={statsRef}
-          className={`mb-8 transition-all duration-700 delay-100 ${
-            statsVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-          }`}
-        >
+        <div className="mb-8">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="rounded-2xl border border-slate-100 bg-white p-4 sm:p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
               <div className="mb-2 flex items-center gap-2">
@@ -452,13 +445,7 @@ export default function CityHubPage({ params }: CityPageProps) {
         ) : (
           <div ref={eventsGridRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {events.map((event, index) => (
-              <div
-                key={event.id}
-                className={`transition-all duration-500 ${
-                  eventsVisible[index] ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-                }`}
-                style={{ transitionDelay: `${index * 50}ms` }}
-              >
+              <div key={event.id}>
                 <EventCard
                   id={event.id}
                   title={event.title}
