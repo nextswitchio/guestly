@@ -16,7 +16,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full flex h-auto items-start justify-center"
+        className="w-full flex h-full items-center justify-center"
       >
         <div className="max-w-112.5 mx-auto w-full">
           {/* Logo */}
