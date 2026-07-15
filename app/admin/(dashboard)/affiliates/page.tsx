@@ -217,9 +217,9 @@ export default function AdminAffiliatesPage() {
     }
 
     loadData().catch((loadError) => {
-      console.error("Failed to fetch affiliates:", loadError);
+      console.error("Failed to fetch influencers:", loadError);
       if (active) {
-        setError("Could not load affiliates from the database.");
+        setError("Could not load influencers from the database.");
         setLoading(false);
       }
     });
@@ -266,13 +266,13 @@ export default function AdminAffiliatesPage() {
       });
       const data = await response.json();
       if (!data.success) {
-        throw new Error(data.error?.detail || data.error?.message || "Failed to save affiliate");
+        throw new Error(data.error?.detail || data.error?.message || "Failed to save influencer");
       }
       applySelectedAffiliate(data.data);
-      addToast('Affiliate settings saved successfully!', { type: 'success' });
+      addToast('Influencer settings saved successfully!', { type: 'success' });
       await refreshData();
     } catch (saveError) {
-      const msg = saveError instanceof Error ? saveError.message : "Failed to save affiliate settings.";
+      const msg = saveError instanceof Error ? saveError.message : "Failed to save influencer settings.";
       setError(msg);
       addToast(msg, { type: 'error' });
     } finally {
@@ -288,8 +288,8 @@ export default function AdminAffiliatesPage() {
     <div className="space-y-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Affiliate Management</h1>
-          <p className="text-sm text-slate-500">Manage affiliate users and commission settings</p>
+          <h1 className="text-2xl font-bold text-slate-900">Influencer Management</h1>
+          <p className="text-sm text-slate-500">Manage influencers and affiliates, commission settings, and collaborations</p>
         </div>
         <Button variant="outline" onClick={refreshData}>
           <Icon name="refresh-cw" size={16} />
@@ -299,7 +299,7 @@ export default function AdminAffiliatesPage() {
 
       {stats && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-5">
-          <StatCard title="Affiliates" value={stats.totalAffiliates.toLocaleString()} detail={`${stats.statusCounts.approved ?? 0} approved`} />
+          <StatCard title="Influencers" value={stats.totalAffiliates.toLocaleString()} detail={`${stats.statusCounts.approved ?? 0} approved`} />
           <StatCard title="Commission Enabled" value={stats.commissionEnabled.toLocaleString()} detail="Active commission profiles" />
           <StatCard title="Average Rate" value={`${stats.averageCommissionRate}%`} detail="Across affiliate users" />
           <StatCard title="Attributed Revenue" value={formatCurrency(stats.attributedRevenue)} detail="Paid affiliate orders" />
@@ -316,7 +316,7 @@ export default function AdminAffiliatesPage() {
       <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
           <Input
-            placeholder="Search affiliates by name or email..."
+            placeholder="Search influencers by name or email..."
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             leftIcon={<Icon name="search" size={16} />}
@@ -338,7 +338,7 @@ export default function AdminAffiliatesPage() {
             <table className="w-full">
               <thead className="border-b border-neutral-200 bg-neutral-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Affiliate</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Influencer</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Commission</th>
                   <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Estimated</th>
@@ -347,11 +347,11 @@ export default function AdminAffiliatesPage() {
               <tbody className="divide-y divide-neutral-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={4} className="px-4 py-10 text-center text-sm text-slate-500">Loading affiliates...</td>
+                    <td colSpan={4} className="px-4 py-10 text-center text-sm text-slate-500">Loading influencers...</td>
                   </tr>
                 ) : affiliates.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-4 py-10 text-center text-sm text-slate-500">No affiliate users found in the database.</td>
+                    <td colSpan={4} className="px-4 py-10 text-center text-sm text-slate-500">No influencers found in the database.</td>
                   </tr>
                 ) : affiliates.map((affiliate) => (
                   <tr
@@ -427,7 +427,7 @@ export default function AdminAffiliatesPage() {
               </div>
 
               <Select
-                label="Affiliate Status"
+                label="Influencer Status"
                 value={selectedStatus}
                 onChange={(event) => setSelectedStatus(event.target.value as AffiliateStatus)}
                 options={[
@@ -544,14 +544,14 @@ export default function AdminAffiliatesPage() {
 
               <Button type="submit" fullWidth loading={saving}>
                 <Icon name="save" size={16} />
-                Save Affiliate Settings
+                Save Influencer Settings
               </Button>
             </form>
           ) : (
             <div className="py-16 text-center">
               <Icon name="users" size={40} className="mx-auto mb-3 text-slate-400" />
-              <p className="text-sm font-medium text-slate-900">No affiliate selected</p>
-              <p className="mt-1 text-sm text-slate-500">Select an affiliate user to manage commission settings.</p>
+              <p className="text-sm font-medium text-slate-900">No influencer selected</p>
+              <p className="mt-1 text-sm text-slate-500">Select an influencer to manage commission settings.</p>
             </div>
           )}
         </Card>

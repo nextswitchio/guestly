@@ -67,9 +67,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error fetching admin affiliates:", error);
+    console.error("Error fetching admin influencers:", error);
     return NextResponse.json(
-      { success: false, error: { code: "BACKEND_ERROR", message: "Failed to fetch affiliates" } },
+      { success: false, error: { code: "BACKEND_ERROR", message: "Failed to fetch influencers" } },
       { status: 502 }
     );
   }
