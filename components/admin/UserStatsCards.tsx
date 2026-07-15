@@ -41,10 +41,10 @@ export function UserStatsCards({ stats }: UserStatsCardsProps) {
       variant: "purple" as const,
     },
     {
-      title: "Affiliates",
-      value: (stats?.usersByRole?.affiliate || 0).toLocaleString(),
-      change: `${Math.round(((stats?.usersByRole?.affiliate || 0) / total) * 100)}% of users`,
-      icon: "megaphone",
+      title: "Vendors",
+      value: (stats?.usersByRole?.vendor || 0).toLocaleString(),
+      change: `${Math.round(((stats?.usersByRole?.vendor || 0) / total) * 100)}% of users`,
+      icon: "package",
       variant: "orange" as const,
     },
     {
