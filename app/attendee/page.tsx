@@ -49,15 +49,15 @@ export default function AttendeePage() {
   const [eventsLoading, setEventsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    fetch("/api/wallet/balance").then(r => r.json()).then(d => { if (d.ok) setWallet(d); }).catch(() => {});
-    fetch("/api/orders/user").then(r => r.json()).then(d => { if (d.success) setOrders(d.orders); }).catch(() => {});
+    fetch("/api/wallet/balance").then(r => r.json()).then(d => { if (d.ok) setWallet(d); }).catch((err) => console.error("Failed to fetch wallet balance:", err));
+    fetch("/api/orders/user").then(r => r.json()).then(d => { if (d.success) setOrders(d.orders); }).catch((err) => console.error("Failed to fetch orders:", err));
     fetch("/api/events/save").then(r => r.json()).then(d => {
       if (d.ok) {
         setSavedIds(d.data.map((e: any) => e.event_id || e.id));
         setSavedEvents(d.data);
       }
-    }).catch(() => {});
-    fetch("/api/notifications?unreadOnly=true").then(r => r.json()).then(d => { if (d.success) setUnreadCount(d.unread_count || d.data?.length || 0); }).catch(() => {});
+    }).catch((err) => console.error("Failed to fetch saved events:", err));
+    fetch("/api/notifications?unreadOnly=true").then(r => r.json()).then(d => { if (d.success) setUnreadCount(d.unread_count || d.data?.length || 0); }).catch((err) => console.error("Failed to fetch notifications:", err));
     fetch("/api/referrals/stats").then(r => r.json()).then(d => { setReferralStats(d); }).catch(() => {});
     fetch("/api/follows").then(r => r.json()).then(d => { if (d.success) setFollowedOrganizers(d.data); }).catch(() => {});
 
@@ -87,7 +87,7 @@ export default function AttendeePage() {
           })));
         }
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch recommendations:", err))
       .finally(() => setRecommendationsLoading(false));
   }, []);
 

@@ -156,10 +156,10 @@ export default function AdminDashboardPage() {
               <div>
                 <p className="text-sm font-medium text-slate-500">Pending Actions</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {metrics.pending_disputes + metrics.pending_withdrawals}
+                  {(metrics.pending_disputes || 0) + (metrics.pending_withdrawals || 0)}
                 </p>
                 <p className="text-xs text-slate-500">
-                  {metrics.pending_disputes} disputes, {metrics.pending_withdrawals} withdrawals
+                  {metrics.pending_disputes || 0} disputes, {metrics.pending_withdrawals || 0} withdrawals
                 </p>
               </div>
               <div className="h-12 w-12 rounded-lg bg-danger-100 flex items-center justify-center">

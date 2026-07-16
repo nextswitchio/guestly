@@ -11,7 +11,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Dashboard error:", error);
+    console.error("Admin dashboard error:", error);
   }, [error]);
 
   return (
@@ -20,17 +20,17 @@ export default function Error({
         <AlertTriangle className="h-8 w-8 text-red-500" />
       </div>
       <h2 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
-        Dashboard Error
+        Admin Dashboard Error
       </h2>
       <p className="mb-6 text-slate-500 dark:text-slate-400">
-        Could not load dashboard data. Please try again.
+        Could not load the admin dashboard. Please try again.
       </p>
       <button
         onClick={reset}
         className="inline-flex items-center gap-2 rounded-xl bg-lime px-6 py-3 font-semibold text-slate-900 transition-all hover:bg-lime-hover"
       >
         <RefreshCw className="h-4 w-4" />
-        Retry
+        Try Again
       </button>
     </div>
   );
