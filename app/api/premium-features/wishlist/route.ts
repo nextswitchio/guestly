@@ -7,7 +7,7 @@ function getAuthHeaders(req: NextRequest): Record<string, string> {
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json().catch(() => null);
+  const body = await request.json().catch((err) => { console.error("Failed to parse wishlist request body:", err); return null; });
 
   if (!body || typeof body.feature_id !== "string") {
     return NextResponse.json({ error: "feature_id is required" }, { status: 400 });

@@ -35,7 +35,7 @@ export default function CommunityPage() {
     Promise.all([
       fetch("/api/announcements?limit=5").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/communities?type=discussions&limit=5").then((r) => r.json()).catch(() => ({ data: [] })),
-      fetch("/api/communities?type=stats").then((r) => r.json()).catch(() => null),
+      fetch("/api/communities?type=stats").then((r) => r.json()).catch((err) => console.error("Failed to fetch community stats:", err)),
     ]).then(([ann, disc, st]) => {
       setAnnouncements(Array.isArray(ann?.data) ? ann.data : []);
       setDiscussions(Array.isArray(disc?.data) ? disc.data : []);

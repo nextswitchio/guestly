@@ -104,7 +104,7 @@ function InfluencerDashboardShell({ children }: { children: React.ReactNode }) {
           setShowBanner(d.verification.status !== "verified");
         }
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch identity status:", err));
   }, []);
 
   return (

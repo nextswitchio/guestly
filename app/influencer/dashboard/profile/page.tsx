@@ -67,7 +67,7 @@ export default function InfluencerProfilePage() {
           });
         }
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch influencer profile:", err))
       .finally(() => setLoading(false));
   }, []);
 

@@ -17,7 +17,7 @@ export default function SEOPage() {
         setEvents(list);
         if (list.length > 0) setEventId(list[0].id);
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch events:", err));
   }, []);
 
   return (

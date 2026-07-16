@@ -39,7 +39,7 @@ export default function NewMerchProductPage() {
         }));
         setEvents(list);
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch events:", err))
       .finally(() => setEventsLoading(false));
   }, []);
 

@@ -57,7 +57,7 @@ export default function MarketplaceSearch() {
     fetch("/api/marketplace/cities")
       .then((r) => (r.ok ? r.json() : []))
       .then((data: CityOption[]) => setCities(Array.isArray(data) ? data : []))
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch cities:", err));
   }, []);
 
   function handleNearMe() {

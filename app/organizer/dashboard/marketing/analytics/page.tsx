@@ -23,7 +23,7 @@ export default function AnalyticsPage() {
     fetch('/api/auth/me')
       .then((r) => r.json())
       .then((d) => { if (d.ok && d.user?.id) setOrganizerId(d.user.id); })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch organizer ID:", err));
   }, []);
 
   useEffect(() => {
@@ -33,9 +33,9 @@ export default function AnalyticsPage() {
     const params = `startDate=${dateRange.start}&endDate=${dateRange.end}`;
 
     Promise.all([
-      fetch(`/api/analytics/channels?${params}`).then((r) => r.ok ? r.json() : []).catch(() => []),
-      fetch(`/api/analytics/funnel?${params}`).then((r) => r.ok ? r.json() : null).catch(() => null),
-      fetch(`/api/analytics/cohorts?cohortDate=${dateRange.start}`).then((r) => r.ok ? r.json() : []).catch(() => []),
+      fetch(`/api/analytics/channels?${params}`).then((r) => r.ok ? r.json() : []).catch((err) => { console.error("Failed to fetch channel analytics:", err); return []; }),
+      fetch(`/api/analytics/funnel?${params}`).then((r) => r.ok ? r.json() : null).catch((err) => { console.error("Failed to fetch funnel analytics:", err); return null; }),
+      fetch(`/api/analytics/cohorts?cohortDate=${dateRange.start}`).then((r) => r.ok ? r.json() : []).catch((err) => { console.error("Failed to fetch cohort analytics:", err); return []; }),
     ]).then(([ch, funnel, coh]) => {
       setChannels(Array.isArray(ch) ? ch : []);
       setStages(funnel?.stages ?? []);

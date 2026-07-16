@@ -29,8 +29,8 @@ export default function EventInsightsPage({ params }: { params: Promise<{ id: st
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/events/${id}`).then((r) => r.json()).catch(() => null),
-      fetch(`/api/events/${id}/insights`).then((r) => r.json()).catch(() => null),
+      fetch(`/api/events/${id}`).then((r) => r.json()).catch((err) => { console.error("Failed to fetch event:", err); return null; }),
+      fetch(`/api/events/${id}/insights`).then((r) => r.json()).catch((err) => { console.error("Failed to fetch event insights:", err); return null; }),
     ]).then(([eventData, metricsData]) => {
       const event = eventData?.data ?? eventData ?? null;
       const m = metricsData?.data ?? metricsData ?? {};

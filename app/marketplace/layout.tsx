@@ -21,7 +21,7 @@ export default function MarketplaceLayout({ children }: { children: React.ReactN
           else setDashboardLink("/attendee");
         }
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch user role:", err));
   }, []);
 
   const navLinks = [

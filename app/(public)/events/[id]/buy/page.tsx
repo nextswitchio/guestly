@@ -21,7 +21,7 @@ export default function BuyTickets({ params }: { params: Promise<{ id: string }>
           router.replace(`/events/${id}`);
         }
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch event details:", err))
       .finally(() => setLoading(false));
   }, [id, router]);
 

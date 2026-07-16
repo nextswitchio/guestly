@@ -45,7 +45,7 @@ export default function NewServiceProfilePage() {
     fetch('/api/vendor/subscription').then(r => r.json()).then(d => {
       const max = d.maxServiceProfiles || 1;
       fetch('/api/vendor/service-profiles').then(r => r.json()).then(pd => { if (pd.profiles?.length >= max) setAtLimit(true); });
-    }).catch(() => {});
+    }).catch((err) => console.error("Failed to check service profile limit:", err));
     fetch('/api/identity')
       .then(r => r.json())
       .then(d => setIdentityStatus(d.verification?.status || null))

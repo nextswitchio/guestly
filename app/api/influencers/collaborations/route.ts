@@ -60,7 +60,7 @@ async function fetchUnreadCounts(token: string): Promise<Record<string, number>>
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       credentials: 'include',
     });
-    const raw = await res.json().catch(() => []);
+    const raw = await res.json().catch((err) => { console.error("Failed to parse collaborations:", err); return []; });
     const list = Array.isArray(raw) ? raw : raw.collaborations || [];
     const unreadMap: Record<string, number> = {};
     for (const collab of list) {
@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
       credentials: 'include',
     });
 
-    const raw = await res.json().catch(() => []);
+    const raw = await res.json().catch((err) => { console.error("Failed to parse collaborations:", err); return []; });
     const list = Array.isArray(raw) ? raw : raw.collaborations || [];
     const collaborations = list.map(normalizeCollab);
     const unreadCounts = await fetchUnreadCounts(token || '');

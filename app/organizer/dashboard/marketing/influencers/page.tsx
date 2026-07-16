@@ -27,7 +27,7 @@ export default function InfluencersPage() {
     fetch('/api/auth/me')
       .then((r) => r.json())
       .then((d) => { if (d.ok && d.user?.id) setOrganizerId(d.user.id); })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch organizer ID:", err));
 
     fetch('/api/events/my?page_size=50')
       .then((r) => r.json())
@@ -37,7 +37,7 @@ export default function InfluencersPage() {
         setEvents(opts);
         if (opts.length > 0 && !selectedEventId) setSelectedEventId(opts[0].id);
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch events:", err));
   }, []);
 
   const handleInvite = (influencerId: string, influencerName: string) => {

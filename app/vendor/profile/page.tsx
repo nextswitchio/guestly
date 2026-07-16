@@ -93,7 +93,7 @@ export default function VendorProfilePage() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ avatar }),
-        }).catch(() => {});
+        }).catch((err) => console.error("Failed to update profile avatar:", err));
         await load();
         setEditMode(false);
         addToast("Profile saved successfully!", { type: "success" });

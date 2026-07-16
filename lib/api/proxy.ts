@@ -35,7 +35,7 @@ export async function proxyToBackend(
 
   const contentType = res.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
-    const data = await res.json().catch(() => null);
+    const data = await res.json().catch((err) => { console.error("Failed to parse proxy response:", err); return null; });
     return NextResponse.json(data, { status: res.status });
   }
 
@@ -63,7 +63,7 @@ export async function fetchBackendJson(
   }
 
   const res = await fetch(url, { ...init, headers });
-  const data = await res.json().catch(() => null);
+  const data = await res.json().catch((err) => { console.error("Failed to parse backend JSON:", err); return null; });
   return { data, status: res.status, ok: res.ok };
 }
 

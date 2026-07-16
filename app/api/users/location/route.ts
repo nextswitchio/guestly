@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    const data = res.ok ? await res.json().catch(() => null) : null;
+    const data = res.ok ? await res.json().catch((err) => { console.error("Failed to parse location response:", err); return null; }) : null;
     return NextResponse.json(data ?? {}, { status: res.status });
   } catch {
     return NextResponse.json({ error: "Backend unavailable" }, { status: 503 });

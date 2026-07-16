@@ -60,7 +60,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
     fetch(`/api/merch?eventId=${event.id}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => { if (d) setMerchProductCount(d.products?.length || 0); })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch merch count:", err))
       .finally(() => setLoadingMerch(false));
 
     // Set organizer info
@@ -94,7 +94,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
             });
           }
         })
-        .catch(() => {});
+        .catch((err) => console.error("Failed to fetch organizer info:", err));
     }
 
     // Fetch ticket sales count
@@ -104,7 +104,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
         const ev = d?.event ?? d?.data ?? d;
         if (ev?.tickets_sold != null) setAttendeeCount(ev.tickets_sold);
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch ticket sales:", err));
 
     // Check if event is saved/bookmarked
     fetch('/api/events/save')
@@ -114,7 +114,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
           setIsSaved(d.data.some((e: any) => e.id === event.id || e.event_id === event.id));
         }
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to check saved status:", err));
   }, [event.id]);
 
   const toggleSave = async () => {

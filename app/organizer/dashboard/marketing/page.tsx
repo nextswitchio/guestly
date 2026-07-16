@@ -64,13 +64,13 @@ function MarketingPageInner() {
     if (!organizerId) return;
     fetch(`/api/campaigns?organizerId=${organizerId}`).then(r => r.json()).then(d => {
       if (d.campaigns) setCampaigns(d.campaigns);
-    }).catch(() => {});
+    }).catch((err) => console.error("Failed to fetch campaigns:", err));
   }, [organizerId]);
 
   React.useEffect(() => {
     fetch("/api/auth/me").then(r => r.json()).then(d => {
       if (d.ok && d.user?.id) setOrganizerId(d.user.id);
-    }).catch(() => {});
+    }).catch((err) => console.error("Failed to fetch organizer ID:", err));
     fetch("/api/events/my?page_size=50").then(r => r.json()).then(d => {
       const events = Array.isArray(d.events) ? d.events.map((e: any) => ({ id: e.id, name: e.title })) : [];
       setMyEvents(events);
@@ -80,7 +80,7 @@ function MarketingPageInner() {
       } else if (events.length > 0 && !selectedEventId) {
         setSelectedEventId(events[0].id);
       }
-    }).catch(() => {});
+    }).catch((err) => console.error("Failed to fetch events:", err));
   }, []);
 
   const tabs = [
@@ -199,7 +199,7 @@ function MarketingPageInner() {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ organizerId, influencerId, eventId: selectedEventId }),
-                }).catch(() => {});
+              }).catch((err) => console.error("Failed to invite influencer:", err));
               }}
             />
             <InfluencerCollaboration organizerId={organizerId} />
@@ -255,7 +255,7 @@ function MarketingPageInner() {
                   organizerId,
                   status: 'active',
                 }),
-              }).catch(() => {});
+              }).catch((err) => console.error("Failed to create retargeting campaign:", err));
             }}
             onCancel={() => setActiveTab('overview')}
           />
@@ -346,9 +346,9 @@ function MarketingOverview({ organizerId }: { organizerId: string }) {
 
   React.useEffect(() => {
     Promise.all([
-      fetch(`/api/campaigns?organizerId=${organizerId}`).then(r => r.json()).catch(() => null),
-      fetch(`/api/promo-codes?organizerId=${organizerId}`).then(r => r.json()).catch(() => null),
-      fetch(`/api/referrals/stats`).then(r => r.json()).catch(() => null),
+      fetch(`/api/campaigns?organizerId=${organizerId}`).then(r => r.json()).catch((err) => { console.error("Failed to fetch campaigns:", err); return null; }),
+      fetch(`/api/promo-codes?organizerId=${organizerId}`).then(r => r.json()).catch((err) => { console.error("Failed to fetch promo codes:", err); return null; }),
+      fetch(`/api/referrals/stats`).then(r => r.json()).catch((err) => { console.error("Failed to fetch referral stats:", err); return null; }),
     ]).then(([campaigns, promos, referrals]) => {
       setStats({
         campaigns: campaigns?.total ?? campaigns?.campaigns?.length ?? 0,

@@ -18,7 +18,7 @@ export default function InfluencerDashboardPage() {
         setProfile(profileData);
         setListingStatus(statusData);
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch influencer profile:", err))
       .finally(() => setLoading(false));
   }, []);
 

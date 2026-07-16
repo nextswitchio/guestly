@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
     const revenueData = await revenueRes.json().catch(() => ({}));
     const activityData = await activityRes.json().catch(() => ({}));
     const performersData = await performersRes.json().catch(() => ({}));
-    const anomaliesData = await anomaliesRes.json().catch(() => []);
+    const anomaliesData = await anomaliesRes.json().catch((err) => { console.error("Failed to parse anomalies data:", err); return []; });
     
     // Generate comprehensive report
     const report = {

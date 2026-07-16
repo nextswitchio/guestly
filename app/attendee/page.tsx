@@ -58,8 +58,8 @@ export default function AttendeePage() {
       }
     }).catch((err) => console.error("Failed to fetch saved events:", err));
     fetch("/api/notifications?unreadOnly=true").then(r => r.json()).then(d => { if (d.success) setUnreadCount(d.unread_count || d.data?.length || 0); }).catch((err) => console.error("Failed to fetch notifications:", err));
-    fetch("/api/referrals/stats").then(r => r.json()).then(d => { setReferralStats(d); }).catch(() => {});
-    fetch("/api/follows").then(r => r.json()).then(d => { if (d.success) setFollowedOrganizers(d.data); }).catch(() => {});
+    fetch("/api/referrals/stats").then(r => r.json()).then(d => { setReferralStats(d); }).catch((err) => console.error("Failed to fetch referral stats:", err));
+    fetch("/api/follows").then(r => r.json()).then(d => { if (d.success) setFollowedOrganizers(d.data); }).catch((err) => console.error("Failed to fetch follows:", err));
 
     // Fetch upcoming and past events from backend
     setEventsLoading(true);

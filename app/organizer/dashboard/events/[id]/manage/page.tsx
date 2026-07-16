@@ -549,7 +549,7 @@ function PlanningTab({ id, eventTitle }: { id: string; eventTitle: string }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
-      }).catch(() => null);
+      }).catch((err) => { console.error("Failed to generate AI content:", err); return null; });
 
       let content = '';
       if (response?.ok) {
@@ -1363,7 +1363,7 @@ function ReviewsTab({ id }: { id: string }) {
     fetch(`/api/proxy/events/${id}/reviews`)
       .then(r => r.json())
       .then(d => setReviews(Array.isArray(d) ? d : []))
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch event reviews:", err))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -1459,7 +1459,7 @@ function InsightsTab({ id }: { id: string }) {
         const payload = d.data ?? d;
         setMetrics(payload);
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch event metrics:", err));
   }, [id]);
 
   return (
@@ -2111,7 +2111,7 @@ function InfluencersTab({ id, event }: { id: string; event: { city?: string; cou
         setCities((d.cities ?? []).map((c: any) => c.name).sort());
         setCountries((d.countries ?? []).map((c: any) => c.name).sort());
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch geographic data:", err));
   }, []);
 
   return (

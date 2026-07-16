@@ -8,12 +8,12 @@ export async function GET(req: NextRequest) {
 }
 
 async function getEventId(req: NextRequest): Promise<string | null> {
-  const body = await req.json().catch(() => undefined);
+  const body = await req.json().catch((err) => { console.error("Failed to parse request body:", err); return undefined; });
   if (body && typeof body === "object") {
     const obj = body as { eventId?: string };
     if (obj.eventId) return obj.eventId;
   }
-  const fd = await req.formData().catch(() => undefined);
+  const fd = await req.formData().catch((err) => { console.error("Failed to parse form data:", err); return undefined; });
   return fd?.get("eventId")?.toString() ?? null;
 }
 

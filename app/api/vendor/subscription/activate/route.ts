@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ plan }),
     });
 
-    const data = await res.json().catch(() => null);
+    const data = await res.json().catch((err) => { console.error("Failed to parse subscription activation response:", err); return null; });
 
     if (!res.ok) {
       return NextResponse.json(

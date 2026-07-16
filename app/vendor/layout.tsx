@@ -40,7 +40,7 @@ function VendorLayoutShell({ children }: { children: React.ReactNode }) {
     fetch("/api/vendor/subscription")
       .then(r => r.json())
       .then(d => { setSubscription(d.subscription || null); })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch vendor subscription:", err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -53,7 +53,7 @@ function VendorLayoutShell({ children }: { children: React.ReactNode }) {
           setShowBanner(d.verification.status !== 'verified');
         }
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch identity status:", err));
   }, []);
 
   const isPremium = subscription && subscription.expiresAt > Date.now();

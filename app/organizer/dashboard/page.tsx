@@ -44,13 +44,13 @@ export default function DashboardPage() {
     fetch("/api/analytics")
       .then((r) => r.json())
       .then((d) => setData(d))
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch analytics:", err))
       .finally(() => setLoading(false));
 
     fetch("/api/merch?stats=true")
       .then((r) => r.json())
       .then((d) => setMerchStats(d))
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch merch stats:", err));
   }, []);
 
   const formatMoney = (n: number) => {

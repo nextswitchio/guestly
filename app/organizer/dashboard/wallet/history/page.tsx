@@ -32,7 +32,7 @@ export default function WalletHistoryPage() {
           setTxs(d.transactions || []);
         }
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch wallet transactions:", err))
       .finally(() => setLoading(false));
   }, [page]);
 

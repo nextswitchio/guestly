@@ -29,7 +29,7 @@ function WalletSuccessInner() {
     fetch(`/api/wallet/transactions/${txnId}`)
       .then(r => r.json())
       .then(d => { if (d.success) setTx(d.data); })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch wallet transaction:", err))
       .finally(() => setLoading(false));
   }, [txnId]);
 

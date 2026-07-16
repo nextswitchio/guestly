@@ -164,7 +164,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
           setCurrencyGlobals(primaryCurrency, rates, currencies);
         }
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch currency config:", err))
       .finally(() => setLoading(false));
   }, []);
 

@@ -36,7 +36,7 @@ export default function FeaturedPaymentSuccessPage() {
     fetch(`/api/featured/receipt/${id}`)
       .then(r => r.json())
       .then(res => { if (res.success) setData(res.data); })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch featured receipt:", err))
       .finally(() => setLoading(false));
   }, [id]);
 

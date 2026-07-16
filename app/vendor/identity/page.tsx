@@ -14,7 +14,7 @@ export default function VendorIdentityPage() {
     fetch('/api/identity')
       .then(r => r.json())
       .then(d => { if (d.verification) setIdentityData(d.verification); })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch identity data:", err))
       .finally(() => setLoading(false));
   }, []);
 

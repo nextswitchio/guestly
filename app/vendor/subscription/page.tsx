@@ -44,7 +44,7 @@ export default function VendorSubscriptionPage() {
     fetch("/api/wallet/balance")
       .then(r => r.json())
       .then(d => { if (d.balance !== undefined) setBalance(d.balance); })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch wallet balance:", err));
   }, []);
 
   const fetchPrices = async () => {

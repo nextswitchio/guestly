@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
       credentials: 'include',
     });
     
-    const data = await res.json().catch(() => []);
+    const data = await res.json().catch((err) => { console.error("Failed to parse invitations response:", err); return []; });
     const collaborations = Array.isArray(data) ? data : data.collaborations || [];
     
     return NextResponse.json({ invitations: collaborations }, { status: res.status });

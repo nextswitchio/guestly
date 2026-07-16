@@ -5,7 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { SigninForm } from "@/components/auth/SignInForm";
 import { useToast } from "@/components/ui/ToastProvider";
 
-function redirectForRole(role: string | undefined, router: ReturnType<typeof useRouter>) {
+function redirectForRole(role: string | undefined, redirectTo: string | null, router: ReturnType<typeof useRouter>) {
+  if (redirectTo) {
+    window.location.href = redirectTo;
+    return;
+  }
   if (role === "organiser" || role === "organizer") window.location.href = "/organizer/dashboard";
   else if (role === "vendor") window.location.href = "/vendor/dashboard";
   else if (role === "affiliate") window.location.href = "/affiliate/dashboard";
@@ -23,6 +27,7 @@ function LoginContent() {
   const handleLogin = async (data: { email: string; password: string }) => {
     setLoading(true);
     const urlRole = searchParams.get("role") || "attendee";
+    const redirectTo = searchParams.get("redirect");
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -35,7 +40,7 @@ function LoginContent() {
         setLoading(false);
         return;
       }
-      redirectForRole(result.role || urlRole, router);
+      redirectForRole(result.role || urlRole, redirectTo, router);
     } catch {
       addToast("Something went wrong. Please try again.", { type: "error" });
       setLoading(false);

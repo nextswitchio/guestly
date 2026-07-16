@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ user_id: m.userId, target_amount: m.targetAmount }),
-        }).catch(() => null)
+        }).catch((err) => { console.error("Failed to create wallet group member:", err); return null; })
       )
     );
 
