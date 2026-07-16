@@ -72,8 +72,8 @@ export function getAllEvents(): Event[] {
 }
 
 /** @deprecated Use the backend API instead */
-export function addEvent(input: Omit<Event, "id">): Event {
-  return { id: `stub-${Date.now()}`, ...input };
+export function addEvent(_input: Omit<Event, "id">): Event {
+  throw new Error("addEvent is deprecated. Use the backend API instead.");
 }
 
 /** @deprecated Use the backend API instead */
