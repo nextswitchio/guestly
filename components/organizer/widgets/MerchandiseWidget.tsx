@@ -83,8 +83,16 @@ export function MerchandiseWidget({
                 <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-50 text-primary-600 text-sm font-bold shrink-0">
                   #{index + 1}
                 </div>
-                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--surface-bg)] border border-[var(--surface-border)] text-2xl shrink-0 group-hover:scale-105 transition-transform">
-                  {item.image}
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--surface-bg)] border border-[var(--surface-border)] shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+                  {item.image ? (
+                    <img 
+                      src={item.image} 
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <ShoppingBag className="h-5 w-5 text-[var(--foreground-muted)]" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[var(--foreground)] truncate">
