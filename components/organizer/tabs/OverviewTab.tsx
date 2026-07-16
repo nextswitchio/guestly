@@ -37,7 +37,7 @@ export default function OverviewTab({ eventId }: { eventId: string }) {
           eventType: ev.event_type ?? ev.eventType ?? "Physical",
         });
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to load event overview:", err));
 
     // Fetch metrics
     fetch(`/api/events/${eventId}/metrics`)
@@ -50,7 +50,7 @@ export default function OverviewTab({ eventId }: { eventId: string }) {
           savedBy: d.data.saves || 0,
         });
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to load event metrics:", err))
       .finally(() => setLoading(false));
   }, [eventId]);
 

@@ -46,7 +46,7 @@ export default function TopNav() {
           setUser(d.user);
         }
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch current user:", err))
       .finally(() => setLoading(false));
   }, []);
 

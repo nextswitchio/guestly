@@ -12,13 +12,13 @@ export default function VendorTopBar() {
   const [vendorName, setVendorName] = React.useState("Vendor");
 
   React.useEffect(() => {
-    fetch("/api/auth/me").then(r => r.json()).then(d => setVendorName(d.user?.name || "Vendor")).catch(() => {});
+    fetch("/api/auth/me").then(r => r.json()).then(d => setVendorName(d.user?.name || "Vendor")).catch((err) => console.error("Failed to fetch vendor user:", err));
   }, []);
 
   async function handleLogout() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-    } catch {}
+    } catch (err) { console.error("Failed to logout:", err); }
     clearAllCookies();
     window.location.href = "/vendor-auth/login";
   }

@@ -68,7 +68,7 @@ export default function EventHero({
     fetch(`/api/follows/check?organizerId=${oid}`)
       .then(r => r.json())
       .then(d => { if (d.following !== undefined) setFollowing(d.following); })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to check follow status:", err));
   }, [organizer?.id, organizer?.name]);
 
   const toggleFollow = async () => {

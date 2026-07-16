@@ -35,7 +35,7 @@ export default function AppDownloadSection() {
     fetch("/api/public/app-links")
       .then((r) => r.json())
       .then(setLinks)
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch app links:", err));
   }, []);
 
   const hasAttendee = links.attendee.android || links.attendee.ios;

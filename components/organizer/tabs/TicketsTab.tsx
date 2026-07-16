@@ -17,7 +17,7 @@ export default function TicketsTab({ eventId }: { eventId: string }) {
         const ev = d?.event ?? d?.data ?? d;
         if (ev?.event_type || ev?.eventType) setEventType(ev.event_type ?? ev.eventType);
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to load event type:", err));
 
     async function load() {
       const res = await fetch(`/api/tickets?eventId=${eventId}`);

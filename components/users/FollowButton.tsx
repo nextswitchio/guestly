@@ -23,7 +23,7 @@ export default function FollowButton({
     fetch(`/api/follows/check?organizerId=${userId}`)
       .then(r => r.json())
       .then(d => { if (d.following !== undefined) setIsFollowing(d.following); })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to check follow status:", err));
   }, [userId]);
 
   const handleToggleFollow = async () => {

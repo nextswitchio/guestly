@@ -179,7 +179,7 @@ export function BrowseByCity() {
           image: city.image || `${city.slug}.jpg`,
         })));
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch cities:", err));
   }, []);
 
   const scroll = (dir: "left" | "right") => {

@@ -129,7 +129,7 @@ export default function VendorSidebar() {
     fetch("/api/vendor/subscription")
       .then(r => r.json())
       .then(d => setSubscription(d.subscription || null))
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch vendor subscription:", err));
   }, []);
 
   const isPremium = subscription && subscription.expiresAt > Date.now();

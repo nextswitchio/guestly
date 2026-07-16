@@ -168,7 +168,7 @@ export function FeaturedEvents() {
         }));
         setFeaturedEvents(apiEvents);
       })
-      .catch(() => {})
+      .catch((err) => console.error("Failed to fetch featured events:", err))
       .finally(() => setLoading(false));
   }, []);
 

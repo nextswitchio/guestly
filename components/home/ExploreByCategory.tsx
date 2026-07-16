@@ -33,7 +33,7 @@ export function ExploreByCategory() {
         const items = normalizeCatalog(data).eventCategories.filter(category => category.isActive && category.isFeatured);
         setCategories(items.length ? items : DEFAULT_PLATFORM_CATALOG.eventCategories.filter(category => category.isFeatured));
       })
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch event categories:", err));
   }, []);
 
   return (

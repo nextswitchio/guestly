@@ -66,7 +66,7 @@ export default function Footer() {
     fetch("/api/public/app-links")
       .then((r) => r.json())
       .then(setAppLinks)
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch app links:", err));
   }, []);
 
   const hasAppLinks = appLinks.attendee.android || appLinks.attendee.ios || appLinks.influencer.android || appLinks.influencer.ios;
