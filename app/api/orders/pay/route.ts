@@ -15,13 +15,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "orderId required" }, { status: 400 });
     }
 
-    const res = await fetch(`${BACKEND_URL}/api/v1/orders/${order_id}/pay`, {
+    const res = await fetch(`${BACKEND_URL}/api/v1/orders/pay`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ method: method || payment_method || "card" }),
+      body: JSON.stringify({ order_id, method: method || payment_method || "card" }),
     });
 
     if (!res.ok) {

@@ -5,8 +5,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const { email, password } = body;
 
-  if (!email) {
-    return NextResponse.json({ ok: false, error: "Email required" }, { status: 400 });
+  if (!email || !password) {
+    return NextResponse.json({ ok: false, error: "Email and password required" }, { status: 400 });
   }
 
   try {

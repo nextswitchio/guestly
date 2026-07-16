@@ -6,6 +6,7 @@ import { Download, Calendar, Share2, Clock, Eye, Tag, ArrowRight } from 'lucide-
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { slugify } from '@/lib/utils';
+import { sanitizeHtml } from '@/lib/utils/security';
 
 interface BlogPost {
   id: string;
@@ -227,7 +228,7 @@ export function BlogPostContent({ slug }: { slug: string }) {
           <div className="lg:col-span-2">
             <div
               className="prose prose-slate max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-a:text-lime prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
             />
 
             {/* Downloads Section */}

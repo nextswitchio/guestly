@@ -57,7 +57,7 @@ export default function AttendeePage() {
         setSavedEvents(d.data);
       }
     }).catch(() => {});
-    fetch("/api/notifications?unreadOnly=true").then(r => r.json()).then(d => { if (d.success) setUnreadCount(d.data.length); }).catch(() => {});
+    fetch("/api/notifications?unreadOnly=true").then(r => r.json()).then(d => { if (d.success) setUnreadCount(d.unread_count || d.data?.length || 0); }).catch(() => {});
     fetch("/api/referrals/stats").then(r => r.json()).then(d => { setReferralStats(d); }).catch(() => {});
     fetch("/api/follows").then(r => r.json()).then(d => { if (d.success) setFollowedOrganizers(d.data); }).catch(() => {});
 
