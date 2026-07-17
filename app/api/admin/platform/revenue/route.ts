@@ -42,6 +42,15 @@ function isoDate(date: Date): string {
   return date.toISOString().split("T")[0];
 }
 
+async function backendFetch<T = any>(path: string, request: NextRequest): Promise<T> {
+  const res = await fetch(`${BACKEND_URL}/api/v1${path}`, {
+    headers: authHeaders(request),
+    cache: "no-store",
+  });
+  if (!res.ok) return null as T;
+  return res.json();
+}
+
 export async function GET(request: NextRequest) {
   if (!requireAdmin(request)) {
     return NextResponse.json(
@@ -54,17 +63,15 @@ export async function GET(request: NextRequest) {
   const period = searchParams.get("period") || "month";
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/admin/platform/revenue/dashboard`, {
-      headers: authHeaders(request),
-      cache: "no-store",
-      credentials: 'include',
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      return NextResponse.json(body, { status: res.status });
-    }
-    const raw = await res.json();
+    const [dashboard, summary, feeSettings, commissions, settlements] = await Promise.all([
+      backendFetch<any>("/admin/platform/revenue/dashboard", request),
+      backendFetch<any>("/admin/platform/revenue/summary", request),
+      backendFetch<any>("/admin/platform/fee-settings", request),
+      backendFetch<any>("/admin/commissions", request),
+      backendFetch<any>("/admin/settlements?status=pending", request),
+    ]);
 
+    const raw = dashboard || {};
     const metrics = raw.metrics || {};
     const counts = raw.counts || {};
     const byType = raw.revenue_by_type_last_30_days || {};
@@ -78,6 +85,10 @@ export async function GET(request: NextRequest) {
     const settledCount = counts.settled ?? 0;
     const pendingCount = counts.pending ?? 0;
 
+    const totalCommission = (commissions?.total ?? 0) as number;
+    const settledCommission = (summary?.total_commission_settled ?? totalCommission) as number;
+    const totalFees = totalRevenue;
+
     const streams = Object.entries(byType).map(([type, val]: [string, any]) => {
       const meta = STREAM_META[type as TransactionType] ?? {
         displayName: type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
@@ -85,19 +96,35 @@ export async function GET(request: NextRequest) {
         color: "var(--color-neutral-500)",
       };
       const streamTotal = val.total ?? 0;
-      const growth = periodRevenue > 0 ? ((streamTotal - periodRevenue) / periodRevenue) * 100 : 0;
       return {
         type,
         displayName: meta.displayName,
         total: streamTotal,
         periodTotal: streamTotal,
-        growth: Math.round(growth * 10) / 10,
+        growth: 0,
         icon: meta.icon,
         color: meta.color,
       };
     });
 
-    const dashboard = {
+    const feeConfigs = Array.isArray(feeSettings) ? feeSettings.map((f: any) => ({
+      id: f.id,
+      transactionType: f.transaction_type,
+      feeType: f.fee_type || "percentage",
+      feeValue: f.fee_value || 0,
+      isActive: f.is_active ?? true,
+      description: f.description || "",
+      appliesToAttendee: f.applies_to_attendee ?? false,
+      appliesToOrganizer: f.applies_to_organizer ?? true,
+    })) : [];
+
+    const topOrgs = summary?.top_organizers || [];
+    const topEvts = summary?.top_events || [];
+    const topVndrs = summary?.top_vendors || [];
+
+    const settlementList = Array.isArray(settlements) ? settlements : (settlements?.settlements || []);
+
+    const dashboard_response = {
       period: {
         key: period,
         label: PERIOD_LABELS[period] || period,
@@ -108,11 +135,11 @@ export async function GET(request: NextRequest) {
       summary: {
         totalRevenue,
         periodRevenue,
-        netRevenue: totalRevenue * 0.8,
-        totalCommission: totalRevenue * 0.2,
-        periodCommission: periodRevenue * 0.2,
-        totalFees: 0,
-        periodFees: 0,
+        netRevenue: totalRevenue - totalCommission,
+        totalCommission,
+        periodCommission: settledCommission,
+        totalFees,
+        periodFees: periodRevenue,
         totalTransactions: settledCount,
         periodTransactions: settledCount,
         pendingSettlements: pendingCount,
@@ -120,25 +147,54 @@ export async function GET(request: NextRequest) {
       },
       streams,
       trends: {
-        total: [],
+        total: summary?.revenue_trend || [],
         byStream: {} as Record<string, any[]>,
-        byDay: [],
+        byDay: summary?.daily_trend || [],
       },
-      feeConfigurations: [],
+      feeConfigurations: feeConfigs,
       topEarners: {
-        organizers: [],
-        events: [],
-        vendors: [],
+        organizers: topOrgs.map((o: any) => ({
+          id: o.id || o.organizer_id,
+          name: o.name || o.organizer_name || "Unknown",
+          revenue: o.revenue ?? 0,
+          commission: o.commission ?? 0,
+        })),
+        events: topEvts.map((e: any) => ({
+          id: e.id || e.event_id,
+          title: e.title || e.event_title || "Unknown",
+          revenue: e.revenue ?? 0,
+          commission: e.commission ?? 0,
+        })),
+        vendors: topVndrs.map((v: any) => ({
+          id: v.id || v.vendor_id,
+          name: v.name || v.vendor_name || "Unknown",
+          revenue: v.revenue ?? 0,
+          fee: v.fee ?? 0,
+        })),
       },
       settlements: {
-        pending: [],
-        completed: [],
+        pending: settlementList.filter((s: any) => (s.status || "").toLowerCase() === "pending").map((s: any) => ({
+          id: s.id,
+          amount: s.amount ?? 0,
+          type: s.transaction_type || s.type,
+          createdAt: s.created_at || s.createdAt,
+          user: s.user_name || s.userName || s.user || "Unknown",
+          date: (s.created_at || s.createdAt || "") as string,
+        })),
+        completed: settlementList.filter((s: any) => (s.status || "").toLowerCase() === "completed" || (s.status || "").toLowerCase() === "settled").map((s: any) => ({
+          id: s.id,
+          amount: s.amount ?? 0,
+          type: s.transaction_type || s.type,
+          completedAt: s.completed_at || s.settled_at || s.completedAt,
+          user: s.user_name || s.userName || s.user || "Unknown",
+          date: (s.completed_at || s.settled_at || s.completedAt || "") as string,
+        })),
         totalPending: pendingAmount,
         totalCompleted: totalRevenue,
       },
     };
 
-    return NextResponse.json(dashboard);
+    return NextResponse.json(dashboard_response);
   } catch {
     return NextResponse.json(
       { success: false, error: { code: "BACKEND_ERROR", message: "Platform revenue backend unavailable" } },
