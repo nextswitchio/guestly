@@ -14,18 +14,15 @@ function requireAdmin(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  if (!requireAdmin(request)) {
-    return NextResponse.json(
-      { success: false, error: { code: "UNAUTHORIZED", message: "Admin access required" } },
-      { status: 401 },
-    );
+  const token = request.cookies.get("access_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/v1/admin/support/tickets`, {
       headers: authHeaders(request),
       cache: "no-store",
-      credentials: 'include',
     });
     if (res.status === 404) {
       return NextResponse.json({ success: true, data: [] });
@@ -41,11 +38,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!requireAdmin(request)) {
-    return NextResponse.json(
-      { success: false, error: { code: "UNAUTHORIZED", message: "Admin access required" } },
-      { status: 401 },
-    );
+  const token = request.cookies.get("access_token")?.value;
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await request.json().catch(() => ({}));
