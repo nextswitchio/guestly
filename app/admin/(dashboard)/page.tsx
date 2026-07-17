@@ -207,7 +207,7 @@ export default function AdminDashboardPage() {
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Revenue Trends</h3>
           <div className="h-64">
             {metrics?.growth_data && metrics.growth_data.length > 0 ? (
-              <LineChart data={metrics.growth_data} color={ADMIN_CHART_COLORS[0]} />
+              <LineChart data={metrics.growth_data.map((d: any) => ({ label: d.label, value: d.current ?? 0 }))} color={ADMIN_CHART_COLORS[0]} />
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-slate-400">
                 No revenue data yet
