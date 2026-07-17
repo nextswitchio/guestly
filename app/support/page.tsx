@@ -22,16 +22,31 @@ export default function SupportPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    // In a real app, this would send to a support API
-    setTimeout(() => {
-      setSubmitted(true);
+    try {
+      const res = await fetch('/api/support/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: formData.subject,
+          message: `From: ${formData.name} (${formData.email})\n\n${formData.message}`,
+          category: 'general',
+        }),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+        addToast("Message sent! We'll get back to you within 24 hours.", { type: 'success' });
+        setTimeout(() => {
+          setSubmitted(false);
+          setFormData({ name: '', email: '', subject: '', message: '' });
+        }, 3000);
+      } else {
+        addToast('Failed to send message. Please try again.', { type: 'error' });
+      }
+    } catch {
+      addToast('Network error. Please try again.', { type: 'error' });
+    } finally {
       setSending(false);
-      addToast('Message sent! We\'ll get back to you within 24 hours.', { type: 'success' });
-      setTimeout(() => {
-        setSubmitted(false);
-        setFormData({ name: '', email: '', subject: '', message: '' });
-      }, 3000);
-    }, 1000);
+    }
   };
 
   const faqs = [
