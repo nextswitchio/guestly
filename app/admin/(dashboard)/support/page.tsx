@@ -70,19 +70,14 @@ export default function AdminSupportPage() {
       const res = await fetch("/api/admin/support/tickets", { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
-        const list = data.tickets ?? [];
-        setTickets(list);
-        if (list.length > 0 && !activeTicketId) {
-          const firstOpen = list.find((t: Ticket) => t.status === "open");
-          if (firstOpen) setActiveTicketId(firstOpen.id);
-        }
+        setTickets(data.tickets ?? []);
       }
     } catch (e) {
       console.error("Failed to fetch tickets:", e);
     } finally {
       setLoading(false);
     }
-  }, [activeTicketId]);
+  }, []);
 
   useEffect(() => { fetchTickets(); }, [fetchTickets]);
 
