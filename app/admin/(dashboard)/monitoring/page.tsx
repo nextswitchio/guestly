@@ -411,24 +411,20 @@ export default function PlatformMonitoringDashboardPage() {
               value={formatCurrency(summary.total_revenue ?? 0, 'NGN')}
               icon="dollar-sign"
               color="primary"
-              trend={12.5}
-              trendType="up"
             />
             <MetricCard
               title="Active Users"
               value={formatNumber(summary.active_users ?? 0)}
               icon="users"
               color="success"
-              trend={8.3}
-              trendType="up"
             />
             <MetricCard
               title="New Users"
               value={formatNumber(summary.new_users ?? 0)}
               icon="user-plus"
               color="primary"
-              trend={15.2}
-              trendType="up"
+              
+              
             />
           </div>
 
@@ -538,24 +534,24 @@ export default function PlatformMonitoringDashboardPage() {
               value={formatNumber(perfOrders.total ?? 0)}
               icon="shopping-bag"
               color="primary"
-              trend={5.2}
-              trendType="up"
+              
+              
             />
             <MetricCard
               title="Paid Orders"
               value={formatNumber(perfOrders.paid ?? 0)}
               icon="credit-card"
               color="success"
-              trend={7.8}
-              trendType="up"
+              
+              
             />
             <MetricCard
               title="New Orders"
               value={formatNumber(perfOrders.new ?? 0)}
               icon="package"
               color="warning"
-              trend={12.3}
-              trendType="up"
+              
+              
             />
           </div>
 
@@ -675,16 +671,16 @@ export default function PlatformMonitoringDashboardPage() {
               value={formatNumber(act.active_users ?? 0)}
               icon="activity"
               color="success"
-              trend={8.3}
-              trendType="up"
+              
+              
             />
             <MetricCard
               title="New Users"
               value={formatNumber(act.new_users ?? 0)}
               icon="user-plus"
               color="warning"
-              trend={15.2}
-              trendType="up"
+              
+              
             />
           </div>
 

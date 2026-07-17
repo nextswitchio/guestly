@@ -11,10 +11,8 @@ function authHeaders(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get('access_token')?.value;
-  const role = req.cookies.get('role')?.value;
-
-  if (!token || role !== "admin") {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 401 });
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
