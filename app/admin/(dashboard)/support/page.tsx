@@ -323,6 +323,13 @@ export default function AdminSupportPage() {
                 <p className="text-xs text-gray-500">
                   {activeTicket.user_name} ({activeTicket.user_email}) · {activeTicket.category || "General"}
                 </p>
+                <a
+                  href={`/admin/users?search=${encodeURIComponent(activeTicket.user_email || activeTicket.user_name || '')}`}
+                  target="_blank"
+                  className="text-[10px] text-lime hover:underline mt-1 inline-block"
+                >
+                  View user profile →
+                </a>
               </div>
               <div className="flex items-center gap-2">
                 {/* Priority */}
