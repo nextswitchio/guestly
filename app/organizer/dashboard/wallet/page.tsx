@@ -220,7 +220,7 @@ export default function OrganiserWalletPage() {
                     <span className={`text-sm font-bold tabular-nums ${tx.transaction_type === "credit" ? "text-green-600" : tx.transaction_type === "debit" ? "text-red-600" : "text-neutral-500"}`}>
                       {tx.transaction_type === "credit" ? "+" : tx.transaction_type === "debit" ? "-" : ""}{formatCurrency(tx.amount)}
                     </span>
-                    <Link href={`/dashboard/wallet/receipt/${tx.id}`} className="text-xs font-medium text-lime hover:text-lime-hover shrink-0">
+                    <Link href={`/organizer/dashboard/wallet/receipt/${tx.id}`} className="text-xs font-medium text-lime hover:text-lime-hover shrink-0">
                       Receipt
                     </Link>
                   </div>
