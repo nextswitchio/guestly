@@ -91,6 +91,13 @@ function XIcon({ className = "h-5 w-5" }: { className?: string }) {
     </svg>
   );
 }
+function HeadsetIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5a9 9 0 0 1 18 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" />
+    </svg>
+  );
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────
 type NavLink = {
@@ -125,6 +132,7 @@ const systemLinks: NavLink[] = [
   { href: "/organizer/dashboard/subscription", label: "Subscription", icon: StarIcon },
   { href: "/organizer/dashboard/marketplace", label: "Marketplace Visibility", icon: StoreIcon },
   { href: "/organizer/dashboard/settings", label: "Settings", icon: SettingsIcon },
+  { href: "/support", label: "Support", icon: HeadsetIcon },
 ];
 
 function NavItem({ link }: { link: NavLink }) {
