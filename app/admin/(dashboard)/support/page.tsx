@@ -21,6 +21,7 @@ interface Ticket {
   user_email: string;
   user_city?: string;
   user_country?: string;
+  user_avatar?: string;
   subject: string;
   message: string;
   category: string | null;
@@ -322,19 +323,28 @@ export default function AdminSupportPage() {
               </button>
               <div className="flex-1">
                 <h2 className="font-semibold text-gray-900">{activeTicket.subject}</h2>
-                <p className="text-xs text-gray-500">
-                  {activeTicket.user_name} ({activeTicket.user_email}) · {activeTicket.category || "General"}
-                  {(activeTicket.user_city || activeTicket.user_country) && (
-                    <span> · 📍 {[activeTicket.user_city, activeTicket.user_country].filter(Boolean).join(", ")}</span>
-                  )}
-                </p>
-                <a
-                  href={`/admin/users?search=${encodeURIComponent(activeTicket.user_email || activeTicket.user_name || '')}`}
-                  target="_blank"
-                  className="text-[10px] text-lime hover:underline mt-1 inline-block"
-                >
-                  View user profile →
-                </a>
+                <div className="flex items-center gap-3 mt-2">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                    {activeTicket.user_avatar ? (
+                      <img src={activeTicket.user_avatar} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-medium">
+                        {(activeTicket.user_name || "U")[0].toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {activeTicket.user_name || "Anonymous"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {activeTicket.user_email}{" "}
+                      {(activeTicket.user_city || activeTicket.user_country) && (
+                        <span>· 📍 {[activeTicket.user_city, activeTicket.user_country].filter(Boolean).join(", ")}</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 {/* Priority */}
