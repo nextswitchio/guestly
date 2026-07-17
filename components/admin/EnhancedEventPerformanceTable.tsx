@@ -37,12 +37,14 @@ interface EnhancedEventPerformanceTableProps {
   onEventClick?: (eventId: string) => void;
   onBulkStatusUpdate?: (eventIds: string[], status: string) => void;
   onEventDelete?: (eventId: string) => void;
+  onEventEdit?: (event: EventPerformanceData) => void;
 }
 
 export default function EnhancedEventPerformanceTable({ 
   onEventClick,
   onBulkStatusUpdate,
-  onEventDelete
+  onEventDelete,
+  onEventEdit
 }: EnhancedEventPerformanceTableProps) {
   const [events, setEvents] = useState<EventPerformanceData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -263,8 +265,11 @@ export default function EnhancedEventPerformanceTable({
       icon: 'edit',
       variant: 'ghost',
       onClick: (event) => {
-        // Navigate to edit page
-        window.location.href = `/dashboard/events/${event.id}/edit`;
+        if (onEventEdit) {
+          onEventEdit(event);
+        } else {
+          window.location.href = `/dashboard/events/${event.id}/edit`;
+        }
       },
       hidden: (event) => event.status === 'completed' || event.status === 'cancelled',
     },

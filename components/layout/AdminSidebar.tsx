@@ -5,6 +5,60 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSidebar } from "@/components/ui/sidebar";
 import { clearAllCookies } from "@/lib/clearCookies";
 
+const ROLE_SECTION_ACCESS: Record<string, string[]> = {
+  super_admin: ["Overview", "Users", "Events", "Finance", "Content", "Security", "Developer", "System"],
+  admin: ["Overview", "Users", "Events", "Finance", "Content", "Security", "System"],
+  finance: ["Overview", "Finance"],
+  support: ["Overview", "Users", "Finance", "Security"],
+  moderator: ["Overview", "Events", "Content", "Security"],
+  content: ["Overview", "Content", "Events"],
+};
+
+const FINANCE_FOR_SUPPORT = ["Disputes"];
+
+function filterNavSections(
+  sections: NavSection[],
+  adminRole: string | null,
+): NavSection[] {
+  const role = adminRole || "admin";
+  const allowedSections = ROLE_SECTION_ACCESS[role] || ROLE_SECTION_ACCESS.admin;
+
+  return sections
+    .filter((section) => {
+      if (!allowedSections.includes(section.title)) return false;
+      if (role === "support" && section.title === "Finance") {
+        return true;
+      }
+      if (role === "content" && section.title === "Events") {
+        return true;
+      }
+      return true;
+    })
+    .map((section) => {
+      if (role === "support" && section.title === "Users") {
+        return {
+          ...section,
+          items: section.items.filter(
+            (item) => !["Organizers", "Vendors", "Vendor Categories", "Vendor Subscriptions", "Influencers"].includes(item.label)
+          ),
+        };
+      }
+      if (role === "support" && section.title === "Finance") {
+        return {
+          ...section,
+          items: section.items.filter((item) => FINANCE_FOR_SUPPORT.includes(item.label)),
+        };
+      }
+      if (role === "content" && section.title === "Events") {
+        return {
+          ...section,
+          items: section.items.filter((item) => ["Events"].includes(item.label)),
+        };
+      }
+      return section;
+    });
+}
+
 // ── Icons ─────────────────────────────────────────────────────────────────
 const icons = {
   layout: (
@@ -248,6 +302,7 @@ export default function AdminSidebar() {
   const router = useRouter();
   const sidebar = useSidebar();
   const [isHydrated, setIsHydrated] = React.useState(false);
+  const [adminRole, setAdminRole] = React.useState<string | null>(null);
   const collapsed = sidebar ? !sidebar.open : false;
   const mobileOpen = sidebar?.openMobile ?? false;
   const setOpenMobile = sidebar?.setOpenMobile;
@@ -258,8 +313,34 @@ export default function AdminSidebar() {
   }, []);
 
   React.useEffect(() => {
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((r) => {
+        if (!r.ok) {
+          clearAllCookies();
+          window.location.href = "/admin/login";
+          return null;
+        }
+        return r.json();
+      })
+      .then((d) => {
+        if (d?.ok) {
+          setAdminRole(d.user?.admin_role || d.user?.adminRole || "admin");
+        }
+      })
+      .catch(() => {
+        clearAllCookies();
+        window.location.href = "/admin/login";
+      });
+  }, []);
+
+  React.useEffect(() => {
     setOpenMobile?.(false);
   }, [pathname, setOpenMobile]);
+
+  const filteredNav = React.useMemo(
+    () => filterNavSections(NAV, adminRole),
+    [adminRole],
+  );
 
   function isActive(href: string, exact?: boolean) {
     const currentPath = pathname !== "/" ? pathname.replace(/\/+$/, "") : pathname;
@@ -319,7 +400,7 @@ export default function AdminSidebar() {
 
   const navContent = (
     <nav className="flex flex-col gap-4">
-      {NAV.map((section) => (
+      {filteredNav.map((section) => (
         <div key={section.title}>
           {collapsed ? (
             <div className="mb-1.5 flex justify-center">
