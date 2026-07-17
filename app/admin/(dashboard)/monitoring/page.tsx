@@ -256,7 +256,7 @@ export default function PlatformMonitoringDashboardPage() {
       setLoading(true);
       try {
         // Fetch monitoring report
-        const response = await fetch(`/api/monitoring/health?period=${period}`);
+        const response = await fetch(`/api/admin/monitoring?period=${period}`);
         if (response.ok) {
           const json = await response.json();
           setData(json);
