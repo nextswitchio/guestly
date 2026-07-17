@@ -19,6 +19,8 @@ interface Ticket {
   user_id: string;
   user_name: string;
   user_email: string;
+  user_city?: string;
+  user_country?: string;
   subject: string;
   message: string;
   category: string | null;
@@ -322,6 +324,9 @@ export default function AdminSupportPage() {
                 <h2 className="font-semibold text-gray-900">{activeTicket.subject}</h2>
                 <p className="text-xs text-gray-500">
                   {activeTicket.user_name} ({activeTicket.user_email}) · {activeTicket.category || "General"}
+                  {(activeTicket.user_city || activeTicket.user_country) && (
+                    <span> · 📍 {[activeTicket.user_city, activeTicket.user_country].filter(Boolean).join(", ")}</span>
+                  )}
                 </p>
                 <a
                   href={`/admin/users?search=${encodeURIComponent(activeTicket.user_email || activeTicket.user_name || '')}`}
