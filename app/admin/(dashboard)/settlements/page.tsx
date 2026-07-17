@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DollarSign, RefreshCw, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { DollarSign, RefreshCw, ArrowUpRight, ArrowDownLeft, CheckCircle } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Tabs } from '@/components/ui/Tabs';
@@ -50,6 +50,30 @@ export default function SettlementsPage() {
     failed: 'bg-red-100 text-red-700',
   };
 
+  const handleProcess = async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/settlements/${id}/process`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (res.ok) fetchSettlements();
+    } catch (error) {
+      console.error('Failed to process settlement:', error);
+    }
+  };
+
+  const handleComplete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/settlements/${id}/complete`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (res.ok) fetchSettlements();
+    } catch (error) {
+      console.error('Failed to complete settlement:', error);
+    }
+  };
+
   const tabs = [
     {
       id: 'all',
@@ -78,6 +102,19 @@ export default function SettlementsPage() {
                       Completed: {new Date(s.completedAt).toLocaleDateString()}
                     </p>
                   )}
+                  <div className="flex gap-2 mt-3 justify-end">
+                    {s.status === 'pending' && (
+                      <Button size="sm" onClick={() => handleProcess(s.id)}>
+                        Process
+                      </Button>
+                    )}
+                    {s.status === 'processing' && (
+                      <Button size="sm" onClick={() => handleComplete(s.id)} className="text-green-600" variant="outline">
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        Complete
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -103,8 +140,16 @@ export default function SettlementsPage() {
                 <div>
                   <h3 className="font-semibold">{s.vendorName}</h3>
                   <p className="text-sm text-slate-500">Ref: {s.transactionRef}</p>
+                  <p className="text-sm text-slate-500">
+                    Initiated: {new Date(s.initiatedAt).toLocaleDateString()}
+                  </p>
                 </div>
-                <p className="text-xl font-bold">₦{(s.amount || 0).toLocaleString()}</p>
+                <div className="text-right">
+                  <p className="text-xl font-bold">₦{(s.amount || 0).toLocaleString()}</p>
+                  <div className="mt-3">
+                    <Button size="sm" onClick={() => handleProcess(s.id)}>Process</Button>
+                  </div>
+                </div>
               </div>
             </Card>
           ))}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, RefreshCw, CheckCircle, Archive } from 'lucide-react';
+import { MessageCircle, RefreshCw, CheckCircle, Archive, Send } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Tabs } from '@/components/ui/Tabs';
@@ -22,6 +22,8 @@ interface Ticket {
 export default function AdminSupportPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
+  const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTickets();
@@ -38,6 +40,47 @@ export default function AdminSupportPage() {
       console.error('Failed to fetch support tickets:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReply = (ticketId: string) => {
+    setReplyingTo(ticketId);
+    setReplyTexts((prev) => ({ ...prev, [ticketId]: prev[ticketId] || '' }));
+  };
+
+  const sendReply = async (ticketId: string) => {
+    const replyText = replyTexts[ticketId]?.trim();
+    if (!replyText) return;
+    try {
+      const res = await fetch(`/api/admin/support/tickets/${ticketId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ reply: replyText }),
+      });
+      if (res.ok) {
+        setReplyTexts((prev) => ({ ...prev, [ticketId]: '' }));
+        setReplyingTo(null);
+        fetchTickets();
+      }
+    } catch (error) {
+      console.error('Failed to send reply:', error);
+    }
+  };
+
+  const handleResolve = async (ticketId: string) => {
+    try {
+      const res = await fetch(`/api/admin/support/tickets/${ticketId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'resolved' }),
+      });
+      if (res.ok) {
+        fetchTickets();
+      }
+    } catch (error) {
+      console.error('Failed to resolve ticket:', error);
     }
   };
 
@@ -86,15 +129,30 @@ export default function AdminSupportPage() {
               <p className="text-sm text-slate-500 mb-1">{ticket.userName} ({ticket.userEmail})</p>
               <p className="text-slate-600">{ticket.message}</p>
               <div className="flex gap-2 mt-4">
-                <Button size="sm">
+                <Button size="sm" onClick={() => handleReply(ticket.id)}>
                   <MessageCircle className="w-4 h-4 mr-1.5" />
                   Reply
                 </Button>
-                <Button size="sm" variant="outline" className="text-green-600">
+                <Button size="sm" variant="outline" className="text-green-600" onClick={() => handleResolve(ticket.id)}>
                   <CheckCircle className="w-4 h-4 mr-1.5" />
                   Resolve
                 </Button>
               </div>
+              {replyingTo === ticket.id && (
+                <div className="mt-4 flex gap-2">
+                  <input
+                    type="text"
+                    value={replyTexts[ticket.id] || ''}
+                    onChange={(e) => setReplyTexts((prev) => ({ ...prev, [ticket.id]: e.target.value }))}
+                    placeholder="Type your reply..."
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-lime/40"
+                    onKeyDown={(e) => { if (e.key === 'Enter') sendReply(ticket.id); }}
+                  />
+                  <Button size="sm" onClick={() => sendReply(ticket.id)}>
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </Card>
           ))}
           {tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length === 0 && (
