@@ -32,13 +32,12 @@ export default function AdminSeoPage() {
     try {
       const res = await fetch("/api/admin/settings", { credentials: "include" });
       if (res.ok) {
-        const data = await res.json();
-        const apiSettings = data?.settings || data?.data || data;
-        const settingsList = Array.isArray(apiSettings) ? apiSettings : [];
+        const json = await res.json();
+        const data = json?.data || json;
         setSettings(
           DEFAULTS.map((d) => {
-            const match = settingsList.find((s: any) => s.key === d.key || s.key === `seo_${d.key}`);
-            return match ? { ...d, value: match.value } : d;
+            const value = data?.[d.key] ?? d.value;
+            return { ...d, value: String(value) };
           })
         );
       }
@@ -56,10 +55,12 @@ export default function AdminSeoPage() {
   const saveSettings = async () => {
     setSaving(true);
     try {
+      const payload: Record<string, string> = {};
+      settings.forEach((s) => { payload[s.key] = s.value; });
       await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "seo", settings }),
+        body: JSON.stringify(payload),
         credentials: 'include',
       });
     } catch (e) {
