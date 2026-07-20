@@ -35,31 +35,31 @@ export default function MobileTabs({
   return (
     <div className={`w-full ${className}`}>
       {/* Tab Navigation */}
-      <div className="flex overflow-x-auto border-b border-neutral-200 bg-white rounded-t-xl">
+      <div className="flex overflow-x-auto border-b border-neutral-200 bg-white rounded-t-xl -mx-4 sm:mx-0">
         {items.map((item) => (
           <button
             key={item.id}
             onClick={() => handleTabChange(item.id)}
-            className={`flex-1 min-w-0 px-4 py-3 text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            className={`flex-shrink-0 px-4 sm:px-5 py-3 text-sm font-medium transition-all duration-200 whitespace-nowrap border-b-2 ${
               activeTab === item.id
-                ? "text-lime border-b-2 border-lime bg-lime/5"
-                : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50"
+                ? "text-lime border-lime bg-lime/5"
+                : "text-neutral-500 border-transparent hover:text-neutral-900 hover:bg-neutral-50"
             }`}
           >
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1.5">
               {item.icon && (
                 <Icon 
                   name={item.icon as any} 
                   size={16} 
-                  className={activeTab === item.id ? "text-lime" : "text-neutral-500"}
+                  className={activeTab === item.id ? "text-lime" : "text-neutral-400"}
                 />
               )}
-              <span className="truncate">{item.title}</span>
+              <span className="truncate max-w-[100px]">{item.title}</span>
               {item.badge && (
-                <span className={`inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full ${
+                <span className={`inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium rounded-full ${
                   activeTab === item.id
                     ? "bg-lime/10 text-lime"
-                    : "bg-neutral-50 text-neutral-500"
+                    : "bg-neutral-100 text-neutral-500"
                 }`}>
                   {item.badge}
                 </span>
@@ -72,7 +72,7 @@ export default function MobileTabs({
       {/* Tab Content */}
       <div className="bg-white rounded-b-xl">
         {activeItem && (
-          <div className="p-4 animate-in fade-in-0 duration-200">
+          <div className="p-4 sm:p-6 animate-in fade-in-0 duration-200">
             {activeItem.content}
           </div>
         )}
