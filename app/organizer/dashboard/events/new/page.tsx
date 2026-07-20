@@ -91,6 +91,9 @@ export default function CreateEventPage() {
   const [creationStatusLoading, setCreationStatusLoading] = React.useState(true);
   const { addToast } = useToast();
 
+  const saveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingPatchRef = React.useRef<Partial<Draft>>({});
+
   React.useEffect(() => {
     fetch("/api/events/creation-status")
       .then((r) => r.json())
@@ -187,27 +190,36 @@ export default function CreateEventPage() {
     return isValid;
   }
 
-  async function save(patch: Partial<Draft>) {
-    setSaving(true);
+  function save(patch: Partial<Draft>) {
+    setDraft((prev) => ({ ...prev, ...patch }));
     setErrors((prev) => {
       const next = { ...prev };
       Object.keys(patch).forEach((key) => delete next[key]);
-      if (patch.ticketSetup) delete next.ticketSetup;
-      if (patch.virtual) delete next.virtualUrl;
       return next;
     });
 
-    const res = await fetch("/api/drafts/event", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(patch),
-    });
-    const data = await res.json();
-    setSaving(false);
-    if (res.ok) {
-      setDraft(data.draft as Draft);
-      setLastSaved(new Date());
-    }
+    Object.assign(pendingPatchRef.current, patch);
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      const batch = { ...pendingPatchRef.current };
+      pendingPatchRef.current = {};
+      setSaving(true);
+      try {
+        const res = await fetch("/api/drafts/event", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(batch),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setDraft(data.draft as Draft);
+          setLastSaved(new Date());
+        }
+      } finally {
+        setSaving(false);
+      }
+    }, 600);
   }
 
   async function publish() {
