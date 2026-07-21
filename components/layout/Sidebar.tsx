@@ -130,7 +130,6 @@ const paymentsLinks: NavLink[] = [
 const systemLinks: NavLink[] = [
   { href: "/organizer/dashboard/developer", label: "Developer", icon: SettingsIcon },
   { href: "/organizer/dashboard/subscription", label: "Subscription", icon: StarIcon },
-  { href: "/organizer/dashboard/marketplace", label: "Marketplace Visibility", icon: StoreIcon },
   { href: "/organizer/dashboard/settings", label: "Settings", icon: SettingsIcon },
   { href: "/support", label: "Support", icon: HeadsetIcon },
 ];

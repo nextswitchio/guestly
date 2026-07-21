@@ -9,8 +9,9 @@ import IdentityVerification, { type IdentityData } from "@/components/identity/I
 import CloudinaryUploadField from "@/components/ui/CloudinaryUploadField";
 import { useToast } from "@/components/ui/ToastProvider";
 import { formatCurrency } from "@/lib/utils";
+import MarketplaceVisibilityToggle from "@/components/marketplace/MarketplaceVisibilityToggle";
 
-type TabType = "profile" | "identity" | "notifications" | "security" | "billing" | "team";
+type TabType = "profile" | "identity" | "notifications" | "security" | "billing" | "team" | "marketplace";
 
 export default function SettingsPage() {
   const { addToast } = useToast();
@@ -166,6 +167,7 @@ export default function SettingsPage() {
     { id: "security" as const, label: "Security", icon: "lock" as const },
     { id: "billing" as const, label: "Billing", icon: "credit-card" as const },
     { id: "team" as const, label: "Team", icon: "users" as const },
+    { id: "marketplace" as const, label: "Marketplace", icon: "eye" as const },
   ];
 
   const handleSave = async () => {
@@ -645,6 +647,11 @@ export default function SettingsPage() {
                   ))}
                 </div>
               </div>
+            )}
+
+            {/* Marketplace Tab */}
+            {activeTab === "marketplace" && (
+              <MarketplaceVisibilityToggle userType="organizer" />
             )}
 
             {/* Danger Zone */}
