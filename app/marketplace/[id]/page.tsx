@@ -74,7 +74,7 @@ export default function ProviderDetailPage({ params }: { params: Promise<{ id: s
       const res = await fetch("/api/marketplace/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider_id: provider?.user_id }),
+        body: JSON.stringify({ provider_id: id }),
       });
       if (res.ok) {
         const conv = await res.json();
