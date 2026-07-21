@@ -79,9 +79,14 @@ export default function ProviderDetailPage({ params }: { params: Promise<{ id: s
       if (res.ok) {
         const conv = await res.json();
         router.push(`/marketplace/messages/${conv.id}`);
+      } else {
+        const err = await res.json().catch(() => ({ detail: "Unknown error" }));
+        console.error("Contact failed:", res.status, err);
+        alert(`Error ${res.status}: ${err.detail || JSON.stringify(err)}`);
       }
-    } catch {
-      // silent
+    } catch (e) {
+      console.error("Contact exception:", e);
+      alert("Network error. Please try again.");
     } finally {
       setContacting(false);
     }
