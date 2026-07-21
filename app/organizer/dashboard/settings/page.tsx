@@ -21,6 +21,8 @@ export default function SettingsPage() {
   const [website, setWebsite] = useState("");
   const [bio, setBio] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
   const [socialTwitter, setSocialTwitter] = useState("");
   const [socialFacebook, setSocialFacebook] = useState("");
   const [socialInstagram, setSocialInstagram] = useState("");
@@ -40,6 +42,8 @@ export default function SettingsPage() {
           setWebsite(d.profile.website || "");
           setBio(d.profile.bio || "");
           setAvatar(d.profile.avatar || "");
+          setCity(d.profile.location_city || "");
+          setCountry(d.profile.location_country || "");
           setSocialTwitter(d.profile.social_twitter || "");
           setSocialFacebook(d.profile.social_facebook || "");
           setSocialInstagram(d.profile.social_instagram || "");
@@ -98,7 +102,18 @@ export default function SettingsPage() {
     { id: "1", type: "visa" as const, last4: "4242", expiry: "12/25", default: true },
   ]);
 
-  const handleSavePayment = async () => {
+  const handleSaveNotifs = async () => {
+    try {
+      await fetch('/api/community/notifications/preferences', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(notifs),
+      });
+      addToast('Notification preferences saved!', { type: 'success' });
+    } catch {
+      addToast('Failed to save preferences', { type: 'error' });
+    }
+  };
     if (paymentMethod === "card") {
       if (!cardNumber || !cardName || !cardExpiry || !cardCvc) return;
     } else {
@@ -166,6 +181,8 @@ export default function SettingsPage() {
           website,
           bio,
           avatar: avatar || null,
+          location_city: city || null,
+          location_country: country || null,
           social_twitter: socialTwitter || null,
           social_facebook: socialFacebook || null,
           social_instagram: socialInstagram || null,
@@ -319,7 +336,22 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                {/* Social Links */}
+                {/* Location */}
+               <h2 className="text-lg font-semibold text-neutral-900 mb-4">Location</h2>
+               <div className="grid grid-cols-2 gap-4 mb-6">
+                 <div>
+                   <label className="block text-sm font-medium text-neutral-700 mb-1">City</label>
+                   <input type="text" value={city} onChange={e => setCity(e.target.value)}
+                     className="w-full rounded-xl border border-neutral-200 px-4 py-2.5 text-sm focus:outline-none focus:border-lime" />
+                 </div>
+                 <div>
+                   <label className="block text-sm font-medium text-neutral-700 mb-1">Country</label>
+                   <input type="text" value={country} onChange={e => setCountry(e.target.value)}
+                     className="w-full rounded-xl border border-neutral-200 px-4 py-2.5 text-sm focus:outline-none focus:border-lime" />
+                 </div>
+               </div>
+
+               {/* Social Links */}
                 <div className="rounded-2xl border border-neutral-200 bg-white p-6">
                   <h2 className="text-lg font-semibold text-neutral-900 mb-4">Social Links</h2>
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -409,7 +441,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="mt-6 flex justify-end">
-                  <button className="rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors">
+                  <button onClick={handleSaveNotifs} className="rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors">
                     Save Preferences
                   </button>
                 </div>
@@ -484,15 +516,8 @@ export default function SettingsPage() {
                 {/* Active Sessions */}
                 <div className="rounded-2xl border border-neutral-200 bg-white p-6">
                   <h2 className="text-lg font-semibold text-neutral-900 mb-4">Active Sessions</h2>
-                  <div className="space-y-3">
-                    {[
-                      { device: "Chrome on Windows", location: "Lagos, Nigeria", current: true },
-                      { device: "Safari on iPhone", location: "Abuja, Nigeria", current: false },
-                    ].map((session, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between rounded-xl border border-neutral-100 p-4"
-                      >
+                  <p className="text-sm text-neutral-500">You are currently logged in on this browser.</p>
+                </div>
                         <div className="flex items-center gap-3">
                           <Icon name="monitor" size={18} className="text-neutral-500" />
                           <div>
