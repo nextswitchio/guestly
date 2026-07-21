@@ -49,6 +49,7 @@ export default function MarketplaceSearch() {
   const [sortBy, setSortBy] = useState(searchParams.get("sort_by") || "rating");
   const [page, setPage] = useState(1);
   const [cities, setCities] = useState<CityOption[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [nearMe, setNearMe] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
@@ -58,6 +59,13 @@ export default function MarketplaceSearch() {
       .then((r) => (r.ok ? r.json() : []))
       .then((data: CityOption[]) => setCities(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Failed to fetch cities:", err));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/marketplace/categories")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: string[]) => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => {});
   }, []);
 
   function handleNearMe() {
@@ -202,13 +210,24 @@ export default function MarketplaceSearch() {
             {/* Category Filter */}
             <div className="mb-5">
               <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2 block">Category</label>
-              <input
-                type="text"
+              <select
                 value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                placeholder="e.g. DJ, Photography"
-                className="w-full px-3 py-2.5 border border-neutral-200 rounded-xl text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-lime/20 focus:border-lime transition-all"
-              />
+                onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
+                className="w-full px-3 py-2.5 border border-neutral-200 rounded-xl text-sm text-neutral-900 bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 focus:border-lime transition-all"
+              >
+                <option value="">All Categories</option>
+                <optgroup label="Vendor Categories">
+                  {categories.map((c: any) => (
+                    <option key={c.category || c} value={c.category || c}>
+                      {c.category || c} {c.count ? `(${c.count})` : ''}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Other">
+                  <option value="Influencer">Influencer</option>
+                  <option value="Event Planning">Event Organizer</option>
+                </optgroup>
+              </select>
             </div>
 
             {/* City Filter */}
