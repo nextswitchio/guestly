@@ -109,6 +109,20 @@ export async function POST(req: NextRequest) {
     post_event_community_access: draft.postEventCommunityAccess ?? true,
     streaming_config,
     tickets,
+    products: ((draft.merch as any)?.enabled && (draft.merch as any)?.products) 
+      ? (draft.merch as any).products.map((p: any) => ({
+          name: p.name,
+          description: p.description || "",
+          price: p.price,
+          image: p.image || "",
+          category: p.category || "Accessories",
+          stock: p.stock || 0,
+          sizes: p.sizes || [],
+          fulfillment_type: p.fulfillmentType || "pickup",
+          pickup_instructions: p.pickupInstructions || null,
+          digital_download_url: p.digitalDownloadUrl || null,
+        }))
+      : [],
     tags: [],
   };
 
