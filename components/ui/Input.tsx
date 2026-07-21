@@ -10,7 +10,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   rightIcon?: React.ReactNode;
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
+const _Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
   { label, hint, error, leftIcon, rightIcon, className = "", id, ...props },
   ref
 ) {
@@ -73,7 +73,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
   );
 });
 
+const Input = React.memo(_Input);
 export default Input;
 
 // Named export for compatibility
+export { Input };
 export { Input };

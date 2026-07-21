@@ -193,11 +193,11 @@ export default function CreateEventPage() {
   function save(patch: Partial<Draft>) {
     React.startTransition(() => {
       setDraft((prev) => ({ ...prev, ...patch }));
-    });
-    setErrors((prev) => {
-      const next = { ...prev };
-      Object.keys(patch).forEach((key) => delete next[key]);
-      return next;
+      setErrors((prev) => {
+        const next = { ...prev };
+        Object.keys(patch).forEach((key) => delete next[key]);
+        return next;
+      });
     });
 
     Object.assign(pendingPatchRef.current, patch);
@@ -249,7 +249,7 @@ export default function CreateEventPage() {
   };
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
-  const completedSteps = [
+  const completedSteps = React.useMemo(() => [
     !!draft.type,
     !!draft.title && !!draft.category && !!draft.country && !!draft.city && !!draft.image && !!draft.description,
     !!draft.date,
@@ -258,11 +258,21 @@ export default function CreateEventPage() {
     draft.type === "Physical" || !!draft.virtual?.url,
     true,
     true,
-  ];
+  ], [draft.type, draft.title, draft.category, draft.country, draft.city, draft.image, draft.description, draft.date, draft.ticketSetup?.generalPrice, draft.ticketSetup?.generalQty, draft.ticketSetup?.vipPrice, draft.ticketSetup?.vipQty, draft.virtual?.url]);
   const isIdentityVerified = identityStatus === "verified";
-  const countryCities = catalog.cities.filter((city) => city.countryName === draft.country && city.isActive);
-  const stateOptions = Array.from(new Set(countryCities.map((city) => city.state).filter(Boolean))) as string[];
-  const cityOptions = countryCities.filter((city) => !draft.state || city.state === draft.state);
+  const countryCities = React.useMemo(() => catalog.cities.filter((city) => city.countryName === draft.country && city.isActive), [catalog.cities, draft.country]);
+  const stateOptions = React.useMemo(() => Array.from(new Set(countryCities.map((city) => city.state).filter(Boolean))) as string[], [countryCities]);
+  const cityOptions = React.useMemo(() => countryCities.filter((city) => !draft.state || city.state === draft.state), [countryCities, draft.state]);
+
+  const categoryOptions = React.useMemo(() => [
+    { value: "", label: "Select category" },
+    ...catalog.eventCategories.filter((category) => category.isActive).map((category) => ({ value: category.name, label: category.name })),
+  ], [catalog.eventCategories]);
+
+  const countryOptions = React.useMemo(() => [
+    { value: "", label: "Select country" },
+    ...catalog.countries.filter((country) => country.isActive).map((country) => ({ value: country.name, label: country.name })),
+  ], [catalog.countries]);
 
   return (
     <ProtectedRoute allowRoles={["organiser"]}>
@@ -492,10 +502,7 @@ export default function CreateEventPage() {
                   value={draft.category || ""}
                   onChange={(e) => save({ category: e.currentTarget.value })}
                   error={errors.category}
-                  options={[
-                    { value: "", label: "Select category" },
-                    ...catalog.eventCategories.filter((category) => category.isActive).map((category) => ({ value: category.name, label: category.name })),
-                  ]}
+                  options={categoryOptions}
                 />
 
                 <Select
@@ -506,10 +513,7 @@ export default function CreateEventPage() {
                     save({ country: newCountry, state: undefined, city: undefined });
                   }}
                   error={errors.country}
-                  options={[
-                    { value: "", label: "Select country" },
-                    ...catalog.countries.filter((country) => country.isActive).map((country) => ({ value: country.name, label: country.name })),
-                  ]}
+                  options={countryOptions}
                 />
 
                 {draft.country && stateOptions.length > 0 && (

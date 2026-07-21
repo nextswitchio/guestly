@@ -6,7 +6,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   options?: Array<{ label: string; value: string }>;
 }
 
-export function Select({
+function _Select({
   label,
   error,
   className = "",
@@ -35,5 +35,6 @@ export function Select({
   );
 }
 
-
+const Select = React.memo(_Select);
+export { Select };
 export default Select;
