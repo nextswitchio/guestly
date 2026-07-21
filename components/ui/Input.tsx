@@ -75,7 +75,4 @@ const _Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
 
 const Input = React.memo(_Input);
 export default Input;
-
-// Named export for compatibility
-export { Input };
 export { Input };
