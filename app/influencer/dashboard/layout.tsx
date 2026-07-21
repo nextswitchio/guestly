@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { Shield, X, Eye, User, BarChart3, LogOut, Menu, Headset, Handshake, TrendingUp, DollarSign, Store } from "lucide-react";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import { clearAllCookies } from "@/lib/clearCookies";
 
 const NAV_ITEMS = [
@@ -115,8 +116,9 @@ function InfluencerDashboardShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen bg-neutral-50">
       <InfluencerSidebar />
       <div className={`flex flex-1 flex-col min-w-0 transition-[margin,width] duration-300 ${collapsed ? "md:ml-16 md:w-[calc(100%-4rem)]" : "md:ml-64 md:w-[calc(100%-16rem)]"}`}>
-        <header className="flex h-16 items-center gap-4 border-b border-gray-100 bg-white px-6">
+        <header className="flex h-16 items-center justify-between gap-4 border-b border-gray-100 bg-white px-6">
           <h1 className="text-lg font-semibold text-dark">Influencer Dashboard</h1>
+          <NotificationBell />
         </header>
 
         {showBanner && identityStatus !== "verified" && (

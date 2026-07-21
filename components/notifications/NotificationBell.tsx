@@ -1,223 +1,180 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { Bell, MessageCircle, Handshake, CreditCard, UserPlus, Calendar, Megaphone, CheckCheck } from "lucide-react";
 
-interface Notification {
+interface NotificationItem {
   id: string;
-  userId: string;
-  type: 'follow_event' | 'event_update' | 'event_reminder' | 'follow_user';
+  user_id: string;
+  notification_type: string;
   title: string;
   message: string;
-  eventId?: string;
-  fromUserId?: string;
-  read: boolean;
-  createdAt: number;
+  event_id: string | null;
+  from_user_id: string | null;
+  collaboration_id: string | null;
+  is_read: boolean;
+  created_at: string;
 }
 
-export default function NotificationBell() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+interface Props {
+  className?: string;
+}
+
+export default function NotificationBell({ className = "" }: Props) {
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchNotifications();
-    // Poll for new notifications every 30 seconds
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    if (showDropdown) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showDropdown]);
+
   const fetchNotifications = async () => {
     try {
-      const response = await fetch("/api/notifications");
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setNotifications(data.data);
-          setUnreadCount(data.data.filter((n: Notification) => !n.read).length);
-        }
+      const res = await fetch("/api/notifications?page=1&page_size=10");
+      if (res.ok) {
+        const data = await res.json();
+        const items = data.notifications || data.data || [];
+        setNotifications(items);
+        setUnreadCount(items.filter((n: NotificationItem) => !n.is_read).length);
       }
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
+    } catch {
+      // silent
     }
   };
 
-  const markAsRead = async (notificationId: string) => {
+  const markAsRead = async (id: string) => {
     try {
-      const response = await fetch(`/api/notifications/${notificationId}`, {
-        method: "PUT",
-      });
-      if (response.ok) {
-        setNotifications(prev =>
-          prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
-        );
-        setUnreadCount(prev => Math.max(0, prev - 1));
-      }
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
+      await fetch(`/api/community/notifications/${id}/read`, { method: "POST" });
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch {
+      // silent
     }
   };
 
   const markAllAsRead = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/notifications", {
-        method: "PUT",
-      });
-      if (response.ok) {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-        setUnreadCount(0);
-      }
-    } catch (error) {
-      console.error("Error marking all as read:", error);
+      await fetch("/api/notifications?action=read-all", { method: "POST" });
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      setUnreadCount(0);
+    } catch {
+      // silent
     } finally {
       setLoading(false);
     }
   };
 
-  const getNotificationLink = (notification: Notification) => {
-    if (notification.eventId) {
-      return `/events/${notification.eventId}`;
-    }
-    if (notification.fromUserId) {
-      return `/attendee/profile?userId=${notification.fromUserId}`;
-    }
+  const getNotificationLink = (n: NotificationItem) => {
+    if (n.collaboration_id) return `/influencer/dashboard/collaborations?id=${n.collaboration_id}`;
+    if (n.event_id) return `/events/${n.event_id}`;
+    if (n.from_user_id) return `/organizers/${n.from_user_id}`;
     return "#";
   };
 
+  const getIcon = (type: string) => {
+    if (type.includes("marketplace")) return <MessageCircle className="w-4 h-4 text-violet-500" />;
+    if (type.includes("collaboration")) return <Handshake className="w-4 h-4 text-blue-500" />;
+    if (type.includes("deal")) return <CreditCard className="w-4 h-4 text-emerald-500" />;
+    if (type.includes("follow")) return <UserPlus className="w-4 h-4 text-pink-500" />;
+    if (type.includes("event")) return <Calendar className="w-4 h-4 text-amber-500" />;
+    return <Megaphone className="w-4 h-4 text-gray-500" />;
+  };
+
   return (
-    <div className="relative">
+    <div className={`relative ${className}`} ref={dropdownRef}>
       <button
-        onClick={() => setShowDropdown(!showDropdown)}
-        className="relative h-11 w-11 flex items-center justify-center rounded-lg hover:bg-surface-hover transition-colors"
+        onClick={() => { setShowDropdown(!showDropdown); if (!showDropdown) fetchNotifications(); }}
+        className="relative h-10 w-10 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors"
         aria-label="Notifications"
       >
-        <svg
-          className="w-6 h-6 text-foreground"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-          />
-        </svg>
+        <Bell className="w-5 h-5 text-gray-600" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 bg-danger-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+          <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {showDropdown && (
-        <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setShowDropdown(false)}
-          />
-          <div className="absolute right-0 mt-2 w-80 bg-surface-card border border-surface-border rounded-lg shadow-lg z-20 max-h-96 overflow-y-auto">
-            <div className="p-4 border-b border-surface-border flex items-center justify-between">
-              <h3 className="font-semibold text-foreground">Notifications</h3>
-              {unreadCount > 0 && (
-                <button
-                  onClick={markAllAsRead}
-                  disabled={loading}
-                  className="text-sm text-primary-500 hover:text-primary-600 transition-colors"
-                >
-                  Mark all read
-                </button>
-              )}
-            </div>
+        <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 max-h-[420px] overflow-hidden flex flex-col">
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+            <h3 className="font-semibold text-gray-900">Notifications</h3>
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                disabled={loading}
+                className="text-xs font-medium text-lime hover:text-lime/80 flex items-center gap-1 transition-colors"
+              >
+                <CheckCheck className="w-3.5 h-3.5" />
+                Mark all read
+              </button>
+            )}
+          </div>
 
+          <div className="overflow-y-auto flex-1">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-foreground-muted">
-                <svg
-                  className="w-12 h-12 mx-auto mb-2 opacity-50"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                  />
-                </svg>
-                <p>No notifications yet</p>
+              <div className="py-10 text-center">
+                <Bell className="w-10 h-10 mx-auto mb-2 text-gray-200" />
+                <p className="text-sm text-gray-400">No notifications yet</p>
               </div>
             ) : (
-              <div className="divide-y divide-surface-border">
-                {notifications.slice(0, 10).map((notification) => (
+              <div className="divide-y divide-gray-50">
+                {notifications.slice(0, 10).map((n) => (
                   <Link
-                    key={notification.id}
-                    href={getNotificationLink(notification)}
+                    key={n.id}
+                    href={getNotificationLink(n)}
                     onClick={() => {
-                      if (!notification.read) {
-                        markAsRead(notification.id);
-                      }
+                      if (!n.is_read) markAsRead(n.id);
                       setShowDropdown(false);
                     }}
-                    className={`block p-4 hover:bg-surface-hover transition-colors ${
-                      !notification.read ? "bg-primary-50 dark:bg-primary-900/10" : ""
+                    className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${
+                      !n.is_read ? "bg-lime/5" : ""
                     }`}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-1">
-                        {notification.type === 'follow_event' && (
-                          <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                            <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
-                            </svg>
-                          </div>
-                        )}
-                        {notification.type === 'follow_user' && (
-                          <div className="w-8 h-8 rounded-full bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
-                            <svg className="w-4 h-4 text-success-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6z" />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground">
-                          {notification.title}
-                        </p>
-                        <p className="text-sm text-foreground-muted mt-1">
-                          {notification.message}
-                        </p>
-                        <p className="text-xs text-foreground-subtle mt-1">
-                          {new Date(notification.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      {!notification.read && (
-                        <div className="flex-shrink-0">
-                          <div className="w-2 h-2 rounded-full bg-primary-500" />
-                        </div>
-                      )}
+                    <div className="flex-shrink-0 mt-0.5 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                      {getIcon(n.notification_type)}
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{n.title}</p>
+                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.message}</p>
+                      <p className="text-[10px] text-gray-400 mt-1">
+                        {new Date(n.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {!n.is_read && (
+                      <div className="flex-shrink-0 mt-1.5 w-2 h-2 rounded-full bg-lime" />
+                    )}
                   </Link>
                 ))}
               </div>
             )}
-
-            {notifications.length > 10 && (
-              <div className="p-3 border-t border-surface-border text-center">
-                <Link
-                  href="/attendee/notifications"
-                  className="text-sm text-primary-500 hover:text-primary-600 transition-colors"
-                  onClick={() => setShowDropdown(false)}
-                >
-                  View all notifications
-                </Link>
-              </div>
-            )}
           </div>
-        </>
+
+          <Link
+            href="/attendee/notifications"
+            onClick={() => setShowDropdown(false)}
+            className="block px-4 py-2.5 text-center text-sm font-medium text-gray-500 hover:text-gray-700 border-t border-gray-100 hover:bg-gray-50 transition-colors"
+          >
+            View all notifications
+          </Link>
+        </div>
       )}
     </div>
   );

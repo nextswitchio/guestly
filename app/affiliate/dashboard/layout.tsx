@@ -2,6 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 function LayoutIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -283,10 +284,7 @@ export default function AffiliateLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="relative flex h-9 w-9 items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700" aria-label="Notifications">
-              <BellIcon />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-lime" />
-            </button>
+            <NotificationBell />
             <div ref={profileRef} className="relative hidden md:block">
               <button
                 onClick={() => setProfileOpen((v) => !v)}

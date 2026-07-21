@@ -5,6 +5,7 @@ import Avatar from "@/components/ui/Avatar";
 import { useSidebar } from "@/components/ui/sidebar";
 import { clearAllCookies } from "@/lib/clearCookies";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 function SearchIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
@@ -124,10 +125,7 @@ export default function DashboardTopBar() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="relative flex h-9 w-9 items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700" aria-label="Notifications">
-            <BellIcon />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-lime" />
-          </button>
+          <NotificationBell />
           {role ? (
             <div ref={profileRef} className="relative hidden md:block">
               <button
