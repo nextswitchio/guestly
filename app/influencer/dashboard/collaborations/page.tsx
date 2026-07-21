@@ -40,7 +40,7 @@ export default function InfluencerCollaborationsPage() {
             <div key={c.id} className="bg-white border rounded-xl p-5 shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-lg">{c.event_title || c.event?.title || "Event Collaboration"}</h3>
-                <Badge variant={c.status === "pending" ? "warning" : c.status === "accepted" ? "success" : "error"}>
+                <Badge variant={c.status === "pending" ? "warning" : c.status === "accepted" ? "success" : "danger"}>
                   {c.status}
                 </Badge>
               </div>

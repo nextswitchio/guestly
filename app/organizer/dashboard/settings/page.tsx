@@ -115,6 +115,8 @@ export default function SettingsPage() {
       addToast('Failed to save preferences', { type: 'error' });
     }
   };
+
+  const handleSavePayment = async () => {
     if (paymentMethod === "card") {
       if (!cardNumber || !cardName || !cardExpiry || !cardCvc) return;
     } else {
@@ -519,10 +521,6 @@ export default function SettingsPage() {
                 <div className="rounded-2xl border border-neutral-200 bg-white p-6">
                   <h2 className="text-lg font-semibold text-neutral-900 mb-4">Active Sessions</h2>
                   <p className="text-sm text-neutral-500">You are currently logged in on this browser.</p>
-                </div>
-              </>
-                    ))}
-                  </div>
                 </div>
               </>
             )}
