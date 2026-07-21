@@ -12,7 +12,6 @@ const NAV_ITEMS = [
   { href: "/influencer/dashboard/collaborations", label: "Collaborations", icon: Handshake },
   { href: "/influencer/dashboard/analytics", label: "Analytics", icon: TrendingUp },
   { href: "/influencer/dashboard/earnings", label: "Earnings", icon: DollarSign },
-  { href: "/influencer/dashboard/marketplace", label: "Marketplace", icon: Eye },
   { href: "/support", label: "Support", icon: Headset },
 ];
 
