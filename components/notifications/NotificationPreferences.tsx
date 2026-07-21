@@ -96,7 +96,7 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
       });
       const data = await response.json();
       if (data.success) {
-        alert(`Found ${data.notifications_created} events you might love! Check your notifications.`);
+        alert(`Found ${data.notifications_created || 0} events you might love! Check your notifications.`);
       } else {
         alert("Failed to generate notifications: " + (data.error || "Unknown error"));
       }

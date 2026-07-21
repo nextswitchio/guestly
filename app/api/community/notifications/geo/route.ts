@@ -9,14 +9,12 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/v1/community/notifications/geo?page=${page}&page_size=${pageSize}`, {
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     });
     const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    return NextResponse.json({ success: res.ok, data: data, notifications: data.notifications || [], total: data.total || 0 }, { status: res.status });
   } catch {
-    return NextResponse.json({ success: false, error: "Backend unavailable", data: [] }, { status: 503 });
+    return NextResponse.json({ success: false, data: { notifications: [] }, notifications: [], total: 0 }, { status: 503 });
   }
 }
 
@@ -32,7 +30,7 @@ export async function POST(req: NextRequest) {
       },
     });
     const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    return NextResponse.json({ success: res.ok, ...data }, { status: res.status });
   } catch {
     return NextResponse.json({ success: false, error: "Backend unavailable" }, { status: 503 });
   }
