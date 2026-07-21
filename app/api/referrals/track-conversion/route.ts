@@ -1,26 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { trackReferralConversion } from '@/lib/marketing';
+import { BACKEND_URL } from '@/lib/api/client';
 
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-
-    // Validate required fields
-    if (!data.referralCode || !data.orderId || !data.referredUserId || data.amount === undefined) {
-      return NextResponse.json(
-        { error: 'Missing required fields: referralCode, orderId, referredUserId, amount' },
-        { status: 400 }
-      );
+    if (!data.referralCode && !data.code) {
+      return NextResponse.json({ error: 'Missing referral code' }, { status: 400 });
     }
 
-    trackReferralConversion(data.referralCode, data.orderId, data.referredUserId, data.amount);
+    const res = await fetch(`${BACKEND_URL}/api/v1/referrals/track-conversion`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: data.referralCode || data.code,
+        user_id: data.referredUserId || data.userId,
+        amount: data.amount,
+        order_id: data.orderId,
+      }),
+    });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error tracking referral conversion:', error);
-    return NextResponse.json(
-      { error: 'Failed to track referral conversion' },
-      { status: 500 }
-    );
+    const result = await res.json();
+    return NextResponse.json({ success: true, ...result }, { status: res.status });
+  } catch {
+    return NextResponse.json({ error: 'Failed to track conversion' }, { status: 500 });
   }
 }

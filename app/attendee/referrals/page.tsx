@@ -89,7 +89,7 @@ export default function ReferralsPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setGeneratedLink(data.referralLink?.url || data.url || "");
+        setGeneratedLink(data.data?.url || data.url || "");
         loadData();
       }
     } catch (err) {

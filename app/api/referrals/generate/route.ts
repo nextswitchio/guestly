@@ -1,34 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateReferralLink } from '@/lib/marketing';
+import { BACKEND_URL } from '@/lib/api/client';
 
 export async function POST(req: NextRequest) {
   try {
-    const userId = req.cookies.get('user_id')?.value;
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized. Please log in.' },
-        { status: 401 }
-      );
+    const token = req.cookies.get('access_token')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
     }
 
-    const data = await req.json();
+    const body = await req.json();
+    const res = await fetch(`${BACKEND_URL}/api/v1/referrals/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
 
-    if (!data.eventId) {
-      return NextResponse.json(
-        { error: 'Missing required field: eventId' },
-        { status: 400 }
-      );
+    const data = await res.json();
+    if (!res.ok) {
+      return NextResponse.json({ error: data.detail || 'Failed to generate referral link' }, { status: res.status });
     }
 
-    const referralLink = generateReferralLink(userId, data.eventId, undefined, undefined, data.eventTitle);
-
-    return NextResponse.json(referralLink, { status: 201 });
-  } catch (error) {
-    console.error('Error generating referral link:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate referral link' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true, data }, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: 'Failed to generate referral link' }, { status: 500 });
   }
 }

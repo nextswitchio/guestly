@@ -1,28 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getReferralStats } from '@/lib/marketing';
+import { BACKEND_URL } from '@/lib/api/client';
 
 export async function GET(req: NextRequest) {
   try {
-    const userId = req.cookies.get('user_id')?.value;
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized. Please log in.' },
-        { status: 401 }
-      );
+    const token = req.cookies.get('access_token')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const eventId = searchParams.get('eventId') || undefined;
+    const res = await fetch(`${BACKEND_URL}/api/v1/referrals/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-    const stats = getReferralStats(userId, eventId);
-
-    return NextResponse.json(stats);
-  } catch (error) {
-    console.error('Error getting referral stats:', error);
-    return NextResponse.json(
-      { error: 'Failed to get referral stats' },
-      { status: 500 }
-    );
+    const data = await res.json();
+    return NextResponse.json({ success: res.ok, ...data }, { status: res.status });
+  } catch {
+    return NextResponse.json({ error: 'Failed to get referral stats' }, { status: 500 });
   }
 }
