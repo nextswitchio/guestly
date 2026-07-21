@@ -2,6 +2,7 @@
 import React from "react";
 import { SidebarProvider, useSidebar, SidebarTrigger } from "@/components/ui/sidebar";
 import AttendeeSidebar from "@/components/layout/AttendeeSidebar";
+import { SkipLinks } from "@/components/ui/SkipLinks";
 import { useRouter } from "next/navigation";
 
 function AttendeeTopBar() {
@@ -43,6 +44,7 @@ function AttendeeTopBar() {
 export default function AttendeeLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
+      <SkipLinks />
       <AttendeeLayoutInner>{children}</AttendeeLayoutInner>
     </SidebarProvider>
   );
@@ -57,7 +59,7 @@ function AttendeeLayoutInner({ children }: { children: React.ReactNode }) {
       <AttendeeSidebar />
       <div className={`public-light flex flex-1 flex-col min-w-0 transition-[margin,width] duration-300 ${collapsed ? 'md:ml-16 md:w-[calc(100%-4rem)]' : 'md:ml-64 md:w-[calc(100%-16rem)]'}`}>
         <AttendeeTopBar />
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <main id="main-content" tabIndex={-1} className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {children}
         </main>
       </div>

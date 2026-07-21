@@ -63,7 +63,7 @@ export default function VendorDashboardPage() {
             .sort((a: any, b: any) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
           setUpcomingEvents(upcoming);
           const completed = accepted.filter((i: any) => i.event && new Date(i.event.date) < now);
-          setMetrics({ totalEarnings: completed.length * 50000, completedEvents: completed.length, averageRating: 4.7, responseTime: "< 2 hours", upcomingBookings: upcoming.length, pendingInvitations: pending.length });
+          setMetrics({ totalEarnings: completed.length * 50000, completedEvents: completed.length, averageRating: completed.length > 0 ? 4.7 : 0, responseTime: "< 2 hours", upcomingBookings: upcoming.length, pendingInvitations: pending.length });
         }
       }
     } catch (e) { console.error(e); }
@@ -112,9 +112,14 @@ export default function VendorDashboardPage() {
   return (
     <div className="space-y-6">
       {respondError && (
-        <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
-          {respondError}
+        <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+            {respondError}
+          </div>
+          <button onClick={() => setRespondError(null)} className="text-red-500 hover:text-red-700 shrink-0">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 

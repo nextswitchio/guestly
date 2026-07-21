@@ -8,6 +8,7 @@ import TopNav from "@/components/layout/TopNav";
 import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
+import { SkipLinks } from "@/components/ui/SkipLinks";
 import { Shield, X } from "lucide-react";
 
 export default function VendorLayout({ children }: { children: React.ReactNode }) {
@@ -33,7 +34,7 @@ function VendorLayoutShell({ children }: { children: React.ReactNode }) {
   const collapsed = sidebar ? !sidebar.open : false;
   const [subscription, setSubscription] = useState<{ plan: string; expiresAt: number } | null>(null);
   const [identityStatus, setIdentityStatus] = useState<string | null>(null);
-  const [showBanner, setShowBanner] = useState(true);
+  const [showBanner, setShowBanner] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -61,6 +62,7 @@ function VendorLayoutShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-neutral-50">
+      <SkipLinks />
       <VendorSidebar />
       <div className={`public-light flex flex-1 flex-col min-w-0 transition-[margin,width] duration-300 ${collapsed ? 'md:ml-16 md:w-[calc(100%-4rem)]' : 'md:ml-64 md:w-[calc(100%-16rem)]'}`}>
         <VendorTopBar />
@@ -107,7 +109,7 @@ function VendorLayoutShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         )}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <main id="main-content" tabIndex={-1} className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {children}
         </main>
       </div>

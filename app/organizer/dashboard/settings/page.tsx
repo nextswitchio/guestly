@@ -467,16 +467,21 @@ export default function SettingsPage() {
                     <div className="pb-6 border-b border-neutral-100">
                       <h3 className="font-semibold text-neutral-900 mb-4">Change Password</h3>
                       <div className="space-y-4">
-                        {["Current Password", "New Password", "Confirm New Password"].map((label) => (
-                          <div key={label}>
-                            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{label}</label>
-                            <input
-                              type="password"
-                              placeholder={`Enter ${label.toLowerCase()}`}
-                              className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all"
-                            />
-                          </div>
-                        ))}
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-700 mb-1.5">Current Password</label>
+                          <input type="password" autoComplete="current-password" placeholder="Enter current password"
+                            className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-700 mb-1.5">New Password</label>
+                          <input type="password" autoComplete="new-password" placeholder="Enter new password"
+                            className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-700 mb-1.5">Confirm New Password</label>
+                          <input type="password" autoComplete="new-password" placeholder="Confirm new password"
+                            className="w-full h-11 rounded-xl border border-neutral-200 bg-neutral-50 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-lime focus:bg-white focus:outline-none focus:ring-2 focus:ring-lime/20 transition-all" />
+                        </div>
                       </div>
                       <button className="mt-4 rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors">
                         Update Password
