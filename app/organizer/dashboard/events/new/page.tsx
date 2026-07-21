@@ -191,7 +191,9 @@ export default function CreateEventPage() {
   }
 
   function save(patch: Partial<Draft>) {
-    setDraft((prev) => ({ ...prev, ...patch }));
+    React.startTransition(() => {
+      setDraft((prev) => ({ ...prev, ...patch }));
+    });
     setErrors((prev) => {
       const next = { ...prev };
       Object.keys(patch).forEach((key) => delete next[key]);
