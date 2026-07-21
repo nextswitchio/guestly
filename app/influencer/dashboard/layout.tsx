@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
-import { Shield, X, Eye, User, BarChart3, LogOut, Menu, Headset, Handshake, TrendingUp, DollarSign } from "lucide-react";
+import { Shield, X, Eye, User, BarChart3, LogOut, Menu, Headset, Handshake, TrendingUp, DollarSign, Store } from "lucide-react";
 import { clearAllCookies } from "@/lib/clearCookies";
 
 const NAV_ITEMS = [
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/influencer/dashboard/collaborations", label: "Collaborations", icon: Handshake },
   { href: "/influencer/dashboard/analytics", label: "Analytics", icon: TrendingUp },
   { href: "/influencer/dashboard/earnings", label: "Earnings", icon: DollarSign },
+  { href: "/influencer/dashboard/marketplace", label: "Marketplace", icon: Store },
   { href: "/support", label: "Support", icon: Headset },
 ];
 

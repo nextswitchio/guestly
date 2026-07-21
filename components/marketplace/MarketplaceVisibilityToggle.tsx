@@ -33,6 +33,10 @@ export default function MarketplaceVisibilityToggle({ userType }: Props) {
   const [toggling, setToggling] = useState(false);
   const [activating, setActivating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
+  const [savingCategory, setSavingCategory] = useState(false);
+  const [categorySuccess, setCategorySuccess] = useState(false);
 
   const fetchStatus = async () => {
     try {
@@ -53,7 +57,29 @@ export default function MarketplaceVisibilityToggle({ userType }: Props) {
     }
   };
 
+  const fetchCategory = async () => {
+    try {
+      const [profileRes, catsRes] = await Promise.all([
+        fetch("/api/marketplace/profile"),
+        fetch("/api/marketplace/categories"),
+      ]);
+      if (profileRes.ok) {
+        const data = await profileRes.json();
+        if (data.category) setCategory(data.category);
+      }
+      if (catsRes.ok) {
+        const data = await catsRes.json();
+        if (Array.isArray(data)) {
+          setCategories(data.map((c: { category: string }) => c.category));
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load category:", e);
+    }
+  };
+
   useEffect(() => { fetchStatus(); }, [userType]);
+  useEffect(() => { fetchCategory(); }, [userType]);
 
   const handleToggle = async () => {
     if (!status) return;
@@ -93,6 +119,30 @@ export default function MarketplaceVisibilityToggle({ userType }: Props) {
       setError("Failed to activate listing");
     } finally {
       setActivating(false);
+    }
+  };
+
+  const handleSaveCategory = async () => {
+    setSavingCategory(true);
+    setError(null);
+    setCategorySuccess(false);
+    try {
+      const res = await fetch("/api/marketplace/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.detail || "Failed to update category");
+      } else {
+        setCategorySuccess(true);
+        setTimeout(() => setCategorySuccess(false), 3000);
+      }
+    } catch {
+      setError("Failed to update category");
+    } finally {
+      setSavingCategory(false);
     }
   };
 
@@ -191,12 +241,61 @@ export default function MarketplaceVisibilityToggle({ userType }: Props) {
         )}
       </div>
 
+      {/* Category Selector */}
+      {status?.has_listing && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-6">
+          <h3 className="text-lg font-semibold text-dark mb-1">Listing Category</h3>
+          <p className="text-sm text-gray-500 mb-4">
+            Choose the category that best describes your listing
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1 max-w-xs">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-dark appearance-none focus:outline-none focus:ring-2 focus:ring-lime/50 focus:border-lime"
+              >
+                {categories.length === 0 ? (
+                  <option value={category}>{category}</option>
+                ) : (
+                  <>
+                    {!categories.includes(category) && category && (
+                      <option value={category}>{category}</option>
+                    )}
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </>
+                )}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <button
+              onClick={handleSaveCategory}
+              disabled={savingCategory}
+              className="inline-flex items-center gap-2 rounded-xl bg-lime px-5 py-2.5 text-sm font-bold text-dark hover:bg-lime-hover transition-colors disabled:opacity-50"
+            >
+              {savingCategory ? "Saving..." : "Update Category"}
+            </button>
+            {categorySuccess && (
+              <span className="text-sm font-medium text-lime animate-pulse">
+                Saved!
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {pricing && (
         <div className="rounded-2xl border border-gray-200 bg-white p-6">
           <h3 className="text-lg font-semibold text-dark mb-4">Listing Plan</h3>
           <div className="flex items-baseline gap-2 mb-2">
             <span className="text-3xl font-bold text-dark">
-              {pricing.currency === "NGN" ? "₦" : pricing.currency}
+              {pricing.currency === "NGN" ? "\u20A6" : pricing.currency}
               {pricing.price.toLocaleString()}
             </span>
             <span className="text-sm text-gray-500">/ {pricing.duration_days} days</span>
