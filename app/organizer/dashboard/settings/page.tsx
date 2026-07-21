@@ -518,23 +518,7 @@ export default function SettingsPage() {
                   <h2 className="text-lg font-semibold text-neutral-900 mb-4">Active Sessions</h2>
                   <p className="text-sm text-neutral-500">You are currently logged in on this browser.</p>
                 </div>
-                        <div className="flex items-center gap-3">
-                          <Icon name="monitor" size={18} className="text-neutral-500" />
-                          <div>
-                            <p className="font-medium text-neutral-900">{session.device}</p>
-                            <p className="text-sm text-neutral-500">{session.location}</p>
-                          </div>
-                        </div>
-                        {session.current ? (
-                          <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-lg">
-                            Current Session
-                          </span>
-                        ) : (
-                          <button className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors">
-                            Revoke
-                          </button>
-                        )}
-                      </div>
+              </>
                     ))}
                   </div>
                 </div>
