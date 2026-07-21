@@ -170,9 +170,10 @@ export default function AffiliateLayout({ children }: { children: React.ReactNod
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const pathname = usePathname();
   React.useEffect(() => {
     setMobileOpen(false);
-  }, [usePathname()]);
+  }, [pathname]);
 
   return (
     <div className="public-light min-h-screen bg-neutral-50">

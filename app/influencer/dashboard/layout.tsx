@@ -21,24 +21,20 @@ const NAV_ITEMS = [
 function InfluencerSidebar() {
   const pathname = usePathname();
   const sidebar = useSidebar();
-  const open = sidebar?.open ?? false;
-  const toggleSidebar = sidebar?.toggleSidebar ?? (() => {});
+  const mobileOpen = sidebar?.openMobile ?? false;
   const router = useRouter();
+
+  useEffect(() => {
+    sidebar?.setOpenMobile(false);
+  }, [pathname]);
 
   return (
     <>
-      <button
-        onClick={toggleSidebar}
-        className="fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-md border border-gray-100 md:hidden"
-      >
-        <Menu className="h-5 w-5 text-dark" />
-      </button>
-
-      {open && <div className="fixed inset-0 bg-black/30 z-40 md:hidden" onClick={toggleSidebar} />}
+      {mobileOpen && <div className="fixed inset-0 bg-black/30 z-40 md:hidden" onClick={() => sidebar?.setOpenMobile(false)} />}
 
       <aside
         className={`fixed top-0 left-0 z-40 h-screen w-64 bg-white border-r border-gray-100 shadow-sm transition-transform duration-300 ${
-          open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
         <div className="flex h-16 items-center gap-2 px-6 border-b border-gray-100">
