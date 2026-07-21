@@ -170,7 +170,7 @@ export default function VendorDashboardPage() {
             <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-dark">Pending Invitations ({pendingInvitations.length})</h2>
-                <Link href="/vendor/invitations"><Button variant="outline" size="sm">View All</Button></Link>
+                <Button href="/vendor/invitations" variant="outline" size="sm">View All</Button>
               </div>
               <div className="space-y-3">
                 {pendingInvitations.slice(0, 3).map((inv: any) => (
@@ -287,9 +287,9 @@ export default function VendorDashboardPage() {
           <Card className="p-5">
             <h3 className="font-semibold text-dark mb-4">Quick Actions</h3>
             <div className="space-y-2.5">
-              <Link href="/vendor/service-profiles"><Button variant="outline" className="w-full justify-start"><ArrowUpRight className="w-4 h-4 mr-2 text-dark" />Service Profiles</Button></Link>
-              <Link href="/vendor/reviews"><Button variant="outline" className="w-full justify-start"><Star className="w-4 h-4 mr-2 text-dark" />Reviews</Button></Link>
-              <Link href="/vendor/payments"><Button variant="outline" className="w-full justify-start"><Banknote className="w-4 h-4 mr-2 text-dark" />Manage Payments</Button></Link>
+              <Button href="/vendor/service-profiles" variant="outline" className="w-full justify-start"><ArrowUpRight className="w-4 h-4 mr-2 text-dark" />Service Profiles</Button>
+              <Button href="/vendor/reviews" variant="outline" className="w-full justify-start"><Star className="w-4 h-4 mr-2 text-dark" />Reviews</Button>
+              <Button href="/vendor/payments" variant="outline" className="w-full justify-start"><Banknote className="w-4 h-4 mr-2 text-dark" />Manage Payments</Button>
               <Link href="/vendor/profile"><Button variant="outline" className="w-full justify-start"><Users className="w-4 h-4 mr-2 text-dark" />Edit Profile</Button></Link>
               <Link href="/vendor/subscription"><Button variant="outline" className="w-full justify-start"><TrendingUp className="w-4 h-4 mr-2 text-dark" />Subscription</Button></Link>
             </div>
