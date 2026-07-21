@@ -8,7 +8,7 @@ import TopNav from "@/components/layout/TopNav";
 import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
-import { SkipLinks } from "@/components/ui/SkipLinks";
+import SkipLinks from "@/components/ui/SkipLinks";
 import { Shield, X } from "lucide-react";
 
 export default function VendorLayout({ children }: { children: React.ReactNode }) {

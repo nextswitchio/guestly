@@ -5,7 +5,7 @@ import AdminTopBar from "@/components/layout/AdminTopBar";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { CurrencyProvider } from "@/lib/currency";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { SkipLinks } from "@/components/ui/SkipLinks";
+import SkipLinks from "@/components/ui/SkipLinks";
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   return (

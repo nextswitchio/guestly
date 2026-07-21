@@ -1,9 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Banknote, Calendar, TrendingUp, CheckCircle, Clock, Star, ArrowUpRight, Users } from "lucide-react";
+import { Banknote, Calendar, TrendingUp, CheckCircle, Clock, Star, ArrowUpRight, Users, X } from "lucide-react";
 import VendorAnalytics from "@/components/vendors/VendorAnalytics";
 
 function invitationTimestamp(invitation: any): number {
@@ -129,9 +128,7 @@ export default function VendorDashboardPage() {
           <p className="text-gray-500 mt-1">Manage your bookings, track earnings, and view performance</p>
         </div>
         {!isPremium && (
-          <Link href="/vendor/subscription">
-            <Button><TrendingUp className="w-4 h-4 mr-2" />Upgrade to Premium</Button>
-          </Link>
+          <Button href="/vendor/subscription"><TrendingUp className="w-4 h-4 mr-2" />Upgrade to Premium</Button>
         )}
       </div>
 
@@ -290,8 +287,8 @@ export default function VendorDashboardPage() {
               <Button href="/vendor/service-profiles" variant="outline" className="w-full justify-start"><ArrowUpRight className="w-4 h-4 mr-2 text-dark" />Service Profiles</Button>
               <Button href="/vendor/reviews" variant="outline" className="w-full justify-start"><Star className="w-4 h-4 mr-2 text-dark" />Reviews</Button>
               <Button href="/vendor/payments" variant="outline" className="w-full justify-start"><Banknote className="w-4 h-4 mr-2 text-dark" />Manage Payments</Button>
-              <Link href="/vendor/profile"><Button variant="outline" className="w-full justify-start"><Users className="w-4 h-4 mr-2 text-dark" />Edit Profile</Button></Link>
-              <Link href="/vendor/subscription"><Button variant="outline" className="w-full justify-start"><TrendingUp className="w-4 h-4 mr-2 text-dark" />Subscription</Button></Link>
+              <Button href="/vendor/profile" variant="outline" className="w-full justify-start"><Users className="w-4 h-4 mr-2 text-dark" />Edit Profile</Button>
+              <Button href="/vendor/subscription" variant="outline" className="w-full justify-start"><TrendingUp className="w-4 h-4 mr-2 text-dark" />Subscription</Button>
             </div>
           </Card>
         </div>

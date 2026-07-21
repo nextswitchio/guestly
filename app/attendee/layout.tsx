@@ -2,7 +2,7 @@
 import React from "react";
 import { SidebarProvider, useSidebar, SidebarTrigger } from "@/components/ui/sidebar";
 import AttendeeSidebar from "@/components/layout/AttendeeSidebar";
-import { SkipLinks } from "@/components/ui/SkipLinks";
+import SkipLinks from "@/components/ui/SkipLinks";
 import { useRouter } from "next/navigation";
 
 function AttendeeTopBar() {

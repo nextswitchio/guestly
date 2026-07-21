@@ -6,7 +6,7 @@ import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { Shield, X, Eye, User, BarChart3, LogOut, Menu, Headset, Handshake, TrendingUp, DollarSign, Store, PanelLeft } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { clearAllCookies } from "@/lib/clearCookies";
-import { SkipLinks } from "@/components/ui/SkipLinks";
+import SkipLinks from "@/components/ui/SkipLinks";
 
 const NAV_ITEMS = [
   { href: "/influencer/dashboard", label: "Dashboard", icon: BarChart3 },
