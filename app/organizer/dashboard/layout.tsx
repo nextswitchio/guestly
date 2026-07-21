@@ -26,7 +26,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   const offsets = collapsed ? "md:ml-16 md:w-[calc(100%-4rem)]" : "md:ml-64 md:w-[calc(100%-16rem)]";
   const [subActive, setSubActive] = React.useState<boolean | null>(null);
   const [identityStatus, setIdentityStatus] = React.useState<string | null>(null);
-  const [showBanner, setShowBanner] = React.useState(true);
+  const [showBanner, setShowBanner] = React.useState(false);
   const pathname = usePathname();
 
   React.useEffect(() => {
@@ -92,7 +92,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       )}
-      <main id="main-content" className={`min-w-0 px-4 py-8 sm:px-6 lg:px-8 ${offsets} transition-all duration-300 text-neutral-900`} tabIndex={-1}>
+      <main id="main-content" className={`min-w-0 px-4 py-6 sm:py-8 sm:px-6 lg:px-8 ${offsets} transition-all duration-300 text-neutral-900`} tabIndex={-1}>
         {children}
       </main>
     </div>

@@ -119,8 +119,8 @@ export default function AdminTopBar() {
       {/* Right actions */}
       <div className="flex items-center gap-2">
         {/* Notifications */}
-        <button
-          onClick={() => setNotifOpen((v) => !v)}
+        <Link
+          href="/admin/notifications"
           className="relative flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
           aria-label="Notifications"
         >
@@ -132,7 +132,7 @@ export default function AdminTopBar() {
               {openTickets > 99 ? "99+" : openTickets}
             </span>
           )}
-        </button>
+        </Link>
 
         {/* Profile */}
         <div ref={profileRef} className="relative">
@@ -165,7 +165,7 @@ export default function AdminTopBar() {
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
                 Sign Out
-              </button>
+        </Link>
             </div>
           )}
         </div>

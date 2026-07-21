@@ -347,7 +347,7 @@ export default function AffiliateLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Main content */}
-      <main id="main-content" className={`min-w-0 px-4 py-8 sm:px-6 lg:px-8 ${offsets} transition-all duration-200`} tabIndex={-1}>
+      <main id="main-content" className={`min-w-0 px-4 py-6 sm:py-8 sm:px-6 lg:px-8 ${offsets} transition-all duration-200`} tabIndex={-1}>
         {children}
       </main>
     </div>

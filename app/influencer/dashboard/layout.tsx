@@ -3,9 +3,10 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
-import { Shield, X, Eye, User, BarChart3, LogOut, Menu, Headset, Handshake, TrendingUp, DollarSign, Store } from "lucide-react";
+import { Shield, X, Eye, User, BarChart3, LogOut, Menu, Headset, Handshake, TrendingUp, DollarSign, Store, PanelLeft } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { clearAllCookies } from "@/lib/clearCookies";
+import { SkipLinks } from "@/components/ui/SkipLinks";
 
 const NAV_ITEMS = [
   { href: "/influencer/dashboard", label: "Dashboard", icon: BarChart3 },
@@ -98,7 +99,7 @@ function InfluencerDashboardShell({ children }: { children: React.ReactNode }) {
   const sidebar = useSidebar();
   const collapsed = sidebar ? !sidebar.open : false;
   const [identityStatus, setIdentityStatus] = useState<string | null>(null);
-  const [showBanner, setShowBanner] = useState(true);
+  const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
     fetch("/api/identity")
@@ -114,10 +115,16 @@ function InfluencerDashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-neutral-50">
+      <SkipLinks />
       <InfluencerSidebar />
       <div className={`flex flex-1 flex-col min-w-0 transition-[margin,width] duration-300 ${collapsed ? "md:ml-16 md:w-[calc(100%-4rem)]" : "md:ml-64 md:w-[calc(100%-16rem)]"}`}>
         <header className="flex h-16 items-center justify-between gap-4 border-b border-gray-100 bg-white px-6">
-          <h1 className="text-lg font-semibold text-dark">Influencer Dashboard</h1>
+          <div className="flex items-center gap-3">
+            <button onClick={() => sidebar?.setOpenMobile(true)} className="flex h-8 w-8 items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-100 md:hidden">
+              <Menu className="h-5 w-5" />
+            </button>
+            <h1 className="text-lg font-semibold text-dark">Influencer Dashboard</h1>
+          </div>
           <NotificationBell />
         </header>
 
@@ -138,7 +145,7 @@ function InfluencerDashboardShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <main id="main-content" tabIndex={-1} className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {children}
         </main>
       </div>

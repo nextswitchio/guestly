@@ -5,12 +5,14 @@ import AdminTopBar from "@/components/layout/AdminTopBar";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { CurrencyProvider } from "@/lib/currency";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SkipLinks } from "@/components/ui/SkipLinks";
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute allowRoles={["admin"]}>
       <CurrencyProvider>
         <SidebarProvider>
+          <SkipLinks />
           <AdminShell>{children}</AdminShell>
         </SidebarProvider>
       </CurrencyProvider>
@@ -30,7 +32,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       <AdminSidebar />
       <div className={`${offsets} transition-all duration-200 ease-linear`}>
         <AdminTopBar />
-        <main className="min-w-0 px-4 py-8 sm:px-6 lg:px-8">
+        <main id="main-content" tabIndex={-1} className="min-w-0 px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
           {children}
         </main>
       </div>
